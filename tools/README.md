@@ -10,67 +10,93 @@ Command-line interfaces for production use:
 - `orchestrator.py` - Server Orchestration CLI
 - `hardware_discovery.py` - Hardware Discovery CLI  
 - `db_manager.py` - Database Management CLI
+- `realtime_monitor.py` - Real-time Workflow Monitor
+- `workflow_monitor.py` - Workflow Debug Monitor
 
 ### `testing/` - Test Scripts
 Various test scripts for project validation:
 - `test_*.py` - Unit and integration tests
 - `run_tests.py` - Test runner
+- `run_tests.bat` - Windows test runner
+- `test_bios_system.bat` - Windows BIOS test script
 
 ### `debug/` - Debug Scripts  
 Debugging and troubleshooting utilities:
 - `debug_*.py` - Debug scripts for various components
 
-### Root Level - Maintenance Tools
-Development and maintenance utilities
+### `config/` - Configuration Tools
+Tools for building and managing configurations:
+- `build_device_configs.py` - Build device mappings from data sources
+- `merge_configs.py` - Merge configuration files
 
-## Tools
+### `migration/` - Migration & Setup Tools
+Tools for project migration and setup:
+- `migrate_config.py` - Configuration migration utility
+- `migration_guide.py` - Migration guidance and documentation
+- `setup_testing.py` - Modern testing infrastructure setup
 
-### `syntax_check.py`
-Validates Python syntax and basic imports across the project.
+### `verification/` - Validation & Verification Tools
+Tools for validating project state and packages:
+- `syntax_check.py` - Python syntax validation
+- `validate_package.py` - Package structure validation
+- `verify_sumtool.py` - Sumtool package verification
+- `verify_db_consolidation.py` - Database consolidation verification
+- `fix_null_database_values.py` - Database repair utility
 
-Usage:
-```bash
-python tools/syntax_check.py
-```
+## External Dependencies
+- `sum_2.14.0_Linux_x86_64_20240215.tar.gz` - HP SUM (Smart Update Manager) package
 
-### `validate_package.py`
-Validates the package structure and dependencies.
-
-Usage:
-```bash
-python tools/validate_package.py
-```
-
-### `migration_guide.py`
-Provides guidance for migrating from old flat file structure to the new package structure.
-
-Usage:
-```bash
-python tools/migration_guide.py
-```
-
-### `setup_testing.py`
-Sets up modern unit testing infrastructure with pytest and coverage reporting.
-
-Usage:
-```bash
-python tools/setup_testing.py
-```
-
-## Usage
+## Usage Examples
 
 Run these tools from the project root directory:
 
+### CLI Tools
 ```bash
-# Check syntax
-python tools/syntax_check.py
+# Monitor workflows in real-time
+python tools/cli/realtime_monitor.py
+
+# Debug specific workflow
+python tools/cli/workflow_monitor.py <workflow_id>
+
+# Manage BIOS configurations
+python tools/cli/bios_manager.py --help
+```
+
+### Configuration Tools
+```bash
+# Build device configurations
+python tools/config/build_device_configs.py
+
+# Merge configuration files
+python tools/config/merge_configs.py
+```
+
+### Verification Tools
+```bash
+# Check syntax across project
+python tools/verification/syntax_check.py
 
 # Validate package structure
-python tools/validate_package.py
+python tools/verification/validate_package.py
 
+# Verify sumtool package
+python tools/verification/verify_sumtool.py
+```
+
+### Testing Tools
+```bash
+# Run all tests
+python tools/testing/run_tests.py
+
+# Run specific test
+python tools/testing/test_bios_config.py
+```
+
+### Migration Tools
+```bash
 # Get migration guidance
-python tools/migration_guide.py
+python tools/migration/migration_guide.py
 
 # Setup modern testing infrastructure
-python tools/setup_testing.py
+python tools/migration/setup_testing.py
 ```
