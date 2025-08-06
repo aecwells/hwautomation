@@ -150,6 +150,7 @@ class ServerProvisioningWorkflow:
         
         try:
             # Create database entry for server if it doesn't exist
+            context.report_sub_task("Creating database entry")
             if context.db_helper:
                 if not context.db_helper.checkifserveridexists(context.server_id)[0]:
                     context.db_helper.createrowforserver(context.server_id)
@@ -168,6 +169,7 @@ class ServerProvisioningWorkflow:
                 self._record_workflow_start(context)
             
             # Check if server exists in MaaS
+            context.report_sub_task("Checking server status in MaaS")
             server_info = context.maas_client.get_machine(context.server_id)
             if not server_info:
                 raise CommissioningError(f"Server {context.server_id} not found in MaaS")
@@ -178,6 +180,7 @@ class ServerProvisioningWorkflow:
             
             # Auto-detect conditions that require force recommissioning
             if current_status in ['Ready', 'Commissioned']:
+                context.report_sub_task("Verifying existing commissioning")
                 # Check if machine has proper IP address for SSH
                 machine_ip = context.maas_client.get_machine_ip(context.server_id)
                 if not machine_ip:
@@ -186,11 +189,13 @@ class ServerProvisioningWorkflow:
                 else:
                     # Test if the IP is actually reachable for SSH
                     logger.info(f"Server {context.server_id} has IP {machine_ip} - testing SSH connectivity")
+                    context.report_sub_task(f"Testing SSH connectivity to {machine_ip}")
                     if not self._test_ssh_connectivity(machine_ip, context):
                         logger.info(f"Server {context.server_id} IP {machine_ip} is not SSH accessible - forcing recommission")
                         should_force_commission = True
                     else:
                         logger.info(f"Server {context.server_id} is already commissioned with working SSH (status: {current_status}, IP: {machine_ip})")
+                        context.report_sub_task("Server already commissioned successfully")
                         # Update database to reflect successful commissioning
                         if context.db_helper:
                             context.db_helper.updateserverinfo(context.server_id, 'status_name', 'Commissioned')
@@ -206,6 +211,7 @@ class ServerProvisioningWorkflow:
                 should_force_commission = True
                 
             # Extract and store basic server information
+            context.report_sub_task("Storing server metadata")
             if context.db_helper and server_info:
                 # Get server model from hardware info
                 hardware_info = server_info.get('hardware_info', {})
@@ -214,20 +220,25 @@ class ServerProvisioningWorkflow:
             
             # Start commissioning process
             if should_force_commission:
+                context.report_sub_task(f"Force commissioning server (status: {current_status})")
                 logger.info(f"Force commissioning server {context.server_id} (current status: {current_status})")
                 result = context.maas_client.force_commission_machine(context.server_id)
             else:
+                context.report_sub_task("Starting normal commissioning")
                 logger.info(f"Normal commissioning server {context.server_id}")
                 result = context.maas_client.commission_machine(context.server_id)
             
             # Wait for commissioning to complete
+            context.report_sub_task("Waiting for commissioning to complete")
             timeout = time.time() + 1800  # 30 minutes
             while time.time() < timeout:
                 status = context.maas_client.get_machine_status(context.server_id)
+                context.report_sub_task(f"Commissioning status: {status}")
                 
                 # Accept both Commissioned and Ready as successful commissioning
                 if status in ['Commissioned', 'Ready']:
                     logger.info(f"Server {context.server_id} commissioned successfully (status: {status})")
+                    context.report_sub_task("Commissioning completed successfully")
                     
                     # Update database with successful commissioning
                     if context.db_helper:
@@ -397,9 +408,11 @@ class ServerProvisioningWorkflow:
         
         try:
             # Use the discovery manager from the workflow manager
+            context.report_sub_task("Connecting to server for discovery")
             ssh_config = self.manager.config.get('ssh', {})
             username = ssh_config.get('username', 'ubuntu')
             
+            context.report_sub_task("Running hardware discovery scan")
             hardware_result = self.manager.discovery_manager.discover_hardware(
                 host=context.server_ip,
                 username=username
@@ -410,6 +423,7 @@ class ServerProvisioningWorkflow:
                 logger.warning(f"Hardware discovery errors: {', '.join(hardware_result.discovery_errors)}")
             
             # Store hardware information in context
+            context.report_sub_task("Processing discovery results")
             context.hardware_discovery_result = {
                 'system_info': hardware_result.system_info.__dict__,
                 'ipmi_info': hardware_result.ipmi_info.__dict__ if hardware_result.ipmi_info else None,
@@ -419,6 +433,7 @@ class ServerProvisioningWorkflow:
             }
             
             # Update database with discovered information
+            context.report_sub_task("Updating database with hardware info")
             if context.db_helper:
                 # Update system information
                 if hardware_result.system_info.manufacturer:
@@ -431,6 +446,7 @@ class ServerProvisioningWorkflow:
                     context.db_helper.updateserverinfo(context.server_id, 'ipmi_address', ipmi_ip)
                     
                     # Test IPMI connectivity
+                    context.report_sub_task(f"Testing IPMI connectivity to {ipmi_ip}")
                     ipmi_works = self._test_ipmi_connectivity(ipmi_ip, context)
                     context.db_helper.updateserverinfo(context.server_id, 'ipmi_address_works', 'TRUE' if ipmi_works else 'FALSE')
                     
@@ -446,6 +462,7 @@ class ServerProvisioningWorkflow:
                     context.db_helper.updateserverinfo(context.server_id, 'ipmi_address_works', 'FALSE')
             
             # Log important findings
+            context.report_sub_task("Analyzing discovered hardware")
             if hardware_result.system_info.manufacturer:
                 logger.info(f"System: {hardware_result.system_info.manufacturer} {hardware_result.system_info.product_name}")
             
@@ -454,6 +471,7 @@ class ServerProvisioningWorkflow:
             if vendor_info:
                 logger.info(f"Vendor-specific info discovered: {list(vendor_info.keys())}")
             
+            context.report_sub_task("Hardware discovery completed")
             return {
                 'system_info': hardware_result.system_info.__dict__,
                 'ipmi_info': hardware_result.ipmi_info.__dict__ if hardware_result.ipmi_info else None,
@@ -464,6 +482,7 @@ class ServerProvisioningWorkflow:
             
         except Exception as e:
             logger.error(f"Hardware discovery failed: {e}")
+            context.report_sub_task(f"Discovery failed: {str(e)}")
             # Update database with failure status
             if context.db_helper:
                 context.db_helper.updateserverinfo(context.server_id, 'ipmi_address_works', 'FALSE')
@@ -517,6 +536,7 @@ class ServerProvisioningWorkflow:
         
         try:
             # Establish SSH connection
+            context.report_sub_task("Connecting to server via SSH")
             ssh_client = self.manager.ssh_manager.connect(
                 host=context.server_ip,
                 username='ubuntu',  # Default for commissioned servers
@@ -524,21 +544,26 @@ class ServerProvisioningWorkflow:
             )
             
             # Detect server vendor first
+            context.report_sub_task("Detecting server vendor")
             vendor = self._detect_server_vendor(ssh_client)
             logger.info(f"Detected server vendor: {vendor}")
             
             if vendor.lower() == 'supermicro':
+                context.report_sub_task("Pulling Supermicro BIOS configuration")
                 return self._pull_bios_config_supermicro(ssh_client, context)
             elif vendor.lower() in ['dell', 'hp', 'hpe', 'lenovo']:
                 logger.warning(f"BIOS configuration for {vendor} servers not yet implemented")
+                context.report_sub_task(f"Creating dummy config for {vendor} server")
                 # For now, create a dummy config file to continue the workflow
                 return self._create_dummy_bios_config(context, vendor)
             else:
                 logger.warning(f"Unknown server vendor '{vendor}' - attempting Supermicro method")
+                context.report_sub_task(f"Attempting Supermicro method for unknown vendor: {vendor}")
                 return self._pull_bios_config_supermicro(ssh_client, context)
                 
         except Exception as e:
             logger.error(f"Failed to pull BIOS config: {e}")
+            context.report_sub_task(f"BIOS config pull failed: {str(e)}")
             raise BiosConfigurationError(f"BIOS config pull failed: {e}")
     
     def _detect_server_vendor(self, ssh_client) -> str:
@@ -583,20 +608,24 @@ class ServerProvisioningWorkflow:
     def _pull_bios_config_supermicro(self, ssh_client, context: WorkflowContext) -> Dict[str, Any]:
         """Pull BIOS configuration from Supermicro server using sumtool"""
         # Check if sumtool is available and install if needed
+        context.report_sub_task("Checking for sumtool availability")
         logger.info("Checking for sumtool availability...")
         stdout, stderr, exit_code = ssh_client.exec_command("which sumtool")
         
         if exit_code != 0:
+            context.report_sub_task("Installing sumtool")
             logger.info("sumtool not found, attempting to install...")
             install_success = self._install_sumtool_on_server(ssh_client)
             if not install_success:
                 logger.error("Failed to install sumtool - falling back to dummy configuration")
+                context.report_sub_task("sumtool installation failed, using dummy config")
                 return self._create_dummy_bios_config(context, 'supermicro')
             logger.info("sumtool installed successfully")
         else:
             logger.info("sumtool is available")
         
         # Create temporary directory for BIOS config
+        context.report_sub_task("Creating temporary BIOS config directory")
         temp_dir = f"/tmp/bios_config_{context.server_id}"
         ssh_client.exec_command(f"mkdir -p {temp_dir}")
         
@@ -605,12 +634,14 @@ class ServerProvisioningWorkflow:
         if exit_code != 0:
             logger.error(f"Failed to create BIOS config directory: {stderr}")
             logger.info("Falling back to dummy configuration")
+            context.report_sub_task("Directory creation failed, using dummy config")
             ssh_client.close()
             return self._create_dummy_bios_config(context, 'supermicro')
         
         logger.info(f"Created BIOS config directory: {temp_dir}")
         
         # Pull BIOS configuration using sumtool
+        context.report_sub_task("Extracting BIOS configuration using sumtool")
         bios_config_file = f"{temp_dir}/current_bios.xml"
         pull_command = f"sudo sumtool -c GetCurrentBiosCfg --file {bios_config_file}"
         
@@ -623,6 +654,7 @@ class ServerProvisioningWorkflow:
             logger.warning(f"sumtool failed to pull BIOS config - exit_code: {exit_code}, stderr: '{stderr}', stdout: '{stdout}'")
             
             # Test if sumtool is working at all
+            context.report_sub_task("Testing sumtool functionality")
             logger.info("Testing sumtool availability...")
             test_stdout, test_stderr, test_exit = ssh_client.exec_command("sumtool --version 2>&1")
             logger.info(f"sumtool version test - exit_code: {test_exit}, output: '{test_stdout}', error: '{test_stderr}'")
@@ -633,32 +665,38 @@ class ServerProvisioningWorkflow:
             logger.info(f"sumtool help test - exit_code: {help_exit}, output: '{help_stdout}', error: '{help_stderr}'")
             
             logger.info("Falling back to dummy configuration")
+            context.report_sub_task("sumtool failed, using dummy config")
             ssh_client.close()
             return self._create_dummy_bios_config(context, 'supermicro')
         
         # Check if the BIOS config file was actually created (sometimes sumtool succeeds but reports failure)
+        context.report_sub_task("Verifying BIOS config file creation")
         check_stdout, check_stderr, check_exit = ssh_client.exec_command(f"ls -la {bios_config_file}")
         logger.info(f"BIOS config file check - exit_code: {check_exit}, output: '{check_stdout}'")
         
         if check_exit != 0:
             logger.warning("BIOS config file was not created, even though sumtool appeared to succeed")
             logger.info("Falling back to dummy configuration")
+            context.report_sub_task("Config file not found, using dummy config")
             ssh_client.close()
             return self._create_dummy_bios_config(context, 'supermicro')
         
         # Download the config file
+        context.report_sub_task("Downloading BIOS configuration file")
         local_config_path = f"/tmp/bios_config_{context.server_id}.xml"
         try:
             ssh_client.download_file(bios_config_file, local_config_path)
         except Exception as e:
             logger.warning(f"Failed to download BIOS config file: {e}")
             logger.info("Falling back to dummy configuration")
+            context.report_sub_task(f"Download failed: {str(e)}, using dummy config")
             ssh_client.close()
             return self._create_dummy_bios_config(context, 'supermicro')
         
         context.bios_config_path = local_config_path
         
         # Parse the configuration
+        context.report_sub_task("Parsing BIOS configuration file")
         try:
             bios_config = self.manager.bios_manager.parse_bios_config(local_config_path)
             context.original_bios_config = bios_config

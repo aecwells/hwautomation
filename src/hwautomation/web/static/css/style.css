@@ -1804,3 +1804,56 @@ hr {
     margin-top: 1rem;
     margin-bottom: 0;
 }
+
+/* Sub-task progress styling */
+.sub-task-display {
+    font-size: 0.85em;
+    color: var(--bs-secondary);
+    font-style: italic;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+.sub-task-display::before {
+    content: "└─ ";
+    color: var(--bs-info);
+    font-weight: bold;
+}
+
+.workflow-step-with-subtask {
+    margin-bottom: 4px;
+}
+
+.workflow-step-with-subtask .step-name {
+    font-weight: 500;
+}
+
+/* Enhanced progress display for workflows */
+.workflow-progress-enhanced {
+    position: relative;
+}
+
+.workflow-progress-enhanced .progress {
+    margin-bottom: 2px;
+}
+
+.workflow-progress-enhanced .step-info {
+    font-size: 0.9em;
+    line-height: 1.2;
+}
+
+.workflow-progress-enhanced .sub-task {
+    font-size: 0.8em;
+    color: var(--bs-secondary);
+    margin-top: 1px;
+}
+
+/* Pulse animation for active sub-tasks */
+.sub-task-active {
+    animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}

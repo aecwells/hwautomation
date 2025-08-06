@@ -341,7 +341,13 @@ function updateProgressModal(data) {
     const progress = (data.step / data.total_steps) * 100;
     document.getElementById('overallProgress').style.width = progress + '%';
     document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
-    document.getElementById('currentStepName').textContent = data.step_name;
+    
+    // Update step name with sub-task if available
+    let stepText = data.step_name;
+    if (data.sub_task) {
+        stepText = `${data.step_name}: ${data.sub_task}`;
+    }
+    document.getElementById('currentStepName').textContent = stepText;
     
     if (data.status === 'failed') {
         document.getElementById('workflowError').style.display = 'block';

@@ -60,26 +60,36 @@ class WorkflowStep:
 
 @dataclass
 class WorkflowContext:
-    """Context object passed between workflow steps"""
+    """Shared context for workflow execution"""
     server_id: str
     device_type: str
-    target_ipmi_ip: Optional[str] = None
-    rack_location: Optional[str] = None
-    maas_client: Optional[MaasClient] = None
-    db_helper: Optional[DbHelper] = None
+    target_ipmi_ip: Optional[str]
+    rack_location: Optional[str]
+    maas_client: Any
+    db_helper: Any
+    
+    # Runtime context data
+    workflow_id: Optional[str] = None
     server_ip: Optional[str] = None
     ssh_connectivity_verified: bool = False
-    hardware_discovery_result: Optional[Dict] = None
+    hardware_discovery_result: Optional[Dict[str, Any]] = None
+    original_bios_config: Optional[Dict[str, Any]] = None
+    modified_bios_config: Optional[Dict[str, Any]] = None
     bios_config_path: Optional[str] = None
-    original_bios_config: Optional[Dict] = None
-    modified_bios_config: Optional[Dict] = None
-    ipmi_credentials: Optional[Dict] = None
-    workflow_id: Optional[str] = None
+    discovered_ipmi_ip: Optional[str] = None
     metadata: Dict[str, Any] = None
-
+    
+    # Sub-task progress reporting
+    sub_task_callback: Optional[Callable] = None
+    
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
+    
+    def report_sub_task(self, sub_task_description: str):
+        """Report a sub-task being executed"""
+        if self.sub_task_callback:
+            self.sub_task_callback(sub_task_description)
 
 class WorkflowManager:
     """
@@ -129,6 +139,26 @@ class WorkflowManager:
         """List all workflow IDs"""
         return list(self.workflows.keys())
     
+    def get_active_workflows(self) -> List[Dict[str, Any]]:
+        """Get all active workflows with their status"""
+        active_workflows = []
+        for workflow_id, workflow in self.workflows.items():
+            if workflow.status in [WorkflowStatus.RUNNING, WorkflowStatus.PENDING]:
+                active_workflows.append(workflow.get_status())
+        return active_workflows
+    
+    def get_all_workflows(self) -> List[Dict[str, Any]]:
+        """Get all workflows with their status"""
+        return [workflow.get_status() for workflow in self.workflows.values()]
+    
+    def cancel_workflow(self, workflow_id: str) -> bool:
+        """Cancel a running workflow"""
+        workflow = self.get_workflow(workflow_id)
+        if workflow:
+            workflow.cancel()
+            return True
+        return False
+    
     def cleanup_workflow(self, workflow_id: str):
         """Clean up completed or failed workflow"""
         if workflow_id in self.workflows:
@@ -153,6 +183,7 @@ class Workflow:
         self.error: Optional[str] = None
         self.progress_callback: Optional[Callable] = None
         self.current_step_index: Optional[int] = None  # Track current step
+        self.current_sub_task: Optional[str] = None  # Track current sub-task
     
     def add_step(self, step: WorkflowStep):
         """Add a step to the workflow"""
@@ -161,6 +192,21 @@ class Workflow:
     def set_progress_callback(self, callback: Callable):
         """Set callback for progress updates"""
         self.progress_callback = callback
+    
+    def _report_sub_task(self, sub_task_description: str):
+        """Report a sub-task being executed"""
+        self.current_sub_task = sub_task_description
+        logger.info(f"Sub-task: {sub_task_description}")
+        
+        if self.progress_callback:
+            self.progress_callback({
+                'workflow_id': self.id,
+                'step': self.current_step_index + 1 if self.current_step_index is not None else None,
+                'total_steps': len(self.steps),
+                'step_name': self.steps[self.current_step_index].name if self.current_step_index is not None else None,
+                'status': 'running',
+                'sub_task': sub_task_description
+            })
     
     def execute(self, context: WorkflowContext) -> bool:
         """
@@ -176,6 +222,9 @@ class Workflow:
         self.status = WorkflowStatus.RUNNING
         self.start_time = datetime.now()
         
+        # Set up sub-task callback
+        context.sub_task_callback = self._report_sub_task
+        
         try:
             logger.info(f"Starting workflow {self.id}")
             
@@ -185,6 +234,7 @@ class Workflow:
                 
                 # Update current step index
                 self.current_step_index = i
+                self.current_sub_task = None  # Clear previous sub-task
                 
                 success = self._execute_step(step, i + 1, len(self.steps))
                 if not success:
@@ -194,6 +244,7 @@ class Workflow:
             
             # Clear current step when completed
             self.current_step_index = None
+            self.current_sub_task = None
             self.status = WorkflowStatus.COMPLETED
             self.end_time = datetime.now()
             logger.info(f"Workflow {self.id} completed successfully")
@@ -219,7 +270,8 @@ class Workflow:
                 'step': step_num,
                 'total_steps': total_steps,
                 'step_name': step.name,
-                'status': 'running'
+                'status': 'running',
+                'sub_task': None
             })
         
         for attempt in range(step.retry_count):
@@ -241,7 +293,8 @@ class Workflow:
                         'step': step_num,
                         'total_steps': total_steps,
                         'step_name': step.name,
-                        'status': 'completed'
+                        'status': 'completed',
+                        'sub_task': None
                     })
                 
                 return True
@@ -262,7 +315,8 @@ class Workflow:
                             'total_steps': total_steps,
                             'step_name': step.name,
                             'status': 'failed',
-                            'error': str(e)
+                            'error': str(e),
+                            'sub_task': None
                         })
                     
                     return False
@@ -275,7 +329,19 @@ class Workflow:
     def cancel(self):
         """Cancel the workflow execution"""
         self.status = WorkflowStatus.CANCELLED
+        self.end_time = datetime.now()
         logger.info(f"Workflow {self.id} cancelled")
+        
+        # Notify via progress callback if available
+        if self.progress_callback:
+            self.progress_callback({
+                'workflow_id': self.id,
+                'step': self.current_step_index + 1 if self.current_step_index is not None else None,
+                'total_steps': len(self.steps),
+                'step_name': self.steps[self.current_step_index].name if self.current_step_index is not None else None,
+                'status': 'cancelled',
+                'sub_task': None
+            })
     
     def get_status(self) -> Dict[str, Any]:
         """Get current workflow status"""
@@ -287,6 +353,7 @@ class Workflow:
             'error': self.error,
             'current_step_index': self.current_step_index,
             'current_step_name': None,  # Initialize as None
+            'current_sub_task': self.current_sub_task,  # Add current sub-task
             'steps': [
                 {
                     'name': step.name,

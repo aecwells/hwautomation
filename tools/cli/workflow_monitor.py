@@ -67,6 +67,10 @@ class WorkflowMonitor:
                 
                 print(f"[{timestamp}] Status: {workflow_status} | Current Step: {current_step}")
                 
+                # Show current sub-task if available
+                if status.get('current_sub_task'):
+                    print(f"    └─ Sub-task: {status['current_sub_task']}")
+                
                 # Show step details
                 if status.get('steps'):
                     for i, step in enumerate(status['steps']):

@@ -27,9 +27,13 @@ def progress_callback(progress: Dict[str, Any]):
     total = progress.get('total_steps', 0)
     name = progress.get('step_name', 'Unknown')
     status = progress.get('status', 'unknown')
+    sub_task = progress.get('sub_task')
     
     prefix = "✓" if status == 'completed' else "→" if status == 'running' else "✗"
     print(f"{prefix} [{step}/{total}] {name}")
+    
+    if sub_task and status == 'running':
+        print(f"   └─ {sub_task}")
     
     if status == 'failed' and progress.get('error'):
         print(f"   Error: {progress['error']}")

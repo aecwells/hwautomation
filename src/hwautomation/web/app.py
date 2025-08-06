@@ -17,6 +17,7 @@ from flask_socketio import SocketIO, emit
 import json
 from datetime import datetime
 from typing import Dict, List, Any
+from hwautomation.orchestration.workflow_manager import WorkflowStatus
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -535,26 +536,124 @@ def create_app():
     def api_workflows_status():
         """Get status of active workflows."""
         try:
-            # Mock workflow data for now - would integrate with actual workflow manager
-            workflows = [
-                {
-                    'id': 'provision_server1_1691234567',
-                    'status': 'running',
-                    'device_type': 's2_c2_small',
-                    'current_step_name': 'Configuring BIOS settings...',
-                    'steps': [
-                        {'name': 'discover', 'status': 'completed', 'description': 'Device Discovery'},
-                        {'name': 'commission', 'status': 'completed', 'description': 'Initial Commissioning'},
-                        {'name': 'bios', 'status': 'running', 'description': 'BIOS Configuration'},
-                        {'name': 'deploy', 'status': 'pending', 'description': 'OS Deployment'}
-                    ]
-                }
-            ]
-            
+            # Get actual workflows from workflow manager
+            workflows = workflow_manager.get_active_workflows()
             return jsonify({'workflows': workflows})
             
         except Exception as e:
             logger.error(f"Workflow status failed: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    # Orchestration API endpoints
+    @app.route('/api/orchestration/workflows')
+    def api_orchestration_workflows():
+        """Get all workflows (active and completed)."""
+        try:
+            workflows = workflow_manager.get_all_workflows()
+            return jsonify({'workflows': workflows})
+            
+        except Exception as e:
+            logger.error(f"Failed to get workflows: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    @app.route('/api/orchestration/workflow/<workflow_id>/status')
+    def api_orchestration_workflow_status(workflow_id):
+        """Get status of a specific workflow."""
+        try:
+            workflow = workflow_manager.get_workflow(workflow_id)
+            if not workflow:
+                return jsonify({'error': 'Workflow not found'}), 404
+            
+            return jsonify(workflow.get_status())
+            
+        except Exception as e:
+            logger.error(f"Failed to get workflow status: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    @app.route('/api/orchestration/workflow/<workflow_id>/cancel', methods=['POST'])
+    def api_orchestration_workflow_cancel(workflow_id):
+        """Cancel a running workflow."""
+        try:
+            success = workflow_manager.cancel_workflow(workflow_id)
+            if not success:
+                return jsonify({'error': 'Workflow not found or cannot be cancelled'}), 404
+            
+            return jsonify({'success': True, 'message': f'Workflow {workflow_id} cancelled'})
+            
+        except Exception as e:
+            logger.error(f"Failed to cancel workflow: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    @app.route('/api/orchestration/provision', methods=['POST'])
+    def api_orchestration_provision():
+        """Start a server provisioning workflow."""
+        try:
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['server_id', 'device_type']
+            for field in required_fields:
+                if field not in data:
+                    return jsonify({'error': f'Missing required field: {field}'}), 400
+            
+            server_id = data['server_id']
+            device_type = data['device_type']
+            target_ipmi_ip = data.get('target_ipmi_ip')
+            rack_location = data.get('rack_location')
+            
+            # Create and start provisioning workflow
+            from hwautomation.orchestration.server_provisioning import ServerProvisioningWorkflow
+            provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
+            
+            workflow = provisioning_workflow.create_provisioning_workflow(
+                server_id=server_id,
+                device_type=device_type,
+                target_ipmi_ip=target_ipmi_ip,
+                rack_location=rack_location
+            )
+            
+            # Set up progress callback for WebSocket updates
+            def progress_callback(progress_data):
+                socketio.emit('workflow_progress', progress_data)
+            
+            workflow.set_progress_callback(progress_callback)
+            
+            # Start workflow execution in background thread
+            import threading
+            from hwautomation.orchestration.workflow_manager import WorkflowContext
+            
+            context = WorkflowContext(
+                server_id=server_id,
+                device_type=device_type,
+                target_ipmi_ip=target_ipmi_ip,
+                rack_location=rack_location,
+                maas_client=workflow_manager.maas_client,
+                db_helper=workflow_manager.db_helper
+            )
+            context.workflow_id = workflow.id
+            
+            def execute_workflow():
+                try:
+                    success = workflow.execute(context)
+                    logger.info(f"Workflow {workflow.id} completed with success: {success}")
+                except Exception as e:
+                    logger.error(f"Workflow {workflow.id} failed: {e}")
+                    workflow.status = WorkflowStatus.FAILED
+                    workflow.error = str(e)
+            
+            thread = threading.Thread(target=execute_workflow)
+            thread.daemon = True
+            thread.start()
+            
+            return jsonify({
+                'success': True,
+                'id': workflow.id,
+                'message': f'Provisioning workflow started for {server_id}',
+                'steps': [{'name': step.name, 'description': step.description} for step in workflow.steps]
+            })
+            
+        except Exception as e:
+            logger.error(f"Failed to start provisioning workflow: {e}")
             return jsonify({'error': str(e)}), 500
     
     return app, socketio

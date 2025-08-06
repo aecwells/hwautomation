@@ -493,10 +493,15 @@
                 const progress = Math.round((completedSteps / totalSteps) * 100);
                 
                 // Get current step or fallback
-                const currentStep = workflow.current_step_name || 
+                let currentStep = workflow.current_step_name || 
                                   (workflow.steps && workflow.steps.find(s => s.status === 'running'))?.description || 
                                   (workflow.steps && workflow.steps.find(s => s.status === 'running'))?.name || 
                                   'Initializing...';
+                
+                // Include sub-task information if available
+                if (workflow.current_sub_task) {
+                    currentStep = `${currentStep}: ${workflow.current_sub_task}`;
+                }
                 
                 // Extract server ID from workflow ID (format: provision_serverid_timestamp)
                 const serverMatch = workflow.id?.match(/provision_([^_]+)_/);

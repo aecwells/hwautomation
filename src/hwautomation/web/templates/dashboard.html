@@ -374,7 +374,13 @@
                 const completedSteps = workflow.steps ? workflow.steps.filter(s => s.status === 'completed').length : 0;
                 const progress = Math.round((completedSteps / totalSteps) * 100);
                 
-                const currentStep = workflow.current_step_name || 'Initializing...';
+                let currentStep = workflow.current_step_name || 'Initializing...';
+                
+                // Include sub-task information if available
+                if (workflow.current_sub_task) {
+                    currentStep = `${currentStep}: ${workflow.current_sub_task}`;
+                }
+                
                 const serverMatch = workflow.id?.match(/provision_([^_]+)_/);
                 const serverId = serverMatch ? serverMatch[1] : (workflow.id || 'Unknown');
                 

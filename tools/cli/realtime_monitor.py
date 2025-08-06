@@ -53,6 +53,10 @@ def monitor_all_workflows():
                             
                             print(f"[{timestamp}] {workflow_id}: {status} (Step: {step_display})")
                             
+                            # Show sub-task if available
+                            if detailed_status.get('current_sub_task'):
+                                print(f"    └─ Sub-task: {detailed_status['current_sub_task']}")
+                            
                             # Show step details
                             if detailed_status.get('steps'):
                                 for i, step in enumerate(detailed_status['steps']):

@@ -779,11 +779,19 @@ function pollWorkflowProgress(systemId, workflowId) {
                     currentStep = `Failed: ${failedStep.name}`;
                     stepStatus = 'failed';
                 } else if (runningStep) {
-                    currentStep = runningStep.description || runningStep.name;
+                    // Include sub-task information if available
+                    if (data.current_sub_task) {
+                        currentStep = `${runningStep.description || runningStep.name}: ${data.current_sub_task}`;
+                    } else {
+                        currentStep = runningStep.description || runningStep.name;
+                    }
                 } else if (completedSteps === totalSteps) {
                     currentStep = 'Completed';
                     stepStatus = 'completed';
                 }
+            } else if (data.current_sub_task) {
+                // Fallback to sub-task if no step info
+                currentStep = data.current_sub_task;
             }
             
             // Update workflow info
