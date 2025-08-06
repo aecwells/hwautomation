@@ -67,6 +67,7 @@ class WorkflowContext:
     rack_location: Optional[str]
     maas_client: Any
     db_helper: Any
+    gateway: Optional[str] = None
     
     # Runtime context data
     workflow_id: Optional[str] = None

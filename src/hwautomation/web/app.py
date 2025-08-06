@@ -487,6 +487,7 @@ def create_app():
             device_type = data.get('device_type')
             device_ids = data.get('device_ids', [])
             ipmi_range = data.get('ipmi_range')
+            gateway = data.get('gateway')
             
             if not device_type or not device_ids:
                 return jsonify({'error': 'Missing device_type or device_ids'}), 400
@@ -498,23 +499,31 @@ def create_app():
             # Process each device
             for i, device_id in enumerate(device_ids):
                 try:
-                    # Calculate IPMI IP (increment from base)
+                    # Only calculate IPMI IP if a range is provided
+                    target_ipmi_ip = None
                     if ipmi_range:
                         base_parts = ipmi_range.split('.')
                         base_parts[-1] = str(int(base_parts[-1]) + i)
                         target_ipmi_ip = '.'.join(base_parts)
-                    else:
-                        target_ipmi_ip = f"192.168.100.{50 + i}"
                     
                     # Generate workflow ID
                     workflow_id = f"provision_{device_id}_{int(time.time())}"
                     
-                    results.append({
+                    result_data = {
                         'device_id': device_id,
                         'status': 'started',
-                        'workflow_id': workflow_id,
-                        'target_ipmi_ip': target_ipmi_ip
-                    })
+                        'workflow_id': workflow_id
+                    }
+                    
+                    # Only include IPMI IP in result if it was calculated
+                    if target_ipmi_ip:
+                        result_data['target_ipmi_ip'] = target_ipmi_ip
+                    
+                    # Include gateway if provided
+                    if gateway:
+                        result_data['gateway'] = gateway
+                    
+                    results.append(result_data)
                     
                 except Exception as e:
                     results.append({
@@ -600,6 +609,7 @@ def create_app():
             device_type = data['device_type']
             target_ipmi_ip = data.get('target_ipmi_ip')
             rack_location = data.get('rack_location')
+            gateway = data.get('gateway')
             
             # Create and start provisioning workflow
             from hwautomation.orchestration.server_provisioning import ServerProvisioningWorkflow
@@ -609,7 +619,8 @@ def create_app():
                 server_id=server_id,
                 device_type=device_type,
                 target_ipmi_ip=target_ipmi_ip,
-                rack_location=rack_location
+                rack_location=rack_location,
+                gateway=gateway
             )
             
             # Set up progress callback for WebSocket updates
@@ -627,6 +638,7 @@ def create_app():
                 device_type=device_type,
                 target_ipmi_ip=target_ipmi_ip,
                 rack_location=rack_location,
+                gateway=gateway,
                 maas_client=workflow_manager.maas_client,
                 db_helper=workflow_manager.db_helper
             )
@@ -645,12 +657,20 @@ def create_app():
             thread.daemon = True
             thread.start()
             
-            return jsonify({
+            response_data = {
                 'success': True,
                 'id': workflow.id,
                 'message': f'Provisioning workflow started for {server_id}',
                 'steps': [{'name': step.name, 'description': step.description} for step in workflow.steps]
-            })
+            }
+            
+            # Include optional fields in response if provided
+            if target_ipmi_ip:
+                response_data['target_ipmi_ip'] = target_ipmi_ip
+            if gateway:
+                response_data['gateway'] = gateway
+            
+            return jsonify(response_data)
             
         except Exception as e:
             logger.error(f"Failed to start provisioning workflow: {e}")

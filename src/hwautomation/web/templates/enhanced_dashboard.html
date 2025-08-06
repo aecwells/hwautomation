@@ -118,7 +118,7 @@
             <p class="text-muted">Commission multiple devices of the same type simultaneously. Ensure only one device type is physically connected.</p>
             
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="device-type-select" class="form-label">BMC Device Type:</label>
                     <select class="form-select" id="device-type-select">
                         <option value="">Select device type...</option>
@@ -127,12 +127,17 @@
                         {% endfor %}
                     </select>
                 </div>
-                                <div class="col-md-6">
-                    <label for="ipmi-base-range" class="form-label">IPMI Base IP Range:</label>
-                    <input type="text" class="form-control" id="ipmi-base-range" value="192.168.100.50" placeholder="192.168.100.50">
+                <div class="col-md-3">
+                    <label for="ipmi-base-range" class="form-label">IPMI Base IP Range (Optional):</label>
+                    <input type="text" class="form-control" id="ipmi-base-range" placeholder="192.168.100.50">
                     <div class="form-text">Base IP for IPMI assignment (auto-incremented for batch)</div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="gateway-ip" class="form-label">Gateway IP (Optional):</label>
+                    <input type="text" class="form-control" id="gateway-ip" placeholder="192.168.100.1">
+                    <div class="form-text">Gateway IP for network configuration</div>
+                </div>
+                <div class="col-md-3">
                     <label class="form-label">&nbsp;</label>
                     <div>
                         <button class="btn btn-primary" id="discover-devices-btn">
@@ -237,6 +242,7 @@
         // UI Elements
         const deviceTypeSelect = document.getElementById('device-type-select');
         const ipmiBaseRange = document.getElementById('ipmi-base-range');
+        const gatewayIp = document.getElementById('gateway-ip');
         const discoverDevicesBtn = document.getElementById('discover-devices-btn');
         const startBatchBtn = document.getElementById('start-batch-btn');
         const selectAllDevices = document.getElementById('select-all-devices');
@@ -250,6 +256,36 @@
 
         // Real-time IPMI validation
         ipmiBaseRange.addEventListener('input', function() {
+            const value = this.value.trim();
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            
+            if (!value) {
+                this.classList.remove('is-valid', 'is-invalid');
+                return;
+            }
+            
+            if (ipPattern.test(value)) {
+                const octets = value.split('.');
+                const validOctets = octets.every(octet => {
+                    const num = parseInt(octet);
+                    return num >= 0 && num <= 255;
+                });
+                
+                if (validOctets) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Real-time gateway validation
+        gatewayIp.addEventListener('input', function() {
             const value = this.value.trim();
             const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
             
@@ -381,38 +417,60 @@
             const selectedDevices = Array.from(document.querySelectorAll('.device-checkbox:checked')).map(cb => cb.value);
             const deviceType = deviceTypeSelect.value;
             let ipmiRange = ipmiBaseRange.value.trim();
+            let gateway = gatewayIp.value.trim();
 
             if (!deviceType || selectedDevices.length === 0) {
                 alert('Please select a device type and at least one device.');
                 return;
             }
 
-            // Validate IPMI range
-            if (!ipmiRange) {
-                ipmiRange = '192.168.100.50';  // Default fallback
-                ipmiBaseRange.value = ipmiRange;
-            }
-
-            // Basic IP format validation
+            // Validate IPMI range if provided
             const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-            if (!ipPattern.test(ipmiRange)) {
+            if (ipmiRange && !ipPattern.test(ipmiRange)) {
                 alert('Please enter a valid IP address for IPMI range (e.g., 192.168.100.50)');
                 ipmiBaseRange.focus();
                 return;
             }
 
-            // Validate IP octets are in valid range
-            const octets = ipmiRange.split('.');
-            for (let octet of octets) {
-                const num = parseInt(octet);
-                if (num < 0 || num > 255) {
-                    alert('Invalid IP address: octets must be between 0-255');
-                    ipmiBaseRange.focus();
-                    return;
+            // Validate IP octets are in valid range if IPMI range provided
+            if (ipmiRange) {
+                const octets = ipmiRange.split('.');
+                for (let octet of octets) {
+                    const num = parseInt(octet);
+                    if (num < 0 || num > 255) {
+                        alert('Invalid IPMI IP address: octets must be between 0-255');
+                        ipmiBaseRange.focus();
+                        return;
+                    }
                 }
             }
 
-            if (!confirm(`Start batch commissioning of ${selectedDevices.length} devices as type "${deviceType}"?\nIPMI Base: ${ipmiRange}`)) {
+            // Validate gateway if provided
+            if (gateway && !ipPattern.test(gateway)) {
+                alert('Please enter a valid IP address for gateway (e.g., 192.168.100.1)');
+                gatewayIp.focus();
+                return;
+            }
+
+            // Validate gateway octets are in valid range if provided
+            if (gateway) {
+                const octets = gateway.split('.');
+                for (let octet of octets) {
+                    const num = parseInt(octet);
+                    if (num < 0 || num > 255) {
+                        alert('Invalid gateway IP address: octets must be between 0-255');
+                        gatewayIp.focus();
+                        return;
+                    }
+                }
+            }
+
+            // Build confirmation message
+            let confirmMsg = `Start batch commissioning of ${selectedDevices.length} devices as type "${deviceType}"?`;
+            if (ipmiRange) confirmMsg += `\nIPMI Base: ${ipmiRange}`;
+            if (gateway) confirmMsg += `\nGateway: ${gateway}`;
+            
+            if (!confirm(confirmMsg)) {
                 return;
             }
 
@@ -421,14 +479,20 @@
             addLog(`Starting batch commissioning: ${selectedDevices.length} devices as ${deviceType}`, 'info');
 
             try {
+                // Build request body
+                const requestBody = {
+                    device_type: deviceType,
+                    device_ids: selectedDevices
+                };
+                
+                // Only include optional fields if they have values
+                if (ipmiRange) requestBody.ipmi_range = ipmiRange;
+                if (gateway) requestBody.gateway = gateway;
+
                 const response = await fetch('/api/batch/commission', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        device_type: deviceType,
-                        device_ids: selectedDevices,
-                        ipmi_range: ipmiRange
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 const data = await response.json();
@@ -437,7 +501,10 @@
                     addLog(`Batch started successfully: ${data.batch_id}`, 'info');
                     data.results.forEach(result => {
                         if (result.status === 'started') {
-                            addLog(`Device ${result.device_id}: Workflow ${result.workflow_id} started (IPMI: ${result.target_ipmi_ip})`, 'info');
+                            let logMsg = `Device ${result.device_id}: Workflow ${result.workflow_id} started`;
+                            if (result.target_ipmi_ip) logMsg += ` (IPMI: ${result.target_ipmi_ip})`;
+                            if (result.gateway) logMsg += ` (Gateway: ${result.gateway})`;
+                            addLog(logMsg, 'info');
                         } else {
                             addLog(`Device ${result.device_id}: Failed - ${result.error}`, 'error');
                         }

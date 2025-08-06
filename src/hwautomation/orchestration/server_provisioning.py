@@ -48,6 +48,7 @@ class ServerProvisioningWorkflow:
         device_type: str,
         target_ipmi_ip: Optional[str] = None,
         rack_location: Optional[str] = None,
+        gateway: Optional[str] = None,
         **kwargs
     ) -> Workflow:
         """
@@ -58,14 +59,16 @@ class ServerProvisioningWorkflow:
             device_type: Device type (e.g., 's2.c2.small')
             target_ipmi_ip: Optional target IPMI IP address (can be set later)
             rack_location: Optional physical rack location (can be set later)
+            gateway: Optional gateway IP address for network configuration
             **kwargs: Additional metadata
             
         Returns:
             Workflow: Configured workflow ready for execution
         
         Note: The workflow automatically detects when force recommissioning is needed
-        based on device status and SSH connectivity. target_ipmi_ip and rack_location 
-        are optional and can be configured in a final manual step after hardware discovery.
+        based on device status and SSH connectivity. target_ipmi_ip, rack_location,
+        and gateway are optional and can be configured in a final manual step after 
+        hardware discovery.
         """
         workflow_id = f"provision_{server_id}_{int(time.time())}"
         workflow = self.manager.create_workflow(workflow_id)
