@@ -1,0 +1,99 @@
+template_rules:
+  s2_c2_large:
+    description: Template rules for large compute nodes
+    modifications:
+      AVX512: Enabled
+      BMCLANConfig: DHCP
+      BootMode: UEFI
+      BootTimeout: '3'
+      CPUPowerManagement: OSControl
+      CSMSupport: Disabled
+      DemandScrub: Enabled
+      EnergyPerformanceBias: Performance
+      FastBoot: Enabled
+      HostInterface: Enabled
+      IntelHyperThreadingTech: Enabled
+      IntelVT: Enabled
+      IntelVTD: Enabled
+      KCSInterface: Enabled
+      MemoryMirroring: Disabled
+      MemoryMode: Independent
+      MemorySparing: Disabled
+      MemoryThermalThrottling: Enabled
+      NUMAOptimized: Enabled
+      NVMeSupport: Enabled
+      NetworkOpROM: Enabled
+      NetworkStack: Enabled
+      PXEBoot: Enabled
+      PatrolScrub: Enabled
+      PowerEfficiency: Performance
+      PowerRestorePolicy: PowerOn
+      PowerTechnology: Performance
+      ProcessorC1E: Enabled
+      ProcessorC3Report: Enabled
+      ProcessorC6Report: Enabled
+      ProcessorEIST: Enabled
+      QuietBoot: Disabled
+      RAIDSupport: Enabled
+      RedfishEnabled: Enabled
+      SATAController: AHCI
+      SOLEnabled: Enabled
+      SRIOV: Enabled
+      SecureBoot: Disabled
+      TurboMode: Enabled
+      WakeOnLAN: Enabled
+  s2_c2_medium:
+    description: Template rules for medium compute nodes
+    modifications:
+      BMCLANConfig: DHCP
+      BootMode: UEFI
+      BootTimeout: '3'
+      DemandScrub: Enabled
+      FastBoot: Enabled
+      IntelHyperThreadingTech: Enabled
+      IntelVT: Enabled
+      IntelVTD: Enabled
+      KCSInterface: Enabled
+      MemoryMode: Independent
+      MemoryThermalThrottling: Enabled
+      NUMAOptimized: Enabled
+      NetworkStack: Enabled
+      PXEBoot: Enabled
+      PatrolScrub: Enabled
+      PowerEfficiency: Performance
+      PowerRestorePolicy: PowerOn
+      PowerTechnology: Performance
+      ProcessorC1E: Enabled
+      ProcessorC3Report: Enabled
+      ProcessorC6Report: Enabled
+      ProcessorEIST: Enabled
+      QuietBoot: Disabled
+      RedfishEnabled: Enabled
+      SOLEnabled: Enabled
+      SRIOV: Enabled
+      SecureBoot: Disabled
+      TurboMode: Enabled
+      WakeOnLAN: Enabled
+  s2_c2_small:
+    description: Template rules for small compute nodes
+    modifications:
+      BMCLANConfig: DHCP
+      BootMode: UEFI
+      BootTimeout: '5'
+      DemandScrub: Enabled
+      IntelHyperThreadingTech: Enabled
+      KCSInterface: Enabled
+      MemoryMode: Independent
+      PXEBoot: Enabled
+      PatrolScrub: Enabled
+      PowerRestorePolicy: PowerOn
+      PowerTechnology: EnergyEfficient
+      ProcessorC1E: Enabled
+      ProcessorC3Report: Enabled
+      ProcessorC6Report: Enabled
+      ProcessorEIST: Enabled
+      QuietBoot: Disabled
+      SOLEnabled: Enabled
+      SecureBoot: Disabled
+      TurboMode: Enabled
+      WakeOnLAN: Enabled

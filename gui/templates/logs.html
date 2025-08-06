@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}System Logs - HWAutomation GUI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-journal-text"></i> System Logs
+        </h1>
+    </div>
+</div>
+
+<!-- Log Controls -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-funnel"></i> Log Filters
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="logLevel" class="form-label">Log Level</label>
+                        <select class="form-select" id="logLevel">
+                            <option value="">All Levels</option>
+                            <option value="DEBUG">Debug</option>
+                            <option value="INFO" selected>Info</option>
+                            <option value="WARNING">Warning</option>
+                            <option value="ERROR">Error</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="logSource" class="form-label">Source</label>
+                        <select class="form-select" id="logSource">
+                            <option value="">All Sources</option>
+                            <option value="gui">GUI</option>
+                            <option value="bios">BIOS Manager</option>
+                            <option value="hardware">Hardware</option>
+                            <option value="database">Database</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="logSearch" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="logSearch" placeholder="Search logs...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" onclick="refreshLogs()">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logs Display -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-ul"></i> Recent Log Entries
+                </h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" onclick="clearLogs()">
+                        <i class="bi bi-trash"></i> Clear
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="downloadLogs()">
+                        <i class="bi bi-download"></i> Download
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="sticky-top bg-light">
+                            <tr>
+                                <th style="width: 180px;">Timestamp</th>
+                                <th style="width: 80px;">Level</th>
+                                <th style="width: 100px;">Source</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTableBody">
+                            {% for log in logs %}
+                            <tr class="log-entry" data-level="{{ log.level.lower() }}" data-source="gui">
+                                <td class="text-monospace small">{{ log.timestamp }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if log.level == 'ERROR' else 'warning' if log.level == 'WARNING' else 'info' if log.level == 'INFO' else 'secondary' }}">
+                                        {{ log.level }}
+                                    </span>
+                                </td>
+                                <td>gui</td>
+                                <td>{{ log.message }}</td>
+                            </tr>
+                            {% endfor %}
+                            
+                            <!-- Sample log entries -->
+                            <tr class="log-entry" data-level="info" data-source="bios">
+                                <td class="text-monospace small">2025-07-30 14:30:15</td>
+                                <td><span class="badge bg-info">INFO</span></td>
+                                <td>bios</td>
+                                <td>BIOS configuration manager initialized successfully</td>
+                            </tr>
+                            <tr class="log-entry" data-level="info" data-source="bios">
+                                <td class="text-monospace small">2025-07-30 14:30:16</td>
+                                <td><span class="badge bg-info">INFO</span></td>
+                                <td>bios</td>
+                                <td>Loaded device mappings for 3 device types</td>
+                            </tr>
+                            <tr class="log-entry" data-level="info" data-source="bios">
+                                <td class="text-monospace small">2025-07-30 14:30:17</td>
+                                <td><span class="badge bg-info">INFO</span></td>
+                                <td>bios</td>
+                                <td>Template rules loaded for s2_c2_small, s2_c2_medium, s2_c2_large</td>
+                            </tr>
+                            <tr class="log-entry" data-level="info" data-source="gui">
+                                <td class="text-monospace small">2025-07-30 14:30:18</td>
+                                <td><span class="badge bg-info">INFO</span></td>
+                                <td>gui</td>
+                                <td>Web GUI started on http://127.0.0.1:5000</td>
+                            </tr>
+                            <tr class="log-entry" data-level="debug" data-source="hardware">
+                                <td class="text-monospace small">2025-07-30 14:30:19</td>
+                                <td><span class="badge bg-secondary">DEBUG</span></td>
+                                <td>hardware</td>
+                                <td>IPMI manager placeholder initialized</td>
+                            </tr>
+                            <tr class="log-entry" data-level="debug" data-source="hardware">
+                                <td class="text-monospace small">2025-07-30 14:30:20</td>
+                                <td><span class="badge bg-secondary">DEBUG</span></td>
+                                <td>hardware</td>
+                                <td>RedFish manager placeholder initialized</td>
+                            </tr>
+                            <tr class="log-entry" data-level="warning" data-source="bios">
+                                <td class="text-monospace small">2025-07-30 14:30:21</td>
+                                <td><span class="badge bg-warning">WARNING</span></td>
+                                <td>bios</td>
+                                <td>Using mock BIOS configuration for demonstration</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Auto-refresh logs every 30 seconds
+let logRefreshInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up auto-refresh
+    logRefreshInterval = setInterval(refreshLogs, 30000);
+    
+    // Set up filters
+    document.getElementById('logLevel').addEventListener('change', filterLogs);
+    document.getElementById('logSource').addEventListener('change', filterLogs);
+    document.getElementById('logSearch').addEventListener('input', filterLogs);
+});
+
+function refreshLogs() {
+    showNotification('Refreshing logs...', 'info', 1000);
+    
+    // In a real implementation, this would fetch new logs from the server
+    // For now, we'll just show a refresh message
+    
+    // Mock: Add a new log entry
+    const logTableBody = document.getElementById('logTableBody');
+    const newRow = document.createElement('tr');
+    newRow.className = 'log-entry';
+    newRow.setAttribute('data-level', 'info');
+    newRow.setAttribute('data-source', 'gui');
+    
+    const now = new Date();
+    const timestamp = now.getFullYear() + '-' + 
+                     String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                     String(now.getDate()).padStart(2, '0') + ' ' +
+                     String(now.getHours()).padStart(2, '0') + ':' +
+                     String(now.getMinutes()).padStart(2, '0') + ':' +
+                     String(now.getSeconds()).padStart(2, '0');
+    
+    newRow.innerHTML = `
+        <td class="text-monospace small">${timestamp}</td>
+        <td><span class="badge bg-info">INFO</span></td>
+        <td>gui</td>
+        <td>Log refresh requested by user</td>
+    `;
+    
+    logTableBody.insertBefore(newRow, logTableBody.firstChild);
+    
+    // Limit to last 100 entries
+    const rows = logTableBody.querySelectorAll('tr');
+    if (rows.length > 100) {
+        for (let i = 100; i < rows.length; i++) {
+            rows[i].remove();
+        }
+    }
+    
+    // Apply current filters
+    filterLogs();
+}
+
+function filterLogs() {
+    const levelFilter = document.getElementById('logLevel').value.toLowerCase();
+    const sourceFilter = document.getElementById('logSource').value.toLowerCase();
+    const searchFilter = document.getElementById('logSearch').value.toLowerCase();
+    
+    const logEntries = document.querySelectorAll('.log-entry');
+    let visibleCount = 0;
+    
+    logEntries.forEach(row => {
+        const level = row.getAttribute('data-level');
+        const source = row.getAttribute('data-source');
+        const message = row.cells[3].textContent.toLowerCase();
+        
+        let show = true;
+        
+        // Filter by level
+        if (levelFilter && level !== levelFilter) {
+            show = false;
+        }
+        
+        // Filter by source
+        if (sourceFilter && source !== sourceFilter) {
+            show = false;
+        }
+        
+        // Filter by search term
+        if (searchFilter && !message.includes(searchFilter)) {
+            show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+    
+    // Update status
+    console.log(`Showing ${visibleCount} log entries`);
+}
+
+function clearLogs() {
+    if (!confirm('Are you sure you want to clear all log entries?')) {
+        return;
+    }
+    
+    document.getElementById('logTableBody').innerHTML = '';
+    showNotification('Log entries cleared', 'info');
+}
+
+function downloadLogs() {
+    const logEntries = document.querySelectorAll('.log-entry:not([style*="display: none"])');
+    let logContent = 'Timestamp\tLevel\tSource\tMessage\n';
+    
+    logEntries.forEach(row => {
+        const cells = row.cells;
+        logContent += `${cells[0].textContent}\t${cells[1].textContent}\t${cells[2].textContent}\t${cells[3].textContent}\n`;
+    });
+    
+    downloadAsFile(logContent, 'hwautomation_logs.txt', 'text/plain');
+}
+
+// Clean up interval when page unloads
+window.addEventListener('beforeunload', function() {
+    if (logRefreshInterval) {
+        clearInterval(logRefreshInterval);
+    }
+});
+</script>
+{% endblock %}

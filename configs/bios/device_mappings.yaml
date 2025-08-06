@@ -1,0 +1,2306 @@
+device_types:
+  a1.c5.large:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 80 cores, 256GB RAM, Ampere Altra Q80-30
+    hardware_specs:
+      cpu_cores: 80
+      cpu_frequency: 3
+      cpu_name: Ampere Altra Q80-30
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+  a1.c5.xlarge:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 80 cores, 256GB RAM, Ampere Altra Q80-30
+    hardware_specs:
+      cpu_cores: 80
+      cpu_frequency: 3
+      cpu_name: Ampere Altra Q80-30
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 4TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+  d1.c1.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 20 cores, 256GB RAM, Dual Xeon Silver 4210R
+    hardware_specs:
+      cpu_cores: 20
+      cpu_frequency: 2.4
+      cpu_name: Dual Xeon Silver 4210R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X12DPG-QT
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 20 cores, 256GB RAM, Dual Xeon Silver 4210R
+    hardware_specs:
+      cpu_cores: 20
+      cpu_frequency: 2.4
+      cpu_name: Dual Xeon Silver 4210R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X12DPG-QT
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c1.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 20 cores, 128GB RAM, Dual Xeon Silver 4210R
+    hardware_specs:
+      cpu_cores: 20
+      cpu_frequency: 2.4
+      cpu_name: Dual Xeon Silver 4210R
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X12DPG-QT
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c2.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 256GB RAM, Dual Xeon Gold 5218R
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5218R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c2.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 256GB RAM, Dual Xeon Gold 5218R
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5218R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c2.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 128GB RAM, Dual Xeon Gold 5218R
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5218R
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c3.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 52 cores, 256GB RAM, Dual Xeon Gold 6230R
+    hardware_specs:
+      cpu_cores: 52
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 6230R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c3.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 52 cores, 256GB RAM, Dual Xeon Gold 6230R
+    hardware_specs:
+      cpu_cores: 52
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 6230R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c3.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 52 cores, 128GB RAM, Dual Xeon Gold 6230R
+    hardware_specs:
+      cpu_cores: 52
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 6230R
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c4.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 56 cores, 256GB RAM, Dual Xeon Gold 6258R
+    hardware_specs:
+      cpu_cores: 56
+      cpu_frequency: 2.7
+      cpu_name: Dual Xeon Gold 6258R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c4.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 56 cores, 256GB RAM, Dual Xeon Gold 6258R
+    hardware_specs:
+      cpu_cores: 56
+      cpu_frequency: 2.7
+      cpu_name: Dual Xeon Gold 6258R
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.c4.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 56 cores, 128GB RAM, Dual Xeon Gold 6258R
+    hardware_specs:
+      cpu_cores: 56
+      cpu_frequency: 2.7
+      cpu_name: Dual Xeon Gold 6258R
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.m1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 20 cores, 768GB RAM, Dual Xeon Silver 4210R
+    hardware_specs:
+      cpu_cores: 20
+      cpu_frequency: 2.4
+      cpu_name: Dual Xeon Silver 4210R
+      network: 2x 25Gbps
+      ram_gb: 768
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X12DPG-QT
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.m2.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 768GB RAM, Dual Xeon Gold 5218R
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5218R
+      network: 2x 25Gbps
+      ram_gb: 768
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.m3.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 52 cores, 768GB RAM, Dual Xeon Gold 6230R
+    hardware_specs:
+      cpu_cores: 52
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 6230R
+      network: 2x 25Gbps
+      ram_gb: 768
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d1.m4.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 56 cores, 768GB RAM, Dual Xeon Gold 6258R
+    hardware_specs:
+      cpu_cores: 56
+      cpu_frequency: 2.7
+      cpu_name: Dual Xeon Gold 6258R
+      network: 2x 25Gbps
+      ram_gb: 768
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c1.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 16 cores, 256GB RAM, Dual Xeon Gold 5315Y
+    hardware_specs:
+      cpu_cores: 16
+      cpu_frequency: 3.1
+      cpu_name: Dual Xeon Gold 5315Y
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 16 cores, 128GB RAM, Dual Xeon Gold 5315Y
+    hardware_specs:
+      cpu_cores: 16
+      cpu_frequency: 3.1
+      cpu_name: Dual Xeon Gold 5315Y
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c2.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 256GB RAM, Dual Xeon Gold 5317
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 5317
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c2.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 128GB RAM, Dual Xeon Gold 5317
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 5317
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c3.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 256GB RAM, Dual Xeon Gold 6326
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 2.6
+      cpu_name: Dual Xeon Gold 6326
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c3.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 128GB RAM, Dual Xeon Gold 6326
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 2.6
+      cpu_name: Dual Xeon Gold 6326
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c4.db1.pliops1:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 256GB RAM, Dual Xeon Gold 6336Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.4
+      cpu_name: Dual Xeon Gold 6336Y
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 4x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c4.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 256GB RAM, Dual Xeon Gold 6336Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.3
+      cpu_name: Dual Xeon Gold 6336Y
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c4.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 128GB RAM, Dual Xeon Gold 6336Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.3
+      cpu_name: Dual Xeon Gold 6336Y
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c5.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 256GB RAM, Dual Xeon Platinum 8352Y
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.2
+      cpu_name: Dual Xeon Platinum 8352Y
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.c5.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 128GB RAM, Dual Xeon Platinum 8352Y
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.2
+      cpu_name: Dual Xeon Platinum 8352Y
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.ipm2.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 512GB RAM, Dual Xeon Platinum 8352Y
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.2
+      cpu_name: Dual Xeon Platinum 8352Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe + DCPMM 2,048 GB
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d2.m1.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 16 cores, 512GB RAM, Dual Xeon Gold 5315Y
+    hardware_specs:
+      cpu_cores: 16
+      cpu_frequency: 3.1
+      cpu_name: Dual Xeon Gold 5315Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d2.m2.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 512GB RAM, Dual Xeon Gold 6326
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 2.6
+      cpu_name: Dual Xeon Gold 6326
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d2.m2.xxlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 512GB RAM, Dual Xeon Gold 5317
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 5317
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d2.m3.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 512GB RAM, Dual Xeon Gold 6326
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 2.6
+      cpu_name: Dual Xeon Gold 6326
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d2.m4.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 512GB RAM, Dual Xeon Gold 6336Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.3
+      cpu_name: Dual Xeon Gold 6336Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d2.m5.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 512GB RAM, Dual Xeon Platinum 8352Y
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.2
+      cpu_name: Dual Xeon Platinum 8352Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d3.c1.large:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 256GB RAM, Dual Xeon Gold 6536
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 3
+      cpu_name: Dual Xeon Gold 6536
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d3.c2.large:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 256GB RAM, Dual Xeon Gold 6540
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 6540
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d3.c3.large:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 256GB RAM, Dual Xeon Gold 6542Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 6542Y
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d3.c4.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 128GB RAM, Dual Xeon Gold 5418Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5418Y
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+  d3.c5.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 128GB RAM, Dual Xeon Gold 6430
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 1.9
+      cpu_name: Dual Xeon Gold 6430
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+  d3.c6.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 72 cores, 128GB RAM, Dual Xeon Platinum 8452Y
+    hardware_specs:
+      cpu_cores: 72
+      cpu_frequency: 2
+      cpu_name: Dual Xeon Platinum 8452Y
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+  d3.g2.c1.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 512GB RAM, Dual Xeon Gold 6426
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 6426
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 4x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+  d3.g2.c2.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 512GB RAM, Dual Xeon Gold 6436
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.7
+      cpu_name: Dual Xeon Gold 6436
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 4x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+  d3.g2.c3.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 512GB RAM, Dual Xeon Gold 6442Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.6
+      cpu_name: Dual Xeon Gold 6442Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 4x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+  d3.g3.c2.medium:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 256GB RAM, Intel Xeon Gold 6448Y
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.1
+      cpu_name: Intel Xeon Gold 6448Y
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 1x 4TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d3.m1.xlarge:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 32 cores, 512GB RAM, Dual Xeon Gold 6536
+    hardware_specs:
+      cpu_cores: 32
+      cpu_frequency: 3
+      cpu_name: Dual Xeon Gold 6536
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d3.m2.xlarge:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 40 cores, 512GB RAM, Dual Xeon Gold 6540
+    hardware_specs:
+      cpu_cores: 40
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 6540
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  d3.m3.xlarge:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 512GB RAM, Dual Xeon Gold 6542Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.9
+      cpu_name: Dual Xeon Gold 6542Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  'd3.m4.xlarge ':
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 512GB RAM, Dual Xeon Gold 5418Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5418Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  'd3.m4.xxlarge ':
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 1024GB RAM, Dual Xeon Gold 5418Y
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 2.1
+      cpu_name: Dual Xeon Gold 5418Y
+      network: 2x 25Gbps
+      ram_gb: 1024
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  'd3.m5.xlarge ':
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 512GB RAM, Dual Xeon Gold 6430
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 1.9
+      cpu_name: Dual Xeon Gold 6430
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  'd3.m5.xxlarge ':
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 1024GB RAM, Dual Xeon Gold 6430
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 1.9
+      cpu_name: Dual Xeon Gold 6430
+      network: 2x 25Gbps
+      ram_gb: 1024
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  'd3.m6.xlarge ':
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 72 cores, 512GB RAM, Dual Xeon Platinum 8452Y
+    hardware_specs:
+      cpu_cores: 72
+      cpu_frequency: 2
+      cpu_name: Dual Xeon Platinum 8452Y
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  'd3.m6.xxlarge ':
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 72 cores, 1024GB RAM, Dual Xeon Platinum 8452Y
+    hardware_specs:
+      cpu_cores: 72
+      cpu_frequency: 2
+      cpu_name: Dual Xeon Platinum 8452Y
+      network: 2x 25Gbps
+      ram_gb: 1024
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  d3.s5.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 256GB RAM, Dual Xeon Gold 6430
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 1.9
+      cpu_name: Dual Xeon Gold 6430
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 6x 15.36TB NVMe + 1x 1TB NVMe Boot Drive
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12DPT-B
+    - X13DET-B
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  gnr.ilo7:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 48 cores, 256GB RAM, Intel Xeon 6527P
+    hardware_specs:
+      cpu_cores: 48
+      cpu_frequency: 3
+      cpu_name: Intel Xeon 6527P
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  gnr.sm:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 128 cores, 128GB RAM, Intel Xeon 6767P
+    hardware_specs:
+      cpu_cores: 128
+      cpu_frequency: 2.8
+      cpu_name: Intel Xeon 6767P
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s0.d1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: balanced
+      turbo_boost: true
+    description: Small server - 4 cores, 32GB RAM, Intel Xeon E3-1270v3
+    hardware_specs:
+      cpu_cores: 4
+      cpu_frequency: 3.5
+      cpu_name: Intel Xeon E3-1270v3
+      network: 2x 1Gbps
+      ram_gb: 32
+      storage: 1x 480GB SSD
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  s0.d1.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: balanced
+      turbo_boost: true
+    description: Small server - 4 cores, 16GB RAM, Intel Xeon E3-1240v3
+    hardware_specs:
+      cpu_cores: 4
+      cpu_frequency: 3.4
+      cpu_name: Intel Xeon E3-1240v3
+      network: 2x 1Gbps
+      ram_gb: 16
+      storage: 2x 240GB SSD
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  s1.c1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 6 cores, 128GB RAM, Intel Xeon E-2276G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.8
+      cpu_name: Intel Xeon E-2276G
+      network: 2x 10Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11SCE-F
+    - X11SCM-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s1.c1.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2276G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.8
+      cpu_name: Intel Xeon E-2276G
+      network: 2x 10Gbps
+      ram_gb: 64
+      storage: 1x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11SCE-F
+    - X11SCM-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s1.c2.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 8 cores, 128GB RAM, Intel Xeon E-2288G
+    hardware_specs:
+      cpu_cores: 8
+      cpu_frequency: 3.7
+      cpu_name: Intel Xeon E-2288G
+      network: 2x 10Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11SCE-F
+    - X11SCM-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s1.c2.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Medium server - 8 cores, 64GB RAM, Intel Xeon E-2288G
+    hardware_specs:
+      cpu_cores: 8
+      cpu_frequency: 3.7
+      cpu_name: Intel Xeon E-2288G
+      network: 2x 10Gbps
+      ram_gb: 64
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11SCE-F
+    - X11SCM-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s1.e1.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 6 cores, 128GB RAM, Intel Xeon E-2186G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.8
+      cpu_name: Intel Xeon E-2186G
+      network: 2x 1Gbps
+      ram_gb: 128
+      storage: 1x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s1.e1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2186G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.8
+      cpu_name: Intel Xeon E-2186G
+      network: 2x 1Gbps
+      ram_gb: 64
+      storage: 1x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s1.e1.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Small server - 6 cores, 32GB RAM, Intel Xeon E-2186G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.8
+      cpu_name: Intel Xeon E-2186G
+      network: 2x 1Gbps
+      ram_gb: 32
+      storage: 1x 480GB SSD
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s2.c1.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 6 cores, 128GB RAM, Intel Xeon E-2356G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.2
+      cpu_name: Intel Xeon E-2356G
+      network: 2x 10Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12STE-F
+    - X12SCE-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s2.c1.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2356G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.2
+      cpu_name: Intel Xeon E-2356G
+      network: 2x 10Gbps
+      ram_gb: 64
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12STE-F
+    - X12SCE-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s2.c1.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2356G
+    hardware_specs:
+      cpu_cores: 6
+      cpu_frequency: 3.2
+      cpu_name: Intel Xeon E-2356G
+      network: 2x 10Gbps
+      ram_gb: 64
+      storage: 1x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12STE-F
+    - X12SCE-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s2.c2.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 8 cores, 128GB RAM, Intel Xeon E-2388G
+    hardware_specs:
+      cpu_cores: 8
+      cpu_frequency: 3.2
+      cpu_name: Intel Xeon E-2388G
+      network: 2x 10Gbps
+      ram_gb: 128
+      storage: 2x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12STE-F
+    - X12SCE-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s2.c2.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 8 cores, 128GB RAM, Intel Xeon E-2388G
+    hardware_specs:
+      cpu_cores: 8
+      cpu_frequency: 3.2
+      cpu_name: Intel Xeon E-2388G
+      network: 2x 10Gbps
+      ram_gb: 128
+      storage: 1x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12STE-F
+    - X12SCE-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s2.c2.small:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Medium server - 8 cores, 64GB RAM, Intel Xeon E-2388G
+    hardware_specs:
+      cpu_cores: 8
+      cpu_frequency: 3.2
+      cpu_name: Intel Xeon E-2388G
+      network: 2x 10Gbps
+      ram_gb: 64
+      storage: 1x 1TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X12STE-F
+    - X12SCE-F
+    security_configs:
+      sgx_enabled: true
+      tdx_enabled: false
+  s3.c3.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 192GB RAM, Intel Core i9 14900K
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 3.2
+      cpu_name: Intel Core i9 14900K
+      network: 2x 10Gbps
+      ram_gb: 192
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+  s3.c3.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 128GB RAM, Intel Core i9 14900K
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 3.2
+      cpu_name: Intel Core i9 14900K
+      network: 2x 10Gbps
+      ram_gb: 128
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+  s4.x6.c6.large:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 96 cores, 256GB RAM, Intel Xeon 6 6731E
+    hardware_specs:
+      cpu_cores: 96
+      cpu_frequency: 2.2
+      cpu_name: Intel Xeon 6 6731E
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s4.x6.m6.xlarge:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 96 cores, 512GB RAM, Intel Xeon 6 6731E
+    hardware_specs:
+      cpu_cores: 96
+      cpu_frequency: 2.2
+      cpu_name: Intel Xeon 6 6731E
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.c3.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 256GB RAM, Intel Xeon 6527P
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 3
+      cpu_name: Intel Xeon 6527P
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.c3.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 24 cores, 256GB RAM, Intel Xeon 6527P
+    hardware_specs:
+      cpu_cores: 24
+      cpu_frequency: 3
+      cpu_name: Intel Xeon 6527P
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.c8.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 256GB RAM, Intel Xeon 6767P
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.4
+      cpu_name: Intel Xeon 6767P
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.c8.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 128GB RAM, Intel Xeon 6767P
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.4
+      cpu_name: Intel Xeon 6767P
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.c9.large:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 256GB RAM, Intel Xeon 6770P
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.8
+      cpu_name: Intel Xeon 6770P
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.c9.medium:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 128GB RAM, Intel Xeon 6770P
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.8
+      cpu_name: Intel Xeon 6770P
+      network: 2x 25Gbps
+      ram_gb: 128
+      storage: 2x 2TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.m8.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 512GB RAM, Intel Xeon 6767P
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.4
+      cpu_name: Intel Xeon 6767P
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  s5.x6.m9.xlarge:
+    boot_configs:
+      boot_mode: uefi
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 64 cores, 512GB RAM, Intel Xeon 6770P
+    hardware_specs:
+      cpu_cores: 64
+      cpu_frequency: 2.8
+      cpu_name: Intel Xeon 6770P
+      network: 2x 25Gbps
+      ram_gb: 512
+      storage: 2x 4TB NVMe
+      vendor: supermicro
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - X11DPT-B
+    - X11DPFR-SN
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: true
+  sf.1:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 144 cores, 256GB RAM, Intel Xeon 6 6780E
+    hardware_specs:
+      cpu_cores: 144
+      cpu_frequency: 2.2
+      cpu_name: Intel Xeon 6 6780E
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false
+  sf.2:
+    boot_configs:
+      boot_mode: legacy
+      pxe_boot: true
+      secure_boot: false
+    cpu_configs:
+      hyperthreading: true
+      power_profile: performance
+      turbo_boost: true
+    description: Large server - 96 cores, 256GB RAM, Intel Xeon 6 6780E
+    hardware_specs:
+      cpu_cores: 96
+      cpu_frequency: 2.4
+      cpu_name: Intel Xeon 6 6780E
+      network: 2x 25Gbps
+      ram_gb: 256
+      storage: 2x 2TB NVMe
+      vendor: hpe
+    memory_configs:
+      ecc_enabled: true
+      memory_speed: auto
+    motherboards:
+    - Unknown
+    security_configs:
+      sgx_enabled: false
+      tdx_enabled: false

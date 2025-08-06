@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWAutomation - Batch Device Management</title>
+    
+    <!-- Theme detection script (must be first) -->
+    <script>
+        (function() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const storedTheme = localStorage.getItem('theme');
+            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+            
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                if (!localStorage.getItem('theme')) {
+                    document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+                }
+            });
+        })();
+    </script>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .status-connected { color: #28a745; }
+        .status-disconnected { color: #dc3545; }
+        .status-working { color: #ffc107; }
+        .device-card { border-left: 4px solid #007bff; }
+        .workflow-card { border-left: 4px solid #28a745; }
+        .batch-controls { background: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .real-time-log { background: #1e1e1e; color: #00ff00; font-family: 'Courier New', monospace; height: 300px; overflow-y: auto; padding: 15px; border-radius: 5px; }
+        [data-bs-theme="dark"] .batch-controls { background: #2d3035; }
+        [data-bs-theme="dark"] .real-time-log { background: #0d1117; }
+        .theme-toggle { border: none; background: none; color: inherit; }
+        .theme-toggle:hover { background-color: rgba(0,0,0,0.1); }
+        [data-bs-theme="dark"] .theme-toggle:hover { background-color: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-cpu"></i> HWAutomation - Batch Device Management
+            </a>
+            <div class="navbar-nav ms-auto d-flex flex-row">
+                <a class="nav-link me-3" href="/database">
+                    <i class="bi bi-database"></i> Database
+                </a>
+                <span class="navbar-text me-3">
+                    MaaS: <span id="maas-status" class="status-{{ 'connected' if stats.maas_status == 'connected' else 'disconnected' }}">
+                        <i class="bi bi-{{ 'check-circle' if stats.maas_status == 'connected' else 'x-circle' }}"></i>
+                        {{ stats.maas_status.title() }}
+                    </span>
+                </span>
+                <button class="btn theme-toggle btn-sm" id="themeToggle" onclick="toggleTheme()" 
+                        title="Toggle light/dark theme">
+                    <i class="bi bi-sun-fill" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <!-- System Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-hdd-rack text-primary fs-1"></i>
+                        <h5 class="card-title">Available Devices</h5>
+                        <h3 class="text-primary">{{ stats.available_machines }}</h3>
+                        <small class="text-muted">Ready for commissioning</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-gear text-info fs-1"></i>
+                        <h5 class="card-title">Device Types</h5>
+                        <h3 class="text-info">{{ stats.device_types }}</h3>
+                        <small class="text-muted">BMC configurations</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-database text-success fs-1"></i>
+                        <h5 class="card-title">Managed Servers</h5>
+                        <h3 class="text-success">{{ stats.database_servers }}</h3>
+                        <small class="text-muted">In database</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-arrow-repeat text-warning fs-1" id="workflow-spinner"></i>
+                        <h5 class="card-title">Active Workflows</h5>
+                        <h3 class="text-warning" id="active-workflows">0</h3>
+                        <small class="text-muted">Running processes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Commissioning Section -->
+        <div class="batch-controls">
+            <h4><i class="bi bi-play-circle"></i> Batch Device Commissioning</h4>
+            <p class="text-muted">Commission multiple devices of the same type simultaneously. Ensure only one device type is physically connected.</p>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="device-type-select" class="form-label">BMC Device Type:</label>
+                    <select class="form-select" id="device-type-select">
+                        <option value="">Select device type...</option>
+                        {% for device_type in device_types %}
+                        <option value="{{ device_type }}">{{ device_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                                <div class="col-md-6">
+                    <label for="ipmi-base-range" class="form-label">IPMI Base IP Range:</label>
+                    <input type="text" class="form-control" id="ipmi-base-range" value="192.168.100.50" placeholder="192.168.100.50">
+                    <div class="form-text">Base IP for IPMI assignment (auto-incremented for batch)</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button class="btn btn-primary" id="discover-devices-btn">
+                            <i class="bi bi-search"></i> Discover Devices
+                        </button>
+                        <button class="btn btn-success" id="start-batch-btn" disabled>
+                            <i class="bi bi-play-fill"></i> Start Batch
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Discovery and Selection -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card device-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-list-check"></i> Available Devices</h5>
+                        <span class="badge bg-primary" id="device-count">0 devices</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="select-all-devices">
+                            <label class="form-check-label" for="select-all-devices">
+                                <strong>Select All Devices</strong>
+                            </label>
+                        </div>
+                        <div id="devices-list" class="mt-3" style="max-height: 400px; overflow-y: auto;">
+                            {% if available_machines %}
+                                {% for machine in available_machines %}
+                                <div class="form-check">
+                                    <input class="form-check-input device-checkbox" type="checkbox" 
+                                           value="{{ machine.system_id }}" id="device-{{ machine.system_id }}">
+                                    <label class="form-check-label" for="device-{{ machine.system_id }}">
+                                        <strong>{{ machine.hostname }}</strong>
+                                        <br><small class="text-muted">{{ machine.system_id }} | {{ machine.status }}</small>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted">
+                                    <i class="bi bi-inbox fs-1"></i>
+                                    <p>No devices discovered yet. Click "Discover Devices" to scan MaaS.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card workflow-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-gear-wide-connected"></i> Active Workflows</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="refresh-workflows-btn">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="workflows-list" style="max-height: 400px; overflow-y: auto;">
+                            <div class="text-center text-muted">
+                                <i class="bi bi-clock fs-1"></i>
+                                <p>No active workflows. Start a batch commissioning to see progress here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Activity Log -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-terminal"></i> Real-time Activity Log</h5>
+                        <button class="btn btn-sm btn-outline-secondary" id="clear-log-btn">
+                            <i class="bi bi-trash"></i> Clear Log
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="activity-log" class="real-time-log">
+                            <div class="text-success">[INFO] HWAutomation GUI Ready</div>
+                            <div class="text-info">[INFO] Waiting for user actions...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS and Socket.IO -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    
+    <script>
+        // Initialize Socket.IO connection
+        const socket = io();
+        
+        // UI Elements
+        const deviceTypeSelect = document.getElementById('device-type-select');
+        const ipmiBaseRange = document.getElementById('ipmi-base-range');
+        const discoverDevicesBtn = document.getElementById('discover-devices-btn');
+        const startBatchBtn = document.getElementById('start-batch-btn');
+        const selectAllDevices = document.getElementById('select-all-devices');
+        const devicesList = document.getElementById('devices-list');
+        const workflowsList = document.getElementById('workflows-list');
+        const activityLog = document.getElementById('activity-log');
+        const deviceCount = document.getElementById('device-count');
+        const activeWorkflows = document.getElementById('active-workflows');
+        const refreshWorkflowsBtn = document.getElementById('refresh-workflows-btn');
+        const clearLogBtn = document.getElementById('clear-log-btn');
+
+        // Real-time IPMI validation
+        ipmiBaseRange.addEventListener('input', function() {
+            const value = this.value.trim();
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            
+            if (!value) {
+                this.classList.remove('is-valid', 'is-invalid');
+                return;
+            }
+            
+            if (ipPattern.test(value)) {
+                const octets = value.split('.');
+                const validOctets = octets.every(octet => {
+                    const num = parseInt(octet);
+                    return num >= 0 && num <= 255;
+                });
+                
+                if (validOctets) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Logging function
+        function addLog(message, level = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            const levelClass = level === 'error' ? 'text-danger' : level === 'warn' ? 'text-warning' : 'text-success';
+            logEntry.className = levelClass;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            activityLog.appendChild(logEntry);
+            activityLog.scrollTop = activityLog.scrollHeight;
+        }
+
+        // Discover devices from MaaS
+        discoverDevicesBtn.addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i> Discovering...';
+            addLog('Starting device discovery from MaaS API...', 'info');
+
+            try {
+                const response = await fetch('/api/maas/discover');
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayDevices(data.devices);
+                    deviceCount.textContent = `${data.available_count} devices`;
+                    addLog(`Discovered ${data.available_count} available devices (${data.total_discovered} total)`, 'info');
+                } else {
+                    addLog(`Discovery failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Discovery error: ${error.message}`, 'error');
+            }
+
+            this.disabled = false;
+            this.innerHTML = '<i class="bi bi-search"></i> Discover Devices';
+        });
+
+        // Display discovered devices
+        function displayDevices(devices) {
+            if (devices.length === 0) {
+                devicesList.innerHTML = '<div class="text-center text-muted"><i class="bi bi-inbox fs-1"></i><p>No available devices found.</p></div>';
+                return;
+            }
+
+            let html = '';
+            devices.forEach(device => {
+                html += `
+                    <div class="form-check">
+                        <input class="form-check-input device-checkbox" type="checkbox" 
+                               value="${device.system_id}" id="device-${device.system_id}">
+                        <label class="form-check-label" for="device-${device.system_id}">
+                            <strong>${device.hostname}</strong>
+                            <span class="badge bg-secondary ms-2">${device.status}</span>
+                            <br><small class="text-muted">${device.system_id} | ${device.architecture} | ${device.cpu_count} CPUs</small>
+                        </label>
+                    </div>
+                `;
+            });
+            devicesList.innerHTML = html;
+
+            // Update device selection controls
+            updateBatchButton();
+            setupDeviceCheckboxes();
+        }
+
+        // Setup device checkbox handlers
+        function setupDeviceCheckboxes() {
+            const deviceCheckboxes = document.querySelectorAll('.device-checkbox');
+            
+            deviceCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateBatchButton);
+            });
+
+            // Select all functionality
+            selectAllDevices.addEventListener('change', function() {
+                deviceCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateBatchButton();
+            });
+        }
+
+        // Update batch button state
+        function updateBatchButton() {
+            const selectedDevices = document.querySelectorAll('.device-checkbox:checked');
+            const deviceTypeSelected = deviceTypeSelect.value;
+            
+            startBatchBtn.disabled = !(selectedDevices.length > 0 && deviceTypeSelected);
+            
+            if (selectedDevices.length > 0) {
+                startBatchBtn.innerHTML = `<i class="bi bi-play-fill"></i> Start Batch (${selectedDevices.length} devices)`;
+            } else {
+                startBatchBtn.innerHTML = '<i class="bi bi-play-fill"></i> Start Batch';
+            }
+        }
+
+        // Device type selection handler
+        deviceTypeSelect.addEventListener('change', updateBatchButton);
+
+        // Start batch commissioning
+        startBatchBtn.addEventListener('click', async function() {
+            const selectedDevices = Array.from(document.querySelectorAll('.device-checkbox:checked')).map(cb => cb.value);
+            const deviceType = deviceTypeSelect.value;
+            let ipmiRange = ipmiBaseRange.value.trim();
+
+            if (!deviceType || selectedDevices.length === 0) {
+                alert('Please select a device type and at least one device.');
+                return;
+            }
+
+            // Validate IPMI range
+            if (!ipmiRange) {
+                ipmiRange = '192.168.100.50';  // Default fallback
+                ipmiBaseRange.value = ipmiRange;
+            }
+
+            // Basic IP format validation
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipPattern.test(ipmiRange)) {
+                alert('Please enter a valid IP address for IPMI range (e.g., 192.168.100.50)');
+                ipmiBaseRange.focus();
+                return;
+            }
+
+            // Validate IP octets are in valid range
+            const octets = ipmiRange.split('.');
+            for (let octet of octets) {
+                const num = parseInt(octet);
+                if (num < 0 || num > 255) {
+                    alert('Invalid IP address: octets must be between 0-255');
+                    ipmiBaseRange.focus();
+                    return;
+                }
+            }
+
+            if (!confirm(`Start batch commissioning of ${selectedDevices.length} devices as type "${deviceType}"?\nIPMI Base: ${ipmiRange}`)) {
+                return;
+            }
+
+            this.disabled = true;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i> Starting Batch...';
+            addLog(`Starting batch commissioning: ${selectedDevices.length} devices as ${deviceType}`, 'info');
+
+            try {
+                const response = await fetch('/api/batch/commission', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        device_type: deviceType,
+                        device_ids: selectedDevices,
+                        ipmi_range: ipmiRange
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addLog(`Batch started successfully: ${data.batch_id}`, 'info');
+                    data.results.forEach(result => {
+                        if (result.status === 'started') {
+                            addLog(`Device ${result.device_id}: Workflow ${result.workflow_id} started (IPMI: ${result.target_ipmi_ip})`, 'info');
+                        } else {
+                            addLog(`Device ${result.device_id}: Failed - ${result.error}`, 'error');
+                        }
+                    });
+                    
+                    // Clear selections and refresh workflows
+                    document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+                    selectAllDevices.checked = false;
+                    setTimeout(refreshWorkflows, 1000);
+                } else {
+                    addLog(`Batch start failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Batch start error: ${error.message}`, 'error');
+            }
+
+            this.disabled = false;
+            updateBatchButton();
+        });
+
+        // Refresh workflows
+        async function refreshWorkflows() {
+            try {
+                const response = await fetch('/api/workflows/status');
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayWorkflows(data.workflows);
+                    activeWorkflows.textContent = data.workflows.length;
+                } else {
+                    addLog(`Failed to refresh workflows: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Workflow refresh error: ${error.message}`, 'error');
+            }
+        }
+
+        // Display workflows
+        function displayWorkflows(workflows) {
+            if (workflows.length === 0) {
+                workflowsList.innerHTML = '<div class="text-center text-muted"><i class="bi bi-clock fs-1"></i><p>No active workflows.</p></div>';
+                return;
+            }
+
+            let html = '';
+            workflows.forEach(workflow => {
+                const statusBadge = workflow.status === 'completed' ? 'bg-success' : 
+                                  workflow.status === 'failed' ? 'bg-danger' : 'bg-primary';
+                
+                // Calculate progress based on completed steps
+                const totalSteps = workflow.steps ? workflow.steps.length : 8;
+                const completedSteps = workflow.steps ? workflow.steps.filter(s => s.status === 'completed').length : 0;
+                const progress = Math.round((completedSteps / totalSteps) * 100);
+                
+                // Get current step or fallback
+                const currentStep = workflow.current_step_name || 
+                                  (workflow.steps && workflow.steps.find(s => s.status === 'running'))?.description || 
+                                  (workflow.steps && workflow.steps.find(s => s.status === 'running'))?.name || 
+                                  'Initializing...';
+                
+                // Extract server ID from workflow ID (format: provision_serverid_timestamp)
+                const serverMatch = workflow.id?.match(/provision_([^_]+)_/);
+                const serverId = serverMatch ? serverMatch[1] : (workflow.id || 'Unknown');
+                
+                // Get device type from workflow context or ID pattern
+                const deviceType = workflow.device_type || 'BMC Device';
+                
+                html += `
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${serverId}</strong>
+                                    <span class="badge ${statusBadge} ms-2">${workflow.status}</span>
+                                </div>
+                                <small class="text-muted">${deviceType}</small>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar ${workflow.status === 'running' ? 'progress-bar-animated' : ''}" style="width: ${progress}%"></div>
+                            </div>
+                            <small class="text-muted">${currentStep}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            workflowsList.innerHTML = html;
+        }
+
+        // Event handlers
+        refreshWorkflowsBtn.addEventListener('click', refreshWorkflows);
+        clearLogBtn.addEventListener('click', function() {
+            activityLog.innerHTML = '<div class="text-success">[INFO] Log cleared</div>';
+        });
+
+        // Socket.IO event handlers
+        socket.on('connect', function() {
+            addLog('Connected to real-time updates', 'info');
+        });
+
+        socket.on('workflow_updates', function(data) {
+            displayWorkflows(data.workflows);
+            activeWorkflows.textContent = data.workflows.length;
+        });
+
+        socket.on('activity_update', function(data) {
+            addLog(data.message, data.level);
+        });
+
+        socket.on('error', function(data) {
+            addLog(`Socket error: ${data.message}`, 'error');
+        });
+
+        // Auto-refresh workflows every 10 seconds
+        setInterval(refreshWorkflows, 10000);
+
+        // Initialize
+        addLog('Dashboard initialized - Ready for batch device commissioning', 'info');
+    </script>
+</body>
+</html>

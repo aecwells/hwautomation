@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Hardware Management - HWAutomation GUI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="bi bi-motherboard"></i> Hardware Management
+        </h1>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i>
+    <strong>Coming Soon:</strong> Hardware management features including IPMI and RedFish interfaces will be available in a future update.
+</div>
+
+<!-- Hardware Interface Cards -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-cpu"></i> IPMI Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Intelligent Platform Management Interface for server hardware control.</p>
+                <button class="btn btn-outline-primary" disabled>
+                    <i class="bi bi-gear"></i> Configure IPMI
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-router"></i> RedFish Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Modern RESTful API for server management and monitoring.</p>
+                <button class="btn btn-outline-primary" disabled>
+                    <i class="bi bi-gear"></i> Configure RedFish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Implementation Status -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-check"></i> Implementation Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>BIOS Configuration</td>
+                                <td><span class="badge bg-success">Complete</span></td>
+                                <td>Smart pull-edit-push BIOS configuration management</td>
+                            </tr>
+                            <tr>
+                                <td>IPMI Interface</td>
+                                <td><span class="badge bg-warning">Planned</span></td>
+                                <td>Basic IPMI manager with placeholder implementation</td>
+                            </tr>
+                            <tr>
+                                <td>RedFish Interface</td>
+                                <td><span class="badge bg-warning">Planned</span></td>
+                                <td>Modern RESTful hardware management interface</td>
+                            </tr>
+                            <tr>
+                                <td>Hardware Discovery</td>
+                                <td><span class="badge bg-secondary">Future</span></td>
+                                <td>Automatic hardware detection and inventory</td>
+                            </tr>
+                            <tr>
+                                <td>Monitoring Dashboard</td>
+                                <td><span class="badge bg-secondary">Future</span></td>
+                                <td>Real-time hardware monitoring and alerts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

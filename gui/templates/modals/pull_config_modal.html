@@ -1,0 +1,94 @@
+<!-- Pull Configuration Modal -->
+<div class="modal fade" id="pullConfigModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-download"></i> Pull BIOS Configuration
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="modalPullConfigForm">
+                    <div class="mb-3">
+                        <label for="modalPullTargetIp" class="form-label">Target IP Address</label>
+                        <input type="text" class="form-control" id="modalPullTargetIp" required
+                               placeholder="192.168.1.100">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modalPullUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="modalPullUsername" 
+                                       value="ADMIN">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modalPullPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="modalPullPassword">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="pullConfigFromModal()">
+                    <i class="bi bi-download"></i> Pull Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function pullConfigFromModal() {
+    const targetIp = document.getElementById('modalPullTargetIp').value;
+    const username = document.getElementById('modalPullUsername').value;
+    const password = document.getElementById('modalPullPassword').value;
+    
+    if (!targetIp) {
+        alert('Please enter a target IP address');
+        return;
+    }
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('pullConfigModal'));
+    modal.hide();
+    
+    // Show progress
+    showProgress('Pulling configuration from ' + targetIp + '...');
+    
+    fetch('/api/pull-config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            target_ip: targetIp,
+            username: username,
+            password: password
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideProgress();
+        if (data.success) {
+            showResults('success', 'Configuration pulled successfully', {
+                xml: data.data.xml,
+                target_ip: data.data.target_ip
+            });
+        } else {
+            showResults('error', 'Failed to pull configuration', {
+                error: data.error
+            });
+        }
+    })
+    .catch(error => {
+        hideProgress();
+        console.error('Error:', error);
+        showResults('error', 'Error pulling configuration', {error: error.message});
+    });
+}
+</script>

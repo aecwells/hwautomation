@@ -1,0 +1,126 @@
+<!-- Quick Apply Modal -->
+<div class="modal fade" id="quickApplyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-lightning"></i> Quick Apply Configuration
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    Quick apply will use the smart pull-edit-push approach with dry run enabled by default.
+                </div>
+                
+                <form id="quickApplyForm">
+                    <input type="hidden" id="quickApplyDeviceType">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Device Type</label>
+                        <input type="text" class="form-control" id="quickApplyDeviceTypeDisplay" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="quickApplyTargetIp" class="form-label">Target IP Address</label>
+                        <input type="text" class="form-control" id="quickApplyTargetIp" required
+                               placeholder="192.168.1.100">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quickApplyUsername" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="quickApplyUsername" 
+                                       value="ADMIN">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quickApplyPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="quickApplyPassword">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="quickApplyDryRun" checked>
+                            <label class="form-check-label" for="quickApplyDryRun">
+                                Dry Run (preview changes only)
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="executeQuickApply()">
+                    <i class="bi bi-lightning"></i> Apply Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showQuickApplyModal(deviceType) {
+    document.getElementById('quickApplyDeviceType').value = deviceType;
+    document.getElementById('quickApplyDeviceTypeDisplay').value = deviceType;
+    
+    const modal = new bootstrap.Modal(document.getElementById('quickApplyModal'));
+    modal.show();
+}
+
+function executeQuickApply() {
+    const deviceType = document.getElementById('quickApplyDeviceType').value;
+    const targetIp = document.getElementById('quickApplyTargetIp').value;
+    const username = document.getElementById('quickApplyUsername').value;
+    const password = document.getElementById('quickApplyPassword').value;
+    const dryRun = document.getElementById('quickApplyDryRun').checked;
+    
+    if (!targetIp) {
+        alert('Please enter a target IP address');
+        return;
+    }
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('quickApplyModal'));
+    modal.hide();
+    
+    // Show progress
+    showProgress(`Applying ${deviceType} configuration to ${targetIp}...`);
+    
+    fetch('/api/apply-config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            device_type: deviceType,
+            target_ip: targetIp,
+            username: username,
+            password: password,
+            dry_run: dryRun
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideProgress();
+        if (data.success) {
+            showResults('success', 
+                dryRun ? 'Dry run completed successfully' : 'Configuration applied successfully', 
+                data
+            );
+        } else {
+            showResults('error', 'Failed to apply configuration', data);
+        }
+    })
+    .catch(error => {
+        hideProgress();
+        console.error('Error:', error);
+        showResults('error', 'Error applying configuration', {error: error.message});
+    });
+}
+</script>

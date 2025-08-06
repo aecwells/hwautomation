@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BiosConfig deviceType="s2_c2_small" motherboard="X11SCE-F">
+  <CPU>
+    <Setting name="hyperthreading" value="enabled"/>
+    <Setting name="turbo_boost" value="enabled"/>
+    <Setting name="power_profile" value="balanced"/>
+    <Setting name="c_states" value="enabled"/>
+    <Setting name="speedstep" value="enabled"/>
+  </CPU>
+  <Memory>
+    <Setting name="ecc_enabled" value="enabled"/>
+    <Setting name="memory_speed" value="auto"/>
+    <Setting name="memory_patrol_scrub" value="enabled"/>
+    <Setting name="memory_thermal_throttling" value="enabled"/>
+  </Memory>
+  <Boot>
+    <Setting name="boot_mode" value="uefi"/>
+    <Setting name="secure_boot" value="disabled"/>
+    <Setting name="pxe_boot" value="enabled"/>
+    <Setting name="boot_timeout" value="5"/>
+    <Setting name="quiet_boot" value="disabled"/>
+  </Boot>
+  <Power>
+    <Setting name="power_restore_policy" value="last_state"/>
+    <Setting name="ac_power_loss" value="power_on"/>
+    <Setting name="wake_on_lan" value="enabled"/>
+  </Power>
+  <BMC>
+    <Setting name="bmc_lan_configuration" value="dhcp"/>
+    <Setting name="sol_enabled" value="enabled"/>
+    <Setting name="kcs_interface" value="enabled"/>
+  </BMC>
+</BiosConfig>

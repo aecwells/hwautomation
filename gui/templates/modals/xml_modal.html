@@ -1,0 +1,139 @@
+<!-- XML Configuration Modal -->
+<div class="modal fade" id="xmlModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="xmlModalLabel">XML Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6>Generated XML Configuration:</h6>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary me-2" onclick="togglePrettyPrint()">
+                            <i class="bi bi-code"></i> <span id="prettyPrintToggle">Pretty Print</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="copyXMLToClipboard()">
+                            <i class="bi bi-clipboard"></i> Copy to Clipboard
+                        </button>
+                    </div>
+                </div>
+                <pre id="xmlContent" class="xml-content p-3" style="max-height: 500px; overflow-y: auto; font-size: 0.9em; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 0.375rem; color: #212529; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
+                    <!-- XML content loaded dynamically -->
+                </pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" onclick="downloadXML()">
+                    <i class="bi bi-download"></i> Download XML
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let rawXML = '';
+let isPrettyPrinted = false;
+
+function setXMLContent(xml) {
+    rawXML = xml;
+    isPrettyPrinted = false;
+    document.getElementById('prettyPrintToggle').textContent = 'Pretty Print';
+    displayXML(xml);
+}
+
+function displayXML(xml) {
+    const xmlContent = document.getElementById('xmlContent');
+    if (isPrettyPrinted) {
+        xmlContent.innerHTML = formatXMLWithSyntaxHighlighting(xml);
+    } else {
+        xmlContent.textContent = xml;
+    }
+}
+
+function togglePrettyPrint() {
+    isPrettyPrinted = !isPrettyPrinted;
+    const toggleBtn = document.getElementById('prettyPrintToggle');
+    
+    if (isPrettyPrinted) {
+        const prettyXML = formatXML(rawXML);
+        displayXML(prettyXML);
+        toggleBtn.textContent = 'Compact';
+    } else {
+        displayXML(rawXML);
+        toggleBtn.textContent = 'Pretty Print';
+    }
+}
+
+function formatXML(xml) {
+    const PADDING = ' '.repeat(2); // 2 spaces for indentation
+    const reg = /(>)(<)(\/*)/g;
+    let formatted = xml.replace(reg, '$1\r\n$2$3');
+    let pad = 0;
+    
+    return formatted.split('\r\n').map(line => {
+        let indent = 0;
+        if (line.match(/.+<\/\w[^>]*>$/)) {
+            indent = 0;
+        } else if (line.match(/^<\/\w/) && pad > 0) {
+            pad -= 1;
+        } else if (line.match(/^<\w[^>]*[^\/]>.*$/)) {
+            indent = 1;
+        } else {
+            indent = 0;
+        }
+        
+        const padding = PADDING.repeat(pad);
+        pad += indent;
+        return padding + line;
+    }).join('\r\n');
+}
+
+function formatXMLWithSyntaxHighlighting(xml) {
+    const formatted = formatXML(xml);
+    return formatted
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/(&lt;\/?)([\w-]+)(.*?)(&gt;)/g, '<span style="color: #0066cc;">$1</span><span style="color: #cc0000; font-weight: bold;">$2</span><span style="color: #0066cc;">$3$4</span>')
+        .replace(/([\w-]+)(=)("[^"]*")/g, '<span style="color: #cc6600;">$1</span><span style="color: #666;">$2</span><span style="color: #009900;">$3</span>');
+}
+
+function copyXMLToClipboard() {
+    const xmlContent = isPrettyPrinted ? formatXML(rawXML) : rawXML;
+    navigator.clipboard.writeText(xmlContent).then(function() {
+        // Show brief success message
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline-primary');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-primary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy to clipboard');
+    });
+}
+
+function downloadXML() {
+    const xmlContent = isPrettyPrinted ? formatXML(rawXML) : rawXML;
+    const modalTitle = document.getElementById('xmlModalLabel').textContent;
+    const deviceType = modalTitle.replace('XML Configuration for ', '');
+    
+    const blob = new Blob([xmlContent], { type: 'application/xml' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${deviceType}_bios_config.xml`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+</script>

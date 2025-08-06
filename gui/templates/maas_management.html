@@ -1,0 +1,1324 @@
+{% extends "base.html" %}
+
+{% block title %}MaaS Management - HWAutomation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="bi bi-cloud-arrow-up"></i> MaaS Management
+            </h1>
+        </div>
+    </div>
+
+    <!-- MaaS Connection Status -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-wifi"></i> MaaS Connection
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="maas-connection-status">
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span>Checking connection...</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-primary btn-sm" onclick="checkMaasConnection()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh Connection
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="showMaasConfigModal()">
+                            <i class="bi bi-gear"></i> Configure
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-bar-chart"></i> MaaS Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="maas-stats">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h4 class="text-primary mb-0" id="total-machines">-</h4>
+                                    <small class="text-muted">Total Machines</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h4 class="text-success mb-0" id="ready-machines">-</h4>
+                                    <small class="text-muted">Ready</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h4 class="text-info mb-0" id="deployed-machines">-</h4>
+                                    <small class="text-muted">Deployed</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <h4 class="text-warning mb-0" id="commissioning-machines">-</h4>
+                                    <small class="text-muted">Commissioning</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Machine Management -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-server"></i> Machine Management
+                    </h5>
+                    <div>
+                        <button class="btn btn-success btn-sm" onclick="refreshMachines()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <input type="radio" class="btn-check" name="status-filter" id="filter-all" value="all" checked>
+                            <label class="btn btn-outline-primary" for="filter-all">All</label>
+                            
+                            <input type="radio" class="btn-check" name="status-filter" id="filter-ready" value="ready">
+                            <label class="btn btn-outline-success" for="filter-ready">Ready</label>
+                            
+                            <input type="radio" class="btn-check" name="status-filter" id="filter-deployed" value="deployed">
+                            <label class="btn btn-outline-info" for="filter-deployed">Deployed</label>
+                            
+                            <input type="radio" class="btn-check" name="status-filter" id="filter-commissioning" value="commissioning">
+                            <label class="btn btn-outline-warning" for="filter-commissioning">Commissioning</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="machines-loading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading machines...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading machines from MaaS...</p>
+                    </div>
+                    
+                    <div id="machines-table-container" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="machines-table">
+                                <thead>
+                                    <tr>
+                                        <th>System ID</th>
+                                        <th>Hostname</th>
+                                        <th>Status</th>
+                                        <th>Power State</th>
+                                        <th>IP Address</th>
+                                        <th>Architecture</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="machines-tbody">
+                                    <!-- Machine rows will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="machines-error" style="display: none;" class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Error loading machines:</strong>
+                        <span id="machines-error-text"></span>
+                        <button class="btn btn-outline-danger btn-sm ms-2" onclick="refreshMachines()">
+                            <i class="bi bi-arrow-clockwise"></i> Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning-charge"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-primary" onclick="showBulkActionModal('commission')">
+                                    <i class="bi bi-gear"></i>
+                                    Bulk Commission
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-success" onclick="showBulkActionModal('deploy')">
+                                    <i class="bi bi-play-circle"></i>
+                                    Bulk Deploy
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-warning" onclick="showBulkActionModal('release')">
+                                    <i class="bi bi-stop-circle"></i>
+                                    Bulk Release
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="d-grid">
+                                <button class="btn btn-info" onclick="exportMachineData()">
+                                    <i class="bi bi-download"></i>
+                                    Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Machine Action Modal -->
+<div class="modal fade" id="machineActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="machineActionModalTitle">Machine Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="machineActionContent">
+                    <!-- Content will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="machineActionConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MaaS Configuration Modal -->
+<div class="modal fade" id="maasConfigModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">MaaS Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="maasConfigForm">
+                    <div class="mb-3">
+                        <label for="maasHost" class="form-label">MaaS Host URL</label>
+                        <input type="url" class="form-control" id="maasHost" placeholder="http://maas-server:5240/MAAS">
+                    </div>
+                    <div class="mb-3">
+                        <label for="maasConsumerKey" class="form-label">Consumer Key</label>
+                        <input type="text" class="form-control" id="maasConsumerKey">
+                    </div>
+                    <div class="mb-3">
+                        <label for="maasTokenKey" class="form-label">Token Key</label>
+                        <input type="text" class="form-control" id="maasTokenKey">
+                    </div>
+                    <div class="mb-3">
+                        <label for="maasTokenSecret" class="form-label">Token Secret</label>
+                        <input type="password" class="form-control" id="maasTokenSecret">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="testMaasConnection()">Test Connection</button>
+                <button type="button" class="btn btn-success" onclick="saveMaasConfig()">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// MaaS Management JavaScript
+let machinesData = [];
+let currentFilter = 'all';
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    checkMaasConnection();
+    refreshMachines();
+    
+    // Setup filter handlers
+    document.querySelectorAll('input[name="status-filter"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            currentFilter = this.value;
+            filterMachines();
+        });
+    });
+});
+
+function checkMaasConnection() {
+    const statusEl = document.getElementById('maas-connection-status');
+    statusEl.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+            <span>Checking connection...</span>
+        </div>
+    `;
+    
+    fetch('/api/maas/connection')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusEl.innerHTML = `
+                    <div class="d-flex align-items-center text-success">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span><strong>Connected</strong> - ${data.machine_count} machines found</span>
+                    </div>
+                    <small class="text-muted">Host: ${data.host}</small>
+                `;
+            } else {
+                statusEl.innerHTML = `
+                    <div class="d-flex align-items-center text-danger">
+                        <i class="bi bi-x-circle-fill me-2"></i>
+                        <span><strong>Connection Failed</strong></span>
+                    </div>
+                    <small class="text-muted">${data.error}</small>
+                `;
+            }
+        })
+        .catch(error => {
+            statusEl.innerHTML = `
+                <div class="d-flex align-items-center text-danger">
+                    <i class="bi bi-x-circle-fill me-2"></i>
+                    <span><strong>Error</strong> - ${error.message}</span>
+                </div>
+            `;
+        });
+}
+
+function refreshMachines() {
+    const loadingEl = document.getElementById('machines-loading');
+    const tableEl = document.getElementById('machines-table-container');
+    const errorEl = document.getElementById('machines-error');
+    
+    loadingEl.style.display = 'block';
+    tableEl.style.display = 'none';
+    errorEl.style.display = 'none';
+    
+    fetch('/api/maas/machines')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                machinesData = data.data;
+                updateMachinesTable();
+                updateStatistics();
+                
+                loadingEl.style.display = 'none';
+                tableEl.style.display = 'block';
+            } else {
+                throw new Error(data.error);
+            }
+        })
+        .catch(error => {
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            document.getElementById('machines-error-text').textContent = error.message;
+        });
+}
+
+function updateMachinesTable() {
+    const tbody = document.getElementById('machines-tbody');
+    tbody.innerHTML = '';
+    
+    const filteredMachines = filterMachinesByStatus(machinesData, currentFilter);
+    
+    filteredMachines.forEach(machine => {
+        const row = createMachineRow(machine);
+        tbody.appendChild(row);
+    });
+}
+
+function createMachineRow(machine) {
+    const row = document.createElement('tr');
+    
+    const statusBadge = getStatusBadge(machine.status_name);
+    const powerBadge = getPowerBadge(machine.power_state);
+    const actions = getMachineActions(machine);
+    
+    row.innerHTML = `
+        <td><code>${machine.system_id}</code></td>
+        <td>${machine.hostname || 'N/A'}</td>
+        <td>${statusBadge}</td>
+        <td>${powerBadge}</td>
+        <td>${machine.ip_address || 'N/A'}</td>
+        <td>${machine.architecture}</td>
+        <td>${actions}</td>
+    `;
+    
+    return row;
+}
+
+function getStatusBadge(status) {
+    const statusMap = {
+        'Ready': 'success',
+        'Deployed': 'info',
+        'Commissioning': 'warning',
+        'Failed': 'danger',
+        'Broken': 'danger'
+    };
+    const badgeClass = statusMap[status] || 'secondary';
+    return `<span class="badge bg-${badgeClass}">${status}</span>`;
+}
+
+function getPowerBadge(powerState) {
+    const isOn = powerState === 'on';
+    const badgeClass = isOn ? 'success' : 'secondary';
+    const icon = isOn ? 'power' : 'circle';
+    return `<span class="badge bg-${badgeClass}"><i class="bi bi-${icon}"></i> ${powerState}</span>`;
+}
+
+function getMachineActions(machine) {
+    return `
+        <div class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-outline-primary btn-sm" onclick="machineAction('${machine.system_id}', 'details')" title="Details">
+                <i class="bi bi-info-circle"></i>
+            </button>
+            <button class="btn btn-outline-warning btn-sm" onclick="machineAction('${machine.system_id}', 'commission')" title="Commission">
+                <i class="bi bi-gear"></i>
+            </button>
+            <button class="btn btn-outline-warning btn-sm" onclick="machineAction('${machine.system_id}', 'force_commission')" title="Force Commission">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <button class="btn btn-outline-success btn-sm" onclick="machineAction('${machine.system_id}', 'deploy')" title="Deploy">
+                <i class="bi bi-play-circle"></i>
+            </button>
+            <button class="btn btn-outline-danger btn-sm" onclick="machineAction('${machine.system_id}', 'release')" title="Release">
+                <i class="bi bi-stop-circle"></i>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="machineAction('${machine.system_id}', 'abort')" title="Abort Operations">
+                <i class="bi bi-x-circle"></i>
+            </button>
+        </div>
+    `;
+}
+
+function filterMachinesByStatus(machines, filter) {
+    if (filter === 'all') return machines;
+    
+    const statusMap = {
+        'ready': 'Ready',
+        'deployed': 'Deployed',
+        'commissioning': 'Commissioning'
+    };
+    
+    return machines.filter(machine => machine.status_name === statusMap[filter]);
+}
+
+function filterMachines() {
+    updateMachinesTable();
+}
+
+function updateStatistics() {
+    // Update from current machines data
+    const total = machinesData.length;
+    const ready = machinesData.filter(m => m.status_name === 'Ready').length;
+    const deployed = machinesData.filter(m => m.status_name === 'Deployed').length;
+    const commissioning = machinesData.filter(m => m.status_name === 'Commissioning').length;
+    
+    document.getElementById('total-machines').textContent = total;
+    document.getElementById('ready-machines').textContent = ready;
+    document.getElementById('deployed-machines').textContent = deployed;
+    document.getElementById('commissioning-machines').textContent = commissioning;
+    
+    // Also fetch detailed statistics from API
+    fetch('/api/maas/statistics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                document.getElementById('total-machines').textContent = stats.total;
+                document.getElementById('ready-machines').textContent = stats.ready;
+                document.getElementById('deployed-machines').textContent = stats.deployed;
+                document.getElementById('commissioning-machines').textContent = stats.commissioning;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching statistics:', error);
+        });
+}
+
+function machineAction(systemId, action) {
+    if (action === 'details') {
+        showMachineDetails(systemId);
+        return;
+    }
+    
+    // Show confirmation modal for other actions
+    showMachineActionModal(systemId, action);
+}
+
+function showMachineDetails(systemId) {
+    const machine = machinesData.find(m => m.system_id === systemId);
+    if (!machine) {
+        alert('Machine not found');
+        return;
+    }
+    
+    const modalTitle = document.getElementById('machineActionModalTitle');
+    const modalContent = document.getElementById('machineActionContent');
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    
+    modalTitle.textContent = `Machine Details - ${machine.hostname || systemId}`;
+    confirmBtn.style.display = 'none';
+    
+    modalContent.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Basic Information</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>System ID:</strong></td><td><code>${machine.system_id}</code></td></tr>
+                    <tr><td><strong>Hostname:</strong></td><td>${machine.hostname || 'N/A'}</td></tr>
+                    <tr><td><strong>Status:</strong></td><td>${getStatusBadge(machine.status_name)}</td></tr>
+                    <tr><td><strong>Power State:</strong></td><td>${getPowerBadge(machine.power_state)}</td></tr>
+                    <tr><td><strong>Architecture:</strong></td><td>${machine.architecture}</td></tr>
+                    <tr><td><strong>Owner:</strong></td><td>${machine.owner || 'N/A'}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Hardware Information</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Memory:</strong></td><td>${formatMemory(machine.memory)}</td></tr>
+                    <tr><td><strong>CPU Count:</strong></td><td>${machine.cpu_count || 'N/A'}</td></tr>
+                    <tr><td><strong>Storage:</strong></td><td>${formatStorage(machine.storage)}</td></tr>
+                    <tr><td><strong>IP Address:</strong></td><td>${machine.ip_address || 'N/A'}</td></tr>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('machineActionModal'));
+    modal.show();
+}
+
+function showMachineActionModal(systemId, action) {
+    const machine = machinesData.find(m => m.system_id === systemId);
+    if (!machine) {
+        alert('Machine not found');
+        return;
+    }
+    
+    const modalTitle = document.getElementById('machineActionModalTitle');
+    const modalContent = document.getElementById('machineActionContent');
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    
+    const actionConfig = {
+        'commission': {
+            title: 'Commission Machine',
+            icon: 'gear',
+            color: 'warning',
+            description: 'Commission this machine to prepare it for deployment. This will run hardware tests and configure the machine.',
+            confirmText: 'Commission Machine'
+        },
+        'force_commission': {
+            title: 'Force Commission Machine',
+            icon: 'arrow-clockwise',
+            color: 'warning',
+            description: 'Force recommissioning of this machine. This will restart the commissioning process from the beginning, useful for machines in "Ready" status without IP addresses or to resolve commissioning issues.',
+            confirmText: 'Force Commission Machine'
+        },
+        'deploy': {
+            title: 'Deploy Machine',
+            icon: 'play-circle',
+            color: 'success',
+            description: 'Deploy an operating system to this machine.',
+            confirmText: 'Deploy Machine'
+        },
+        'release': {
+            title: 'Release Machine',
+            icon: 'stop-circle',
+            color: 'danger',
+            description: 'Release this machine back to the available pool. This will stop any running services and make it available for redeployment.',
+            confirmText: 'Release Machine'
+        },
+        'abort': {
+            title: 'Abort Operations',
+            icon: 'x-circle',
+            color: 'secondary',
+            description: 'Abort any currently running operations on this machine.',
+            confirmText: 'Abort Operations'
+        }
+    };
+    
+    const config = actionConfig[action];
+    if (!config) {
+        alert('Unknown action');
+        return;
+    }
+    
+    modalTitle.innerHTML = `<i class="bi bi-${config.icon}"></i> ${config.title}`;
+    confirmBtn.style.display = 'block';
+    confirmBtn.className = `btn btn-${config.color}`;
+    confirmBtn.textContent = config.confirmText;
+    
+    let additionalOptions = '';
+    if (action === 'deploy') {
+        additionalOptions = `
+            <div class="mb-3">
+                <label for="osSelection" class="form-label">Operating System</label>
+                <select class="form-select" id="osSelection">
+                    <option value="">Default OS</option>
+                    <option value="ubuntu/focal">Ubuntu 20.04 LTS</option>
+                    <option value="ubuntu/jammy">Ubuntu 22.04 LTS</option>
+                    <option value="centos/8">CentOS 8</option>
+                    <option value="rhel/8">RHEL 8</option>
+                </select>
+            </div>
+        `;
+    }
+    
+    modalContent.innerHTML = `
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            ${config.description}
+        </div>
+        
+        <div class="mb-3">
+            <strong>Target Machine:</strong>
+            <div class="mt-1">
+                <code>${machine.system_id}</code> - ${machine.hostname || 'No hostname'}
+                <br><small class="text-muted">Current Status: ${machine.status_name}</small>
+            </div>
+        </div>
+        
+        ${additionalOptions}
+        
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Warning:</strong> This action cannot be undone. Please confirm you want to proceed.
+        </div>
+    `;
+    
+    // Set up confirm button click handler
+    confirmBtn.onclick = () => executeMachineAction(systemId, action);
+    
+    const modal = new bootstrap.Modal(document.getElementById('machineActionModal'));
+    modal.show();
+}
+
+function executeMachineAction(systemId, action) {
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    const originalText = confirmBtn.textContent;
+    
+    // Show loading state
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    
+    const payload = { action };
+    
+    // Add OS selection for deploy action
+    if (action === 'deploy') {
+        const osSelect = document.getElementById('osSelection');
+        if (osSelect && osSelect.value) {
+            payload.os_name = osSelect.value;
+        }
+    }
+    
+    fetch(`/api/maas/machines/${systemId}/action`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Success
+            showNotification(`${action.charAt(0).toUpperCase() + action.slice(1)} action completed successfully!`, 'success');
+            
+            // Close modal and refresh machines
+            bootstrap.Modal.getInstance(document.getElementById('machineActionModal')).hide();
+            setTimeout(() => {
+                refreshMachines();
+            }, 1000);
+        } else {
+            // Error
+            showNotification(`Failed to ${action} machine: ${data.error}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(`Error performing ${action}: ${error.message}`, 'error');
+    })
+    .finally(() => {
+        // Reset button state
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = originalText;
+    });
+}
+
+function formatMemory(memory) {
+    if (!memory) return 'N/A';
+    const gb = Math.round(memory / 1024);
+    return `${gb} GB`;
+}
+
+function formatStorage(storage) {
+    if (!storage) return 'N/A';
+    const gb = Math.round(storage / (1024 * 1024 * 1024));
+    return `${gb} GB`;
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    
+    const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+    
+    notification.innerHTML = `
+        <i class="bi bi-${icon}"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close notification"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+function showBulkActionModal(action) {
+    const actionConfig = {
+        'commission': {
+            title: 'Bulk Commission Machines',
+            icon: 'gear',
+            color: 'warning',
+            description: 'Commission multiple machines to prepare them for deployment.',
+            confirmText: 'Commission Selected Machines'
+        },
+        'deploy': {
+            title: 'Bulk Deploy Machines',
+            icon: 'play-circle',
+            color: 'success',
+            description: 'Deploy operating systems to multiple machines.',
+            confirmText: 'Deploy Selected Machines'
+        },
+        'release': {
+            title: 'Bulk Release Machines',
+            icon: 'stop-circle',
+            color: 'danger',
+            description: 'Release multiple machines back to the available pool.',
+            confirmText: 'Release Selected Machines'
+        }
+    };
+    
+    const config = actionConfig[action];
+    if (!config) {
+        alert('Unknown bulk action');
+        return;
+    }
+    
+    const modalTitle = document.getElementById('machineActionModalTitle');
+    const modalContent = document.getElementById('machineActionContent');
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    
+    modalTitle.innerHTML = `<i class="bi bi-${config.icon}"></i> ${config.title}`;
+    confirmBtn.style.display = 'block';
+    confirmBtn.className = `btn btn-${config.color}`;
+    confirmBtn.textContent = config.confirmText;
+    
+    // Get available machines for this action
+    const availableMachines = getAvailableMachinesForAction(action);
+    
+    if (availableMachines.length === 0) {
+        modalContent.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                No machines are available for ${action} action.
+            </div>
+        `;
+        confirmBtn.style.display = 'none';
+        const modal = new bootstrap.Modal(document.getElementById('machineActionModal'));
+        modal.show();
+        return;
+    }
+    
+    let additionalOptions = '';
+    if (action === 'deploy') {
+        additionalOptions = `
+            <div class="mb-3">
+                <label for="bulkOsSelection" class="form-label">Operating System</label>
+                <select class="form-select" id="bulkOsSelection">
+                    <option value="">Default OS</option>
+                    <option value="ubuntu/focal">Ubuntu 20.04 LTS</option>
+                    <option value="ubuntu/jammy">Ubuntu 22.04 LTS</option>
+                    <option value="centos/8">CentOS 8</option>
+                    <option value="rhel/8">RHEL 8</option>
+                </select>
+            </div>
+        `;
+    }
+    
+    modalContent.innerHTML = `
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            ${config.description}
+        </div>
+        
+        ${additionalOptions}
+        
+        <div class="mb-3">
+            <label class="form-label">Select Machines (${availableMachines.length} available):</label>
+            <div class="d-flex justify-content-between mb-2">
+                <div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllMachines(true)">Select All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllMachines(false)">Select None</button>
+                </div>
+                <span id="selectedCount">0 selected</span>
+            </div>
+            <div class="border rounded p-2" style="max-height: 300px; overflow-y: auto;">
+                <div id="machineCheckboxes">
+                    ${availableMachines.map(machine => `
+                        <div class="form-check">
+                            <input class="form-check-input machine-checkbox" type="checkbox" value="${machine.system_id}" 
+                                   id="machine-${machine.system_id}" onchange="updateSelectedCount()">
+                            <label class="form-check-label" for="machine-${machine.system_id}">
+                                <strong>${machine.hostname || machine.system_id}</strong>
+                                <small class="text-muted d-block">${machine.system_id} - ${machine.status_name}</small>
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Warning:</strong> This action will be applied to all selected machines and cannot be undone.
+        </div>
+    `;
+    
+    // Set up confirm button click handler
+    confirmBtn.onclick = () => executeBulkAction(action);
+    
+    // Initialize selected count
+    updateSelectedCount();
+    
+    const modal = new bootstrap.Modal(document.getElementById('machineActionModal'));
+    modal.show();
+}
+
+function getAvailableMachinesForAction(action) {
+    if (!machinesData) return [];
+    
+    switch (action) {
+        case 'commission':
+            return machinesData.filter(m => ['New', 'Failed testing', 'Broken'].includes(m.status_name));
+        case 'deploy':
+            return machinesData.filter(m => m.status_name === 'Ready');
+        case 'release':
+            return machinesData.filter(m => ['Deployed', 'Failed deployment'].includes(m.status_name));
+        default:
+            return [];
+    }
+}
+
+function selectAllMachines(selectAll) {
+    const checkboxes = document.querySelectorAll('.machine-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const selectedCheckboxes = document.querySelectorAll('.machine-checkbox:checked');
+    const countElement = document.getElementById('selectedCount');
+    if (countElement) {
+        countElement.textContent = `${selectedCheckboxes.length} selected`;
+    }
+    
+    // Update confirm button state
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    if (confirmBtn) {
+        confirmBtn.disabled = selectedCheckboxes.length === 0;
+    }
+}
+
+function executeBulkAction(action) {
+    const selectedCheckboxes = document.querySelectorAll('.machine-checkbox:checked');
+    const selectedMachines = Array.from(selectedCheckboxes).map(cb => cb.value);
+    
+    if (selectedMachines.length === 0) {
+        alert('Please select at least one machine');
+        return;
+    }
+    
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    const originalText = confirmBtn.textContent;
+    
+    // Show loading state
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+    
+    const payload = { action };
+    
+    // Add OS selection for deploy action
+    if (action === 'deploy') {
+        const osSelect = document.getElementById('bulkOsSelection');
+        if (osSelect && osSelect.value) {
+            payload.os_name = osSelect.value;
+        }
+    }
+    
+    // Execute actions in parallel
+    const promises = selectedMachines.map(systemId => 
+        fetch(`/api/maas/machines/${systemId}/action`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        }).then(response => response.json())
+    );
+    
+    Promise.allSettled(promises)
+        .then(results => {
+            const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+            const failed = results.length - successful;
+            
+            let message;
+            let type;
+            
+            if (failed === 0) {
+                message = `Successfully ${action}ed ${successful} machine(s)!`;
+                type = 'success';
+            } else if (successful === 0) {
+                message = `Failed to ${action} all ${failed} machine(s)`;
+                type = 'error';
+            } else {
+                message = `${action.charAt(0).toUpperCase() + action.slice(1)} completed: ${successful} successful, ${failed} failed`;
+                type = 'warning';
+            }
+            
+            showNotification(message, type);
+            
+            // Close modal and refresh machines
+            bootstrap.Modal.getInstance(document.getElementById('machineActionModal')).hide();
+            setTimeout(() => {
+                refreshMachines();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification(`Error performing bulk ${action}: ${error.message}`, 'error');
+        })
+        .finally(() => {
+            // Reset button state
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = originalText;
+        });
+}
+
+function showMaasConfigModal() {
+    const modal = new bootstrap.Modal(document.getElementById('maasConfigModal'));
+    modal.show();
+}
+
+function exportMachineData(format = 'csv') {
+    if (!machinesData || machinesData.length === 0) {
+        showNotification('No machine data to export', 'warning');
+        return;
+    }
+    
+    // Show export modal to let user choose format
+    if (!format || format === 'csv') {
+        showExportModal();
+        return;
+    }
+    
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+    let filename, content, mimeType;
+    
+    switch (format) {
+        case 'csv':
+            ({ content, filename, mimeType } = exportToCSV(timestamp));
+            break;
+        case 'json':
+            ({ content, filename, mimeType } = exportToJSON(timestamp));
+            break;
+        case 'excel':
+            ({ content, filename, mimeType } = exportToExcel(timestamp));
+            break;
+        default:
+            showNotification('Unknown export format', 'error');
+            return;
+    }
+    
+    // Create and trigger download
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification(`Machine data exported to ${filename}`, 'success');
+}
+
+function showExportModal() {
+    const modalTitle = document.getElementById('machineActionModalTitle');
+    const modalContent = document.getElementById('machineActionContent');
+    const confirmBtn = document.getElementById('machineActionConfirm');
+    
+    modalTitle.innerHTML = '<i class="bi bi-download"></i> Export Machine Data';
+    confirmBtn.style.display = 'block';
+    confirmBtn.className = 'btn btn-primary';
+    confirmBtn.textContent = 'Export Data';
+    
+    modalContent.innerHTML = `
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Export machine data in your preferred format.
+        </div>
+        
+        <div class="mb-3">
+            <label for="exportFormat" class="form-label">Export Format</label>
+            <select class="form-select" id="exportFormat">
+                <option value="csv">CSV (Comma Separated Values)</option>
+                <option value="json">JSON (JavaScript Object Notation)</option>
+                <option value="excel">Excel Compatible CSV</option>
+            </select>
+            <div class="form-text">
+                <strong>CSV:</strong> Best for spreadsheet applications<br>
+                <strong>JSON:</strong> Best for programmatic processing<br>
+                <strong>Excel:</strong> Optimized for Microsoft Excel
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <h6>Export Summary</h6>
+            <ul class="list-unstyled">
+                <li><i class="bi bi-server"></i> <strong>${machinesData.length}</strong> machines</li>
+                <li><i class="bi bi-calendar"></i> Exported on: ${new Date().toLocaleString()}</li>
+            </ul>
+        </div>
+    `;
+    
+    confirmBtn.onclick = () => {
+        const format = document.getElementById('exportFormat').value;
+        bootstrap.Modal.getInstance(document.getElementById('machineActionModal')).hide();
+        setTimeout(() => exportMachineData(format), 300);
+    };
+    
+    const modal = new bootstrap.Modal(document.getElementById('machineActionModal'));
+    modal.show();
+}
+
+function exportToCSV(timestamp) {
+    const headers = [
+        'System ID', 'Hostname', 'Status', 'Architecture', 'CPU Cores', 
+        'Memory (GB)', 'Storage (GB)', 'Power Type', 'IP Address', 
+        'MAC Address', 'Zone', 'Pool', 'Tags'
+    ];
+    
+    const csvData = machinesData.map(machine => [
+        machine.system_id || '',
+        machine.hostname || '',
+        machine.status_name || '',
+        machine.architecture || '',
+        machine.cpu_count || '',
+        machine.memory ? (machine.memory / 1024).toFixed(2) : '',
+        machine.storage ? (machine.storage / (1024 * 1024 * 1024)).toFixed(2) : '',
+        machine.power_type || '',
+        machine.ip_addresses ? machine.ip_addresses.join(';') : '',
+        machine.boot_interface ? machine.boot_interface.mac_address : '',
+        machine.zone ? machine.zone.name : '',
+        machine.pool ? machine.pool.name : '',
+        machine.tag_names ? machine.tag_names.join(';') : ''
+    ]);
+    
+    const content = [headers, ...csvData]
+        .map(row => row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+    
+    return {
+        content,
+        filename: `maas-machines-${timestamp}.csv`,
+        mimeType: 'text/csv'
+    };
+}
+
+function exportToJSON(timestamp) {
+    const exportData = {
+        exported_at: new Date().toISOString(),
+        total_machines: machinesData.length,
+        machines: machinesData.map(machine => ({
+            system_id: machine.system_id,
+            hostname: machine.hostname,
+            status: {
+                name: machine.status_name,
+                code: machine.status
+            },
+            hardware: {
+                architecture: machine.architecture,
+                cpu_count: machine.cpu_count,
+                memory_mb: machine.memory,
+                memory_gb: machine.memory ? (machine.memory / 1024).toFixed(2) : null,
+                storage_bytes: machine.storage,
+                storage_gb: machine.storage ? (machine.storage / (1024 * 1024 * 1024)).toFixed(2) : null
+            },
+            network: {
+                ip_addresses: machine.ip_addresses || [],
+                mac_address: machine.boot_interface ? machine.boot_interface.mac_address : null
+            },
+            management: {
+                power_type: machine.power_type,
+                zone: machine.zone ? machine.zone.name : null,
+                pool: machine.pool ? machine.pool.name : null,
+                tags: machine.tag_names || []
+            }
+        }))
+    };
+    
+    return {
+        content: JSON.stringify(exportData, null, 2),
+        filename: `maas-machines-${timestamp}.json`,
+        mimeType: 'application/json'
+    };
+}
+
+function exportToExcel(timestamp) {
+    // Create a simplified Excel-compatible CSV with proper formatting
+    const headers = [
+        'System ID', 'Hostname', 'Status', 'Architecture', 'CPU Cores', 
+        'Memory (GB)', 'Storage (GB)', 'Power Type', 'IP Addresses', 
+        'MAC Address', 'Zone', 'Pool', 'Tags', 'Last Seen'
+    ];
+    
+    const excelData = machinesData.map(machine => [
+        machine.system_id || '',
+        machine.hostname || '',
+        machine.status_name || '',
+        machine.architecture || '',
+        machine.cpu_count || 0,
+        machine.memory ? (machine.memory / 1024).toFixed(2) : 0,
+        machine.storage ? (machine.storage / (1024 * 1024 * 1024)).toFixed(2) : 0,
+        machine.power_type || '',
+        machine.ip_addresses ? machine.ip_addresses.join(', ') : '',
+        machine.boot_interface ? machine.boot_interface.mac_address : '',
+        machine.zone ? machine.zone.name : '',
+        machine.pool ? machine.pool.name : '',
+        machine.tag_names ? machine.tag_names.join(', ') : '',
+        new Date().toISOString().split('T')[0]
+    ]);
+    
+    // Create Excel-compatible content with UTF-8 BOM
+    const content = '\ufeff' + [headers, ...excelData]
+        .map(row => row.map(field => {
+            const str = String(field);
+            // Escape quotes and wrap in quotes if contains comma, quote, or newline
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }).join(','))
+        .join('\n');
+    
+    return {
+        content,
+        filename: `maas-machines-${timestamp}.csv`,
+        mimeType: 'text/csv;charset=utf-8'
+    };
+}
+function saveMaasConfig() {
+    const form = document.getElementById('maasConfigForm');
+    if (!form) {
+        showNotification('Configuration form not found', 'error');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    const config = {};
+    
+    // Extract form data
+    for (let [key, value] of formData.entries()) {
+        config[key] = value;
+    }
+    
+    // Validate required fields
+    const requiredFields = ['url', 'consumer_token', 'secret'];
+    const missingFields = requiredFields.filter(field => !config[field] || config[field].trim() === '');
+    
+    if (missingFields.length > 0) {
+        showNotification(`Missing required fields: ${missingFields.join(', ')}`, 'error');
+        return;
+    }
+    
+    const saveBtn = document.querySelector('button[onclick="saveMaasConfig()"]');
+    const originalText = saveBtn.textContent;
+    
+    // Show loading state
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    
+    fetch('/api/maas/config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('MAAS configuration saved successfully!', 'success');
+            // Test connection automatically after saving
+            setTimeout(() => testMaasConnection(), 1000);
+        } else {
+            showNotification(`Failed to save configuration: ${data.error}`, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(`Error saving configuration: ${error.message}`, 'error');
+    })
+    .finally(() => {
+        // Reset button state
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+    });
+}
+
+function testMaasConnection() {
+    const testBtn = document.querySelector('button[onclick="testMaasConnection()"]');
+    const statusElement = document.getElementById('maasConnectionStatus');
+    const originalText = testBtn.textContent;
+    
+    // Show loading state
+    testBtn.disabled = true;
+    testBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Testing...';
+    
+    if (statusElement) {
+        statusElement.innerHTML = '<span class="text-warning"><i class="bi bi-clock"></i> Testing connection...</span>';
+    }
+    
+    fetch('/api/maas/test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const message = `Connection successful! Found ${data.machine_count || 0} machines.`;
+            showNotification(message, 'success');
+            
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <span class="text-success">
+                        <i class="bi bi-check-circle"></i> Connected
+                        <small class="d-block">MAAS Version: ${data.version || 'Unknown'}</small>
+                        <small class="d-block">Machines: ${data.machine_count || 0}</small>
+                    </span>
+                `;
+            }
+            
+            // Refresh machines if we're on the machines tab
+            if (document.querySelector('#machinesTable')) {
+                setTimeout(() => refreshMachines(), 500);
+            }
+        } else {
+            const errorMsg = data.error || 'Connection failed';
+            showNotification(`Connection test failed: ${errorMsg}`, 'error');
+            
+            if (statusElement) {
+                statusElement.innerHTML = `
+                    <span class="text-danger">
+                        <i class="bi bi-x-circle"></i> Connection Failed
+                        <small class="d-block">${errorMsg}</small>
+                    </span>
+                `;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const errorMsg = `Error testing connection: ${error.message}`;
+        showNotification(errorMsg, 'error');
+        
+        if (statusElement) {
+            statusElement.innerHTML = `
+                <span class="text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Test Error
+                    <small class="d-block">${error.message}</small>
+                </span>
+            `;
+        }
+    })
+    .finally(() => {
+        // Reset button state
+        testBtn.disabled = false;
+        testBtn.textContent = originalText;
+    });
+}
+
+function loadMaasConfig() {
+    fetch('/api/maas/config')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.config) {
+            const form = document.getElementById('maasConfigForm');
+            if (form) {
+                // Populate form fields
+                Object.keys(data.config).forEach(key => {
+                    const field = form.querySelector(`[name="${key}"]`);
+                    if (field) {
+                        field.value = data.config[key] || '';
+                    }
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error loading MAAS config:', error);
+        showNotification('Failed to load MAAS configuration', 'warning');
+    });
+}  
+</script>
+{% endblock %}

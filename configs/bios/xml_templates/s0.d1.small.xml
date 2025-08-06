@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Auto-generated BIOS template for s0.d1.small -->
+<!-- Small server - 4 cores, 16GB RAM, Intel Xeon E3-1240v3 -->
+<BiosCfg>
+    <Menu name="Advanced">
+        <!-- CPU Configuration -->
+        <Setting name="Intel Hyper-Threading Technology" selectedOption="Enabled" />
+        <Setting name="Intel Turbo Boost Technology" selectedOption="Enabled" />
+        <Setting name="Power Management" selectedOption="Balanced" />
+        
+        <!-- Memory Configuration -->
+        <Setting name="Memory RAS Configuration">
+            <Setting name="Memory Correctable Error" selectedOption="Enabled" />
+        </Setting>
+        
+        <!-- Boot Configuration -->
+        <Setting name="Boot mode select" selectedOption="UEFI" />
+        <Setting name="PXE Boot" selectedOption="Enabled" />
+        <Setting name="Secure Boot" selectedOption="Disabled" />
+        
+        <!-- Security Configuration -->
+    </Menu>
+    
+    <!-- IPMI Configuration -->
+    <Menu name="IPMI">
+        <Setting name="BMC Network Configuration" selectedOption="Static" />
+        <Setting name="IPMI LAN Selection" selectedOption="Dedicated" />
+    </Menu>
+</BiosCfg>

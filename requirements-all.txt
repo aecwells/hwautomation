@@ -1,0 +1,9 @@
+# HWAutomation Complete Requirements
+# Use this file to install all dependencies (core + GUI) at once
+# Usage: pip install -r requirements-all.txt
+
+# Core dependencies
+-r requirements.txt
+
+# GUI dependencies  
+-r gui/requirements.txt

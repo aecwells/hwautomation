@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Server Orchestration - HWAutomation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-3">
+                <i class="bi bi-gear-fill"></i> Server Orchestration
+            </h1>
+            <p class="text-muted">End-to-end server provisioning and configuration</p>
+        </div>
+    </div>
+
+    <!-- Start New Provisioning -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-plus-circle"></i> Start New Server Provisioning
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="provisioningForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="serverId" class="form-label">Server ID (MaaS Machine ID)</label>
+                                    <input type="text" class="form-control" id="serverId" required
+                                           placeholder="e.g., machine-123">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="deviceType" class="form-label">Device Type</label>
+                                    <select class="form-select" id="deviceType" required>
+                        <option value="">Select device type...</option>
+                        <optgroup label="D1 Series">
+                        <option value="d1.c1.large">d1.c1.large</option>
+                        <option value="d1.c1.medium">d1.c1.medium</option>
+                        <option value="d1.c1.small">d1.c1.small</option>
+                        <option value="d1.c2.large">d1.c2.large</option>
+                        <option value="d1.c2.medium">d1.c2.medium</option>
+                        <option value="d1.c2.small">d1.c2.small</option>
+                        <option value="d1.c3.large">d1.c3.large</option>
+                        <option value="d1.c3.medium">d1.c3.medium</option>
+                        <option value="d1.c3.small">d1.c3.small</option>
+                        <option value="d1.c4.large">d1.c4.large</option>
+                        <option value="d1.c4.medium">d1.c4.medium</option>
+                        <option value="d1.c4.small">d1.c4.small</option>
+                        <option value="d1.m1.medium">d1.m1.medium</option>
+                        <option value="d1.m2.medium">d1.m2.medium</option>
+                        <option value="d1.m3.medium">d1.m3.medium</option>
+                        <option value="d1.m4.medium">d1.m4.medium</option>
+                        </optgroup>
+                        <optgroup label="D2 Series">
+                        <option value="d2.c1.large">d2.c1.large</option>
+                        <option value="d2.c1.medium">d2.c1.medium</option>
+                        <option value="d2.c2.large">d2.c2.large</option>
+                        <option value="d2.c2.medium">d2.c2.medium</option>
+                        <option value="d2.c3.large">d2.c3.large</option>
+                        <option value="d2.c3.medium">d2.c3.medium</option>
+                        <option value="d2.c4.db1.pliops1">d2.c4.db1.pliops1</option>
+                        <option value="d2.c4.large">d2.c4.large</option>
+                        <option value="d2.c4.medium">d2.c4.medium</option>
+                        <option value="d2.c5.large">d2.c5.large</option>
+                        <option value="d2.c5.medium">d2.c5.medium</option>
+                        <option value="d2.ipm2.large">d2.ipm2.large</option>
+                        <option value="d2.m1.xlarge">d2.m1.xlarge</option>
+                        <option value="d2.m2.medium">d2.m2.medium</option>
+                        <option value="d2.m2.xxlarge">d2.m2.xxlarge</option>
+                        <option value="d2.m3.xlarge">d2.m3.xlarge</option>
+                        <option value="d2.m4.xlarge">d2.m4.xlarge</option>
+                        <option value="d2.m5.xlarge">d2.m5.xlarge</option>
+                        </optgroup>
+                        <optgroup label="D3 Series">
+                        <option value="d3.c4.medium">d3.c4.medium</option>
+                        <option value="d3.c5.medium">d3.c5.medium</option>
+                        <option value="d3.c6.medium">d3.c6.medium</option>
+                        <option value="d3.g2.c1.xlarge">d3.g2.c1.xlarge</option>
+                        <option value="d3.g2.c2.xlarge">d3.g2.c2.xlarge</option>
+                        <option value="d3.g2.c3.xlarge">d3.g2.c3.xlarge</option>
+                        <option value="d3.m4.xlarge ">d3.m4.xlarge </option>
+                        <option value="d3.m4.xxlarge ">d3.m4.xxlarge </option>
+                        <option value="d3.m5.xlarge ">d3.m5.xlarge </option>
+                        <option value="d3.m5.xxlarge ">d3.m5.xxlarge </option>
+                        <option value="d3.m6.xlarge ">d3.m6.xlarge </option>
+                        <option value="d3.m6.xxlarge ">d3.m6.xxlarge </option>
+                        <option value="d3.s5.xlarge">d3.s5.xlarge</option>
+                        </optgroup>
+                        <optgroup label="GNR Series">
+                        <option value="gnr.sm">gnr.sm</option>
+                        </optgroup>
+                        <option value="s2_c2_large">s2_c2_large</option>
+                        <option value="s2_c2_medium">s2_c2_medium</option>
+                        <option value="s2_c2_small">s2_c2_small</option>
+                        <optgroup label="S0 Series">
+                        <option value="s0.d1.medium">s0.d1.medium</option>
+                        <option value="s0.d1.small">s0.d1.small</option>
+                        </optgroup>
+                        <optgroup label="S1 Series">
+                        <option value="s1.c1.medium">s1.c1.medium</option>
+                        <option value="s1.c1.small">s1.c1.small</option>
+                        <option value="s1.c2.large">s1.c2.large</option>
+                        <option value="s1.c2.medium">s1.c2.medium</option>
+                        <option value="s1.e1.large">s1.e1.large</option>
+                        <option value="s1.e1.medium">s1.e1.medium</option>
+                        <option value="s1.e1.small">s1.e1.small</option>
+                        </optgroup>
+                        <optgroup label="S2 Series">
+                        <option value="s2.c1.large">s2.c1.large</option>
+                        <option value="s2.c1.medium">s2.c1.medium</option>
+                        <option value="s2.c1.small">s2.c1.small</option>
+                        <option value="s2.c2.large">s2.c2.large</option>
+                        <option value="s2.c2.medium">s2.c2.medium</option>
+                        <option value="s2.c2.small">s2.c2.small</option>
+                        </optgroup>
+                        <optgroup label="S3 Series">
+                        <option value="s3.c3.large">s3.c3.large</option>
+                        <option value="s3.c3.medium">s3.c3.medium</option>
+                        </optgroup>
+                        <optgroup label="S4 Series">
+                        <option value="s4.x6.c6.large">s4.x6.c6.large</option>
+                        <option value="s4.x6.m6.xlarge">s4.x6.m6.xlarge</option>
+                        </optgroup>
+                        <optgroup label="S5 Series">
+                        <option value="s5.x6.c3.large">s5.x6.c3.large</option>
+                        <option value="s5.x6.c3.medium">s5.x6.c3.medium</option>
+                        <option value="s5.x6.c8.large">s5.x6.c8.large</option>
+                        <option value="s5.x6.c8.medium">s5.x6.c8.medium</option>
+                        <option value="s5.x6.c9.large">s5.x6.c9.large</option>
+                        <option value="s5.x6.c9.medium">s5.x6.c9.medium</option>
+                        <option value="s5.x6.m8.xlarge">s5.x6.m8.xlarge</option>
+                        <option value="s5.x6.m9.xlarge">s5.x6.m9.xlarge</option>
+                        </optgroup>
+                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="targetIpmiIp" class="form-label">Target IPMI IP</label>
+                                    <input type="text" class="form-control" id="targetIpmiIp" required
+                                           placeholder="e.g., 192.168.100.50"
+                                           pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="rackLocation" class="form-label">Rack Location (Optional)</label>
+                                    <input type="text" class="form-control" id="rackLocation"
+                                           placeholder="e.g., Rack-A-U10">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" id="startProvisioningBtn">
+                                <i class="bi bi-play-fill"></i> Start Provisioning
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Workflows -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-list-task"></i> Active Workflows
+                    </h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="refreshWorkflows()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="workflowsContainer">
+                        <div class="text-center text-muted">
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            Loading workflows...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Progress Modal -->
+    <div class="modal fade" id="progressModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-gear"></i> Provisioning Progress
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-sm">Overall Progress</span>
+                            <span class="text-sm" id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar" id="overallProgress" role="progressbar" 
+                                 style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Current Step:</strong>
+                        <span id="currentStepName">Starting...</span>
+                    </div>
+                    
+                    <div class="workflow-steps" id="workflowSteps">
+                        <!-- Dynamic step list -->
+                    </div>
+                    
+                    <div class="mt-3" id="workflowError" style="display: none;">
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> <span id="errorMessage"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="cancelWorkflowBtn">
+                        <i class="bi bi-stop-fill"></i> Cancel Workflow
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentWorkflowId = null;
+// Use the global socket from app.js instead of declaring our own
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for the global socket to be initialized by app.js
+    if (typeof socket !== 'undefined' && socket) {
+        setupOrchestrationSocketHandlers();
+    } else {
+        // If socket isn't ready yet, wait a bit and try again
+        setTimeout(function() {
+            setupOrchestrationSocketHandlers();
+        }, 100);
+    }
+    refreshWorkflows();
+    
+    // Form submission
+    document.getElementById('provisioningForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        startProvisioning();
+    });
+});
+
+function setupOrchestrationSocketHandlers() {
+    if (!socket) {
+        console.error('Global socket not available');
+        return;
+    }
+    
+    socket.on('workflow_progress', function(data) {
+        updateProgressModal(data);
+    });
+    
+    // Note: connect handler is already set up in app.js
+    console.log('Orchestration socket handlers set up');
+}
+
+function startProvisioning() {
+    const formData = {
+        server_id: document.getElementById('serverId').value,
+        device_type: document.getElementById('deviceType').value,
+        target_ipmi_ip: document.getElementById('targetIpmiIp').value,
+        rack_location: document.getElementById('rackLocation').value || null
+    };
+    
+    // Show loading state
+    const btn = document.getElementById('startProvisioningBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Starting...';
+    btn.disabled = true;
+    
+    fetch('/api/orchestration/provision', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        currentWorkflowId = data.id;
+        showProgressModal(data);
+        refreshWorkflows();
+        
+        // Reset form
+        resetForm();
+    })
+    .catch(error => {
+        alert('Error starting provisioning: ' + error.message);
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function showProgressModal(workflowData) {
+    const modal = new bootstrap.Modal(document.getElementById('progressModal'));
+    
+    // Initialize progress
+    updateProgressModal({
+        workflow_id: workflowData.id,
+        step: 1,
+        total_steps: workflowData.steps.length,
+        step_name: 'Starting workflow...',
+        status: 'running'
+    });
+    
+    modal.show();
+}
+
+function updateProgressModal(data) {
+    if (data.workflow_id !== currentWorkflowId) return;
+    
+    const progress = (data.step / data.total_steps) * 100;
+    document.getElementById('overallProgress').style.width = progress + '%';
+    document.getElementById('progressPercentage').textContent = Math.round(progress) + '%';
+    document.getElementById('currentStepName').textContent = data.step_name;
+    
+    if (data.status === 'failed') {
+        document.getElementById('workflowError').style.display = 'block';
+        document.getElementById('errorMessage').textContent = data.error || 'Unknown error';
+        document.getElementById('overallProgress').classList.add('bg-danger');
+    } else if (data.status === 'completed') {
+        document.getElementById('overallProgress').style.width = '100%';
+        document.getElementById('progressPercentage').textContent = '100%';
+        document.getElementById('currentStepName').textContent = 'Completed successfully!';
+        document.getElementById('overallProgress').classList.add('bg-success');
+        
+        setTimeout(() => {
+            bootstrap.Modal.getInstance(document.getElementById('progressModal')).hide();
+            refreshWorkflows();
+        }, 2000);
+    }
+}
+
+function refreshWorkflows() {
+    fetch('/api/orchestration/workflows')
+    .then(response => response.json())
+    .then(data => {
+        displayWorkflows(data.workflows || []);
+    })
+    .catch(error => {
+        console.error('Error fetching workflows:', error);
+        document.getElementById('workflowsContainer').innerHTML = 
+            '<div class="alert alert-danger">Error loading workflows: ' + error.message + '</div>';
+    });
+}
+
+function displayWorkflows(workflows) {
+    const container = document.getElementById('workflowsContainer');
+    
+    if (workflows.length === 0) {
+        container.innerHTML = '<div class="text-muted text-center">No active workflows</div>';
+        return;
+    }
+    
+    let html = '';
+    workflows.forEach(workflow => {
+        const statusClass = getStatusClass(workflow.status);
+        const progressPercentage = calculateProgress(workflow.steps);
+        
+        html += `
+            <div class="border rounded p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-1">${workflow.id}</h6>
+                        <span class="badge ${statusClass}">${workflow.status}</span>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">
+                            Started: ${new Date(workflow.start_time).toLocaleString()}
+                        </small>
+                        ${workflow.status === 'running' ? 
+                            `<button class="btn btn-sm btn-outline-danger ms-2" onclick="cancelWorkflow('${workflow.id}')">
+                                <i class="bi bi-stop"></i> Cancel
+                            </button>` : ''}
+                    </div>
+                </div>
+                
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar ${workflow.status === 'failed' ? 'bg-danger' : ''}" 
+                         style="width: ${progressPercentage}%"></div>
+                </div>
+                
+                <div class="row">
+                    ${workflow.steps.slice(0, 4).map(step => `
+                        <div class="col-sm-6 col-md-3">
+                            <small class="d-block ${getStepTextClass(step.status)}">
+                                <i class="bi ${getStepIcon(step.status)}"></i>
+                                ${step.name}
+                            </small>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                ${workflow.error ? `
+                    <div class="alert alert-danger alert-sm mt-2 mb-0">
+                        <small><strong>Error:</strong> ${workflow.error}</small>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function getStatusClass(status) {
+    const classes = {
+        'pending': 'bg-secondary',
+        'running': 'bg-primary',
+        'completed': 'bg-success',
+        'failed': 'bg-danger',
+        'cancelled': 'bg-warning text-dark'
+    };
+    return classes[status] || 'bg-secondary';
+}
+
+function getStepTextClass(status) {
+    const classes = {
+        'completed': 'text-success',
+        'running': 'text-primary',
+        'failed': 'text-danger',
+        'pending': 'text-muted'
+    };
+    return classes[status] || 'text-muted';
+}
+
+function getStepIcon(status) {
+    const icons = {
+        'completed': 'bi-check-circle-fill',
+        'running': 'bi-arrow-clockwise',
+        'failed': 'bi-x-circle-fill',
+        'pending': 'bi-circle'
+    };
+    return icons[status] || 'bi-circle';
+}
+
+function calculateProgress(steps) {
+    if (!steps || steps.length === 0) return 0;
+    
+    const completedSteps = steps.filter(step => step.status === 'completed').length;
+    return (completedSteps / steps.length) * 100;
+}
+
+function cancelWorkflow(workflowId) {
+    if (!confirm('Are you sure you want to cancel this workflow?')) return;
+    
+    fetch(`/api/orchestration/workflow/${workflowId}/cancel`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        refreshWorkflows();
+    })
+    .catch(error => {
+        alert('Error cancelling workflow: ' + error.message);
+    });
+}
+
+function resetForm() {
+    document.getElementById('provisioningForm').reset();
+}
+
+// Auto-refresh workflows every 10 seconds
+setInterval(refreshWorkflows, 10000);
+</script>
+{% endblock %}

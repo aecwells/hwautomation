@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Auto-generated BIOS template for s1.c2.medium -->
+<!-- Medium server - 8 cores, 64GB RAM, Intel Xeon E-2288G -->
+<BiosCfg>
+    <Menu name="Advanced">
+        <!-- CPU Configuration -->
+        <Setting name="Intel Hyper-Threading Technology" selectedOption="Enabled" />
+        <Setting name="Intel Turbo Boost Technology" selectedOption="Enabled" />
+        <Setting name="Power Management" selectedOption="Performance" />
+        
+        <!-- Memory Configuration -->
+        <Setting name="Memory RAS Configuration">
+            <Setting name="Memory Correctable Error" selectedOption="Enabled" />
+        </Setting>
+        
+        <!-- Boot Configuration -->
+        <Setting name="Boot mode select" selectedOption="UEFI" />
+        <Setting name="PXE Boot" selectedOption="Enabled" />
+        <Setting name="Secure Boot" selectedOption="Disabled" />
+        
+        <!-- Security Configuration -->
+        <Setting name="Intel Software Guard Extensions (SGX)" selectedOption="Enabled" />
+    </Menu>
+    
+    <!-- IPMI Configuration -->
+    <Menu name="IPMI">
+        <Setting name="BMC Network Configuration" selectedOption="Static" />
+        <Setting name="IPMI LAN Selection" selectedOption="Dedicated" />
+    </Menu>
+</BiosCfg>

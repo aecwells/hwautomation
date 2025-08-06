@@ -1,0 +1,14 @@
+# HWAutomation GUI Requirements
+# Additional dependencies for the web-based interface
+
+# Install core project first: pip install -r ../requirements.txt
+
+# Flask web framework and extensions
+Flask==2.3.3
+flask-socketio==5.3.6
+
+# WebSocket support
+python-socketio==5.8.0
+python-engineio==4.7.1
+
+# Note: Core dependencies (requests, PyYAML, etc.) are in ../requirements.txt

@@ -1,0 +1,16 @@
+# Docker and containerization files
+.env
+docker-compose.override.yml
+
+# Development containers
+.devcontainer/
+
+# Container logs and data
+logs/
+data/
+db-backups/
+
+# Container volumes
+postgres_data/
+redis_data/
+maas_data/

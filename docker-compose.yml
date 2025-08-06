@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: ${PROJECT_NAME:-hwautomation}-app
+    volumes:
+      - .:/app
+      - /app/hwautomation-env  # Exclude venv from volume mount
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"  # Flask GUI
+      - "8000:8000"  # Additional service port
+    depends_on:
+      - db
+      - redis
+    networks:
+      - hwautomation
+
+  db:
+    image: postgres:15-alpine
+    container_name: ${PROJECT_NAME:-hwautomation}-db
+    environment:
+      - POSTGRES_DB=${DB_NAME:-hwautomation}
+      - POSTGRES_USER=${DB_USER:-hwautomation}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-hwautomation123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - hwautomation
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME:-hwautomation}-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hwautomation
+
+  maas-simulator:
+    image: maas/maas:latest
+    container_name: ${PROJECT_NAME:-hwautomation}-maas-sim
+    environment:
+      - MAAS_ADMIN_USERNAME=${MAAS_ADMIN_USERNAME:-admin}
+      - MAAS_ADMIN_PASSWORD=${MAAS_ADMIN_PASSWORD:-admin123}
+    ports:
+      - "5240:5240"
+    volumes:
+      - maas_data:/var/lib/maas
+    networks:
+      - hwautomation
+    profiles:
+      - testing  # Only start with --profile testing
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    container_name: ${PROJECT_NAME:-hwautomation}-test
+    volumes:
+      - .:/app
+      - /app/hwautomation-env
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - TESTING=1
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - hwautomation
+    profiles:
+      - testing
+    command: pytest --cov=src/hwautomation --cov-report=xml --cov-report=term-missing
+
+volumes:
+  postgres_data:
+  redis_data:
+  maas_data:
+
+networks:
+  hwautomation:
+    driver: bridge

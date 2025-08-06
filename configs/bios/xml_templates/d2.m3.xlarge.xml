@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Auto-generated BIOS template for d2.m3.xlarge -->
+<!-- Large server - 32 cores, 512GB RAM, Dual Xeon Gold 6326 -->
+<BiosCfg>
+    <Menu name="Advanced">
+        <!-- CPU Configuration -->
+        <Setting name="Intel Hyper-Threading Technology" selectedOption="Enabled" />
+        <Setting name="Intel Turbo Boost Technology" selectedOption="Enabled" />
+        <Setting name="Power Management" selectedOption="Performance" />
+        
+        <!-- Memory Configuration -->
+        <Setting name="Memory RAS Configuration">
+            <Setting name="Memory Correctable Error" selectedOption="Enabled" />
+        </Setting>
+        
+        <!-- Boot Configuration -->
+        <Setting name="Boot mode select" selectedOption="UEFI" />
+        <Setting name="PXE Boot" selectedOption="Enabled" />
+        <Setting name="Secure Boot" selectedOption="Disabled" />
+        
+        <!-- Security Configuration -->
+        <Setting name="Intel Software Guard Extensions (SGX)" selectedOption="Enabled" />
+        
+        <!-- High-Performance Optimizations -->
+        <Setting name="C-State" selectedOption="Disabled" />
+        <Setting name="Package C State" selectedOption="C0/C1 state" />
+        <Setting name="CPU P State Control" selectedOption="Disabled" />
+    </Menu>
+    
+    <!-- IPMI Configuration -->
+    <Menu name="IPMI">
+        <Setting name="BMC Network Configuration" selectedOption="Static" />
+        <Setting name="IPMI LAN Selection" selectedOption="Dedicated" />
+    </Menu>
+</BiosCfg>
