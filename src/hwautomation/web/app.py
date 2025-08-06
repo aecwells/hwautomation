@@ -62,8 +62,10 @@ def create_app():
     if not os.path.isabs(db_path):
         db_path = str(project_root / db_path)
 
-    # Set up database helper
-    db_helper = DbHelper(db_path)
+    # Set up database helper with proper table name and path
+    table_name = config.get('database', {}).get('table_name', 'servers')
+    auto_migrate = config.get('database', {}).get('auto_migrate', True)
+    db_helper = DbHelper(tablename=table_name, db_path=db_path, auto_migrate=auto_migrate)
     
     # Initialize managers with proper config directory
     project_root = Path(__file__).parent.parent.parent.parent

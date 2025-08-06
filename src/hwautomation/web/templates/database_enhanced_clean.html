@@ -175,22 +175,13 @@
             currentTable = table;
             
             try {
-                const response = await fetch('/api/database/tables');
+                const response = await fetch(`/api/database/tables/${table}`);
                 const data = await response.json();
                 
-                if (response.ok && data.success) {
-                    const tableData = data.tables[table];
-                    if (tableData) {
-                        currentData = tableData.data || [];
-                        displayData(currentData);
-                        updateStats({
-                            total: tableData.count,
-                            showing: tableData.showing,
-                            schema_version: 6 // from migration data
-                        });
-                    } else {
-                        showError(`Table '${table}' not found`);
-                    }
+                if (response.ok) {
+                    currentData = data.data || [];
+                    displayData(currentData);
+                    updateStats(data.stats || {});
                 } else {
                     showError(data.error || 'Failed to load data');
                 }
