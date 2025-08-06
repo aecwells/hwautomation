@@ -1,0 +1,15 @@
+#!/bin/bash
+# Docker Make Wrapper
+# Automatically handles Docker group permissions for make commands
+# Usage: ./docker-make <target>
+# Example: ./docker-make up, ./docker-make build, ./docker-make down
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <make-target>"
+    echo "Available targets:"
+    make help
+    exit 1
+fi
+
+# Execute make command with proper Docker group permissions
+sg docker -c "make $*"
