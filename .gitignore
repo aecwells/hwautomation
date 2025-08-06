@@ -180,6 +180,8 @@ hw_automation.log*
 *.backup
 migration_test.db*
 sample_config.yaml
+data/
+db-backups/
 
 # Legacy files (removed - keeping note for reference)
 # hwautolib.py - moved to src/hwautomation/
@@ -198,3 +200,21 @@ sample_config.yaml
 *.temp
 .DS_Store
 Thumbs.db
+
+# Add cleanup artifacts to ignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.coverage
+htmlcov/
+*.log
+*.backup
+.pytest_cache/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+

@@ -1,16 +1,26 @@
 # Docker Compose override for local development
 # This file is automatically included when present
 
-version: '3.8'
+# Docker Compose Override Configuration
+# Development and testing environment customizations
+# Note: version field is deprecated in Docker Compose v2+
 
 services:
   app:
-    # Override for development
-    command: ["python", "gui/app_simplified.py", "--host", "0.0.0.0", "--port", "5000", "--debug"]
+    # Use optimized web Dockerfile for GUI-first deployment
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+      target: development
+    # Override for development - use webapp.py as optimized entry point
+    command: ["python", "webapp.py"]
     environment:
       - DEBUG=1
       - FLASK_ENV=development
       - FLASK_DEBUG=1
+      - HWAUTOMATION_MODE=web
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
     volumes:
       # Add additional development mounts
       - ./logs:/app/logs
@@ -18,6 +28,13 @@ services:
     # Keep container running for development
     tty: true
     stdin_open: true
+    # Health check optimized for web app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   db:
     # Development database with exposed ports

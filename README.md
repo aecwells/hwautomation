@@ -1,10 +1,34 @@
 # Hardware Automation Package
 
-A comprehensive Python package for hardware automation, server management, and infrastructure operations. Originally converted from bash scripts, this package provides a clean, maintainable interface for MAAS, IPMI, and RedFish operations.
+A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with a production-ready web GUI and complete CLI capabilities.
+
+## 🚀 Quick Start (Container-First)
+
+### Prerequisites
+- Docker and Docker Compose v2+
+- Git
+
+### Launch the Application
+
+```bash
+# Clone and start
+git clone <your-repo-url>
+cd HWAutomation
+
+# Start all services (web GUI + supporting services)
+./docker-make up
+
+# Access the web interface
+open http://localhost:5000
+```
+
+The web GUI provides a modern dashboard for device management, workflow orchestration, and system monitoring.
 
 ## Features
 
-- **🖥️ Web GUI**: Modern web-based interface for hardware management
+- **🌐 Container-First Architecture**: Production-ready Docker deployment with multi-service orchestration
+- **🖥️ Modern Web GUI**: Primary interface with real-time monitoring and management capabilities  
+- **⚡ Multi-Stage Builds**: Optimized containers for development, production, web, and CLI use cases
 - **🔧 Vendor-Specific Tools**: Automatic installation and integration of HPE, Supermicro, and Dell management tools
 - **🚀 Complete Orchestration**: 8-step automated server provisioning workflow
 - **🔍 Hardware Discovery**: SSH-based system information gathering with IPMI detection
@@ -15,32 +39,106 @@ A comprehensive Python package for hardware automation, server management, and i
 - **Database Migrations**: Robust schema versioning and upgrade system
 - **Configuration Management**: Flexible YAML/JSON configuration with environment overrides
 - **Network Utilities**: SSH operations, connectivity testing, and IP management
+- **📊 Health Monitoring**: Comprehensive service health checks and monitoring endpoints
 
-## Project Structure
+## Architecture Overview
+
+### Container-First Design
 
 ```
 HWAutomation/
-├── src/hwautomation/          # Main package source code
-│   ├── database/              # Database operations and migrations
-│   ├── hardware/              # IPMI and RedFish management
-│   ├── maas/                  # MAAS API client
-│   └── utils/                 # Configuration and utilities
-├── gui/                       # Web-based GUI interface
-│   ├── app.py                 # Flask web application
-│   ├── templates/             # HTML templates
-│   └── static/                # CSS, JavaScript, assets
-├── scripts/                   # Command-line tools
-├── examples/                  # Usage examples
-├── tests/                     # Test suite
-├── docs/                      # Detailed documentation
-├── tools/                     # Development and maintenance tools
-├── pyproject.toml             # Package configuration
-└── README.md                  # This file
+├── webapp.py                  # 🌐 Production web entry point
+├── Dockerfile.web             # 🐳 Multi-stage container builds
+├── docker-compose.yml         # 🏗️ Production service orchestration  
+├── docker-compose.override.yml # 🛠️ Development overrides
+├── docker-make                # 🔧 Docker permission wrapper
+├── src/hwautomation/          # 📦 Main package source code
+│   ├── database/              # 🗄️ Database operations and migrations
+│   ├── hardware/              # ⚙️ IPMI and RedFish management
+│   ├── maas/                  # 🌐 MAAS API client
+│   └── utils/                 # 🔧 Configuration and utilities
+├── gui/                       # 🖥️ Web-based GUI interface
+│   ├── app_simplified.py      # 🌟 Enhanced Flask application
+│   ├── templates/             # 📄 HTML templates
+│   └── static/                # 🎨 CSS, JavaScript, assets
+├── scripts/                   # 💻 Command-line tools
+├── examples/                  # 📚 Usage examples
+├── tests/                     # 🧪 Test suite
+├── docs/                      # 📖 Documentation (including CONTAINER_ARCHITECTURE.md)
+└── tools/                     # 🛠️ Development and maintenance tools
 ```
 
-## Installation
+### Service Architecture
 
-### From Source
+| Service | Port | Purpose | Health Check |
+|---------|------|---------|--------------|
+| **Web GUI** | 5000 | Primary interface | ✅ `/health` endpoint |
+| **PostgreSQL** | 5432 | Data persistence | ✅ Connection test |
+| **Redis** | 6379 | Caching/sessions | ✅ Ping test |
+| **Adminer** | 8080 | DB administration | ✅ Web interface |
+| **Redis UI** | 8081 | Cache monitoring | ✅ Web interface |
+
+## Container Deployment
+
+### Production Deployment
+
+```bash
+# Quick start - all services
+./docker-make up
+
+# Manual control
+./docker-make build    # Build containers
+./docker-make ps       # Check status  
+./docker-make logs app # View logs
+./docker-make down     # Stop services
+```
+
+### Development Mode
+
+```bash
+# Development with live code reload
+./docker-make up        # Uses override config automatically
+./docker-make shell app # Access container shell
+```
+
+### Health Monitoring
+
+```bash
+# Check application health
+curl http://localhost:5000/health
+
+# Example response:
+{
+  "status": "healthy",
+  "services": {
+    "database": "healthy",
+    "maas": "healthy", 
+    "bios_manager": "healthy",
+    "workflow_manager": "healthy",
+    "device_types": 87,
+    "maas_machines": 5,
+    "active_workflows": 0
+  },
+  "version": "1.0.0"
+}
+```
+
+## Installation Options
+
+### 🚀 Container Deployment (Recommended)
+
+Fastest way to get started with full functionality:
+
+```bash
+# Clone and run
+git clone <your-repo-url>
+cd HWAutomation
+./docker-make up
+
+# Access web GUI at http://localhost:5000
+```
+
+### 📦 Package Installation
 
 ```bash
 # Clone the repository

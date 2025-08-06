@@ -1,0 +1,79 @@
+# Production Dockerfile for HWAutomation Web Application
+# Optimized for container deployment with GUI as primary interface
+
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim as base
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    openssh-client \
+    iputils-ping \
+    net-tools \
+    ipmitool \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create application user
+RUN groupadd -r hwautomation && useradd -r -g hwautomation hwautomation
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements*.txt pyproject.toml ./
+
+# Development stage
+FROM base as development
+RUN pip install --upgrade pip && \
+    pip install -r requirements-all.txt && \
+    pip install pytest pytest-cov pytest-mock pytest-xdist pytest-html black flake8 mypy
+
+# Copy source code
+COPY . .
+
+# Install package in development mode
+RUN pip install -e .[dev]
+
+# Production stage  
+FROM base as production
+RUN pip install --upgrade pip && \
+    pip install -r requirements-all.txt
+
+# Copy source code
+COPY . .
+
+# Install package
+RUN pip install .
+
+# Production optimizations
+FROM production as web
+
+# Change ownership to non-root user
+RUN chown -R hwautomation:hwautomation /app
+USER hwautomation
+
+# Health check for web application
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Expose web port
+EXPOSE 5000
+
+# Default command for web application
+CMD ["python", "webapp.py"]
+
+# CLI stage for command-line operations
+FROM production as cli
+
+# Change ownership to non-root user  
+RUN chown -R hwautomation:hwautomation /app
+USER hwautomation
+
+# Health check for CLI
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import hwautomation; print('OK')" || exit 1
+
+# Default command for CLI
+CMD ["python", "main.py"]

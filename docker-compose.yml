@@ -1,11 +1,13 @@
-version: '3.8'
+# Docker Compose Configuration for HWAutomation
+# Production-ready setup with all required services
+# Note: version field is deprecated in Docker Compose v2+
 
 services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: development
+      dockerfile: docker/Dockerfile.web
+      target: web
     container_name: ${PROJECT_NAME:-hwautomation}-app
     volumes:
       - .:/app
@@ -15,6 +17,9 @@ services:
       - PYTHONPATH=/app/src
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - HWAUTOMATION_MODE=web
     env_file:
       - .env
     ports:
@@ -25,6 +30,13 @@ services:
       - redis
     networks:
       - hwautomation
+    # Health check for web application
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   db:
     image: postgres:15-alpine

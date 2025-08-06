@@ -46,6 +46,9 @@ dev = [
 
 [project.scripts]
 hwautomation = "hwautomation.cli:main"
+hw-gui = "hwautomation.web:main"
+hw-web = "hwautomation.web:main"
+hw-cli = "hwautomation.cli:main"
 db-manager = "hwautomation.scripts.db_manager:main"
 orchestrator = "scripts.orchestrator:main"
 
