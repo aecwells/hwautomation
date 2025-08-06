@@ -13,7 +13,7 @@ services:
       dockerfile: docker/Dockerfile.web
       target: development
     # Override for development - use webapp.py as optimized entry point
-    command: ["python", "webapp.py"]
+    command: ["python", "src/hwautomation/web/app.py"]
     environment:
       - DEBUG=1
       - FLASK_ENV=development
