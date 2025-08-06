@@ -49,8 +49,12 @@ class TestDbHelper(unittest.TestCase):
     def test_table_creation(self):
         """Test that tables are created properly."""
         # Table should be created during initialization
-        tables = self.db_helper.get_table_names()
-        self.assertIn('test_servers', tables)
+        # Check that the table exists by querying it
+        table_name = self.db_helper._get_table_name()
+        result = self.db_helper.sql_db_worker.execute(
+            f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
+        ).fetchone()
+        self.assertIsNotNone(result)
     
     def test_server_operations(self):
         """Test basic server operations."""
@@ -58,14 +62,14 @@ class TestDbHelper(unittest.TestCase):
         
         # Test server creation
         self.db_helper.createrowforserver(server_id)
-        exists, _ = self.db_helper.checkifserveridexists(server_id)
-        self.assertTrue(exists)
+        exists_list = self.db_helper.checkifserveridexists(server_id)
+        self.assertTrue(exists_list[0])
         
         # Test server info update
         self.db_helper.updateserverinfo(server_id, 'status_name', 'Ready')
         
         # Test server retrieval
-        server_info = self.db_helper.getserverinfo(server_id)
+        server_info = self.db_helper.get_server_by_id(server_id)
         self.assertIsNotNone(server_info)
 
 

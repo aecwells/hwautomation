@@ -34,13 +34,14 @@ class TestBiosConfigManager(unittest.TestCase):
         """Test getting available device types."""
         device_types = self.manager.get_device_types()
         self.assertIsInstance(device_types, list)
-        self.assertIn('s2_c2_small', device_types)
-        self.assertIn('s2_c2_medium', device_types)
-        self.assertIn('s2_c2_large', device_types)
+        self.assertIn('a1.c5.large', device_types)
+        self.assertIn('d1.c1.small', device_types)
+        self.assertIn('d1.c2.medium', device_types)
     
     def test_get_device_config(self):
         """Test getting device configuration."""
-        config = self.manager.get_device_config('s2_c2_small')
+        # Use a device type that exists in device_mappings.yaml
+        config = self.manager.get_device_config('a1.c5.large')
         self.assertIsNotNone(config)
         self.assertIn('description', config)
         self.assertIn('motherboards', config)
@@ -51,7 +52,8 @@ class TestBiosConfigManager(unittest.TestCase):
     
     def test_get_motherboard_for_device(self):
         """Test getting motherboards for device type."""
-        motherboards = self.manager.get_motherboard_for_device('s2_c2_small')
+        # Use a device type that exists in device_mappings.yaml
+        motherboards = self.manager.get_motherboard_for_device('a1.c5.large')
         self.assertIsNotNone(motherboards)
         self.assertIsInstance(motherboards, list)
         self.assertGreater(len(motherboards), 0)
@@ -103,11 +105,12 @@ class TestBiosConfigManager(unittest.TestCase):
         self.assertIn('template_rules', template_rules)
         
         rules = template_rules['template_rules']
-        self.assertIn('s2_c2_small', rules)
-        self.assertIn('s2_c2_medium', rules)
-        self.assertIn('s2_c2_large', rules)
+        # Check that the expected template rule device types exist
+        expected_types = ['s2_c2_small', 's2_c2_medium', 's2_c2_large']
+        for device_type in expected_types:
+            self.assertIn(device_type, rules)
         
-        # Check structure of rules
+        # Check structure of rules using s2_c2_small
         small_rules = rules['s2_c2_small']
         self.assertIn('description', small_rules)
         self.assertIn('modifications', small_rules)
