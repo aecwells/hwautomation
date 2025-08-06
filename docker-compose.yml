@@ -25,9 +25,6 @@ services:
     ports:
       - "5000:5000"  # Flask GUI
       - "8000:8000"  # Additional service port
-    depends_on:
-      - db
-      - redis
     networks:
       - hwautomation
     # Health check for web application
@@ -37,31 +34,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-
-  db:
-    image: postgres:15-alpine
-    container_name: ${PROJECT_NAME:-hwautomation}-db
-    environment:
-      - POSTGRES_DB=${DB_NAME:-hwautomation}
-      - POSTGRES_USER=${DB_USER:-hwautomation}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-hwautomation123}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
-    networks:
-      - hwautomation
-
-  redis:
-    image: redis:7-alpine
-    container_name: ${PROJECT_NAME:-hwautomation}-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - hwautomation
 
   maas-simulator:
     image: maas/maas:latest
@@ -95,9 +67,6 @@ services:
       - TESTING=1
     env_file:
       - .env
-    depends_on:
-      - db
-      - redis
     networks:
       - hwautomation
     profiles:
@@ -105,8 +74,6 @@ services:
     command: pytest --cov=src/hwautomation --cov-report=xml --cov-report=term-missing
 
 volumes:
-  postgres_data:
-  redis_data:
   maas_data:
 
 networks:
