@@ -1,268 +1,333 @@
-{% extends "base.html" %}
-
-{% block title %}Database Management - HWAutomation GUI{% endblock %}
-
-{% block extra_head %}
-<style>
-    /* Theme-aware CSS custom properties */
-    :root[data-bs-theme="light"] {
-        --db-card-bg: #ffffff;
-        --db-card-border: #dee2e6;
-        --db-card-hover-border: #0d6efd;
-        --db-field-group-bg: #f8f9fa;
-        --db-field-group-border: #0d6efd;
-        --db-text-primary: #212529;
-        --db-text-secondary: #6c757d;
-        --db-text-muted: #6c757d;
-        --db-hover-bg: #e9ecef;
-        --db-hover-text: #495057;
-        --db-table-header-bg: #f8f9fa;
-        --db-shadow: rgba(0,0,0,0.1);
-    }
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWAutomation - Database Management</title>
     
-    :root[data-bs-theme="dark"] {
-        --db-card-bg: #343a40;
-        --db-card-border: #495057;
-        --db-card-hover-border: #0d6efd;
-        --db-field-group-bg: #495057;
-        --db-field-group-border: #0d6efd;
-        --db-text-primary: #dee2e6;
-        --db-text-secondary: #adb5bd;
-        --db-text-muted: #6c757d;
-        --db-hover-bg: #495057;
-        --db-hover-text: #f8f9fa;
-        --db-table-header-bg: #495057;
-        --db-shadow: rgba(0,0,0,0.3);
-    }
+    <!-- Theme detection script (must be first) -->
+    <script>
+        (function() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const storedTheme = localStorage.getItem('theme');
+            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+            
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                if (!localStorage.getItem('theme')) {
+                    document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+                }
+            });
+        })();
+    </script>
     
-    .column-group-toggle {
-        border: none;
-        background: none;
-        color: var(--db-text-muted);
-        padding: 0.25rem 0.5rem;
-        margin: 0.1rem;
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
-        transition: all 0.2s ease;
-    }
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     
-    .column-group-toggle:hover {
-        background-color: var(--db-hover-bg);
-        color: var(--db-hover-text);
-    }
-    
-    .column-group-toggle.active {
-        background-color: #0d6efd;
-        color: white;
-    }
-    
-    .server-card {
-        transition: all 0.2s ease;
-        border: 1px solid var(--db-card-border);
-        background-color: var(--db-card-bg);
-        color: var(--db-text-primary);
-    }
-    
-    .server-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px var(--db-shadow);
-        border-color: var(--db-card-hover-border);
-    }
-    
-    .column-hidden {
-        display: none !important;
-    }
-    
-    .text-null {
-        color: var(--db-text-muted);
-        font-style: italic;
-    }
-    
-    .text-timestamp {
-        font-family: 'Courier New', monospace;
-        font-size: 0.85rem;
-        color: var(--db-text-secondary);
-    }
-    
-    .status-badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-    
-    .truncate-text {
-        max-width: 150px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .field-group {
-        background-color: var(--db-field-group-bg);
-        padding: 0.75rem;
-        margin-bottom: 0.75rem;
-        border-radius: 0.375rem;
-        border-left: 3px solid var(--db-field-group-border);
-    }
-    
-    .field-group h6 {
-        color: var(--db-field-group-border);
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-    
-    .field-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.25rem 0;
-        border-bottom: 1px solid var(--db-card-border);
-    }
-    
-    .field-row:last-child {
-        border-bottom: none;
-    }
-    
-    .field-label {
-        font-weight: 500;
-        color: var(--db-text-secondary);
-        min-width: 120px;
-    }
-    
-    .field-value {
-        color: var(--db-text-primary);
-        text-align: right;
-    }
-    
-    /* Enhanced table styling for dark mode */
-    .table-responsive {
-        background-color: var(--db-card-bg);
-        border-radius: 0.375rem;
-    }
-    
-    .sticky-top {
-        background-color: var(--db-table-header-bg) !important;
-        color: var(--db-text-primary);
-    }
-    
-    /* Card view container styling */
-    #cardViewContainer {
-        background-color: var(--bs-body-bg);
-    }
-    
-    /* Loading and empty states */
-    #loadingState, #emptyState {
-        color: var(--db-text-secondary);
-    }
-    
-    /* Form controls theme support */
-    .form-select, .form-control {
-        background-color: var(--bs-body-bg);
-        border-color: var(--db-card-border);
-        color: var(--db-text-primary);
-    }
-    
-    .form-select:focus, .form-control:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-    
-    /* Dropdown menu theme support */
-    .dropdown-menu {
-        background-color: var(--db-card-bg);
-        border-color: var(--db-card-border);
-        color: var(--db-text-primary);
-    }
-    
-    .dropdown-header {
-        color: var(--db-text-secondary);
-    }
-    
-    .form-check-label {
-        color: var(--db-text-primary);
-    }
-    
-    /* Badge theme support */
-    .badge.bg-light {
-        background-color: var(--db-field-group-bg) !important;
-        color: var(--db-text-primary) !important;
-    }
-    
-    /* Button theme adjustments */
-    .btn-outline-secondary:hover {
-        background-color: var(--db-hover-bg);
-        border-color: var(--db-card-border);
-        color: var(--db-hover-text);
-    }
-    
-    /* Improved contrast for small text */
-    .text-muted {
-        color: var(--db-text-muted) !important;
-    }
-    
-    /* Enhanced card footer styling */
-    .card-footer {
-        background-color: var(--db-field-group-bg);
-        border-top: 1px solid var(--db-card-border);
-    }
-    
-    /* Statistics cards theme support */
-    .card-body h4 {
-        color: var(--db-text-primary);
-    }
-    
-    .card-text {
-        color: var(--db-text-secondary);
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="h3 mb-4">
-                <i class="bi bi-database"></i> Database Management
-            </h1>
+    <style>
+        .status-connected { color: #28a745; }
+        .status-disconnected { color: #dc3545; }
+        .status-working { color: #ffc107; }
+        .theme-toggle { border: none; background: none; color: inherit; }
+        .theme-toggle:hover { background-color: rgba(0,0,0,0.1); }
+        [data-bs-theme="dark"] .theme-toggle:hover { background-color: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-cpu"></i> HWAutomation - Database Management
+            </a>
+            <div class="navbar-nav ms-auto d-flex flex-row">
+                <a class="nav-link me-3" href="/">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <span class="navbar-text me-3">
+                    Database: <span id="db-status" class="status-connected">
+                        <i class="bi bi-check-circle"></i>
+                        Connected
+                    </span>
+                </span>
+                <button class="btn theme-toggle btn-sm" id="themeToggle" onclick="toggleTheme()" 
+                        title="Toggle light/dark theme">
+                    <i class="bi bi-sun-fill" id="themeIcon"></i>
+                </button>
+            </div>
         </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <!-- Database Status Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-database text-primary fs-1"></i>
+                        <h5 class="card-title">Total Servers</h5>
+                        <h3 class="text-primary" id="total-servers">0</h3>
+                        <small class="text-muted">In database</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-check-circle text-success fs-1"></i>
+                        <h5 class="card-title">Ready Servers</h5>
+                        <h3 class="text-success" id="ready-servers">0</h3>
+                        <small class="text-muted">Available for use</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-gear text-warning fs-1"></i>
+                        <h5 class="card-title">Commissioning</h5>
+                        <h3 class="text-warning" id="commissioning-servers">0</h3>
+                        <small class="text-muted">In progress</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-diagram-3 text-info fs-1"></i>
+                        <h5 class="card-title">Schema Version</h5>
+                        <h3 class="text-info" id="schema-version">0</h3>
+                        <small class="text-muted">Database version</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Management Interface -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-table"></i> Database Tables</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary btn-sm" id="refreshBtn">
+                                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" id="exportBtn">
+                                    <i class="bi bi-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Table Selection and Search -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="tableSelector" onchange="loadTableData()">
+                                    <option value="servers">Servers</option>
+                                    <option value="workflow_history">Workflow History</option>
+                                    <option value="power_state_history">Power History</option>
+                                    <option value="schema_migrations">Schema Migrations</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="viewMode">
+                                    <option value="table">Table View</option>
+                                    <option value="cards">Card View</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Data Display Area -->
+                        <div id="dataContainer">
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading database information...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Database Overview Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-primary" id="total-servers">0</h4>
-                    <p class="card-text">Total Servers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-success" id="ready-servers">0</h4>
-                    <p class="card-text">Ready Servers</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-warning" id="commissioning-servers">0</h4>
-                    <p class="card-text">Commissioning</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center">
-                <div class="card-body">
-                    <h4 class="text-info" id="schema-version">0</h4>
-                    <p class="card-text">Schema Version</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Database management functionality
+        let currentData = [];
+        let currentTable = 'servers';
 
-    <!-- Enhanced Table Display -->
+        // Load table data
+        async function loadTableData() {
+            const table = document.getElementById('tableSelector').value;
+            currentTable = table;
+            
+            try {
+                const response = await fetch(`/api/database/tables/${table}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentData = data.data || [];
+                    displayData(currentData);
+                    updateStats(data.stats || {});
+                } else {
+                    showError(data.error || 'Failed to load data');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        // Display data in table or card format
+        function displayData(data) {
+            const container = document.getElementById('dataContainer');
+            const viewMode = document.getElementById('viewMode').value;
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-4">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="text-muted mt-2">No data found in ${currentTable} table</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (viewMode === 'table') {
+                displayTableView(data, container);
+            } else {
+                displayCardView(data, container);
+            }
+        }
+
+        // Display table view
+        function displayTableView(data, container) {
+            if (data.length === 0) return;
+            
+            const headers = Object.keys(data[0]);
+            let html = `
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                ${headers.map(h => `<th>${h.replace(/_/g, ' ').toUpperCase()}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            data.forEach(row => {
+                html += '<tr>';
+                headers.forEach(header => {
+                    const value = row[header];
+                    const displayValue = value === null ? '<span class="text-muted">null</span>' : 
+                                      typeof value === 'boolean' ? (value ? '✓' : '✗') :
+                                      value;
+                    html += `<td>${displayValue}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Display card view
+        function displayCardView(data, container) {
+            let html = '<div class="row">';
+            
+            data.forEach((row, index) => {
+                html += `
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">Record ${index + 1}</h6>
+                `;
+                
+                Object.entries(row).forEach(([key, value]) => {
+                    const displayValue = value === null ? '<span class="text-muted">null</span>' : 
+                                      typeof value === 'boolean' ? (value ? '✓' : '✗') :
+                                      value;
+                    html += `
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">${key.replace(/_/g, ' ')}:</small>
+                            <small><strong>${displayValue}</strong></small>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Update statistics
+        function updateStats(stats) {
+            document.getElementById('total-servers').textContent = stats.total || currentData.length;
+            document.getElementById('ready-servers').textContent = stats.ready || 0;
+            document.getElementById('commissioning-servers').textContent = stats.commissioning || 0;
+            document.getElementById('schema-version').textContent = stats.schema_version || 'N/A';
+        }
+
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('dataContainer');
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Error: ${message}
+                </div>
+            `;
+        }
+
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', loadTableData);
+        document.getElementById('viewMode').addEventListener('change', () => displayData(currentData));
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const term = this.value.toLowerCase();
+            const filtered = currentData.filter(row => 
+                Object.values(row).some(val => 
+                    String(val).toLowerCase().includes(term)
+                )
+            );
+            displayData(filtered);
+        });
+
+        // Export functionality
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (currentData.length === 0) return;
+            
+            const csv = [
+                Object.keys(currentData[0]).join(','),
+                ...currentData.map(row => Object.values(row).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentTable}_export.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
@@ -860,5 +925,29 @@ function editRecord(index) {
     // TODO: Implement edit modal
     console.log('Edit server:', server);
 }
+
+// Theme support functions
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-bs-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        icon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    }
+}
+
+// Initialize theme icon on load
+document.addEventListener('DOMContentLoaded', function() {
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+    updateThemeIcon(currentTheme);
+});
 </script>
-{% endblock %}
+</body>
+</html>
