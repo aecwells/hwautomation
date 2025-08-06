@@ -9,6 +9,7 @@ SERVICE ?= app
 TARGET ?= app
 COMPOSE_YML := docker-compose.yml
 COMPOSE_OVERRIDE := docker-compose.override.yml
+DOCKER_COMPOSE := docker compose
 
 # Compose files (include override if present)
 ifeq ($(wildcard $(COMPOSE_OVERRIDE)),)
@@ -82,44 +83,44 @@ install-test: ## Install development dependencies
 
 ## [Docker Compose]
 up:           ## Start containers in background
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) up -d
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) up -d
 
 down:         ## Stop and remove containers, networks, volumes
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) down
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) down
 
 restart:      ## Restart containers
 	$(MAKE) down
 	$(MAKE) up
 
 build:        ## Build the Docker images
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
 
 pull:         ## Pull the latest images
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) pull
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) pull
 
 ps:           ## List running containers
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) ps
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) ps
 
 logs:         ## Tail logs from all services
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) logs -f
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) logs -f
 
 shell:        ## Open a shell in the default service (SERVICE=app)
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) sh
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) sh
 
 sh: shell     ## Alias for `make shell`
 
 shell-%:      ## Open a shell in specific service: make shell-maas or shell-db
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $* sh
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $* sh
 
 ## [Testing - Docker]
 test-docker:  ## Run all tests inside Docker container
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) pytest
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) pytest
 
 test-docker-unit: ## Run unit tests inside Docker container
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) pytest tests/unit/ -m "not slow"
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) pytest tests/unit/ -m "not slow"
 
 test-docker-cov: ## Run tests with coverage inside Docker container
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) pytest --cov=src/hwautomation --cov-report=term-missing
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) pytest --cov=src/hwautomation --cov-report=term-missing
 
 ## [Debug]
 debug:        ## Print debug variables
@@ -138,13 +139,13 @@ debug:        ## Print debug variables
 
 ## [CI/CD]
 ci-build:     ## CI build task
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
 
 ci-test:      ## CI test task with coverage
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) run --rm $(SERVICE) pytest --cov=src/hwautomation --cov-report=xml
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) run --rm $(SERVICE) pytest --cov=src/hwautomation --cov-report=xml
 
 ci-clean:     ## CI cleanup task
-	docker-compose $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) down -v --remove-orphans
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) down -v --remove-orphans
 
 ## [Development]
 dev-setup:    ## Setup development environment
