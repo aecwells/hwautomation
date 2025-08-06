@@ -1,6 +1,27 @@
 # Development Tools
 
-This directory contains development and maintenance tools for the HWAutomation project.
+This directory contains development, testing, and command-line tools for the HWAutomation project.
+
+## Directory Structure
+
+### `cli/` - Production CLI Tools
+Command-line interfaces for production use:
+- `bios_manager.py` - BIOS Configuration Management CLI
+- `orchestrator.py` - Server Orchestration CLI
+- `hardware_discovery.py` - Hardware Discovery CLI  
+- `db_manager.py` - Database Management CLI
+
+### `testing/` - Test Scripts
+Various test scripts for project validation:
+- `test_*.py` - Unit and integration tests
+- `run_tests.py` - Test runner
+
+### `debug/` - Debug Scripts  
+Debugging and troubleshooting utilities:
+- `debug_*.py` - Debug scripts for various components
+
+### Root Level - Maintenance Tools
+Development and maintenance utilities
 
 ## Tools
 
