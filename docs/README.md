@@ -2,7 +2,53 @@
 
 This directory contains detailed documentation for the HWAutomation project.
 
-## Contents
+## Core System Documentation
+
+### `CONTAINER_ARCHITECTURE.md`
+Complete guide to the container-first deployment architecture, including:
+- Multi-stage Docker builds and deployment options
+- Single-container SQLite-based architecture
+- Health monitoring and service management
+- Production deployment guidelines
+
+### `DATABASE_MIGRATIONS.md`
+Comprehensive guide to the SQLite database migration system, including:
+- Migration overview and features
+- Schema evolution from version 1 to 6
+- Command-line usage and API integration
+- Troubleshooting guide
+
+### `BIOS_CONFIGURATION.md`
+Complete BIOS configuration management documentation, including:
+- Device type configuration and templating
+- XML configuration generation and application
+- Vendor-specific BIOS management
+- API usage and CLI tools
+
+## Hardware Management Documentation
+
+### `HARDWARE_DISCOVERY.md`
+Complete hardware discovery system documentation, including:
+- SSH-based system information gathering
+- IPMI address detection and configuration
+- Network interface discovery and validation
+- CLI tools and API integration
+
+### `VENDOR_DISCOVERY.md`
+Comprehensive guide to vendor-specific hardware discovery, including:
+- Supported vendors (HPE, Supermicro, Dell)
+- Automatic tool installation (sumtool, hpssacli, omreport)
+- Enhanced discovery capabilities and system detection
+- Testing and troubleshooting
+
+## Workflow and Orchestration
+
+### `ORCHESTRATION.md`
+Complete workflow orchestration system documentation, including:
+- 8-step automated server provisioning workflow
+- Workflow manager and execution engine
+- Status tracking and error handling
+- API integration and monitoring
 
 ### `ENHANCED_COMMISSIONING.md`
 Complete guide to enhanced server commissioning with database integration, including:
@@ -10,14 +56,6 @@ Complete guide to enhanced server commissioning with database integration, inclu
 - SSH connectivity validation and retry logic
 - Hardware discovery with vendor-specific tool integration
 - Real-time status monitoring and health tracking
-- Interactive device selection without manual Machine ID entry
-
-### `DEVICE_SELECTION_SUMMARY.md`
-Comprehensive documentation for the device selection enhancement, including:
-- Interactive MaaS device browsing and filtering
-- Hardware-aware device type suggestions
-- Web interface and API integration
-- User experience improvements and workflow transformation
 
 ### `FLEXIBLE_WORKFLOW_SUMMARY.md`
 Documentation for the flexible IPMI workflow implementation, including:
@@ -26,63 +64,66 @@ Documentation for the flexible IPMI workflow implementation, including:
 - Conditional workflow logic and database integration
 - API enhancements and usage examples
 
-### `VENDOR_DISCOVERY.md`
-Comprehensive guide to vendor-specific hardware discovery, including:
-- Supported vendors (HPE, Supermicro, Dell)
-- Automatic tool installation (sumtool, hpssacli, omreport)
-- Enhanced discovery capabilities
-- Testing and troubleshooting
+### `COMMISSIONING_PROGRESS.md`
+Real-time commissioning progress monitoring documentation, including:
+- Progress tracking and status updates
+- WebSocket integration for live updates
+- Error handling and recovery mechanisms
 
-### `HARDWARE_DISCOVERY.md`
-Complete hardware discovery system documentation, including:
-- SSH-based system information gathering
-- IPMI address detection and configuration
-- Network interface discovery
-- CLI tools and API integration
+## User Interface and Experience
 
-### `DATABASE_MIGRATIONS.md`
-Comprehensive guide to the database migration system, including:
-- Migration overview and features
-- Schema evolution examples
-- Command-line usage
-- Troubleshooting guide
+### `DEVICE_SELECTION_SUMMARY.md`
+Comprehensive documentation for the device selection enhancement, including:
+- Interactive MaaS device browsing and filtering
+- Hardware-aware device type suggestions
+- Web interface and API integration
+- User experience improvements and workflow transformation
 
-### `BIOS_CONFIGURATION.md`
-BIOS configuration management system, including:
-- Template-based configuration
-- Device type mappings
-- Pull-edit-push workflow
-- XML template management
+## System Maintenance and Fixes
 
-### `CONVERSION_GUIDE.md`
-Guide for converting from the old flat file structure to the new package-based structure.
+### `SSH_TIMEOUT_FIX.md`
+Documentation for SSH timeout and connectivity improvements
+
+### `REAL_TIME_MONITORING_FIXED.md`
+Real-time monitoring system fixes and enhancements
+
+### `CONTAINER_CLEANUP_SUMMARY.md`
+Recent container architecture simplification, including:
+- Removal of unused PostgreSQL and Redis containers
+- SQLite-based architecture benefits
+- Performance and deployment improvements
+
+## Additional Resources
+
+### `FILE_ORGANIZATION_UPDATE.md`
+Project structure and organization guidelines
+
+### `LOCAL_SUMTOOL_DEPLOYMENT.md`
+Local deployment of vendor-specific tools
+
+### `SUMTOOL_INSTALLATION_IMPROVEMENTS.md`
+Enhanced installation procedures for vendor tools
 
 ### `PACKAGE_README.md`
-Detailed package documentation including:
-- Installation instructions
-- Package structure explanation
-- API reference
-- Development setup
+Package development and distribution guidelines
 
 ### `PROJECT_ORGANIZATION.md`
-Documentation of project file organization and cleanup, including:
-- MAAS testing file reorganization
-- Import path corrections and fixes
-- Benefits of proper directory structure
-- Historical record of organizational changes
+Overall project structure and development guidelines
 
 ## Quick Links
 
 - [Main README](../README.md) - Project overview and quick start
-- [Examples](../examples/) - Usage examples
-- [Scripts](../scripts/) - Command-line tools
+- [Examples](../examples/) - Usage examples  
+- [Tests](../tests/) - Test suite
 - [Tools](../tools/) - Development tools
 
 ## API Documentation
 
 For detailed API documentation, see the individual module docstrings in the `src/hwautomation/` directory:
 
-- `database/` - Database operations and migrations
+- `web/` - Flask web application and UI
+- `database/` - SQLite operations and migrations
 - `hardware/` - IPMI and RedFish hardware management
 - `maas/` - MAAS API client and operations
 - `utils/` - Configuration and utility functions
+- `cli/` - Command-line interface

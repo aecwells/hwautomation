@@ -15,8 +15,8 @@ A comprehensive Python package for hardware automation, server management, and i
 git clone <your-repo-url>
 cd HWAutomation
 
-# Start all services (web GUI + supporting services)
-./docker-make up
+# Start the application
+docker compose up -d app
 
 # Access the web interface
 open http://localhost:5000
@@ -26,7 +26,7 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 
 ## Features
 
-- **🌐 Container-First Architecture**: Production-ready Docker deployment with multi-service orchestration
+- **🌐 Container-First Architecture**: Production-ready Docker deployment with SQLite database
 - **🖥️ Modern Web GUI**: Primary interface with real-time monitoring and management capabilities  
 - **⚡ Multi-Stage Builds**: Optimized containers for development, production, web, and CLI use cases
 - **🔧 Vendor-Specific Tools**: Automatic installation and integration of HPE, Supermicro, and Dell management tools
@@ -36,7 +36,7 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 - **IPMI Management**: Hardware control via IPMI protocol
 - **RedFish Support**: Modern BMC management through RedFish APIs
 - **BIOS Configuration**: Smart pull-edit-push BIOS configuration by device type
-- **Database Migrations**: Robust schema versioning and upgrade system
+- **Database Migrations**: Robust SQLite schema versioning and upgrade system
 - **Configuration Management**: Flexible YAML/JSON configuration with environment overrides
 - **Network Utilities**: SSH operations, connectivity testing, and IP management
 - **📊 Health Monitoring**: Comprehensive service health checks and monitoring endpoints
@@ -47,58 +47,52 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 
 ```
 HWAutomation/
-├── webapp.py                  # 🌐 Production web entry point
-├── Dockerfile.web             # 🐳 Multi-stage container builds
+├── docker/
+│   └── Dockerfile.web         # 🐳 Multi-stage container builds
 ├── docker-compose.yml         # 🏗️ Production service orchestration  
 ├── docker-compose.override.yml # 🛠️ Development overrides
-├── docker-make                # 🔧 Docker permission wrapper
 ├── src/hwautomation/          # 📦 Main package source code
-│   ├── database/              # 🗄️ Database operations and migrations
+│   ├── web/                   # 🌐 Flask web application
+│   ├── database/              # 🗄️ SQLite operations and migrations
 │   ├── hardware/              # ⚙️ IPMI and RedFish management
 │   ├── maas/                  # 🌐 MAAS API client
 │   └── utils/                 # 🔧 Configuration and utilities
-├── gui/                       # 🖥️ Web-based GUI interface
-│   ├── app_simplified.py      # 🌟 Enhanced Flask application
-│   ├── templates/             # 📄 HTML templates
-│   └── static/                # 🎨 CSS, JavaScript, assets
-├── scripts/                   # 💻 Command-line tools
 ├── examples/                  # 📚 Usage examples
 ├── tests/                     # 🧪 Test suite
-├── docs/                      # 📖 Documentation (including CONTAINER_ARCHITECTURE.md)
+├── docs/                      # 📖 Documentation
 └── tools/                     # 🛠️ Development and maintenance tools
 ```
 
 ### Service Architecture
 
-| Service | Port | Purpose | Health Check |
-|---------|------|---------|--------------|
-| **Web GUI** | 5000 | Primary interface | ✅ `/health` endpoint |
-| **PostgreSQL** | 5432 | Data persistence | ✅ Connection test |
-| **Redis** | 6379 | Caching/sessions | ✅ Ping test |
-| **Adminer** | 8080 | DB administration | ✅ Web interface |
-| **Redis UI** | 8081 | Cache monitoring | ✅ Web interface |
+| Service | Container | Port | Purpose | Health Check |
+|---------|-----------|------|---------|--------------|
+| **Web GUI** | `hwautomation-app` | 5000 | Primary interface | ✅ `/health` endpoint |
+| **MaaS Simulator** | `hwautomation-maas-sim` | 5240 | Testing only | ✅ Optional (testing profile) |
+
+**Database**: SQLite file-based database (`hw_automation.db`) - no separate container required
 
 ## Container Deployment
 
 ### Production Deployment
 
 ```bash
-# Quick start - all services
-./docker-make up
+# Quick start - simplified single-container deployment
+docker compose up -d app
 
 # Manual control
-./docker-make build    # Build containers
-./docker-make ps       # Check status  
-./docker-make logs app # View logs
-./docker-make down     # Stop services
+docker compose build app    # Build container
+docker compose ps          # Check status  
+docker compose logs app    # View logs
+docker compose down        # Stop services
 ```
 
 ### Development Mode
 
 ```bash
 # Development with live code reload
-./docker-make up        # Uses override config automatically
-./docker-make shell app # Access container shell
+docker compose up -d app        # Uses override config automatically
+docker compose exec app bash    # Access container shell
 ```
 
 ### Health Monitoring
@@ -115,7 +109,7 @@ curl http://localhost:5000/health
     "maas": "healthy", 
     "bios_manager": "healthy",
     "workflow_manager": "healthy",
-    "device_types": 87,
+    "bios_device_types": 87,
     "maas_machines": 5,
     "active_workflows": 0
   },
@@ -133,7 +127,7 @@ Fastest way to get started with full functionality:
 # Clone and run
 git clone <your-repo-url>
 cd HWAutomation
-./docker-make up
+docker compose up -d app
 
 # Access web GUI at http://localhost:5000
 ```
@@ -278,12 +272,8 @@ print(xml_config)
 Launch the modern web interface:
 
 ```bash
-# Quick launch (Windows)
-gui\launch_gui.bat
-
-# Manual launch
-cd gui
-python setup_gui.py
+# Container deployment (recommended)
+docker compose up -d app
 
 # Access GUI at: http://127.0.0.1:5000
 ```
@@ -295,12 +285,13 @@ python setup_gui.py
 - 📱 Responsive design for mobile/tablet
 - 🔍 Advanced filtering and search
 - 📁 Download configurations and logs
+- 💾 SQLite database management interface
 
 ### 5. Command Line Usage
 
 ```bash
-# Run the main interactive interface
-python main.py
+# Run the main CLI interface
+python src/hwautomation/cli/main.py
 
 # BIOS configuration management
 python scripts/bios_manager.py list-types
@@ -313,11 +304,6 @@ python scripts/db_manager.py backup
 
 # Use the examples
 python examples/basic_usage.py
-
-# Database management
-python scripts/db_manager.py status
-python scripts/db_manager.py migrate
-python scripts/db_manager.py backup
 ```
 
 ## Package Structure
@@ -325,28 +311,35 @@ python scripts/db_manager.py backup
 ```
 src/hwautomation/
 ├── __init__.py              # Main package exports
+├── web/
+│   ├── app.py              # Flask web application
+│   └── templates/          # Web UI templates
 ├── database/
-│   ├── helper.py           # Database operations
+│   ├── helper.py           # SQLite database operations
 │   └── migrations.py       # Schema migration system
 ├── maas/
 │   └── client.py          # MAAS API client
 ├── hardware/
 │   ├── ipmi.py           # IPMI management
-│   └── redfish.py        # RedFish operations
-└── utils/
-    ├── config.py         # Configuration management
-    └── network.py        # Network utilities
+│   ├── redfish.py        # RedFish operations
+│   └── bios_config.py    # BIOS configuration management
+├── utils/
+│   ├── config.py         # Configuration management
+│   └── network.py        # Network utilities
+└── cli/
+    └── main.py          # Command-line interface
 ```
 
 ## Database Schema
 
-The package includes a complete migration system with versioned schema updates:
+The package includes a complete SQLite migration system with versioned schema updates:
 
-- **Version 1**: Basic server table
-- **Version 2**: Added IP address tracking
-- **Version 3**: Hardware model information
-- **Version 4**: Extended status fields
-- **Version 5**: Metadata and tagging support
+- **Version 1**: Basic server table with core fields
+- **Version 2**: Added IPMI fields for hardware management
+- **Version 3**: Added timestamps for tracking
+- **Version 4**: Added server metadata support
+- **Version 5**: Added power state tracking
+- **Version 6**: Added device type and workflow fields
 
 Migrations are applied automatically when `auto_migrate=True` in configuration.
 

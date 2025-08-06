@@ -2,11 +2,11 @@
 
 ## Overview
 
-HWAutomation has been optimized for container-first deployment with a production-ready architecture that prioritizes the web GUI interface while maintaining full CLI capabilities.
+HWAutomation has been optimized for container-first deployment with a production-ready architecture that prioritizes the web GUI interface while maintaining full CLI capabilities. The application uses a simplified, single-container deployment with SQLite database for optimal performance and ease of deployment.
 
 ## Container Structure
 
-### Multi-Stage Dockerfile (`Dockerfile.web`)
+### Multi-Stage Dockerfile (`docker/Dockerfile.web`)
 
 The application uses a multi-stage Docker build with the following targets:
 
@@ -14,20 +14,17 @@ The application uses a multi-stage Docker build with the following targets:
 2. **Development Stage**: Development tools and editable install
 3. **Production Stage**: Optimized for production deployment
 4. **Web Stage**: GUI-first deployment (default)
-5. **CLI Stage**: Command-line tool deployment
 
 ### Entry Points
 
-#### Web Application (`webapp.py`)
-- **Purpose**: Production-ready Flask web server entry point
+#### Web Application (`src/hwautomation/web/app.py`)
+- **Purpose**: Production-ready Flask web server with application factory pattern
 - **Features**: 
   - Environment-based configuration
   - Comprehensive health monitoring
-  - Production logging
+  - SQLite database with automatic migrations
   - Container-optimized settings
 - **Usage**: Primary entry point for container deployment
-
-#### Package Commands
 - `hw-gui` / `hw-web`: Web interface launcher
 - `hwautomation`: Traditional CLI tool
 
@@ -37,11 +34,10 @@ The application uses a multi-stage Docker build with the following targets:
 
 | Service | Container | Port | Purpose |
 |---------|-----------|------|---------|
-| Web GUI | `hwautomation-app` | 5000 | Primary web interface |
-| Database | `hwautomation-db` | 5432 | PostgreSQL data storage |
-| Cache | `hwautomation-redis` | 6379 | Redis caching layer |
-| DB Admin | `hwautomation-adminer` | 8080 | Database administration |
-| Cache UI | `hwautomation-redis-ui` | 8081 | Redis monitoring |
+| Web GUI | `hwautomation-app` | 5000 | Primary web interface with SQLite database |
+| MaaS Simulator | `hwautomation-maas-sim` | 5240 | Testing environment (optional, testing profile) |
+
+**Database**: SQLite file-based database (`hw_automation.db`) integrated within the main container - no separate database container required.
 
 ### Health Monitoring
 
@@ -55,29 +51,27 @@ The web application includes comprehensive health checks:
     "maas": "healthy", 
     "bios_manager": "healthy",
     "workflow_manager": "healthy",
-    "device_types": 87,
+    "bios_device_types": 87,
     "maas_machines": 5,
     "active_workflows": 0
   },
-  "timestamp": "2025-08-06T17:03:36.223282",
+  "timestamp": "2025-08-06T20:04:43.576693",
   "version": "1.0.0"
 }
 ```
 
 ## Deployment Commands
 
-### Using Docker Make Wrapper
+### Using Docker Compose
 
-The `docker-make` script handles Docker group permissions automatically:
+The application uses standard Docker Compose commands:
 
 ```bash
-# Start all services
-./docker-make up
+# Start the application
+docker compose up -d app
 
-# Build containers  
-./docker-make build
-
-# View status
+# Build container  
+docker compose build app
 ./docker-make ps
 
 # View logs
