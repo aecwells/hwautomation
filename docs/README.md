@@ -1,108 +1,60 @@
 # HWAutomation Documentation
 
-This directory contains detailed documentation for the HWAutomation project.
+This directory contains comprehensive documentation for the HWAutomation enterprise hardware automation platform.
 
-## Core System Documentation
+## 📚 Documentation Structure
 
-### `CONTAINER_ARCHITECTURE.md`
-Complete guide to the container-first deployment architecture, including:
-- Multi-stage Docker builds and deployment options
-- Single-container SQLite-based architecture
-- Health monitoring and service management
-- Production deployment guidelines
+### `BIOS_AND_FIRMWARE.md`
+Complete guide to BIOS configuration and firmware management:
+- Multi-vendor BIOS configuration with intelligent method selection
+- Enterprise firmware management with real vendor tools (HPE iLORest, Supermicro IPMItool, Dell RACADM)
+- Firmware-first provisioning workflows
+- Real-time monitoring with WebSocket integration
+- Device-specific templates and configuration management
 
-### `DATABASE_MIGRATIONS.md`
-Comprehensive guide to the SQLite database migration system, including:
-- Migration overview and features
-- Schema evolution from version 1 to 6
-- Command-line usage and API integration
-- Troubleshooting guide
+### `WORKFLOW_ORCHESTRATION.md`
+Comprehensive workflow orchestration and automation system:
+- 7-step server provisioning workflow with optional firmware-first mode
+- Real-time sub-task reporting and progress tracking
+- Workflow lifecycle management with cancellation support
+- Web interface integration with live progress updates
+- API integration and direct Python usage examples
 
-### `BIOS_CONFIGURATION.md`
-Complete BIOS configuration management documentation, including:
-- Device type configuration and templating
-- XML configuration generation and application
-- Vendor-specific BIOS management
-- API usage and CLI tools
+### `HARDWARE_COMMISSIONING.md`
+Hardware discovery and automated commissioning capabilities:
+- Automatic hardware discovery via SSH (system info, IPMI configuration)
+- Enhanced 8-step commissioning workflow with hardware discovery
+- Network range scanning for IPMI address discovery
+- Real-time commissioning progress with visual feedback
+- Multi-vendor hardware support and detection
 
-## Hardware Management Documentation
+## 🚀 Quick Start
 
-### `HARDWARE_DISCOVERY.md`
-Complete hardware discovery system documentation, including:
-- SSH-based system information gathering
-- IPMI address detection and configuration
-- Network interface discovery and validation
-- CLI tools and API integration
+1. **Container Deployment**: See `CONTAINER_ARCHITECTURE.md` for Docker-based setup
+2. **Database Setup**: Reference `DATABASE_MIGRATIONS.md` for database initialization
+3. **Hardware Configuration**: Use `BIOS_AND_FIRMWARE.md` for device configuration
+4. **Workflow Management**: Follow `WORKFLOW_ORCHESTRATION.md` for automation setup
+5. **Hardware Discovery**: Implement using `HARDWARE_COMMISSIONING.md` guidance
 
-### `VENDOR_DISCOVERY.md`
-Comprehensive guide to vendor-specific hardware discovery, including:
-- Supported vendors (HPE, Supermicro, Dell)
-- Automatic tool installation (sumtool, hpssacli, omreport)
-- Enhanced discovery capabilities and system detection
-- Testing and troubleshooting
+## 📖 Documentation Scope
 
-## Workflow and Orchestration
+These documents provide comprehensive coverage of:
+- **Hardware Automation**: Complete BIOS and firmware management
+- **Workflow Orchestration**: End-to-end server provisioning automation
+- **Hardware Discovery**: Automatic detection and commissioning
+- **Container Deployment**: Production-ready deployment architecture
+- **Database Management**: Schema management and migrations
 
-### `ORCHESTRATION.md`
-Complete workflow orchestration system documentation, including:
-- 8-step automated server provisioning workflow
-- Workflow manager and execution engine
-- Status tracking and error handling
-- API integration and monitoring
+## 🔧 System Architecture
 
-### `ENHANCED_COMMISSIONING.md`
-Complete guide to enhanced server commissioning with database integration, including:
-- Automatic database tracking throughout provisioning
-- SSH connectivity validation and retry logic
-- Hardware discovery with vendor-specific tool integration
-- Real-time status monitoring and health tracking
+The HWAutomation platform consists of:
+- **Container-First Architecture**: Docker-based deployment with single-container design
+- **SQLite Database**: Lightweight, embedded database with migration support
+- **Multi-Vendor Support**: HPE, Supermicro, Dell hardware integration
+- **Real-time Monitoring**: WebSocket-based progress tracking and updates
+- **Enterprise Features**: Firmware management, BIOS configuration, and workflow automation
 
-### `FLEXIBLE_WORKFLOW_SUMMARY.md`
-Documentation for the flexible IPMI workflow implementation, including:
-- Optional IPMI IP during initial commissioning
-- Manual post-discovery IPMI configuration
-- Conditional workflow logic and database integration
-- API enhancements and usage examples
-
-### `COMMISSIONING_PROGRESS.md`
-Real-time commissioning progress monitoring documentation, including:
-- Progress tracking and status updates
-- WebSocket integration for live updates
-- Error handling and recovery mechanisms
-
-## User Interface and Experience
-
-### `DEVICE_SELECTION_SUMMARY.md`
-Comprehensive documentation for the device selection enhancement, including:
-- Interactive MaaS device browsing and filtering
-- Hardware-aware device type suggestions
-- Web interface and API integration
-- User experience improvements and workflow transformation
-
-## System Maintenance and Fixes
-
-### `SSH_TIMEOUT_FIX.md`
-Documentation for SSH timeout and connectivity improvements
-
-### `REAL_TIME_MONITORING_FIXED.md`
-Real-time monitoring system fixes and enhancements
-
-### `CONTAINER_CLEANUP_SUMMARY.md`
-Recent container architecture simplification, including:
-- Removal of unused PostgreSQL and Redis containers
-- SQLite-based architecture benefits
-- Performance and deployment improvements
-
-## Additional Resources
-
-### `FILE_ORGANIZATION_UPDATE.md`
-Project structure and organization guidelines
-
-### `LOCAL_SUMTOOL_DEPLOYMENT.md`
-Local deployment of vendor-specific tools
-
-### `SUMTOOL_INSTALLATION_IMPROVEMENTS.md`
-Enhanced installation procedures for vendor tools
+For detailed implementation guidance, refer to the specific documentation files above.
 
 ### `PACKAGE_README.md`
 Package development and distribution guidelines
