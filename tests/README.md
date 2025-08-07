@@ -19,6 +19,12 @@ This directory contains tests for the HWAutomation project.
 - **`test_phase3_standalone.py`** - Complete Phase 3 monitoring demonstration
 - **`test_phase3_monitoring.py`** - Phase 3 monitoring system integration tests
 
+### Phase 4 Firmware Update Tests 🔧
+
+- **`test_phase4_firmware_demo.py`** - Complete Phase 4 firmware-first provisioning demonstration
+- **`test_firmware_manager.py`** - Firmware management and update functionality tests
+- **`test_firmware_integration.py`** - Integration tests for firmware-first workflows
+
 ### MAAS Testing Scripts
 
 - `debug_maas.py` - Debug script for MAAS connection issues
@@ -49,6 +55,11 @@ python3 tests/test_phase2_decision_logic.py
 # Run Phase 3 monitoring tests (standalone demonstrations)
 python3 tests/test_phase3_standalone.py
 python3 tests/test_phase3_monitoring.py
+
+# Run Phase 4 firmware update tests (demonstrations)
+python3 examples/phase4_firmware_demo.py
+python3 tests/test_firmware_manager.py
+python3 tests/test_firmware_integration.py
 
 # Run orchestration tests specifically
 python tests/test_device_selection.py
