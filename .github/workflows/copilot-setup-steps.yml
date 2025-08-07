@@ -1,0 +1,270 @@
+name: GitHub Copilot Setup Steps
+
+# This workflow provides setup steps for new developers
+# It doesn't run automatically - it's for documentation purposes
+# Developers can reference these steps when setting up the project
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      setup_type:
+        description: 'Setup type to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - development
+        - testing
+
+jobs:
+  setup-documentation:
+    runs-on: ubuntu-latest
+    if: false  # This job never runs - it's purely documentation
+    
+    steps:
+    # ===========================================
+    # QUICK START SETUP STEPS
+    # ===========================================
+    
+    - name: "📋 Step 1: Clone Repository"
+      run: |
+        echo "git clone https://github.com/aecwells/hwautomation.git"
+        echo "cd hwautomation"
+    
+    - name: "🐍 Step 2: Setup Python Environment"
+      run: |
+        echo "# Create virtual environment"
+        echo "python -m venv hwautomation-env"
+        echo ""
+        echo "# Activate virtual environment"
+        echo "# Linux/Mac:"
+        echo "source hwautomation-env/bin/activate"
+        echo "# Windows:"
+        echo "hwautomation-env\\Scripts\\activate"
+    
+    - name: "📦 Step 3: Install Dependencies"
+      run: |
+        echo "# Install in development mode with all extras"
+        echo "pip install -e .[dev]"
+        echo ""
+        echo "# Or install minimal requirements"
+        echo "pip install -r requirements.txt"
+    
+    - name: "⚙️ Step 4: Environment Configuration"
+      run: |
+        echo "# Copy example environment file"
+        echo "cp .env.example .env"
+        echo ""
+        echo "# Edit .env with your settings:"
+        echo "# - MAAS_URL=http://your-maas-server:5240/MAAS"
+        echo "# - MAAS_CONSUMER_KEY=your_consumer_key"
+        echo "# - MAAS_TOKEN_KEY=your_token_key"
+        echo "# - MAAS_TOKEN_SECRET=your_token_secret"
+        echo "# - DATABASE_PATH=./hw_automation.db"
+    
+    # ===========================================
+    # DEVELOPMENT SETUP STEPS
+    # ===========================================
+    
+    - name: "🛠️ Step 5: Development Tools Setup"
+      run: |
+        echo "# Install pre-commit hooks (optional)"
+        echo "pre-commit install"
+        echo ""
+        echo "# Install additional development tools"
+        echo "pip install black flake8 mypy pytest-cov"
+    
+    - name: "🗄️ Step 6: Database Setup"
+      run: |
+        echo "# Initialize database (automatic on first run)"
+        echo "python -c 'from src.hwautomation.database.db_helper import DbHelper; DbHelper().ensure_tables_exist()'"
+        echo ""
+        echo "# Or run the main application once"
+        echo "python main.py --help"
+    
+    - name: "🧪 Step 7: Run Tests"
+      run: |
+        echo "# Run unit tests"
+        echo "pytest tests/unit/ -v"
+        echo ""
+        echo "# Run tests with coverage"
+        echo "pytest tests/unit/ --cov=src/hwautomation --cov-report=html"
+        echo ""
+        echo "# Run all tests (including integration)"
+        echo "pytest tests/ -v"
+    
+    # ===========================================
+    # CONTAINER SETUP STEPS
+    # ===========================================
+    
+    - name: "🐳 Step 8: Docker Setup (Alternative)"
+      run: |
+        echo "# Build and start with Docker Compose"
+        echo "docker compose up -d app"
+        echo ""
+        echo "# View logs"
+        echo "docker compose logs -f app"
+        echo ""
+        echo "# Access container shell"
+        echo "docker compose exec app bash"
+        echo ""
+        echo "# Stop containers"
+        echo "docker compose down"
+    
+    # ===========================================
+    # WEB INTERFACE SETUP
+    # ===========================================
+    
+    - name: "🌐 Step 9: Web Interface"
+      run: |
+        echo "# Start the web interface"
+        echo "python -m src.hwautomation.web.app"
+        echo ""
+        echo "# Or run through main script"
+        echo "python main.py web"
+        echo ""
+        echo "# Access dashboard at: http://localhost:5000"
+    
+    # ===========================================
+    # USAGE EXAMPLES
+    # ===========================================
+    
+    - name: "📚 Step 10: Basic Usage Examples"
+      run: |
+        echo "# Run hardware discovery"
+        echo "python examples/hardware_discovery_demo.py"
+        echo ""
+        echo "# Test BIOS configuration"
+        echo "python examples/bios_config_example.py"
+        echo ""
+        echo "# Run orchestration workflow"
+        echo "python examples/orchestration_example.py"
+        echo ""
+        echo "# Basic usage"
+        echo "python examples/basic_usage.py"
+    
+    # ===========================================
+    # TROUBLESHOOTING STEPS
+    # ===========================================
+    
+    - name: "🔧 Step 11: Troubleshooting"
+      run: |
+        echo "# Common issues and solutions:"
+        echo ""
+        echo "1. Database migration errors:"
+        echo "   - Delete hw_automation.db and restart"
+        echo "   - Check DATABASE_PATH in .env"
+        echo ""
+        echo "2. MaaS connection issues:"
+        echo "   - Verify MAAS_URL is accessible"
+        echo "   - Check OAuth credentials"
+        echo "   - Test with: python debug_maas.py"
+        echo ""
+        echo "3. Test failures:"
+        echo "   - Update device types in test files"
+        echo "   - Check .env TESTING=true is set"
+        echo "   - Run: pytest tests/unit/ --tb=short"
+        echo ""
+        echo "4. Import errors:"
+        echo "   - Install in development mode: pip install -e ."
+        echo "   - Check Python path and virtual environment"
+    
+    # ===========================================
+    # DEVELOPMENT WORKFLOW
+    # ===========================================
+    
+    - name: "🔄 Step 12: Development Workflow"
+      run: |
+        echo "# Recommended development workflow:"
+        echo ""
+        echo "1. Create feature branch:"
+        echo "   git checkout -b feature/your-feature"
+        echo ""
+        echo "2. Make changes and test:"
+        echo "   pytest tests/unit/ -v"
+        echo ""
+        echo "3. Run code quality checks:"
+        echo "   black src/ tests/"
+        echo "   flake8 src/ tests/"
+        echo ""
+        echo "4. Commit and push:"
+        echo "   git add ."
+        echo "   git commit -m 'Add your feature'"
+        echo "   git push origin feature/your-feature"
+        echo ""
+        echo "5. Create pull request on GitHub"
+    
+    # ===========================================
+    # USEFUL COMMANDS
+    # ===========================================
+    
+    - name: "⚡ Step 13: Useful Commands"
+      run: |
+        echo "# Project-specific commands:"
+        echo ""
+        echo "# Database operations:"
+        echo "python scripts/db_manager.py --help"
+        echo ""
+        echo "# BIOS management:"
+        echo "python scripts/bios_manager.py --help"
+        echo ""
+        echo "# Hardware discovery:"
+        echo "python scripts/hardware_discovery.py --help"
+        echo ""
+        echo "# Orchestration:"
+        echo "python scripts/orchestrator.py --help"
+        echo ""
+        echo "# Debug utilities:"
+        echo "python debug_device_selection.py"
+        echo "python debug_database_issue.py"
+        echo "python test_maas.py"
+
+  # ===========================================
+  # ACTUAL SETUP VALIDATION (Optional)
+  # ===========================================
+  
+  validate-setup:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.setup_type == 'full'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    
+    - name: Create test environment
+      run: |
+        echo "PROJECT_NAME=hwautomation" > .env
+        echo "DATABASE_PATH=:memory:" >> .env
+        echo "TESTING=true" >> .env
+        echo "DEVELOPMENT_MOCK_SERVICES=true" >> .env
+    
+    - name: Validate basic imports
+      run: |
+        python -c "from src.hwautomation.orchestration.workflow_manager import WorkflowManager; print('✅ Orchestration imports work')"
+        python -c "from src.hwautomation.hardware.bios_config import BiosConfigManager; print('✅ Hardware imports work')"
+        python -c "from src.hwautomation.maas.client import MaasClient; print('✅ MaaS imports work')"
+        python -c "from src.hwautomation.database.db_helper import DbHelper; print('✅ Database imports work')"
+    
+    - name: Run quick tests
+      run: |
+        pytest tests/unit/ -x --tb=short -q
+        echo "✅ Unit tests pass"
+    
+    - name: Validate examples
+      run: |
+        python -c "import examples.basic_usage; print('✅ Examples can be imported')"
+    
+    - name: Setup validation complete
+      run: |
+        echo "🎉 Setup validation completed successfully!"
+        echo "Your development environment is ready for HWAutomation."
