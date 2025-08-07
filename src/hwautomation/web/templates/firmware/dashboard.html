@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .firmware-card {
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+    }
+    
+    .firmware-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .update-available {
+        border-left-color: #ffc107;
+    }
+    
+    .up-to-date {
+        border-left-color: #28a745;
+    }
+    
+    .status-unknown {
+        border-left-color: #6c757d;
+    }
+    
+    .firmware-status-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .progress-ring {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .progress-ring circle {
+        fill: transparent;
+        stroke: #007bff;
+        stroke-width: 4;
+        stroke-dasharray: 188.5;
+        stroke-dashoffset: 188.5;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+        transition: stroke-dashoffset 0.3s ease;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">Firmware Management Dashboard</h1>
+                    <p class="text-muted">Monitor and manage firmware across your infrastructure</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary me-2" onclick="refreshInventory()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <a href="{{ url_for('firmware.firmware_schedule') }}" class="btn btn-success">
+                        <i class="fas fa-calendar-plus"></i> Schedule Updates
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="metric-card bg-primary">
+                <div class="metric-number">{{ inventory.update_summary.total_servers }}</div>
+                <div class="metric-label">Total Servers</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-warning">
+                <div class="metric-number">{{ inventory.update_summary.updates_available }}</div>
+                <div class="metric-label">Updates Available</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-success">
+                <div class="metric-number">{{ inventory.update_summary.up_to_date }}</div>
+                <div class="metric-label">Up to Date</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-secondary">
+                <div class="metric-number">{{ inventory.update_summary.unknown_status }}</div>
+                <div class="metric-label">Unknown Status</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firmware Repository Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-database"></i> Firmware Repository Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Total Firmware Files:</strong> {{ inventory.firmware_repository.total_files }}</p>
+                            <p><strong>Supported Vendors:</strong> 
+                                {% for vendor in inventory.firmware_repository.vendors %}
+                                    <span class="badge bg-secondary me-1">{{ vendor.upper() }}</span>
+                                {% endfor %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-end">
+                                <a href="{{ url_for('firmware.firmware_inventory') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-list"></i> View Detailed Inventory
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Firmware Status -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-server"></i> Server Firmware Status
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="statusFilter" id="all" value="all" checked>
+                        <label class="btn btn-outline-secondary btn-sm" for="all">All</label>
+                        
+                        <input type="radio" class="btn-check" name="statusFilter" id="updates" value="updates">
+                        <label class="btn btn-outline-warning btn-sm" for="updates">Updates Available</label>
+                        
+                        <input type="radio" class="btn-check" name="statusFilter" id="current" value="current">
+                        <label class="btn btn-outline-success btn-sm" for="current">Up to Date</label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if inventory.servers %}
+                    <div class="row" id="serverGrid">
+                        {% for server in inventory.servers %}
+                        <div class="col-lg-4 col-md-6 mb-3 server-card" 
+                             data-status="{{ 'updates' if server.updates_available else ('current' if server.firmware_status == 'detected' else 'unknown') }}">
+                            <div class="card firmware-card {{ 'update-available' if server.updates_available else ('up-to-date' if server.firmware_status == 'detected' else 'status-unknown') }}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0">{{ server.hostname }}</h6>
+                                        {% if server.updates_available %}
+                                            <span class="badge bg-warning firmware-status-badge">Updates Available</span>
+                                        {% elif server.firmware_status == 'detected' %}
+                                            <span class="badge bg-success firmware-status-badge">Up to Date</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary firmware-status-badge">Unknown</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="text-muted small mb-2">
+                                        ID: {{ server.id }} | Type: {{ server.device_type or 'Unknown' }}
+                                    </p>
+                                    
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <small class="text-muted">BIOS</small>
+                                            <div class="fw-bold">{{ server.bios_version }}</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">BMC</small>
+                                            <div class="fw-bold">{{ server.bmc_version }}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if server.updates_available and server.available_updates %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Available Updates:</small>
+                                        {% for update in server.available_updates %}
+                                        <div class="small">
+                                            <span class="badge bg-light text-dark">{{ update.component }}</span>
+                                            {{ update.current }} → {{ update.available }}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="mt-3 d-flex justify-content-between">
+                                        {% if server.updates_available %}
+                                        <button class="btn btn-sm btn-warning" onclick="scheduleUpdate('{{ server.id }}')">
+                                            <i class="fas fa-download"></i> Update
+                                        </button>
+                                        {% endif %}
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('{{ server.id }}')">
+                                            <i class="fas fa-info-circle"></i> Details
+                                        </button>
+                                    </div>
+                                    
+                                    {% if server.last_checked %}
+                                    <small class="text-muted d-block mt-2">
+                                        Last checked: {{ moment(server.last_checked).fromNow() }}
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-server fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No servers found</h5>
+                        <p class="text-muted">Add servers to your infrastructure to view firmware status</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Server Details Modal -->
+<div class="modal fade" id="serverDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Server Firmware Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="serverDetailsContent">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshInventory() {
+    // Show loading state
+    const refreshBtn = document.querySelector('button[onclick="refreshInventory()"]');
+    const originalText = refreshBtn.innerHTML;
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+    refreshBtn.disabled = true;
+    
+    // Reload the page to get fresh data
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+}
+
+function filterServers() {
+    const selectedFilter = document.querySelector('input[name="statusFilter"]:checked').value;
+    const serverCards = document.querySelectorAll('.server-card');
+    
+    serverCards.forEach(card => {
+        const status = card.getAttribute('data-status');
+        if (selectedFilter === 'all' || status === selectedFilter) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function scheduleUpdate(serverId) {
+    // Redirect to schedule page with pre-selected server
+    window.location.href = `{{ url_for('firmware.firmware_schedule') }}?server=${serverId}`;
+}
+
+function viewDetails(serverId) {
+    // Load server details in modal
+    const modal = new bootstrap.Modal(document.getElementById('serverDetailsModal'));
+    const content = document.getElementById('serverDetailsContent');
+    
+    content.innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2">Loading server details...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simulate loading server details
+    setTimeout(() => {
+        content.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Server Information</h6>
+                    <p><strong>Server ID:</strong> ${serverId}</p>
+                    <p><strong>Status:</strong> Ready</p>
+                    <p><strong>Device Type:</strong> a1.c5.large</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Current Firmware</h6>
+                    <p><strong>BIOS Version:</strong> Simulated-v1.0</p>
+                    <p><strong>BMC Version:</strong> Simulated-BMC-v2.0</p>
+                    <p><strong>Last Updated:</strong> 2 weeks ago</p>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12">
+                    <h6>Firmware History</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Component</th>
+                                    <th>Version</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-07-20</td>
+                                    <td>BIOS</td>
+                                    <td>v1.0</td>
+                                    <td><span class="badge bg-success">Success</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2024-07-15</td>
+                                    <td>BMC</td>
+                                    <td>v2.0</td>
+                                    <td><span class="badge bg-success">Success</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+// Set up event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter event listeners
+    document.querySelectorAll('input[name="statusFilter"]').forEach(radio => {
+        radio.addEventListener('change', filterServers);
+    });
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        // Only refresh if no modals are open
+        if (!document.querySelector('.modal.show')) {
+            refreshInventory();
+        }
+    }, 30000);
+});
+</script>
+{% endblock %}

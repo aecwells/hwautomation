@@ -75,6 +75,19 @@ def create_app():
     bios_config_manager = BiosConfigManager(config_dir=str(config_dir))
     device_selection_service = DeviceSelectionService(db_path)
     workflow_manager = WorkflowManager(config)
+    
+    # Initialize firmware management
+    try:
+        from hwautomation.hardware.firmware_manager import FirmwareManager
+        from hwautomation.web.firmware_routes import firmware_bp, init_firmware_routes
+        
+        firmware_manager = FirmwareManager()
+        init_firmware_routes(firmware_manager, workflow_manager, db_helper, socketio)
+        app.register_blueprint(firmware_bp)
+        logger.info("Firmware management routes initialized successfully")
+    except Exception as e:
+        logger.warning(f"Failed to initialize firmware management: {e}")
+        logger.warning("Firmware management features will not be available")
 
     @app.route('/health')
     def health_check():
