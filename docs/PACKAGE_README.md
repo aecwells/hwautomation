@@ -138,18 +138,29 @@ print(f"Power: {power_status}")
 ipmi.power_cycle("192.168.1.100", "password")
 ```
 
-### RedFish API
+### Redfish API
 ```python
-from hwautomation.hardware.redfish import RedFishManager
+from hwautomation.hardware.redfish_manager import RedfishManager
 
-redfish = RedFishManager(username="admin")
+# Modern Redfish API with context manager
+with RedfishManager("192.168.1.100", "admin", "password") as redfish:
+    # Get system information
+    system_info = redfish.get_system_info()
+    if system_info:
+        print(f"Manufacturer: {system_info.manufacturer}")
+        print(f"Model: {system_info.model}")
+        print(f"Power State: {system_info.power_state}")
+    
+    # Control power
+    redfish.power_control("GracefulRestart")
+    
+    # Get BIOS settings
+    bios_settings = redfish.get_bios_settings()
+    if bios_settings:
+        print(f"Found {len(bios_settings)} BIOS settings")
 
-# Get system information
-system_info = redfish.get_system_info("192.168.1.100", "password")
-print(f"Model: {system_info.get('Model')}")
-
-# Get thermal information
-thermal = redfish.get_thermal_info("192.168.1.100", "password")
+# Note: Thermal information and other advanced features
+# are planned for future phases of Redfish integration
 ```
 
 ## 🗃 Database Schema Migration

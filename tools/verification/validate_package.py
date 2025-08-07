@@ -33,7 +33,7 @@ def test_imports():
         ('hwautomation.database.migrations', 'DatabaseMigrator'),
         ('hwautomation.maas.client', 'MaasClient'),
         ('hwautomation.hardware.ipmi', 'IpmiManager'),
-        ('hwautomation.hardware.redfish', 'RedFishManager'),
+        ('hwautomation.hardware.redfish_manager', 'RedfishManager'),
         ('hwautomation.utils.config', 'load_config'),
         ('hwautomation.utils.network', 'ping_host'),
     ]
@@ -55,7 +55,7 @@ def test_imports():
         'DatabaseMigrator',
         'MaasClient', 
         'IpmiManager',
-        'RedFishManager',
+        'RedfishManager',
         'ping_host'
     ]
     
@@ -75,7 +75,7 @@ def test_imports():
         print("✓ Star import successful")
         
         # Check if key classes are available
-        test_classes = [DbHelper, DatabaseMigrator, MaasClient, IpmiManager, RedFishManager, ping_host]
+        test_classes = [DbHelper, DatabaseMigrator, MaasClient, IpmiManager, RedfishManager, ping_host]
         print(f"✓ All {len(test_classes)} classes available via star import")
     except Exception as e:
         print(f"✗ Star import failed: {e}")

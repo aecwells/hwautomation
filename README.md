@@ -375,12 +375,16 @@ from hwautomation.hardware.ipmi import IpmiManager
 ipmi_manager = IpmiManager(username="admin", timeout=30)
 ```
 
-#### `RedFishManager`
-RedFish API management for modern BMCs.
+#### `RedfishManager`
+Modern Redfish API management for standardized BMC operations.
 
 ```python
-from hwautomation.hardware.redfish import RedFishManager
-redfish_manager = RedFishManager(username="admin", timeout=30)
+from hwautomation.hardware.redfish_manager import RedfishManager
+
+# Context manager usage (recommended)
+with RedfishManager("192.168.1.100", "admin", "password") as redfish:
+    system_info = redfish.get_system_info()
+    redfish.power_control("GracefulRestart")
 ```
 
 ### Key Methods

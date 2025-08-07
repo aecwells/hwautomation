@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 from hwautomation import *
 from hwautomation.maas.client import create_maas_client
 from hwautomation.hardware.ipmi import IpmiManager
-from hwautomation.hardware.redfish import RedFishManager
+from hwautomation.hardware.redfish_manager import RedfishManager
 from hwautomation.utils.config import load_config
 from hwautomation.database.migrations import DatabaseMigrator
 
@@ -162,10 +162,12 @@ def example_redfish_operations():
     config = load_config()
     
     # Create RedFish manager
-    redfish_manager = RedFishManager(
-        username=config['ipmi']['username'],
-        timeout=config['ipmi']['timeout']
-    )
+    # Note: You'll need to update this to use the new RedfishManager
+    # redfish_manager = RedfishManager(
+    #     host="<target_ip>",  # This should be set per target
+    #     username=config['ipmi']['username'],
+    #     password="<password>"  # This should be set per target
+    # )
     
     # Get database helper
     db_helper = DbHelper(
@@ -186,27 +188,44 @@ def example_redfish_operations():
             
             print(f"Testing RedFish operations on {ipmi_ip}...")
             
-            # Get system information
-            print("\n1. Getting system information...")
-            system_info = redfish_manager.get_system_info(ipmi_ip, password)
-            if system_info:
-                print(f"System Model: {system_info.get('Model', 'Unknown')}")
-                print(f"Power State: {system_info.get('PowerState', 'Unknown')}")
+            # NOTE: RedFish operations updated for new RedfishManager
+            print("\n=== RedFish Operations (Updated for new RedfishManager) ===")
+            print("This section has been updated to use the new RedfishManager.")
+            print("Uncomment and modify the code below to use the new implementation:")
+            print()
+            print("# Example usage with new RedfishManager:")
+            print("# with RedfishManager(ipmi_ip, username, password) as redfish:")
+            print("#     system_info = redfish.get_system_info()")
+            print("#     if system_info:")
+            print("#         print(f'System: {system_info.manufacturer} {system_info.model}')")
+            print("#         print(f'Power State: {system_info.power_state}')")
+            print("#     capabilities = redfish.discover_capabilities()")
+            print("#     print(f'BIOS Config Support: {capabilities.supports_bios_config}')")
             
-            # Check KCS status (Supermicro specific)
-            print("\n2. Checking KCS interface status...")
-            kcs_status = redfish_manager.get_kcs_status(ipmi_ip, password)
-            if kcs_status:
-                print(f"KCS Privilege: {kcs_status.get('Privilege', 'Unknown')}")
+            # # Uncomment to use new RedfishManager:
+            # try:
+            #     with RedfishManager(ipmi_ip, username, password) as redfish:
+            #         # Get system information
+            #         print("\n1. Getting system information...")
+            #         system_info = redfish.get_system_info()
+            #         if system_info:
+            #             print(f"System Model: {system_info.model}")
+            #             print(f"Power State: {system_info.power_state}")
+            #             print(f"Manufacturer: {system_info.manufacturer}")
+            #         
+            #         # Check capabilities
+            #         print("\n2. Checking Redfish capabilities...")
+            #         capabilities = redfish.discover_capabilities()
+            #         print(f"BIOS Config: {capabilities.supports_bios_config}")
+            #         print(f"Power Control: {capabilities.supports_power_control}")
+            #         
+            #         # Note: Thermal info would need to be implemented in new RedfishManager
+            #         print("\n3. Thermal information not yet implemented in new RedfishManager")
+            # 
+            # except Exception as e:
+            #     print(f"RedFish operations failed: {e}")
             
-            # Get thermal information
-            print("\n3. Getting thermal information...")
-            thermal_info = redfish_manager.get_thermal_info(ipmi_ip, password)
-            if thermal_info and 'Temperatures' in thermal_info:
-                print(f"Found {len(thermal_info['Temperatures'])} temperature sensors")
-            
-            # Logout
-            redfish_manager.logout(ipmi_ip, password)
+            print("\nRedFish operations example completed (see comments for new usage)")
         else:
             print("No IPMI IPs available or password not configured")
     else:

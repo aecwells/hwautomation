@@ -30,7 +30,7 @@ def show_migration_guide():
     print("   from hwautomation.database.migrations import DatabaseMigrator")
     print("   from hwautomation.maas.client import create_maas_client")
     print("   from hwautomation.hardware.ipmi import IpmiManager")
-    print("   from hwautomation.hardware.redfish import RedFishManager")
+    print("   from hwautomation.hardware.redfish_manager import RedfishManager")
     print("   from hwautomation.utils.config import load_config")
     
     print("\n3. FUNCTION MAPPING:")
@@ -43,7 +43,7 @@ def show_migration_guide():
         ("createMaasOauth1Session()", "create_maas_client()"),
         ("ping_host()", "hwautomation.utils.network.ping_host()"),
         ("All IPMI functions", "IpmiManager class methods"),
-        ("All RedFish functions", "RedFishManager class methods"),
+        ("All RedFish functions", "RedfishManager class methods"),
     ]
     
     for old, new in function_mapping:
@@ -87,7 +87,7 @@ sys.path.insert(0, str(Path(__file__).parent / 'src'))
 from hwautomation import *
 from hwautomation.maas.client import create_maas_client
 from hwautomation.hardware.ipmi import IpmiManager
-from hwautomation.hardware.redfish import RedFishManager
+from hwautomation.hardware.redfish_manager import RedfishManager
 from hwautomation.utils.config import load_config
 from hwautomation.database.migrations import DatabaseMigrator
 
