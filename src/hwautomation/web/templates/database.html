@@ -6,10 +6,8 @@
 {% block extra_css %}
 .status-connected { color: #28a745; }
 .status-disconnected { color: #dc3545; }
-.status-working { color: #ffc107;         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTable('servers');
-        });block %}
+.status-working { color: #ffc107; }
+{% endblock %}
 
 {% block content %}
         <!-- Database Status Cards -->
