@@ -1,0 +1,16 @@
+# Mock BIOS firmware file for HPE U30 v2.54
+# This is a placeholder file for development and testing purposes.
+# In production, this would be the actual firmware binary.
+
+FIRMWARE_TYPE=BIOS
+VENDOR=HPE
+MODEL=Gen10
+VERSION=U30_v2.54
+SIZE=16MB
+CHECKSUM=sha256:example_checksum_u30_254
+
+# Release Notes:
+# - Critical security updates
+# - Performance improvements
+# - Bug fixes for memory initialization
+# - Enhanced UEFI boot support

@@ -1,0 +1,247 @@
+# Firmware Repository Configuration
+# Defines firmware sources, download locations, and management settings
+
+firmware_repository:
+  base_path: "./firmware"  # Relative to project root
+  download_enabled: true
+  auto_verify: true
+  cache_duration: 86400  # 24 hours in seconds
+  max_concurrent_downloads: 3
+  
+  # Global firmware update settings
+  global_settings:
+    backup_before_update: true
+    verify_after_update: true
+    rollback_on_failure: true
+    max_retry_attempts: 3
+    retry_delay: 30  # seconds
+    
+  # Vendor-specific firmware configurations
+  vendors:
+    supermicro:
+      display_name: "Super Micro Computer Inc."
+      support_url: "https://www.supermicro.com/support/resources/"
+      
+      bios:
+        download_url: "https://www.supermicro.com/support/resources/results.aspx"
+        file_pattern: "*.rom"
+        checksum_file: "*.sha256"
+        update_method: "redfish"  # redfish, ipmicfg, sumtool
+        fallback_methods: ["ipmicfg", "sumtool"]
+        estimated_time: 480  # 8 minutes
+        requires_reboot: true
+        
+      bmc:
+        download_url: "https://www.supermicro.com/support/resources/results.aspx"
+        file_pattern: "*.bin"
+        checksum_file: "*.sha256"
+        update_method: "redfish"
+        fallback_methods: ["ipmicfg", "sumtool"]
+        estimated_time: 360  # 6 minutes
+        requires_reboot: true
+        
+      tools:
+        ipmicfg:
+          path: "/opt/supermicro/ipmicfg/ipmicfg"
+          install_url: "https://www.supermicro.com/wdl/utility/IPMICFG/"
+          version: "1.35.0"
+        sumtool:
+          path: "/opt/supermicro/sumtool/sumtool"
+          install_url: "https://www.supermicro.com/wdl/utility/SUM/"
+          version: "2.8.0"
+      
+      # Example firmware files (for development/testing)
+      example_files:
+        bios:
+          - file: "firmware/supermicro/bios/X11SPL_3.4.rom"
+            version: "3.4"
+            checksum: "sha256:example_checksum_x11spl_34"
+          - file: "firmware/supermicro/bios/X11SPL_3.5.rom"
+            version: "3.5"
+            checksum: "sha256:example_checksum_x11spl_35"
+        bmc:
+          - file: "firmware/supermicro/bmc/BMC_1.73.14.bin"
+            version: "1.73.14"
+            checksum: "sha256:example_checksum_bmc_17314"
+          - file: "firmware/supermicro/bmc/BMC_1.74.06.bin"
+            version: "1.74.06"
+            checksum: "sha256:ff6c6d18fec4635b3dab8187e0a47bd995dc68ee444a71cf2946d93a70842d65"
+          
+    hpe:
+      display_name: "Hewlett Packard Enterprise"
+      support_url: "https://support.hpe.com/"
+      
+      bios:
+        download_url: "https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229"
+        file_pattern: "*.fwpkg"
+        checksum_file: "*.sha256"
+        update_method: "redfish"
+        fallback_methods: ["smartupdate", "conrep"]
+        estimated_time: 600  # 10 minutes
+        requires_reboot: true
+        
+      bmc:
+        download_url: "https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229"
+        file_pattern: "*.fwpkg"
+        checksum_file: "*.sha256"
+        update_method: "redfish"
+        fallback_methods: ["smartupdate"]
+        estimated_time: 480  # 8 minutes
+        requires_reboot: true
+        
+      tools:
+        smartupdate:
+          path: "/opt/hpe/smartupdate/sut"
+          install_url: "https://support.hpe.com/hpesc/public/home/downloadHome"
+          version: "8.8.0"
+        conrep:
+          path: "/opt/hpe/conrep/conrep"
+          install_url: "https://support.hpe.com/hpesc/public/home/downloadHome"
+          version: "5.6.0"
+        ilorest:
+          path: "/opt/hpe/ilorest/ilorest"
+          install_url: "https://github.com/HewlettPackard/python-ilorest-library"
+          version: "4.4.0"
+      
+      # Example firmware files (for development/testing)
+      example_files:
+        bios:
+          - file: "firmware/hpe/bios/U30_v2.50.fwpkg"
+            version: "U30_v2.50"
+            checksum: "sha256:example_checksum_u30_250"
+          - file: "firmware/hpe/bios/U30_v2.54.fwpkg"
+            version: "U30_v2.54"
+            checksum: "sha256:example_checksum_u30_254"
+        bmc:
+          - file: "firmware/hpe/bmc/ilo5_275.fwpkg"
+            version: "2.75"
+            checksum: "sha256:example_checksum_ilo5_275"
+          - file: "firmware/hpe/bmc/ilo5_278.fwpkg"
+            version: "2.78"
+            checksum: "sha256:example_checksum_ilo5_278"
+          - file: "firmware/hpe/bmc/CP046866.scexe"
+            version: "2.85"
+            checksum: "sha256:a10aa26268b4a2391c9fb336ed23b188f2cc3f0243487e0fa5ca1039d9b9fe40"
+            checksum: "sha256:a10aa26268b4a2391c9fb336ed23b188f2cc3f0243487e0fa5ca1039d9b9fe40"
+          
+    dell:
+      display_name: "Dell Technologies"
+      support_url: "https://www.dell.com/support/"
+      
+      bios:
+        download_url: "https://www.dell.com/support/downloads/"
+        file_pattern: "*.exe"
+        checksum_file: "*.sha256"
+        update_method: "redfish"
+        fallback_methods: ["racadm", "dsu"]
+        estimated_time: 540  # 9 minutes
+        requires_reboot: true
+        
+      bmc:
+        download_url: "https://www.dell.com/support/downloads/"
+        file_pattern: "*.exe"
+        checksum_file: "*.sha256"
+        update_method: "redfish"
+        fallback_methods: ["racadm", "dsu"]
+        estimated_time: 420  # 7 minutes
+        requires_reboot: true
+        
+      tools:
+        racadm:
+          path: "/opt/dell/srvadmin/bin/idracadm7"
+          install_url: "https://www.dell.com/support/downloads/"
+          version: "9.4.0"
+        dsu:
+          path: "/opt/dell/dellsystemupdate/dsu"
+          install_url: "https://www.dell.com/support/downloads/"
+          version: "1.9.3.0"
+        omconfig:
+          path: "/opt/dell/srvadmin/bin/omconfig"
+          install_url: "https://www.dell.com/support/downloads/"
+          version: "9.4.0"
+
+# Device-specific firmware mappings
+device_firmware_mapping:
+  # Supermicro devices
+  "d1.c1.small":
+    vendor: "supermicro"
+    model_family: "X11"
+    bmc_family: "BMC"
+    bios_family: "X11SPL"
+    firmware_profile: "datacenter_optimized"
+    
+  "d1.c2.medium":
+    vendor: "supermicro"
+    model_family: "X11"
+    bmc_family: "BMC"
+    bios_family: "X11DPH"
+    firmware_profile: "datacenter_optimized"
+    
+  # HPE devices
+  "a1.c5.large":
+    vendor: "hpe"
+    model_family: "Gen10"
+    bmc_family: "iLO5"
+    bios_family: "U30"
+    firmware_profile: "enterprise_security"
+    
+  # Default profile for unknown devices
+  "default":
+    vendor: "generic"
+    model_family: "unknown"
+    bmc_family: "unknown"
+    bios_family: "unknown"
+    firmware_profile: "basic"
+
+# Firmware update policies
+update_policies:
+  manual:
+    description: "Manual approval required for all updates"
+    auto_download: false
+    auto_install: false
+    security_override: false
+    
+  recommended:
+    description: "Install recommended updates automatically"
+    auto_download: true
+    auto_install: true
+    security_override: true
+    exclude_priorities: ["low"]
+    
+  latest:
+    description: "Always use latest firmware versions"
+    auto_download: true
+    auto_install: true
+    security_override: true
+    exclude_priorities: []
+    
+  security_only:
+    description: "Only install security-related updates"
+    auto_download: true
+    auto_install: true
+    security_override: true
+    include_priorities: ["critical"]
+    
+# Firmware profiles for different use cases
+firmware_profiles:
+  datacenter_optimized:
+    description: "Optimized for datacenter environments"
+    priority: "performance"
+    features:
+      - "virtualization_optimizations"
+      - "power_management"
+      - "network_optimization"
+      
+  enterprise_security:
+    description: "Enhanced security for enterprise environments"
+    priority: "security"
+    features:
+      - "secure_boot"
+      - "tpm_support"
+      - "encryption_acceleration"
+      
+  basic:
+    description: "Basic functionality profile"
+    priority: "stability"
+    features:
+      - "basic_functionality"

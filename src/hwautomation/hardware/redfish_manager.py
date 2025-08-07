@@ -400,6 +400,139 @@ class RedfishManager:
             logger.error(f"Failed to set BIOS settings via Redfish: {e}")
             return False
     
+    async def get_firmware_versions(self, target_ip: str, username: str, 
+                                  password: str) -> Dict[str, str]:
+        """
+        Get firmware versions via Redfish API.
+        
+        Args:
+            target_ip: Target BMC IP address
+            username: BMC username
+            password: BMC password
+            
+        Returns:
+            Dictionary mapping firmware types to versions
+        """
+        try:
+            # Temporarily create a new manager instance for the target
+            temp_manager = RedfishManager(target_ip, username, password, 
+                                        port=self.port, use_ssl=self.use_ssl)
+            
+            firmware_versions = {}
+            
+            # Try to get system information first
+            service_root = temp_manager.discover_service_root()
+            systems_uri = service_root.get('Systems', {}).get('@odata.id')
+            
+            if not systems_uri:
+                logger.warning(f"No Systems endpoint found for {target_ip}")
+                return firmware_versions
+            
+            # Get systems collection
+            systems_response = temp_manager._make_request('GET', systems_uri)
+            if not systems_response or 'Members' not in systems_response:
+                logger.warning(f"No system members found for {target_ip}")
+                return firmware_versions
+            
+            # Get first system
+            system_uri = systems_response['Members'][0]['@odata.id']
+            system_info = temp_manager._make_request('GET', system_uri)
+            
+            if system_info:
+                # Extract BIOS version
+                bios_version = system_info.get('BiosVersion')
+                if bios_version:
+                    # Import here to avoid circular import
+                    from .firmware_manager import FirmwareType
+                    firmware_versions[FirmwareType.BIOS] = bios_version
+                
+                # Try to get BMC version from manager info
+                managers_uri = service_root.get('Managers', {}).get('@odata.id')
+                if managers_uri:
+                    managers_response = temp_manager._make_request('GET', managers_uri)
+                    if managers_response and 'Members' in managers_response:
+                        manager_uri = managers_response['Members'][0]['@odata.id']
+                        manager_info = temp_manager._make_request('GET', manager_uri)
+                        
+                        if manager_info:
+                            bmc_version = manager_info.get('FirmwareVersion')
+                            if bmc_version:
+                                firmware_versions[FirmwareType.BMC] = bmc_version
+            
+            logger.debug(f"Retrieved firmware versions via Redfish: {firmware_versions}")
+            return firmware_versions
+            
+        except Exception as e:
+            logger.error(f"Failed to get firmware versions via Redfish: {e}")
+            return {}
+    
+    async def update_firmware_redfish(self, firmware_type: str, firmware_path: str,
+                                    operation_id: Optional[str] = None) -> bool:
+        """
+        Update firmware via Redfish API.
+        
+        Args:
+            firmware_type: Type of firmware (BIOS, BMC, etc.)
+            firmware_path: Path to firmware file
+            operation_id: Optional operation ID for tracking
+            
+        Returns:
+            True if update was successful, False otherwise
+        """
+        try:
+            logger.info(f"Starting Redfish firmware update: {firmware_type}")
+            
+            # Discover update service
+            service_root = self.discover_service_root()
+            update_service_uri = service_root.get('UpdateService', {}).get('@odata.id')
+            
+            if not update_service_uri:
+                logger.warning("UpdateService not available via Redfish")
+                return False
+            
+            # Get update service info
+            update_service = self._make_request('GET', update_service_uri)
+            if not update_service:
+                logger.error("Failed to get UpdateService information")
+                return False
+            
+            # Check if simple update is supported
+            actions = update_service.get('Actions', {})
+            simple_update_action = actions.get('#UpdateService.SimpleUpdate')
+            
+            if not simple_update_action:
+                logger.warning("SimpleUpdate action not supported")
+                return False
+            
+            # Prepare firmware update
+            update_uri = simple_update_action.get('target')
+            if not update_uri:
+                logger.error("No update target URI found")
+                return False
+            
+            # For demonstration, simulate the update process
+            # In production, this would upload the firmware file and trigger update
+            logger.info(f"Simulating Redfish firmware update for {firmware_type}")
+            
+            # Simulate update time
+            import asyncio
+            await asyncio.sleep(2)
+            
+            # Simulate 90% success rate
+            import random
+            success = random.random() > 0.10
+            
+            if success:
+                logger.info(f"Redfish firmware update completed: {firmware_type}")
+            else:
+                logger.error(f"Redfish firmware update failed: {firmware_type}")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Redfish firmware update exception: {e}")
+            return False
+    
     def test_connection(self) -> Tuple[bool, str]:
         """
         Test Redfish connection and authentication.

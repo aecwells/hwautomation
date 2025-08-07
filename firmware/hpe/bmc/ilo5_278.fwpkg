@@ -1,0 +1,16 @@
+# Mock BMC firmware file for HPE iLO5 v2.78
+# This is a placeholder file for development and testing purposes.
+# In production, this would be the actual firmware binary.
+
+FIRMWARE_TYPE=BMC
+VENDOR=HPE
+MODEL=iLO5
+VERSION=2.78
+SIZE=32MB
+CHECKSUM=sha256:example_checksum_ilo5_278
+
+# Release Notes:
+# - Critical security vulnerability fixes
+# - Enhanced Redfish API support
+# - Improved power management
+# - Bug fixes for remote console

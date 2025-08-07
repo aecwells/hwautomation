@@ -1,0 +1,16 @@
+# Mock BMC firmware file for Supermicro BMC v1.74.06
+# This is a placeholder file for development and testing purposes.
+# In production, this would be the actual firmware binary.
+
+FIRMWARE_TYPE=BMC
+VENDOR=Supermicro
+MODEL=BMC
+VERSION=1.74.06
+SIZE=16MB
+CHECKSUM=sha256:example_checksum_bmc_17406
+
+# Release Notes:
+# - Security updates for web interface
+# - Enhanced IPMI functionality
+# - Improved sensor monitoring
+# - Bug fixes for virtual media
