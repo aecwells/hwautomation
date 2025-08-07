@@ -1,5 +1,10 @@
 # Hardware Automation Package
 
+![Tests](https://github.com/aecwells/hwautomation/workflows/Tests/badge.svg)
+[![codecov](https://codecov.io/gh/aecwells/hwautomation/branch/main/graph/badge.svg)](https://codecov.io/gh/aecwells/hwautomation)
+![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
+![License](https://img.shields.io/github/license/aecwells/hwautomation)
+
 A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with a production-ready web GUI and complete CLI capabilities.
 
 ## 🚀 Quick Start (Container-First)
