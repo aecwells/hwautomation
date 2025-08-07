@@ -608,6 +608,120 @@ def create_app():
             logger.error(f"Failed to start provisioning workflow: {e}")
             return jsonify({'error': str(e)}), 500
 
+    @app.route('/api/orchestration/provision-firmware-first', methods=['POST'])
+    def api_start_firmware_first_provisioning():
+        """Start a firmware-first server provisioning workflow (Phase 4)."""
+        try:
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['server_id', 'device_type']
+            for field in required_fields:
+                if field not in data:
+                    return jsonify({'error': f'Missing required field: {field}'}), 400
+            
+            server_id = data['server_id']
+            device_type = data['device_type']
+            target_ipmi_ip = data.get('target_ipmi_ip')
+            rack_location = data.get('rack_location')
+            gateway = data.get('gateway')
+            firmware_policy = data.get('firmware_policy', 'recommended')
+            
+            # Validate firmware policy
+            valid_policies = ['recommended', 'latest', 'security_only']
+            if firmware_policy not in valid_policies:
+                return jsonify({'error': f'Invalid firmware_policy. Must be one of: {valid_policies}'}), 400
+            
+            # Create and start firmware-first provisioning workflow
+            from hwautomation.orchestration.server_provisioning import ServerProvisioningWorkflow
+            provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
+            
+            workflow = provisioning_workflow.create_firmware_first_provisioning_workflow(
+                server_id=server_id,
+                device_type=device_type,
+                target_ipmi_ip=target_ipmi_ip,
+                rack_location=rack_location,
+                gateway=gateway,
+                firmware_policy=firmware_policy
+            )
+            
+            if not workflow:
+                return jsonify({'error': 'Firmware-first provisioning not available. Firmware management not initialized.'}), 503
+            
+            # Set up progress callback for WebSocket updates
+            def progress_callback(progress_data):
+                socketio.emit('firmware_workflow_progress', progress_data)
+            
+            workflow.set_progress_callback(progress_callback)
+            
+            # Start workflow execution in background thread
+            import threading
+            from hwautomation.orchestration.workflow_manager import WorkflowContext
+            
+            context = WorkflowContext(
+                server_id=server_id,
+                device_type=device_type,
+                target_ipmi_ip=target_ipmi_ip,
+                rack_location=rack_location,
+                gateway=gateway,
+                maas_client=workflow_manager.maas_client,
+                db_helper=workflow_manager.db_helper
+            )
+            context.workflow_id = workflow.id
+            
+            def execute_firmware_workflow():
+                try:
+                    logger.info(f"Starting firmware-first provisioning workflow {workflow.id} for server {server_id}")
+                    result = workflow.execute(context)
+                    logger.info(f"Firmware-first provisioning workflow {workflow.id} completed with result: {result}")
+                    
+                    # Emit completion event
+                    socketio.emit('firmware_workflow_complete', {
+                        'workflow_id': workflow.id,
+                        'server_id': server_id,
+                        'result': result
+                    })
+                    
+                except Exception as e:
+                    logger.error(f"Firmware-first provisioning workflow {workflow.id} failed: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    
+                    # Emit error event
+                    socketio.emit('firmware_workflow_error', {
+                        'workflow_id': workflow.id,
+                        'server_id': server_id,
+                        'error': str(e)
+                    })
+            
+            # Start workflow thread
+            workflow_thread = threading.Thread(target=execute_firmware_workflow)
+            workflow_thread.daemon = True
+            workflow_thread.start()
+            
+            # Build response
+            response_data = {
+                'success': True,
+                'workflow_id': workflow.id,
+                'server_id': server_id,
+                'device_type': device_type,
+                'firmware_policy': firmware_policy,
+                'message': f'Firmware-first provisioning workflow started for {server_id}',
+                'estimated_duration': '60-90 minutes (includes firmware updates)'
+            }
+            
+            # Include optional fields if provided
+            if target_ipmi_ip:
+                response_data['target_ipmi_ip'] = target_ipmi_ip
+            if gateway:
+                response_data['gateway'] = gateway
+            
+            return jsonify(response_data)
+            
+        except Exception as e:
+            logger.error(f"Failed to start firmware-first provisioning workflow: {e}")
+            return jsonify({'error': str(e)}), 500
+
     # Logs API endpoints
     @app.route('/api/logs')
     def api_get_logs():

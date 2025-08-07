@@ -15,6 +15,7 @@ from pathlib import Path
 
 from .workflow_manager import WorkflowManager, Workflow, WorkflowStep, WorkflowContext
 from .exceptions import (
+    WorkflowError,
     CommissioningError,
     BiosConfigurationError,
     IPMIConfigurationError,
@@ -146,6 +147,232 @@ class ServerProvisioningWorkflow:
         ))
         
         return workflow
+    
+    def create_firmware_first_provisioning_workflow(
+        self,
+        server_id: str,
+        device_type: str,
+        target_ipmi_ip: Optional[str] = None,
+        rack_location: Optional[str] = None,
+        gateway: Optional[str] = None,
+        firmware_policy: str = "recommended",
+        **kwargs
+    ) -> Workflow:
+        """
+        Create a firmware-first provisioning workflow (Phase 4).
+        
+        This workflow combines firmware updates with the existing provisioning process:
+        1. Commission server via MaaS
+        2. Get server IP and establish connectivity
+        3. Discover hardware information
+        4. Execute firmware-first provisioning (firmware updates + BIOS config)
+        5. Configure IPMI settings
+        6. Finalize server setup
+        
+        Args:
+            server_id: Unique identifier for the server
+            device_type: Device type (e.g., 's2.c2.small')
+            target_ipmi_ip: Optional target IPMI IP address
+            rack_location: Optional physical rack location
+            gateway: Optional gateway IP address for network configuration
+            firmware_policy: Firmware update policy ('recommended', 'latest', 'security_only')
+            **kwargs: Additional metadata
+            
+        Returns:
+            Workflow: Configured firmware-first provisioning workflow
+        """
+        if not self.manager.firmware_workflow:
+            # Fall back to regular provisioning if firmware not available
+            logger.warning("Firmware management not available - using regular provisioning workflow")
+            return self.create_provisioning_workflow(
+                server_id, device_type, target_ipmi_ip, rack_location, gateway, **kwargs
+            )
+        
+        workflow_id = f"fw_provision_{server_id}_{int(time.time())}"
+        workflow = self.manager.create_workflow(workflow_id)
+        
+        # Step 1: Commission Server via MaaS
+        workflow.add_step(WorkflowStep(
+            name="commission_server",
+            description="Commission server through MaaS",
+            function=self._commission_server,
+            timeout=1800,  # 30 minutes
+            retry_count=2
+        ))
+        
+        # Step 2: Retrieve Server IP Address
+        workflow.add_step(WorkflowStep(
+            name="get_server_ip",
+            description="Retrieve server IP address from MaaS",
+            function=self._get_server_ip,
+            timeout=300,  # 5 minutes
+            retry_count=5
+        ))
+        
+        # Step 3: Discover Hardware Information
+        workflow.add_step(WorkflowStep(
+            name="discover_hardware",
+            description="Discover system hardware and IPMI information via SSH",
+            function=self._discover_hardware,
+            timeout=600,  # 10 minutes
+            retry_count=3
+        ))
+        
+        # Step 4: Firmware-First Provisioning (Phase 4)
+        workflow.add_step(WorkflowStep(
+            name="firmware_first_provisioning",
+            description="Execute firmware updates and BIOS configuration",
+            function=lambda ctx: self._execute_firmware_first_provisioning(ctx, device_type, firmware_policy),
+            timeout=3600,  # 1 hour for firmware updates
+            retry_count=1
+        ))
+        
+        # Step 5: Configure IPMI Settings
+        workflow.add_step(WorkflowStep(
+            name="configure_ipmi",
+            description="Configure IPMI settings and network parameters",
+            function=lambda ctx: self._configure_ipmi_with_params(ctx, target_ipmi_ip, gateway),
+            timeout=600,  # 10 minutes
+            retry_count=3
+        ))
+        
+        # Step 6: Finalize Server
+        workflow.add_step(WorkflowStep(
+            name="finalize_server",
+            description="Complete firmware-first server commissioning",
+            function=lambda ctx: self._finalize_server_firmware_first(ctx, rack_location),
+            timeout=180,  # 3 minutes
+            retry_count=2
+        ))
+        
+        return workflow
+    
+    def _execute_firmware_first_provisioning(self, context: WorkflowContext, 
+                                           device_type: str, firmware_policy: str) -> Dict[str, Any]:
+        """Execute firmware-first provisioning step"""
+        try:
+            context.report_sub_task("Preparing firmware-first provisioning...")
+            
+            # Get server IP from context
+            server_ip = context.server_data.get('ip_address')
+            if not server_ip:
+                raise WorkflowError("Server IP address not available for firmware provisioning")
+            
+            # Create credentials (would be configurable in production)
+            credentials = {
+                'username': 'root',  # Default for commissioned servers
+                'password': context.server_data.get('temp_password', 'default_password')
+            }
+            
+            # Create firmware provisioning context
+            from ..hardware.firmware_provisioning_workflow import ProvisioningContext
+            provisioning_context = ProvisioningContext(
+                server_id=context.server_id,
+                device_type=device_type,
+                target_ip=server_ip,
+                credentials=credentials,
+                firmware_policy=firmware_policy,
+                operation_id=context.workflow_id
+            )
+            
+            context.report_sub_task("Executing firmware-first provisioning workflow...")
+            
+            # Execute firmware provisioning (async call wrapped)
+            import asyncio
+            if hasattr(asyncio, 'run'):
+                result = asyncio.run(
+                    self.manager.firmware_workflow.execute_firmware_first_provisioning(provisioning_context)
+                )
+            else:
+                # Fallback for older Python versions
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    result = loop.run_until_complete(
+                        self.manager.firmware_workflow.execute_firmware_first_provisioning(provisioning_context)
+                    )
+                finally:
+                    loop.close()
+            
+            if result.success:
+                context.report_sub_task(f"Firmware provisioning completed successfully")
+                logger.info(f"Firmware-first provisioning completed for {context.server_id}")
+                logger.info(f"  - Firmware updates: {result.firmware_updates_applied}")
+                logger.info(f"  - BIOS settings: {result.bios_settings_applied}")
+                logger.info(f"  - Execution time: {result.execution_time:.2f}s")
+                
+                # Store results in context
+                context.server_data['firmware_result'] = {
+                    'firmware_updates_applied': result.firmware_updates_applied,
+                    'bios_settings_applied': result.bios_settings_applied,
+                    'execution_time': result.execution_time,
+                    'phases_completed': [phase.value for phase in result.phases_completed]
+                }
+                
+                # Update database
+                if context.db_helper:
+                    context.db_helper.updateserverinfo(context.server_id, 'firmware_version', 
+                                                      f"Updated-{datetime.now().strftime('%Y%m%d')}")
+                    context.db_helper.updateserverinfo(context.server_id, 'bios_config_applied', 
+                                                      'Yes' if result.bios_settings_applied > 0 else 'No')
+                
+                return {'success': True, 'result': result}
+            else:
+                context.report_sub_task(f"Firmware provisioning failed: {result.error_message}")
+                logger.error(f"Firmware-first provisioning failed: {result.error_message}")
+                return {'success': False, 'error': result.error_message}
+            
+        except Exception as e:
+            context.report_sub_task(f"Firmware provisioning error: {str(e)}")
+            logger.error(f"Firmware-first provisioning exception: {e}")
+            import traceback
+            traceback.print_exc()
+            return {'success': False, 'error': str(e)}
+    
+    def _configure_ipmi_with_params(self, context: WorkflowContext, 
+                                  target_ipmi_ip: Optional[str], gateway: Optional[str]) -> Dict[str, Any]:
+        """Configure IPMI with optional parameters"""
+        # Use existing IPMI configuration logic but with optional parameters
+        context.target_ipmi_ip = target_ipmi_ip
+        context.gateway = gateway
+        return self._configure_ipmi(context)
+    
+    def _finalize_server_firmware_first(self, context: WorkflowContext, 
+                                      rack_location: Optional[str]) -> Dict[str, Any]:
+        """Finalize server with firmware-first specific updates"""
+        try:
+            context.report_sub_task("Finalizing firmware-first provisioned server...")
+            
+            # Get firmware results from context
+            firmware_result = context.server_data.get('firmware_result', {})
+            
+            # Update server information
+            if context.db_helper:
+                updates = {
+                    'status_name': 'Ready',
+                    'commissioning_status': 'Firmware-First-Complete',
+                    'last_workflow_run': datetime.now().isoformat(),
+                    'workflow_status': 'Completed'
+                }
+                
+                if rack_location:
+                    updates['rack_location'] = rack_location
+                
+                # Add firmware-specific notes
+                notes = f"Firmware-first provisioning: {firmware_result.get('firmware_updates_applied', 0)} firmware updates, {firmware_result.get('bios_settings_applied', 0)} BIOS settings"
+                updates['notes'] = notes
+                
+                for field, value in updates.items():
+                    context.db_helper.updateserverinfo(context.server_id, field, value)
+            
+            context.report_sub_task("Server firmware-first provisioning completed")
+            logger.info(f"Completed firmware-first provisioning for server {context.server_id}")
+            
+            return {'success': True, 'status': 'firmware_first_complete'}
+            
+        except Exception as e:
+            logger.error(f"Failed to finalize firmware-first server {context.server_id}: {e}")
+            return {'success': False, 'error': str(e)}
     
     def _commission_server(self, context: WorkflowContext) -> Dict[str, Any]:
         """Step 1: Commission server via MaaS and add to database"""
