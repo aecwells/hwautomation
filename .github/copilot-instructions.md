@@ -20,6 +20,13 @@ HWAutomation is a Python-based hardware automation system for bare metal server 
   - `BiosConfigManager`: BIOS configuration and template management
   - `HardwareDiscoveryManager`: Hardware detection and vendor identification
   - `IpmiManager`: IPMI interface management
+  - `RedfishManager`: Standardized hardware management via Redfish API (Phase 1)
+
+### Redfish Integration (Phase 1)
+- **Purpose**: Industry-standard hardware management using DMTF Redfish API
+- **Capabilities**: Basic operations (power control, system info, simple BIOS settings)
+- **Integration**: Hybrid approach - Redfish for standard operations, vendor tools for advanced features
+- **Configuration**: Device-specific Redfish preferences in `device_mappings.yaml`
 
 ### 3. **MaaS Integration** (`src/hwautomation/maas/`)
 - **Purpose**: Metal-as-a-Service API integration

@@ -22,6 +22,8 @@ import logging
 import copy
 from datetime import datetime
 
+from .redfish_manager import RedfishManager, SystemInfo
+
 logger = logging.getLogger(__name__)
 
 class BiosConfigManager:
@@ -730,7 +732,338 @@ class BiosConfigManager:
             except Exception as e:
                 logger.error(f"Error loading XML template {xml_file}: {e}")
     
-    # Legacy methods (deprecated - use smart methods instead)
+    # ==========================================
+    # Redfish Integration Methods (Phase 1)
+    # ==========================================
+    
+    def test_redfish_connection(self, target_ip: str, username: str = "ADMIN", 
+                               password: str = None) -> Tuple[bool, str]:
+        """
+        Test Redfish connectivity to target system.
+        
+        Args:
+            target_ip: Target system IP address
+            username: BMC username
+            password: BMC password
+            
+        Returns:
+            Tuple of (success, message)
+        """
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.test_connection()
+        except Exception as e:
+            return False, f"Redfish connection test failed: {e}"
+    
+    def get_system_info_via_redfish(self, target_ip: str, username: str = "ADMIN", 
+                                   password: str = None) -> Optional[SystemInfo]:
+        """
+        Get system information via Redfish.
+        
+        Args:
+            target_ip: Target system IP address
+            username: BMC username  
+            password: BMC password
+            
+        Returns:
+            SystemInfo object or None if failed
+        """
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.get_system_info()
+        except Exception as e:
+            logger.error(f"Failed to get system info via Redfish: {e}")
+            return None
+    
+    def get_bios_settings_via_redfish(self, target_ip: str, username: str = "ADMIN", 
+                                     password: str = None) -> Optional[Dict[str, Any]]:
+        """
+        Get current BIOS settings via Redfish.
+        
+        Args:
+            target_ip: Target system IP address
+            username: BMC username
+            password: BMC password
+            
+        Returns:
+            Dictionary of BIOS settings or None if failed
+        """
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.get_bios_settings()
+        except Exception as e:
+            logger.error(f"Failed to get BIOS settings via Redfish: {e}")
+            return None
+    
+    def set_bios_settings_via_redfish(self, target_ip: str, settings: Dict[str, Any],
+                                     username: str = "ADMIN", password: str = None) -> bool:
+        """
+        Set BIOS settings via Redfish.
+        
+        Args:
+            target_ip: Target system IP address
+            settings: Dictionary of BIOS settings to apply
+            username: BMC username
+            password: BMC password
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.set_bios_settings(settings)
+        except Exception as e:
+            logger.error(f"Failed to set BIOS settings via Redfish: {e}")
+            return False
+    
+    def power_control_via_redfish(self, target_ip: str, action: str,
+                                 username: str = "ADMIN", password: str = None) -> bool:
+        """
+        Control system power via Redfish.
+        
+        Args:
+            target_ip: Target system IP address
+            action: Power action ('On', 'ForceOff', 'GracefulShutdown', 'ForceRestart', 'GracefulRestart')
+            username: BMC username
+            password: BMC password
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.power_control(action)
+        except Exception as e:
+            logger.error(f"Failed to control power via Redfish: {e}")
+            return False
+    
+    def determine_bios_config_method(self, target_ip: str, device_type: str,
+                                   username: str = "ADMIN", password: str = None) -> str:
+        """
+        Determine the best method for BIOS configuration.
+        
+        Args:
+            target_ip: Target system IP address
+            device_type: Device type to configure
+            username: BMC username
+            password: BMC password
+            
+        Returns:
+            Configuration method: 'redfish', 'vendor_tool', or 'hybrid'
+        """
+        try:
+            # Test Redfish capabilities
+            redfish_available, _ = self.test_redfish_connection(target_ip, username, password)
+            
+            if not redfish_available:
+                logger.info(f"Redfish not available for {target_ip}, using vendor tools")
+                return 'vendor_tool'
+            
+            # Get device configuration to check preferred method
+            device_config = self.get_device_config(device_type)
+            if device_config:
+                preferred_method = device_config.get('preferred_bios_method', 'vendor_tool')
+                
+                if preferred_method == 'redfish':
+                    # Verify Redfish can handle BIOS settings
+                    with RedfishManager(target_ip, username, password) as redfish:
+                        capabilities = redfish.discover_capabilities()
+                        if capabilities.supports_bios_config:
+                            logger.info(f"Using Redfish for {target_ip} (preferred and capable)")
+                            return 'redfish'
+                        else:
+                            logger.info(f"Redfish preferred but BIOS config not supported, using vendor tools")
+                            return 'vendor_tool'
+                
+                elif preferred_method == 'hybrid':
+                    logger.info(f"Using hybrid approach for {target_ip}")
+                    return 'hybrid'
+            
+            # Default to vendor tools for compatibility
+            logger.info(f"Using vendor tools for {target_ip} (default)")
+            return 'vendor_tool'
+            
+        except Exception as e:
+            logger.error(f"Error determining BIOS config method: {e}")
+            return 'vendor_tool'  # Safe fallback
+    
+    # ==========================================
+    # Enhanced Smart Configuration with Redfish
+    # ==========================================
+    
+    def apply_bios_config_smart_enhanced(self, device_type: str, target_ip: str, 
+                                       username: str = "ADMIN", password: str = None, 
+                                       dry_run: bool = False, prefer_redfish: bool = True) -> Dict[str, Any]:
+        """
+        Enhanced smart BIOS configuration with Redfish support.
+        
+        Args:
+            device_type: Device type template to apply
+            target_ip: Target system IP address
+            username: BMC username
+            password: BMC password
+            dry_run: If True, only show what would be changed
+            prefer_redfish: If True, try Redfish first before vendor tools
+            
+        Returns:
+            Dictionary with operation results
+        """
+        result = {
+            'success': False,
+            'target_ip': target_ip,
+            'device_type': device_type,
+            'method_used': 'unknown',
+            'changes_made': [],
+            'validation_errors': [],
+            'dry_run': dry_run
+        }
+        
+        try:
+            # Determine best configuration method
+            if prefer_redfish:
+                method = self.determine_bios_config_method(target_ip, device_type, username, password)
+            else:
+                method = 'vendor_tool'
+                
+            result['method_used'] = method
+            
+            if method == 'redfish':
+                logger.info(f"Applying BIOS configuration via Redfish for {target_ip}")
+                return self._apply_bios_config_via_redfish(device_type, target_ip, username, password, dry_run, result)
+            
+            elif method == 'hybrid':
+                logger.info(f"Applying BIOS configuration via hybrid approach for {target_ip}")
+                return self._apply_bios_config_hybrid(device_type, target_ip, username, password, dry_run, result)
+            
+            else:  # vendor_tool
+                logger.info(f"Applying BIOS configuration via vendor tools for {target_ip}")
+                # Fall back to existing smart method
+                vendor_result = self.apply_bios_config_smart(device_type, target_ip, username, password, dry_run)
+                vendor_result['method_used'] = 'vendor_tool'
+                return vendor_result
+                
+        except Exception as e:
+            result['error'] = f"Enhanced BIOS configuration failed: {e}"
+            logger.error(f"Enhanced BIOS configuration failed: {e}")
+            return result
+    
+    def _apply_bios_config_via_redfish(self, device_type: str, target_ip: str,
+                                      username: str, password: str, dry_run: bool,
+                                      result: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply BIOS configuration purely via Redfish."""
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                # Get current BIOS settings
+                current_settings = redfish.get_bios_settings()
+                if current_settings is None:
+                    result['error'] = "Failed to retrieve current BIOS settings via Redfish"
+                    return result
+                
+                # Get template settings for device type
+                template_rules = self.template_rules.get('template_rules', {}).get(device_type, {})
+                template_modifications = template_rules.get('modifications', {})
+                
+                if not template_modifications:
+                    result['error'] = f"No template modifications found for device type: {device_type}"
+                    return result
+                
+                # Calculate changes needed
+                changes_to_apply = {}
+                changes_made = []
+                
+                for setting_name, target_value in template_modifications.items():
+                    current_value = current_settings.get(setting_name)
+                    
+                    if current_value != target_value:
+                        changes_to_apply[setting_name] = target_value
+                        changes_made.append(f"{setting_name}: {current_value} -> {target_value}")
+                
+                result['changes_made'] = changes_made
+                
+                if not changes_to_apply:
+                    result['success'] = True
+                    result['message'] = "No changes needed - configuration already matches template"
+                    return result
+                
+                if dry_run:
+                    result['success'] = True
+                    result['message'] = f"Dry run completed - would apply {len(changes_to_apply)} changes via Redfish"
+                    return result
+                
+                # Apply changes via Redfish
+                logger.info(f"Applying {len(changes_to_apply)} BIOS settings via Redfish")
+                success = redfish.set_bios_settings(changes_to_apply)
+                
+                if success:
+                    result['success'] = True
+                    result['message'] = f"Successfully applied {len(changes_to_apply)} BIOS settings via Redfish"
+                    logger.info(f"BIOS configuration applied successfully via Redfish for {target_ip}")
+                else:
+                    result['error'] = "Failed to apply BIOS settings via Redfish"
+                
+                return result
+                
+        except Exception as e:
+            result['error'] = f"Redfish BIOS configuration failed: {e}"
+            logger.error(f"Redfish BIOS configuration failed: {e}")
+            return result
+    
+    def _apply_bios_config_hybrid(self, device_type: str, target_ip: str,
+                                 username: str, password: str, dry_run: bool,
+                                 result: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply BIOS configuration using hybrid Redfish + vendor tool approach."""
+        try:
+            # Get device configuration to determine which settings go where
+            device_config = self.get_device_config(device_type)
+            if not device_config:
+                result['error'] = f"No device configuration found for {device_type}"
+                return result
+            
+            redfish_settings = device_config.get('redfish_settings', [])
+            vendor_only_settings = device_config.get('vendor_only_settings', [])
+            
+            # Get template modifications
+            template_rules = self.template_rules.get('template_rules', {}).get(device_type, {})
+            template_modifications = template_rules.get('modifications', {})
+            
+            # Split settings by method
+            redfish_changes = {k: v for k, v in template_modifications.items() if k in redfish_settings}
+            vendor_changes = {k: v for k, v in template_modifications.items() if k in vendor_only_settings}
+            
+            all_changes = []
+            
+            # Apply Redfish settings first
+            if redfish_changes:
+                logger.info(f"Applying {len(redfish_changes)} settings via Redfish")
+                redfish_result = self._apply_bios_config_via_redfish(device_type, target_ip, username, password, dry_run, {'changes_made': []})
+                if redfish_result.get('success'):
+                    all_changes.extend(redfish_result.get('changes_made', []))
+                else:
+                    logger.warning(f"Redfish portion failed: {redfish_result.get('error', 'Unknown error')}")
+            
+            # Apply vendor tool settings
+            if vendor_changes:
+                logger.info(f"Applying {len(vendor_changes)} settings via vendor tools")
+                # This would integrate with existing vendor tool logic
+                # For now, fall back to the existing smart method
+                vendor_result = self.apply_bios_config_smart(device_type, target_ip, username, password, dry_run)
+                if vendor_result.get('success'):
+                    all_changes.extend(vendor_result.get('changes_made', []))
+                else:
+                    result['error'] = f"Vendor tool portion failed: {vendor_result.get('error', 'Unknown error')}"
+                    return result
+            
+            result['changes_made'] = all_changes
+            result['success'] = True
+            result['message'] = f"Hybrid configuration completed - {len(all_changes)} total changes"
+            return result
+            
+        except Exception as e:
+            result['error'] = f"Hybrid BIOS configuration failed: {e}"
+            logger.error(f"Hybrid BIOS configuration failed: {e}")
+            return result
+
+    # ==========================================
     
     def get_device_types(self) -> List[str]:
         """Get list of available device types."""
