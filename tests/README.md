@@ -14,6 +14,11 @@ This directory contains tests for the HWAutomation project.
 - **`test_phase2_focused.py`** - Comprehensive Phase 2 decision logic testing
 - **`test_phase2_decision_logic.py`** - Detailed Phase 2 integration testing
 
+### Phase 3 Real-time Monitoring Tests 🚀
+
+- **`test_phase3_standalone.py`** - Complete Phase 3 monitoring demonstration
+- **`test_phase3_monitoring.py`** - Phase 3 monitoring system integration tests
+
 ### MAAS Testing Scripts
 
 - `debug_maas.py` - Debug script for MAAS connection issues
@@ -40,6 +45,10 @@ python -m pytest tests/ --cov=hwautomation
 # Run Phase 2 enhanced tests (standalone, no hardware required)
 python3 tests/test_phase2_focused.py
 python3 tests/test_phase2_decision_logic.py
+
+# Run Phase 3 monitoring tests (standalone demonstrations)
+python3 tests/test_phase3_standalone.py
+python3 tests/test_phase3_monitoring.py
 
 # Run orchestration tests specifically
 python tests/test_device_selection.py

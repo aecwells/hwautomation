@@ -13,9 +13,8 @@ from .database.helper import DbHelper
 from .database.migrations import DatabaseMigrator
 from .maas.client import MaasClient
 from .hardware.ipmi import IpmiManager
-from .hardware.redfish import RedFishManager
+from .hardware.redfish_manager import RedfishManager
 from .hardware.bios_config import BiosConfigManager
-from .hardware.redfish import RedFishManager
 from .utils.network import ping_host
 
 __all__ = [
@@ -23,6 +22,6 @@ __all__ = [
     'DatabaseMigrator', 
     'MaasClient',
     'IpmiManager',
-    'RedFishManager',
+    'RedfishManager',
     'ping_host'
 ]
