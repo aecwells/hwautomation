@@ -83,9 +83,9 @@
                     <button class="btn btn-primary me-2" onclick="refreshInventory()">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
-                    <a href="{{ url_for('firmware.firmware_schedule') }}" class="btn btn-success">
+                    <button class="btn btn-success" onclick="showScheduleModal()">
                         <i class="fas fa-calendar-plus"></i> Schedule Updates
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
@@ -140,9 +140,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="text-end">
-                                <a href="{{ url_for('firmware.firmware_inventory') }}" class="btn btn-outline-primary">
+                                <button class="btn btn-outline-primary" onclick="showDetailedInventory()">
                                     <i class="fas fa-list"></i> View Detailed Inventory
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -218,7 +218,7 @@
                                     
                                     <div class="mt-3 d-flex justify-content-between">
                                         {% if server.updates_available %}
-                                        <button class="btn btn-sm btn-warning" onclick="scheduleUpdate('{{ server.id }}')">
+                                        <button class="btn btn-sm btn-warning" onclick="scheduleServerUpdate('{{ server.id }}')">
                                             <i class="fas fa-download"></i> Update
                                         </button>
                                         {% endif %}
@@ -264,6 +264,107 @@
         </div>
     </div>
 </div>
+
+<!-- Schedule Update Modal -->
+<div class="modal fade" id="scheduleUpdateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Schedule Firmware Update</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleUpdateForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Server Selection</h6>
+                            <div id="serverSelection" class="mb-3">
+                                <!-- Server selection will be populated here -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Update Settings</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Schedule Type</label>
+                                <select class="form-select" id="scheduleType">
+                                    <option value="immediate">Immediate</option>
+                                    <option value="scheduled">Scheduled</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="scheduleTimeGroup" style="display: none;">
+                                <label class="form-label">Scheduled Time</label>
+                                <input type="datetime-local" class="form-control" id="scheduleTime">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Components to Update</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="updateBios" checked>
+                                    <label class="form-check-label" for="updateBios">BIOS</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="updateBmc" checked>
+                                    <label class="form-check-label" for="updateBmc">BMC</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitScheduleUpdate()">Schedule Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Inventory Modal -->
+<div class="modal fade" id="detailedInventoryModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detailed Firmware Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Filter servers..." id="inventoryFilter">
+                            <button class="btn btn-outline-secondary" onclick="filterInventory()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-outline-success" onclick="exportInventory()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>Server ID</th>
+                                <th>Hostname</th>
+                                <th>Device Type</th>
+                                <th>BIOS Version</th>
+                                <th>BMC Version</th>
+                                <th>Status</th>
+                                <th>Last Checked</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -295,9 +396,175 @@ function filterServers() {
     });
 }
 
+function scheduleServerUpdate(serverId) {
+    // Show schedule modal with pre-selected server
+    showScheduleModal(serverId);
+}
+
+function showScheduleModal(preSelectedServerId = null) {
+    const modal = new bootstrap.Modal(document.getElementById('scheduleUpdateModal'));
+    
+    // Populate server selection
+    const serverSelection = document.getElementById('serverSelection');
+    serverSelection.innerHTML = '';
+    
+    // Add servers with available updates from template data
+    {% if inventory.servers %}
+    const serversData = [
+        {% for server in inventory.servers %}
+        {
+            id: '{{ server.id }}',
+            hostname: '{{ server.hostname }}',
+            updates_available: {{ server.updates_available | lower }},
+            available_updates: [
+                {% if server.available_updates %}
+                {% for update in server.available_updates %}
+                {
+                    component: '{{ update.component }}',
+                    current: '{{ update.current }}',
+                    available: '{{ update.available }}'
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+                {% endif %}
+            ]
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    {% else %}
+    const serversData = [];
+    {% endif %}
+    
+    serversData.forEach(server => {
+        if (server.updates_available) {
+            const isSelected = preSelectedServerId === server.id;
+            const updatesText = server.available_updates.map(u => `${u.component}: ${u.current} → ${u.available}`).join(', ');
+            serverSelection.innerHTML += `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${server.id}" id="server_${server.id}" ${isSelected ? 'checked' : ''}>
+                    <label class="form-check-label" for="server_${server.id}">
+                        ${server.hostname} (${server.id})
+                        <small class="text-muted d-block">${updatesText}</small>
+                    </label>
+                </div>
+            `;
+        }
+    });
+    
+    modal.show();
+}
+
+function showDetailedInventory() {
+    const modal = new bootstrap.Modal(document.getElementById('detailedInventoryModal'));
+    
+    // Populate inventory table
+    const tableBody = document.getElementById('inventoryTableBody');
+    tableBody.innerHTML = '';
+    
+    {% if inventory.servers %}
+    const inventoryData = [
+        {% for server in inventory.servers %}
+        {
+            id: '{{ server.id }}',
+            hostname: '{{ server.hostname }}',
+            device_type: '{{ server.device_type or "Unknown" }}',
+            bios_version: '{{ server.bios_version }}',
+            bmc_version: '{{ server.bmc_version }}',
+            updates_available: {{ server.updates_available | lower }},
+            firmware_status: '{{ server.firmware_status }}',
+            last_checked: '{{ server.last_checked or "" }}'
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    {% else %}
+    const inventoryData = [];
+    {% endif %}
+    
+    inventoryData.forEach(server => {
+        let statusBadge;
+        if (server.updates_available) {
+            statusBadge = '<span class="badge bg-warning">Updates Available</span>';
+        } else if (server.firmware_status === 'detected') {
+            statusBadge = '<span class="badge bg-success">Up to Date</span>';
+        } else {
+            statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+        }
+        
+        const lastChecked = server.last_checked ? 
+            moment(server.last_checked).fromNow() : 'Never';
+        
+        const updateButton = server.updates_available ? 
+            `<button class="btn btn-outline-warning" onclick="scheduleServerUpdate('${server.id}')">Update</button>` : '';
+        
+        tableBody.innerHTML += `
+            <tr>
+                <td>${server.id}</td>
+                <td>${server.hostname}</td>
+                <td>${server.device_type}</td>
+                <td><code class="small">${server.bios_version}</code></td>
+                <td><code class="small">${server.bmc_version}</code></td>
+                <td>${statusBadge}</td>
+                <td class="small">${lastChecked}</td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="viewDetails('${server.id}')">Details</button>
+                        ${updateButton}
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    modal.show();
+}
+
+function submitScheduleUpdate() {
+    const selectedServers = Array.from(document.querySelectorAll('#serverSelection input:checked')).map(cb => cb.value);
+    const scheduleType = document.getElementById('scheduleType').value;
+    const scheduleTime = document.getElementById('scheduleTime').value;
+    const updateBios = document.getElementById('updateBios').checked;
+    const updateBmc = document.getElementById('updateBmc').checked;
+    
+    if (selectedServers.length === 0) {
+        alert('Please select at least one server to update');
+        return;
+    }
+    
+    const updateData = {
+        servers: selectedServers,
+        schedule_type: scheduleType,
+        schedule_time: scheduleTime,
+        components: {
+            bios: updateBios,
+            bmc: updateBmc
+        }
+    };
+    
+    // Simulate scheduling (replace with actual API call)
+    console.log('Scheduling update:', updateData);
+    alert(`Update scheduled for ${selectedServers.length} server(s)`);
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('scheduleUpdateModal')).hide();
+}
+
+function filterInventory() {
+    const filter = document.getElementById('inventoryFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#inventoryTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+
+function exportInventory() {
+    // Simulate CSV export
+    alert('Exporting inventory to CSV...');
+}
+
 function scheduleUpdate(serverId) {
-    // Redirect to schedule page with pre-selected server
-    window.location.href = `{{ url_for('firmware.firmware_schedule') }}?server=${serverId}`;
+    // Legacy function, now calls scheduleServerUpdate
+    scheduleServerUpdate(serverId);
 }
 
 function viewDetails(serverId) {
@@ -373,6 +640,15 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[name="statusFilter"]').forEach(radio => {
         radio.addEventListener('change', filterServers);
     });
+    
+    // Schedule type change handler
+    const scheduleTypeSelect = document.getElementById('scheduleType');
+    if (scheduleTypeSelect) {
+        scheduleTypeSelect.addEventListener('change', function() {
+            const timeGroup = document.getElementById('scheduleTimeGroup');
+            timeGroup.style.display = this.value === 'scheduled' ? 'block' : 'none';
+        });
+    }
     
     // Auto-refresh every 30 seconds
     setInterval(() => {

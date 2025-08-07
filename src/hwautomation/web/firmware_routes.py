@@ -320,46 +320,6 @@ def firmware_dashboard():
         flash(f'Error loading firmware dashboard: {e}', 'error')
         return redirect(url_for('index'))
 
-@firmware_bp.route('/inventory')
-def firmware_inventory():
-    """Detailed firmware inventory page."""
-    try:
-        if not firmware_web_manager:
-            return jsonify({'error': 'Firmware management not initialized'}), 500
-        
-        inventory = firmware_web_manager.get_firmware_inventory()
-        
-        return render_template('firmware/inventory.html',
-                             title='Firmware Inventory',
-                             inventory=inventory)
-                             
-    except Exception as e:
-        logger.error(f"Error loading firmware inventory: {e}")
-        return render_template('error.html', 
-                             error=f'Error loading firmware inventory: {e}')
-
-@firmware_bp.route('/schedule')
-def firmware_schedule():
-    """Firmware update scheduling page."""
-    try:
-        if not firmware_web_manager:
-            flash('Firmware management not initialized', 'error')
-            return redirect(url_for('index'))
-        
-        # Get servers available for firmware updates
-        inventory = firmware_web_manager.get_firmware_inventory()
-        available_servers = [s for s in inventory['servers'] 
-                           if s['firmware_status'] != 'unknown']
-        
-        return render_template('firmware/schedule.html',
-                             title='Schedule Firmware Updates',
-                             servers=available_servers)
-                             
-    except Exception as e:
-        logger.error(f"Error loading firmware schedule page: {e}")
-        flash(f'Error loading firmware schedule page: {e}', 'error')
-        return redirect(url_for('index'))
-
 # API Endpoints
 
 @firmware_bp.route('/api/inventory')
