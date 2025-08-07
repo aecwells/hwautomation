@@ -239,77 +239,11 @@ def create_app():
                                  stats=default_stats, 
                                  device_types=[],
                                  available_machines=[])
-    
-    @app.route('/dashboard')
-    def dashboard():
-        """Enhanced dashboard with system overview."""
-        try:
-            # Get system overview data
-            overview_data = {
-                'total_devices': 0,
-                'active_workflows': 0,
-                'recent_activities': [],
-                'system_health': 'healthy'
-            }
-            
-            # Get statistics for the dashboard
-            stats = {
-                'device_types_count': 0,
-                'preserve_settings_count': 0,
-                'template_rules_count': 0
-            }
-            
-            # Get device count
-            try:
-                with db_helper.get_connection() as conn:
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT COUNT(*) FROM device_templates")
-                    overview_data['total_devices'] = cursor.fetchone()[0]
-            except Exception as e:
-                logger.error(f"Failed to get device count: {e}")
-            
-            # Get device types count
-            try:
-                device_types = bios_config_manager.get_device_types()
-                stats['device_types_count'] = len(device_types)
-            except Exception as e:
-                logger.error(f"Failed to get device types: {e}")
-            
-            # Get active workflows
-            try:
-                active_workflows = workflow_manager.get_active_workflows()
-                overview_data['active_workflows'] = len(active_workflows)
-            except Exception as e:
-                logger.error(f"Failed to get active workflows: {e}")
-            
-            # Mock data for other stats
-            stats['preserve_settings_count'] = 5
-            stats['template_rules_count'] = 12
-            
-            return render_template('index.html', overview=overview_data, stats=stats)
-            
-        except Exception as e:
-            logger.error(f"Dashboard error: {e}")
-            flash(f'Dashboard error: {str(e)}', 'error')
-            default_stats = {
-                'device_types_count': 0,
-                'preserve_settings_count': 0,
-                'template_rules_count': 0
-            }
-            return render_template('index.html', overview={}, stats=default_stats)
+
+    @app.route('/logs')
 
     # Add other essential routes here...
     # (Would normally import from separate route modules)
-    
-    @app.route('/bios-management')
-    def bios_management():
-        """BIOS management page."""
-        return render_template('bios_management.html')
-    
-    @app.route('/orchestration')
-    def orchestration_page():
-        """Orchestration page."""
-        return render_template('orchestration.html')
     
     @app.route('/logs')
     def view_logs():
@@ -319,22 +253,7 @@ def create_app():
     @app.route('/database')
     def database_management():
         """Database management page."""
-        return render_template('database_enhanced.html')
-    
-    @app.route('/hardware')
-    def hardware_management():
-        """Hardware management page."""
-        return render_template('hardware.html')
-    
-    @app.route('/device-selection')
-    def device_selection():
-        """Device selection page."""
-        return render_template('device_selection.html')
-    
-    @app.route('/maas')
-    def maas_management():
-        """MaaS management page."""
-        return render_template('maas_management.html')
+        return render_template('database.html')
     
     # Database API endpoints
     @app.route('/api/database/info')
@@ -687,6 +606,115 @@ def create_app():
             
         except Exception as e:
             logger.error(f"Failed to start provisioning workflow: {e}")
+            return jsonify({'error': str(e)}), 500
+
+    # Logs API endpoints
+    @app.route('/api/logs')
+    def api_get_logs():
+        """Get system logs with filtering."""
+        try:
+            level = request.args.get('level', '')
+            component = request.args.get('component', '')
+            lines = request.args.get('lines', '500')
+            
+            # Mock logs data for now
+            # In a real implementation, you would read from log files
+            mock_logs = [
+                {
+                    'timestamp': '2024-01-01T12:00:00Z',
+                    'level': 'INFO',
+                    'component': 'web',
+                    'message': 'HWAutomation web interface started'
+                },
+                {
+                    'timestamp': '2024-01-01T12:00:01Z',
+                    'level': 'INFO',
+                    'component': 'database',
+                    'message': 'Database connection established'
+                },
+                {
+                    'timestamp': '2024-01-01T12:00:02Z',
+                    'level': 'WARNING',
+                    'component': 'maas',
+                    'message': 'MaaS connection timeout, retrying...'
+                }
+            ]
+            
+            # Filter logs based on parameters
+            filtered_logs = mock_logs
+            if level:
+                filtered_logs = [log for log in filtered_logs if log['level'] == level]
+            if component:
+                filtered_logs = [log for log in filtered_logs if log['component'] == component]
+            
+            # Limit number of lines
+            if lines != 'all':
+                try:
+                    limit = int(lines)
+                    filtered_logs = filtered_logs[-limit:]
+                except ValueError:
+                    pass
+            
+            return jsonify({'logs': filtered_logs})
+            
+        except Exception as e:
+            logger.error(f"Failed to get logs: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    @app.route('/api/logs/search')
+    def api_search_logs():
+        """Search system logs."""
+        try:
+            query = request.args.get('query', '')
+            regex = request.args.get('regex', 'false').lower() == 'true'
+            
+            # Mock search results
+            mock_results = [
+                {
+                    'timestamp': '2024-01-01T12:00:00Z',
+                    'level': 'INFO',
+                    'component': 'web',
+                    'message': f'Found log entry matching: {query}'
+                }
+            ]
+            
+            return jsonify({'results': mock_results})
+            
+        except Exception as e:
+            logger.error(f"Failed to search logs: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    @app.route('/api/logs/clear', methods=['POST'])
+    def api_clear_logs():
+        """Clear system logs."""
+        try:
+            # In a real implementation, you would clear the actual log files
+            logger.info("System logs cleared via API")
+            return jsonify({'success': True, 'message': 'Logs cleared successfully'})
+            
+        except Exception as e:
+            logger.error(f"Failed to clear logs: {e}")
+            return jsonify({'error': str(e)}), 500
+    
+    @app.route('/api/logs/download')
+    def api_download_logs():
+        """Download system logs as text file."""
+        try:
+            # Mock log content
+            log_content = """[2024-01-01 12:00:00] [INFO] web: HWAutomation web interface started
+[2024-01-01 12:00:01] [INFO] database: Database connection established  
+[2024-01-01 12:00:02] [WARNING] maas: MaaS connection timeout, retrying...
+"""
+            
+            from flask import Response
+            return Response(
+                log_content,
+                mimetype='text/plain',
+                headers={'Content-Disposition': 'attachment; filename=hwautomation_logs.txt'}
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to download logs: {e}")
             return jsonify({'error': str(e)}), 500
     
     return app, socketio

@@ -311,7 +311,7 @@ def firmware_dashboard():
         
         inventory = firmware_web_manager.get_firmware_inventory()
         
-        return render_template('firmware/dashboard.html',
+        return render_template('firmware.html',
                              title='Firmware Management',
                              inventory=inventory)
                              
