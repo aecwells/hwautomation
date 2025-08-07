@@ -22,23 +22,63 @@ device_types:
       memory_speed: auto
     motherboards:
     - Unknown
-    # Redfish Configuration (Phase 1)
+    # Redfish Configuration (Phase 2 - Enhanced per-setting logic)
     redfish_capable: true
-    preferred_bios_method: redfish
+    preferred_bios_method: hybrid  # Changed to hybrid for Phase 2
     fallback_bios_method: vendor_tool
-    redfish_settings:
-      # Basic power and boot settings available via Redfish
-      - BootMode
-      - SecureBoot
-      - PXEBoot
-      - PowerRestorePolicy
-      - WakeOnLAN
-      - PowerProfile
-    vendor_only_settings:
-      # Advanced settings requiring vendor tools
-      - CPUMicrocodeUpdate
-      - MemoryTimingAdvanced
-      - PCIeAdvancedConfig
+    
+    # Enhanced per-setting method mapping
+    bios_setting_methods:
+      # Settings that work well via Redfish (fast, reliable)
+      redfish_preferred:
+        BootMode: "UEFI boot mode selection"
+        SecureBoot: "Secure boot enable/disable"
+        PXEBoot: "PXE boot configuration"
+        PowerRestorePolicy: "Power restore behavior after AC loss"
+        WakeOnLAN: "Wake-on-LAN functionality"
+        PowerProfile: "CPU power management profile"
+        QuietBoot: "Boot splash screen control"
+        BootTimeout: "Boot timeout in seconds"
+        ProcessorEIST: "Enhanced Intel SpeedStep"
+        TurboMode: "CPU Turbo Mode"
+        ProcessorC1E: "CPU C1E power state"
+        ProcessorC3Report: "CPU C3 power state reporting"
+        ProcessorC6Report: "CPU C6 power state reporting"
+      
+      # Settings that could work via Redfish but vendor tools are more reliable
+      redfish_fallback:
+        IntelHyperThreadingTech: "Hyper-Threading enable/disable"
+        MemoryMode: "Memory operating mode"
+        PatrolScrub: "Memory patrol scrubbing"
+        DemandScrub: "Memory demand scrubbing"
+        SOLEnabled: "Serial Over LAN"
+        KCSInterface: "KCS interface enable/disable"
+      
+      # Settings that require vendor tools (complex configurations)
+      vendor_only:
+        CPUMicrocodeUpdate: "CPU microcode updates"
+        MemoryTimingAdvanced: "Advanced memory timing settings"
+        PCIeAdvancedConfig: "Advanced PCIe configuration"
+        BIOSUpdateMode: "BIOS update mechanisms"
+        VendorSpecificSettings: "Vendor-specific hardware features"
+        HardwareMonitoring: "Advanced hardware monitoring"
+        FanControlAdvanced: "Advanced fan control curves"
+        OverclockingSettings: "CPU/Memory overclocking"
+    
+    # Performance hints for method selection
+    method_performance:
+      redfish_batch_size: 10  # Max settings to batch in single Redfish call
+      vendor_tool_timeout: 300  # Timeout for vendor tool operations
+      redfish_timeout: 30  # Timeout for Redfish operations
+      prefer_redfish_for_read: true  # Use Redfish for reading when possible
+      prefer_vendor_for_complex: true  # Use vendor tools for complex settings
+    
+    # Compatibility matrix
+    redfish_compatibility:
+      version_min: "1.6.0"  # Minimum Redfish version required
+      bios_config_support: true  # BMC supports BIOS configuration
+      known_issues: []  # List of known Redfish issues for this device type
+      vendor_extensions: ["Supermicro", "HPE"]  # Supported vendor extensions
   a1.c5.xlarge:
     boot_configs:
       boot_mode: legacy

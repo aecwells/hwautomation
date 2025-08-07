@@ -9,6 +9,11 @@ This directory contains tests for the HWAutomation project.
 - `test_bios_config.py` - BIOS configuration tests
 - `test_utils.py` - Utility function tests
 
+### Phase 2 Enhanced BIOS Configuration Tests ⭐
+
+- **`test_phase2_focused.py`** - Comprehensive Phase 2 decision logic testing
+- **`test_phase2_decision_logic.py`** - Detailed Phase 2 integration testing
+
 ### MAAS Testing Scripts
 
 - `debug_maas.py` - Debug script for MAAS connection issues
@@ -31,6 +36,10 @@ python -m pytest tests/test_database.py
 
 # Run with coverage
 python -m pytest tests/ --cov=hwautomation
+
+# Run Phase 2 enhanced tests (standalone, no hardware required)
+python3 tests/test_phase2_focused.py
+python3 tests/test_phase2_decision_logic.py
 
 # Run orchestration tests specifically
 python tests/test_device_selection.py

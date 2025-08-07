@@ -23,6 +23,7 @@ import copy
 from datetime import datetime
 
 from .redfish_manager import RedfishManager, SystemInfo
+from .bios_decision_logic import BiosSettingMethodSelector, MethodSelectionResult, ConfigMethod
 
 logger = logging.getLogger(__name__)
 
@@ -946,6 +947,267 @@ class BiosConfigManager:
             result['error'] = f"Enhanced BIOS configuration failed: {e}"
             logger.error(f"Enhanced BIOS configuration failed: {e}")
             return result
+    
+    def apply_bios_config_phase2(self, device_type: str, target_ip: str, 
+                                username: str = "ADMIN", password: str = None, 
+                                dry_run: bool = False, prefer_performance: bool = True) -> Dict[str, Any]:
+        """
+        Phase 2: Per-setting method selection with enhanced decision logic.
+        
+        This method analyzes each BIOS setting individually and chooses the optimal
+        method (Redfish vs vendor tools) based on setting characteristics, device
+        capabilities, and performance considerations.
+        
+        Args:
+            device_type: Device type template to apply
+            target_ip: Target system IP address
+            username: BMC username
+            password: BMC password
+            dry_run: If True, only show what would be changed
+            prefer_performance: If True, optimize for speed over reliability
+            
+        Returns:
+            Dictionary with operation results including per-setting method selection
+        """
+        result = {
+            'success': False,
+            'target_ip': target_ip,
+            'device_type': device_type,
+            'method_analysis': {},
+            'redfish_results': {},
+            'vendor_results': {},
+            'performance_estimate': {},
+            'batch_execution': [],
+            'settings_applied': {},
+            'validation_errors': [],
+            'dry_run': dry_run
+        }
+        
+        try:
+            # Get device configuration for decision logic
+            device_config = self.device_types.get(device_type)
+            if not device_config:
+                result['error'] = f"Device type {device_type} not found in configuration"
+                return result
+            
+            # Initialize method selector
+            method_selector = BiosSettingMethodSelector(device_config)
+            
+            # Get template settings to apply
+            template_rules = self.template_rules.get('template_rules', {}).get(device_type, {})
+            settings_to_apply = template_rules.get('modifications', {})
+            
+            if not settings_to_apply:
+                result['error'] = f"No BIOS settings found for device type: {device_type}"
+                return result
+            
+            # Analyze settings and determine optimal methods
+            logger.info(f"Analyzing {len(settings_to_apply)} BIOS settings for optimal method selection")
+            method_analysis = method_selector.analyze_settings(
+                settings_to_apply, prefer_performance=prefer_performance
+            )
+            
+            result['method_analysis'] = {
+                'redfish_settings': method_analysis.redfish_settings,
+                'vendor_settings': method_analysis.vendor_settings,
+                'unknown_settings': method_analysis.unknown_settings,
+                'method_rationale': method_analysis.method_rationale,
+                'batch_groups': method_analysis.batch_groups
+            }
+            result['performance_estimate'] = method_analysis.performance_estimate
+            
+            logger.info(f"Method analysis complete: {len(method_analysis.redfish_settings)} Redfish, "
+                       f"{len(method_analysis.vendor_settings)} vendor tool, "
+                       f"{len(method_analysis.unknown_settings)} unknown settings")
+            
+            if dry_run:
+                result['success'] = True
+                result['dry_run_summary'] = {
+                    'total_settings': len(settings_to_apply),
+                    'redfish_count': len(method_analysis.redfish_settings),
+                    'vendor_count': len(method_analysis.vendor_settings),
+                    'unknown_count': len(method_analysis.unknown_settings),
+                    'estimated_total_time': method_analysis.performance_estimate.get('estimated_total_time', 0)
+                }
+                return result
+            
+            # Execute settings using optimal methods
+            success = True
+            
+            # Apply Redfish settings in batches
+            if method_analysis.redfish_settings:
+                logger.info(f"Applying {len(method_analysis.redfish_settings)} settings via Redfish")
+                redfish_result = self._apply_settings_via_redfish(
+                    target_ip, username, password, method_analysis.redfish_settings
+                )
+                result['redfish_results'] = redfish_result
+                if not redfish_result.get('success', False):
+                    success = False
+                    logger.warning("Redfish settings application had issues")
+            
+            # Apply vendor tool settings individually
+            if method_analysis.vendor_settings:
+                logger.info(f"Applying {len(method_analysis.vendor_settings)} settings via vendor tools")
+                vendor_result = self._apply_settings_via_vendor_tools(
+                    device_type, target_ip, username, password, method_analysis.vendor_settings
+                )
+                result['vendor_results'] = vendor_result
+                if not vendor_result.get('success', False):
+                    success = False
+                    logger.warning("Vendor tool settings application had issues")
+            
+            # Handle unknown settings
+            if method_analysis.unknown_settings:
+                logger.warning(f"Found {len(method_analysis.unknown_settings)} unknown settings - skipping")
+                result['unknown_settings_skipped'] = method_analysis.unknown_settings
+            
+            # Record batch execution details
+            result['batch_execution'] = method_analysis.batch_groups
+            
+            # Combine applied settings
+            result['settings_applied'].update(method_analysis.redfish_settings)
+            result['settings_applied'].update(method_analysis.vendor_settings)
+            
+            result['success'] = success
+            
+            if success:
+                logger.info(f"Phase 2 BIOS configuration completed successfully for {target_ip}")
+            else:
+                logger.warning(f"Phase 2 BIOS configuration completed with some issues for {target_ip}")
+            
+            return result
+            
+        except Exception as e:
+            result['error'] = f"Phase 2 BIOS configuration failed: {e}"
+            logger.error(f"Phase 2 BIOS configuration failed for {target_ip}: {e}")
+            return result
+    
+    def _apply_settings_via_redfish(self, target_ip: str, username: str, password: str,
+                                   settings: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply BIOS settings via Redfish with batching support."""
+        result = {
+            'success': False,
+            'method': 'redfish',
+            'settings_applied': {},
+            'settings_failed': {},
+            'error': None
+        }
+        
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                # Get current settings for validation
+                current_settings = redfish.get_bios_settings()
+                if current_settings is None:
+                    result['error'] = "Failed to retrieve current BIOS settings"
+                    return result
+                
+                # Apply settings in batch
+                update_result = redfish.update_bios_settings(settings)
+                
+                if update_result:
+                    result['success'] = True
+                    result['settings_applied'] = settings
+                    logger.info(f"Successfully applied {len(settings)} BIOS settings via Redfish")
+                else:
+                    result['error'] = "Failed to update BIOS settings via Redfish"
+                    result['settings_failed'] = settings
+                    
+        except Exception as e:
+            result['error'] = f"Redfish application failed: {e}"
+            result['settings_failed'] = settings
+            logger.error(f"Redfish settings application failed: {e}")
+        
+        return result
+    
+    def _apply_settings_via_vendor_tools(self, device_type: str, target_ip: str, 
+                                        username: str, password: str,
+                                        settings: Dict[str, Any]) -> Dict[str, Any]:
+        """Apply BIOS settings via vendor tools with individual setting handling."""
+        result = {
+            'success': False,
+            'method': 'vendor_tools',
+            'settings_applied': {},
+            'settings_failed': {},
+            'individual_results': {},
+            'error': None
+        }
+        
+        try:
+            # Use existing smart method for vendor tool application
+            # This maintains compatibility with existing vendor tool logic
+            vendor_result = self.apply_bios_config_smart(device_type, target_ip, username, password, dry_run=False)
+            
+            if vendor_result.get('success', False):
+                result['success'] = True
+                result['settings_applied'] = settings
+                result['individual_results'] = vendor_result
+                logger.info(f"Successfully applied {len(settings)} BIOS settings via vendor tools")
+            else:
+                result['error'] = vendor_result.get('error', 'Unknown vendor tool error')
+                result['settings_failed'] = settings
+                result['individual_results'] = vendor_result
+                
+        except Exception as e:
+            result['error'] = f"Vendor tool application failed: {e}"
+            result['settings_failed'] = settings
+            logger.error(f"Vendor tool settings application failed: {e}")
+        
+        return result
+    
+    def get_phase2_method_statistics(self, device_type: str) -> Dict[str, Any]:
+        """Get statistics about Phase 2 method selection for a device type."""
+        device_config = self.device_types.get(device_type)
+        if not device_config:
+            return {'error': f"Device type {device_type} not found"}
+        
+        method_selector = BiosSettingMethodSelector(device_config)
+        return method_selector.get_method_statistics()
+    
+    def validate_phase2_redfish_capabilities(self, device_type: str, target_ip: str,
+                                           username: str = "ADMIN", password: str = None) -> Dict[str, Any]:
+        """Validate which configured Redfish settings are actually available on the target system."""
+        result = {
+            'success': False,
+            'device_type': device_type,
+            'target_ip': target_ip,
+            'validation_results': {},
+            'available_settings': [],
+            'unavailable_settings': [],
+            'error': None
+        }
+        
+        try:
+            device_config = self.device_types.get(device_type)
+            if not device_config:
+                result['error'] = f"Device type {device_type} not found"
+                return result
+            
+            # Get available Redfish BIOS settings from target system
+            with RedfishManager(target_ip, username, password) as redfish:
+                current_settings = redfish.get_bios_settings()
+                if current_settings is None:
+                    result['error'] = "Failed to retrieve BIOS settings from target system"
+                    return result
+                
+                available_setting_names = set(current_settings.keys())
+                
+                # Validate configured settings against available settings
+                method_selector = BiosSettingMethodSelector(device_config)
+                validation_results = method_selector.validate_redfish_capabilities(available_setting_names)
+                
+                result['validation_results'] = validation_results
+                result['available_settings'] = [setting for setting, available in validation_results.items() if available]
+                result['unavailable_settings'] = [setting for setting, available in validation_results.items() if not available]
+                result['success'] = True
+                
+                logger.info(f"Redfish validation complete: {len(result['available_settings'])} available, "
+                           f"{len(result['unavailable_settings'])} unavailable settings")
+                
+        except Exception as e:
+            result['error'] = f"Redfish validation failed: {e}"
+            logger.error(f"Redfish capability validation failed: {e}")
+        
+        return result
     
     def _apply_bios_config_via_redfish(self, device_type: str, target_ip: str,
                                       username: str, password: str, dry_run: bool,
