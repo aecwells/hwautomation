@@ -87,8 +87,9 @@ class TestRedfishManager:
         def mock_request_side_effect(method, url, **kwargs):
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
+            mock_response.status_code = 200
             
-            if '/redfish/v1/' in url:
+            if '/redfish/v1/' in url and url.endswith('/redfish/v1/'):
                 # Service root
                 mock_response.json.return_value = {
                     "RedfishVersion": "1.6.0",
@@ -98,14 +99,25 @@ class TestRedfishManager:
             elif '/redfish/v1/Systems' in url and url.endswith('Systems'):
                 # Systems collection
                 mock_response.json.return_value = {
-                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}]
+                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}],
+                    "Members@odata.count": 1
                 }
-            elif '/redfish/v1/Systems/1' in url:
+            elif '/redfish/v1/Systems/1' in url and not '/Bios' in url:
                 # System detail
                 mock_response.json.return_value = {
                     "Id": "1",
                     "PowerState": "On",
+                    "Manufacturer": "TestVendor",
+                    "Model": "TestModel",
                     "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"}
+                }
+            elif '/redfish/v1/Systems/1/Bios' in url:
+                # BIOS endpoint
+                mock_response.json.return_value = {
+                    "Attributes": {
+                        "BootMode": "UEFI",
+                        "SecureBoot": "Disabled"
+                    }
                 }
             
             return mock_response
@@ -129,16 +141,23 @@ class TestRedfishManager:
         def mock_request_side_effect(method, url, **kwargs):
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
+            mock_response.status_code = 200
             
-            if '/redfish/v1/' in url:
+            if '/redfish/v1/' in url and url.endswith('/redfish/v1/'):
+                # Service root for capability discovery
                 mock_response.json.return_value = {
-                    "Systems": {"@odata.id": "/redfish/v1/Systems"}
+                    "RedfishVersion": "1.6.0",
+                    "Systems": {"@odata.id": "/redfish/v1/Systems"},
+                    "Chassis": {"@odata.id": "/redfish/v1/Chassis"}
                 }
             elif '/redfish/v1/Systems' in url and url.endswith('Systems'):
+                # Systems collection
                 mock_response.json.return_value = {
-                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}]
+                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}],
+                    "Members@odata.count": 1
                 }
-            elif '/redfish/v1/Systems/1' in url:
+            elif '/redfish/v1/Systems/1' in url and not '/Bios' in url:
+                # System detail with all required fields
                 mock_response.json.return_value = {
                     "Id": "1",
                     "Manufacturer": "Supermicro",
@@ -148,7 +167,8 @@ class TestRedfishManager:
                     "PowerState": "On",
                     "ProcessorSummary": {"Count": 2},
                     "MemorySummary": {"TotalSystemMemoryGiB": 64},
-                    "Status": {"Health": "OK"}
+                    "Status": {"Health": "OK"},
+                    "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"}
                 }
             
             return mock_response
@@ -177,8 +197,23 @@ class TestRedfishManager:
         def mock_request_side_effect(method, url, **kwargs):
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
+            mock_response.status_code = 200
             
-            if '/Bios' in url:
+            if '/redfish/v1/' in url and url.endswith('/redfish/v1/'):
+                # Service root for capability discovery
+                mock_response.json.return_value = {
+                    "RedfishVersion": "1.6.0",
+                    "Systems": {"@odata.id": "/redfish/v1/Systems"},
+                    "Chassis": {"@odata.id": "/redfish/v1/Chassis"}
+                }
+            elif '/redfish/v1/Systems' in url and url.endswith('Systems'):
+                # Systems collection
+                mock_response.json.return_value = {
+                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}],
+                    "Members@odata.count": 1
+                }
+            elif '/redfish/v1/Systems/1/Bios' in url:
+                # BIOS settings endpoint
                 mock_response.json.return_value = {
                     "Attributes": {
                         "BootMode": "UEFI",
@@ -187,20 +222,13 @@ class TestRedfishManager:
                         "PowerProfile": "Performance"
                     }
                 }
-            else:
-                # Mock capability discovery responses
-                if '/redfish/v1/' in url:
-                    mock_response.json.return_value = {
-                        "Systems": {"@odata.id": "/redfish/v1/Systems"}
-                    }
-                elif '/redfish/v1/Systems' in url and url.endswith('Systems'):
-                    mock_response.json.return_value = {
-                        "Members": [{"@odata.id": "/redfish/v1/Systems/1"}]
-                    }
-                elif '/redfish/v1/Systems/1' in url:
-                    mock_response.json.return_value = {
-                        "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"}
-                    }
+            elif '/redfish/v1/Systems/1' in url:
+                # System detail with BIOS reference
+                mock_response.json.return_value = {
+                    "Id": "1",
+                    "PowerState": "On",
+                    "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"}
+                }
             
             return mock_response
         
@@ -210,10 +238,11 @@ class TestRedfishManager:
         bios_settings = redfish.get_bios_settings()
         
         assert bios_settings is not None
-        assert "BootMode" in bios_settings
-        assert "SecureBoot" in bios_settings
+        assert isinstance(bios_settings, dict)
         assert bios_settings["BootMode"] == "UEFI"
         assert bios_settings["SecureBoot"] == "Disabled"
+        assert bios_settings["Hyper-Threading"] == "Enabled"
+        assert bios_settings["PowerProfile"] == "Performance"
     
     @patch('hwautomation.hardware.redfish_manager.requests.Session')
     def test_connection_test_success(self, mock_session_class):
@@ -224,20 +253,29 @@ class TestRedfishManager:
         def mock_request_side_effect(method, url, **kwargs):
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
+            mock_response.status_code = 200
             
-            if '/redfish/v1/' in url:
+            if '/redfish/v1/' in url and url.endswith('/redfish/v1/'):
+                # Service root
                 mock_response.json.return_value = {
                     "RedfishVersion": "1.6.0",
-                    "Systems": {"@odata.id": "/redfish/v1/Systems"}
+                    "Systems": {"@odata.id": "/redfish/v1/Systems"},
+                    "Chassis": {"@odata.id": "/redfish/v1/Chassis"}
                 }
             elif '/redfish/v1/Systems' in url and url.endswith('Systems'):
+                # Systems collection
                 mock_response.json.return_value = {
-                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}]
+                    "Members": [{"@odata.id": "/redfish/v1/Systems/1"}],
+                    "Members@odata.count": 1
                 }
             elif '/redfish/v1/Systems/1' in url:
+                # System detail
                 mock_response.json.return_value = {
+                    "Id": "1",
                     "Manufacturer": "TestVendor",
-                    "Model": "TestModel"
+                    "Model": "TestModel",
+                    "PowerState": "On",
+                    "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"}
                 }
             
             return mock_response
@@ -245,6 +283,11 @@ class TestRedfishManager:
         mock_session.request.side_effect = mock_request_side_effect
         
         redfish = RedfishManager(self.target_ip, self.username, self.password)
+        success, message = redfish.test_connection()
+        
+        assert success == True
+        assert "Redfish connection successful" in message
+        assert "TestVendor TestModel" in message
         success, message = redfish.test_connection()
         
         assert success == True
