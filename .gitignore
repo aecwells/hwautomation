@@ -201,6 +201,41 @@ db-backups/
 .DS_Store
 Thumbs.db
 
+# Firmware artifacts - exclude actual firmware files but allow test mocks
+firmware/
+firmware/**
+!firmware/README.md
+!firmware/.gitkeep
+
+# Firmware file extensions (exclude actual firmware files)
+*.bin
+*.rom
+*.fwpkg
+*.fw
+*.img
+*.iso
+*.wim
+*.efi
+*.cap
+*.exe
+*.msi
+
+# But allow test firmware files in temp directories
+!tmp/**/*.bin
+!tmp/**/*.rom
+!tmp/**/*.fwpkg
+!/tmp/**/*.bin
+!/tmp/**/*.rom
+!/tmp/**/*.fwpkg
+!**/test_*/**/*.bin
+!**/test_*/**/*.rom
+!**/test_*/**/*.fwpkg
+!**/tests/**/temp_*
+!**/tests/**/tmp_*
+!**/tempfile/**
+!**/tmpdir*/**
+!**/test_firmware*/**
+
 # Add cleanup artifacts to ignore
 __pycache__/
 *.pyc

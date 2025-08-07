@@ -1,0 +1,2 @@
+# This file ensures the firmware directory structure is preserved in git
+# while excluding actual firmware binary files
