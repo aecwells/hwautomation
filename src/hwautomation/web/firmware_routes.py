@@ -301,7 +301,7 @@ def init_firmware_routes(firmware_manager, workflow_manager, db_helper, socketio
         firmware_manager, workflow_manager, db_helper, socketio
     )
 
-@firmware_bp.route('/dashboard')
+@firmware_bp.route('/')
 def firmware_dashboard():
     """Firmware management dashboard."""
     try:
