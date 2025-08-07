@@ -5,7 +5,17 @@
 ![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/github/license/aecwells/hwautomation)
 
-A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with a production-ready web GUI and complete CLI capabilities.
+A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with production-ready web GUI, complete CLI capabilities, and enterprise-grade firmware management.
+
+## 🎯 Key Capabilities
+
+**Enterprise Hardware Automation Platform**
+- 🔧 **Complete Server Provisioning**: Automated workflows from commissioning to production-ready state
+- 💾 **Firmware Management**: Multi-vendor firmware updates with real vendor tools (HPE iLORest, Supermicro IPMItool, Dell RACADM)
+- ⚙️ **BIOS Configuration**: Intelligent configuration management with device-specific templates and monitoring
+- 🌐 **MaaS Integration**: Full Metal-as-a-Service API integration for bare-metal provisioning
+- 📊 **Real-time Monitoring**: Live progress tracking with WebSocket updates and comprehensive audit trails
+- 🏗️ **Multi-Vendor Support**: HPE Gen10, Supermicro X11, Dell PowerEdge with optimized device-specific workflows
 
 ## 🚀 Quick Start (Container-First)
 
@@ -31,16 +41,29 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 
 ## Features
 
+### 🚀 **Firmware Management**
+- **🔧 Firmware-First Provisioning**: Complete workflow with firmware updates before system configuration
+- **💾 Multi-Vendor Firmware Support**: Real vendor tool integration (HPE iLORest, Supermicro IPMItool, Dell RACADM)
+- **📊 Intelligent Update Management**: Priority-based firmware ordering, compatibility checking, and automated rollback
+- **🌐 Firmware Repository System**: Centralized firmware storage with automated downloads and integrity validation
+- **📈 Advanced Progress Monitoring**: Real-time sub-task reporting with WebSocket updates and operation tracking
+
+### ⚙️ **BIOS Configuration Management**
+- **🎯 Smart Configuration**: Device-specific BIOS templates with intelligent pull-edit-push workflows
+- **📋 Template System**: Comprehensive BIOS settings templates organized by device type
+- **🔍 Enhanced Monitoring**: Real-time configuration progress with detailed sub-task reporting
+- **🏗️ Multi-Method Support**: RedFish API and vendor-specific tool integration with automatic fallback
+- **📊 Configuration Analytics**: Success rate tracking, execution time monitoring, and error analysis
+
+### 🏗️ **Core Platform Capabilities**
 - **🌐 Container-First Architecture**: Production-ready Docker deployment with SQLite database
 - **🖥️ Modern Web GUI**: Primary interface with real-time monitoring and management capabilities  
 - **⚡ Multi-Stage Builds**: Optimized containers for development, production, web, and CLI use cases
-- **🔧 Vendor-Specific Tools**: Automatic installation and integration of HPE, Supermicro, and Dell management tools
-- **🚀 Complete Orchestration**: 8-step automated server provisioning workflow
-- **🔍 Hardware Discovery**: SSH-based system information gathering with IPMI detection
+- ** Complete Orchestration**: Multiple workflow types including standard provisioning and firmware-first workflows
+- **🔍 Hardware Discovery**: SSH-based system information gathering with IPMI detection and vendor identification
 - **MAAS Integration**: Complete API client for Metal as a Service operations
 - **IPMI Management**: Hardware control via IPMI protocol
-- **RedFish Support**: Modern BMC management through RedFish APIs
-- **BIOS Configuration**: Smart pull-edit-push BIOS configuration by device type
+- **RedFish Support**: Modern BMC management through RedFish APIs with firmware update capabilities
 - **Database Migrations**: Robust SQLite schema versioning and upgrade system
 - **Configuration Management**: Flexible YAML/JSON configuration with environment overrides
 - **Network Utilities**: SSH operations, connectivity testing, and IP management
@@ -57,12 +80,18 @@ HWAutomation/
 ├── docker-compose.yml         # 🏗️ Production service orchestration  
 ├── docker-compose.override.yml # 🛠️ Development overrides
 ├── src/hwautomation/          # 📦 Main package source code
-│   ├── web/                   # 🌐 Flask web application
+│   ├── web/                   # 🌐 Flask web application with firmware management
+│   ├── hardware/              # ⚙️ IPMI, RedFish, and Firmware management
+│   │   ├── firmware_manager.py           # � Multi-vendor firmware operations
+│   │   └── firmware_provisioning_workflow.py # 🚀 Firmware-first workflows
+│   ├── orchestration/         # 🔄 Workflow management and server provisioning
 │   ├── database/              # 🗄️ SQLite operations and migrations
-│   ├── hardware/              # ⚙️ IPMI and RedFish management
 │   ├── maas/                  # 🌐 MAAS API client
 │   └── utils/                 # 🔧 Configuration and utilities
-├── examples/                  # 📚 Usage examples
+├── configs/
+│   ├── bios/                  # 📁 BIOS configuration templates and rules
+│   └── firmware/              # 📁 Firmware repository and update configurations
+├── examples/                  # 📚 Usage examples including firmware demos
 ├── tests/                     # 🧪 Test suite
 ├── docs/                      # 📖 Documentation
 └── tools/                     # 🛠️ Development and maintenance tools
@@ -113,8 +142,10 @@ curl http://localhost:5000/health
     "database": "healthy",
     "maas": "healthy", 
     "bios_manager": "healthy",
+    "firmware_manager": "healthy",
     "workflow_manager": "healthy",
     "bios_device_types": 87,
+    "firmware_repository": "ready",
     "maas_machines": 5,
     "active_workflows": 0
   },
@@ -263,16 +294,47 @@ bios_manager = BiosConfigManager()
 device_types = bios_manager.get_device_types()
 print(f"Available device types: {device_types}")
 
-# Generate XML configuration for s2_c2_small
-xml_config = bios_manager.generate_xml_config('s2_c2_small')
+# Generate XML configuration for a1.c5.large
+xml_config = bios_manager.generate_xml_config('a1.c5.large')
 print("Generated BIOS configuration:")
 print(xml_config)
 
-# Apply configuration to a system (placeholder)
-# bios_manager.apply_bios_config('s2_c2_small', '192.168.1.100', 'ADMIN', 'password')
+# Apply configuration to a system (enhanced monitoring)
+# result = bios_manager.apply_bios_config_smart('a1.c5.large', '192.168.1.100', 'ADMIN', 'password')
 ```
 
-### 4. Web GUI Usage
+### 4. Firmware Management
+
+```python
+from hwautomation.hardware.firmware_manager import FirmwareManager
+from hwautomation.hardware.firmware_provisioning_workflow import create_firmware_provisioning_workflow
+
+# Initialize firmware manager
+firmware_manager = FirmwareManager()
+
+# Check firmware versions
+firmware_info = await firmware_manager.check_firmware_versions(
+    'a1.c5.large', '192.168.1.100', 'admin', 'password'
+)
+
+# Create firmware-first provisioning workflow
+workflow = create_firmware_provisioning_workflow()
+context = workflow.create_provisioning_context(
+    server_id="server_001",
+    device_type="a1.c5.large", 
+    target_ip="192.168.1.100",
+    credentials={"username": "admin", "password": "password"},
+    firmware_policy="recommended"
+)
+
+# Execute complete firmware-first provisioning
+result = await workflow.execute_firmware_first_provisioning(context)
+print(f"Provisioning completed: {result.success}")
+print(f"Firmware updates applied: {result.firmware_updates_applied}")
+print(f"BIOS settings applied: {result.bios_settings_applied}")
+```
+
+### 5. Web GUI Usage
 
 Launch the modern web interface:
 
@@ -285,14 +347,22 @@ docker compose up -d app
 
 **GUI Features:**
 - 🎛️ Interactive BIOS configuration management
-- 📊 Real-time dashboard with system status
-- ⚡ Live progress updates via WebSocket
+- � **Firmware Management Dashboard**: Real-time firmware status, version tracking, and update scheduling
+- �📊 Real-time dashboard with system status and workflow progress
+- ⚡ Live progress updates via WebSocket with detailed sub-task granularity
+- 🚀 **Firmware-First Provisioning**: Complete workflow orchestration from web interface
 - 📱 Responsive design for mobile/tablet
 - 🔍 Advanced filtering and search
 - 📁 Download configurations and logs
 - 💾 SQLite database management interface
 
-### 5. Command Line Usage
+**API Endpoints:**
+- `POST /api/orchestration/provision` - Standard server provisioning workflow
+- `POST /api/orchestration/provision-firmware-first` - Firmware-first provisioning workflow
+- `GET /api/orchestration/workflows/{id}/status` - Real-time workflow status with sub-task details
+- `POST /api/orchestration/workflow/{id}/cancel` - Cancel running workflows with graceful cleanup
+
+### 6. Command Line Usage
 
 ```bash
 # Run the main CLI interface
@@ -317,17 +387,23 @@ python examples/basic_usage.py
 src/hwautomation/
 ├── __init__.py              # Main package exports
 ├── web/
-│   ├── app.py              # Flask web application
+│   ├── app.py              # Flask web application with firmware API endpoints
+│   ├── firmware_routes.py  # Firmware management web routes
 │   └── templates/          # Web UI templates
+├── orchestration/
+│   ├── workflow_manager.py       # Core workflow orchestration
+│   └── server_provisioning.py   # Standard and firmware-first provisioning workflows
 ├── database/
 │   ├── helper.py           # SQLite database operations
 │   └── migrations.py       # Schema migration system
 ├── maas/
 │   └── client.py          # MAAS API client
 ├── hardware/
-│   ├── ipmi.py           # IPMI management
-│   ├── redfish.py        # RedFish operations
-│   └── bios_config.py    # BIOS configuration management
+│   ├── ipmi.py                           # IPMI management
+│   ├── redfish_manager.py                # RedFish operations with firmware support
+│   ├── bios_config.py                    # BIOS configuration management
+│   ├── firmware_manager.py               # Multi-vendor firmware management
+│   └── firmware_provisioning_workflow.py # Complete firmware-first workflow
 ├── utils/
 │   ├── config.py         # Configuration management
 │   └── network.py        # Network utilities
@@ -365,6 +441,40 @@ MAAS API operations with OAuth1 authentication.
 ```python
 from hwautomation.maas.client import create_maas_client
 maas_client = create_maas_client(config['maas'])
+```
+
+#### `FirmwareManager`
+Multi-vendor firmware management with real vendor tool integration.
+
+```python
+from hwautomation.hardware.firmware_manager import FirmwareManager
+firmware_manager = FirmwareManager()
+
+# Check firmware versions across all components
+firmware_info = await firmware_manager.check_firmware_versions(
+    device_type='a1.c5.large', target_ip='192.168.1.100', 
+    username='admin', password='password'
+)
+
+# Update firmware with priority ordering (BMC → BIOS → Others)
+updates_needed = [fw for fw in firmware_info.values() if fw.update_required]
+results = await firmware_manager.update_firmware_batch(
+    updates_needed, target_ip, username, password, operation_id
+)
+```
+
+#### `FirmwareProvisioningWorkflow`
+Complete firmware-first provisioning workflow.
+
+```python
+from hwautomation.hardware.firmware_provisioning_workflow import create_firmware_provisioning_workflow
+
+workflow = create_firmware_provisioning_workflow()
+context = workflow.create_provisioning_context(
+    server_id="server_001", device_type="a1.c5.large",
+    target_ip="192.168.1.100", credentials={"username": "admin", "password": "password"}
+)
+result = await workflow.execute_firmware_first_provisioning(context)
 ```
 
 #### `IpmiManager`
@@ -408,6 +518,12 @@ with RedfishManager("192.168.1.100", "admin", "password") as redfish:
 - `power_off(ip, password)` - Power off server
 - `get_system_info(ip, password)` - Get RedFish system information
 
+#### Firmware Operations
+- `check_firmware_versions(device_type, ip, username, password)` - Comprehensive firmware analysis
+- `update_firmware_batch(updates_list, ip, username, password, operation_id)` - Batch firmware updates
+- `execute_firmware_first_provisioning(context)` - Complete 6-step workflow with progress monitoring
+- `get_vendor_specific_methods(device_type)` - Get optimal update methods per vendor
+
 ## Migration System
 
 The package includes a robust database migration system:
@@ -448,6 +564,9 @@ export HW_DATABASE_PATH="/path/to/database.db"
 See the `examples/` directory for complete working examples:
 
 - `basic_usage.py` - Complete workflow demonstration
+- `phase4_implementation_example.py` - **Firmware-first provisioning demonstration**
+- `phase4_firmware_demo.py` - **Complete firmware management simulation**
+- `enhanced_commissioning_demo.py` - Advanced commissioning workflows
 - Interactive examples for IPMI, RedFish, and database operations
 
 ## Testing
@@ -490,4 +609,4 @@ If you're migrating from the original bash scripts:
 3. Run database migration: `python scripts/db_manager.py migrate`
 4. Test with: `python examples/basic_usage.py`
 
-The package maintains compatibility with existing databases through the migration system.
+The package maintains compatibility with existing databases through the migration system and provides a seamless upgrade path to enterprise firmware management capabilities.
