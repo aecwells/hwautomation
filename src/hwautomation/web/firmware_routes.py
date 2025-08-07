@@ -61,15 +61,17 @@ class FirmwareWebManager:
             }
             
             # Get all servers from database
-            with self.db_helper.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT id, hostname, status_name, device_type, ipmi_ip 
+            try:
+                cursor = self.db_helper.sql_db_worker.execute("""
+                    SELECT server_id, server_id as hostname, status_name, device_type, ipmi_address 
                     FROM servers 
                     WHERE status_name != 'Deleted'
-                    ORDER BY id
+                    ORDER BY server_id
                 """)
                 servers = cursor.fetchall()
+            except Exception as e:
+                logger.warning(f"Failed to query servers from database: {e}")
+                servers = []
                 
             inventory['update_summary']['total_servers'] = len(servers)
             
@@ -119,16 +121,26 @@ class FirmwareWebManager:
             
             # Get firmware repository information
             try:
-                firmware_files = self.firmware_manager.discover_firmware_files('.')
-                inventory['firmware_repository']['total_files'] = len(firmware_files)
+                from pathlib import Path
+                firmware_base_path = Path('/app/firmware')  # Docker path
+                if not firmware_base_path.exists():
+                    firmware_base_path = Path('./firmware')  # Local path
                 
-                # Group by vendor
-                vendors = set()
-                for file_info in firmware_files:
-                    if 'vendor' in file_info:
-                        vendors.add(file_info['vendor'])
-                
-                inventory['firmware_repository']['vendors'] = list(vendors)
+                if firmware_base_path.exists():
+                    # Count firmware files
+                    firmware_extensions = ['.bin', '.rom', '.fwpkg', '.fw', '.img']
+                    firmware_files = []
+                    for ext in firmware_extensions:
+                        firmware_files.extend(firmware_base_path.rglob(f'*{ext}'))
+                    
+                    inventory['firmware_repository']['total_files'] = len(firmware_files)
+                    
+                    # Get vendor directories
+                    vendor_dirs = [d.name for d in firmware_base_path.iterdir() if d.is_dir() and not d.name.startswith('.')]
+                    inventory['firmware_repository']['vendors'] = vendor_dirs
+                else:
+                    inventory['firmware_repository']['total_files'] = 0
+                    inventory['firmware_repository']['vendors'] = []
                 
             except Exception as e:
                 logger.warning(f"Failed to get firmware repository info: {e}")
