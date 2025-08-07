@@ -674,30 +674,377 @@ class FirmwareManager:
     async def _update_bios_firmware(self, firmware_info: FirmwareInfo,
                                   target_ip: str, username: str, password: str,
                                   operation_id: Optional[str] = None) -> bool:
-        """Update BIOS firmware"""
+        """Update BIOS firmware using vendor-specific methods"""
         logger.info(f"Updating BIOS firmware on {target_ip}")
         
-        # For now, simulate the update process
-        # In production, this would use Redfish or vendor tools
-        await asyncio.sleep(2)  # Simulate update time
+        vendor = firmware_info.vendor.lower() if firmware_info.vendor else "unknown"
         
-        # 95% success rate for simulation
-        import random
-        return random.random() > 0.05
+        try:
+            # Try Redfish first (standardized approach)
+            try:
+                from .redfish_manager import RedfishManager
+                redfish = RedfishManager()
+                
+                if await redfish.test_connection(target_ip, username, password):
+                    logger.info("Attempting BIOS update via Redfish API")
+                    success = await redfish.update_firmware(
+                        target_ip, username, password, 
+                        firmware_info.file_path, FirmwareType.BIOS, operation_id
+                    )
+                    if success:
+                        logger.info("BIOS firmware updated successfully via Redfish")
+                        return True
+                    else:
+                        logger.warning("Redfish BIOS update failed, trying vendor method")
+                        
+            except Exception as e:
+                logger.debug(f"Redfish BIOS update failed: {e}")
+            
+            # Fall back to vendor-specific methods
+            if vendor == "hpe":
+                return await self._update_hpe_bios(firmware_info, target_ip, username, password, operation_id)
+            elif vendor == "supermicro":
+                return await self._update_supermicro_bios(firmware_info, target_ip, username, password, operation_id)
+            elif vendor == "dell":
+                return await self._update_dell_bios(firmware_info, target_ip, username, password, operation_id)
+            else:
+                logger.warning(f"No BIOS update method available for vendor: {vendor}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"BIOS firmware update failed: {e}")
+            return False
     
     async def _update_bmc_firmware(self, firmware_info: FirmwareInfo,
                                  target_ip: str, username: str, password: str,
                                  operation_id: Optional[str] = None) -> bool:
-        """Update BMC firmware"""
+        """Update BMC firmware using vendor-specific methods"""
         logger.info(f"Updating BMC firmware on {target_ip}")
         
-        # For now, simulate the update process
-        # In production, this would use Redfish API
-        await asyncio.sleep(1.5)  # Simulate update time
+        vendor = firmware_info.vendor.lower() if firmware_info.vendor else "unknown"
         
-        # 98% success rate for simulation
-        import random
-        return random.random() > 0.02
+        try:
+            # Try Redfish first (standardized approach)
+            try:
+                from .redfish_manager import RedfishManager
+                redfish = RedfishManager()
+                
+                if await redfish.test_connection(target_ip, username, password):
+                    logger.info("Attempting BMC update via Redfish API")
+                    success = await redfish.update_firmware(
+                        target_ip, username, password, 
+                        firmware_info.file_path, FirmwareType.BMC, operation_id
+                    )
+                    if success:
+                        logger.info("BMC firmware updated successfully via Redfish")
+                        return True
+                    else:
+                        logger.warning("Redfish BMC update failed, trying vendor method")
+                        
+            except Exception as e:
+                logger.debug(f"Redfish BMC update failed: {e}")
+            
+            # Fall back to vendor-specific methods
+            if vendor == "hpe":
+                return await self._update_hpe_bmc(firmware_info, target_ip, username, password, operation_id)
+            elif vendor == "supermicro":
+                return await self._update_supermicro_bmc(firmware_info, target_ip, username, password, operation_id)
+            elif vendor == "dell":
+                return await self._update_dell_bmc(firmware_info, target_ip, username, password, operation_id)
+            else:
+                logger.warning(f"No BMC update method available for vendor: {vendor}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"BMC firmware update failed: {e}")
+            return False
+    
+    # ============================================================================
+    # HPE Vendor-Specific Firmware Update Methods
+    # ============================================================================
+    
+    async def _update_hpe_bios(self, firmware_info: FirmwareInfo, target_ip: str, 
+                              username: str, password: str, operation_id: Optional[str] = None) -> bool:
+        """Update HPE BIOS firmware using HPE-specific tools"""
+        logger.info(f"Updating HPE BIOS firmware on {target_ip}")
+        
+        try:
+            # Method 1: Try iLORest (HPE's CLI tool)
+            if await self._is_command_available("ilorest"):
+                logger.info("Using iLORest for HPE BIOS firmware update")
+                return await self._update_hpe_bios_ilorest(firmware_info, target_ip, username, password)
+            
+            # Method 2: Try HPE SUM (Smart Update Manager)
+            if await self._is_command_available("hpsum"):
+                logger.info("Using HPE SUM for BIOS firmware update")
+                return await self._update_hpe_bios_sum(firmware_info, target_ip, username, password)
+            
+            # Method 3: Direct IPMI flash (requires special firmware format)
+            if firmware_info.file_path and firmware_info.file_path.endswith('.fwpkg'):
+                logger.info("Attempting direct IPMI firmware flash for HPE BIOS")
+                return await self._update_hpe_bios_ipmi(firmware_info, target_ip, username, password)
+            
+            logger.warning("No suitable HPE BIOS update method available")
+            return False
+            
+        except Exception as e:
+            logger.error(f"HPE BIOS firmware update failed: {e}")
+            return False
+    
+    async def _update_hpe_bmc(self, firmware_info: FirmwareInfo, target_ip: str,
+                             username: str, password: str, operation_id: Optional[str] = None) -> bool:
+        """Update HPE BMC (iLO) firmware"""
+        logger.info(f"Updating HPE iLO firmware on {target_ip}")
+        
+        try:
+            # Method 1: Try iLORest 
+            if await self._is_command_available("ilorest"):
+                logger.info("Using iLORest for HPE iLO firmware update")
+                return await self._update_hpe_ilo_ilorest(firmware_info, target_ip, username, password)
+                
+            # Method 2: Direct Redfish firmware update (if file provided)
+            if firmware_info.file_path:
+                logger.info("Attempting direct Redfish firmware update for HPE iLO")
+                return await self._update_hpe_ilo_redfish(firmware_info, target_ip, username, password)
+            
+            logger.warning("No suitable HPE iLO update method available")
+            return False
+            
+        except Exception as e:
+            logger.error(f"HPE iLO firmware update failed: {e}")
+            return False
+    
+    # ============================================================================
+    # Supermicro Vendor-Specific Firmware Update Methods
+    # ============================================================================
+    
+    async def _update_supermicro_bios(self, firmware_info: FirmwareInfo, target_ip: str,
+                                     username: str, password: str, operation_id: Optional[str] = None) -> bool:
+        """Update Supermicro BIOS firmware using Supermicro-specific tools"""
+        logger.info(f"Updating Supermicro BIOS firmware on {target_ip}")
+        
+        try:
+            # Method 1: Try SUM (Supermicro Update Manager)
+            if await self._is_command_available("sum"):
+                logger.info("Using Supermicro SUM for BIOS firmware update")
+                return await self._update_supermicro_bios_sum(firmware_info, target_ip, username, password)
+            
+            # Method 2: Try IPMItool with firmware update
+            if await self._is_command_available("ipmitool") and firmware_info.file_path:
+                logger.info("Using IPMItool for Supermicro BIOS firmware update")
+                return await self._update_supermicro_bios_ipmi(firmware_info, target_ip, username, password)
+                
+            # Method 3: Try direct SSH with sumtool on remote server
+            logger.info("Attempting remote sumtool execution for Supermicro BIOS update")
+            return await self._update_supermicro_bios_remote(firmware_info, target_ip, username, password)
+            
+        except Exception as e:
+            logger.error(f"Supermicro BIOS firmware update failed: {e}")
+            return False
+    
+    async def _update_supermicro_bmc(self, firmware_info: FirmwareInfo, target_ip: str,
+                                    username: str, password: str, operation_id: Optional[str] = None) -> bool:
+        """Update Supermicro BMC firmware"""
+        logger.info(f"Updating Supermicro BMC firmware on {target_ip}")
+        
+        try:
+            # Method 1: Try IPMItool for BMC update
+            if await self._is_command_available("ipmitool") and firmware_info.file_path:
+                logger.info("Using IPMItool for Supermicro BMC firmware update")
+                return await self._update_supermicro_bmc_ipmi(firmware_info, target_ip, username, password)
+                
+            # Method 2: Try SUM for BMC update
+            if await self._is_command_available("sum"):
+                logger.info("Using Supermicro SUM for BMC firmware update")
+                return await self._update_supermicro_bmc_sum(firmware_info, target_ip, username, password)
+            
+            logger.warning("No suitable Supermicro BMC update method available")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Supermicro BMC firmware update failed: {e}")
+            return False
+    
+    # ============================================================================
+    # Dell Vendor-Specific Firmware Update Methods
+    # ============================================================================
+    
+    async def _update_dell_bios(self, firmware_info: FirmwareInfo, target_ip: str,
+                               username: str, password: str, operation_id: Optional[str] = None) -> bool:
+        """Update Dell BIOS firmware using Dell-specific tools"""
+        logger.info(f"Updating Dell BIOS firmware on {target_ip}")
+        
+        try:
+            # Method 1: Try RACADM (Remote Access Controller Admin)
+            if await self._is_command_available("racadm"):
+                logger.info("Using RACADM for Dell BIOS firmware update")
+                return await self._update_dell_bios_racadm(firmware_info, target_ip, username, password)
+                
+            # Method 2: Try Dell Update Package (DUP) execution
+            if firmware_info.file_path and firmware_info.file_path.endswith('.exe'):
+                logger.info("Using Dell DUP for BIOS firmware update")
+                return await self._update_dell_bios_dup(firmware_info, target_ip, username, password)
+            
+            logger.warning("No suitable Dell BIOS update method available")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Dell BIOS firmware update failed: {e}")
+            return False
+    
+    async def _update_dell_bmc(self, firmware_info: FirmwareInfo, target_ip: str,
+                              username: str, password: str, operation_id: Optional[str] = None) -> bool:
+        """Update Dell BMC (iDRAC) firmware"""
+        logger.info(f"Updating Dell iDRAC firmware on {target_ip}")
+        
+        try:
+            # Method 1: Try RACADM for iDRAC update
+            if await self._is_command_available("racadm"):
+                logger.info("Using RACADM for Dell iDRAC firmware update")
+                return await self._update_dell_idrac_racadm(firmware_info, target_ip, username, password)
+            
+            logger.warning("No suitable Dell iDRAC update method available")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Dell iDRAC firmware update failed: {e}")
+            return False
+    
+    # ============================================================================
+    # Vendor-Specific Tool Implementation Methods
+    # ============================================================================
+    
+    async def _is_command_available(self, command: str) -> bool:
+        """Check if a command is available on the system"""
+        try:
+            import subprocess
+            result = subprocess.run(['which', command], 
+                                  capture_output=True, text=True, timeout=10)
+            return result.returncode == 0
+        except Exception:
+            return False
+    
+    async def _update_hpe_bios_ilorest(self, firmware_info: FirmwareInfo, target_ip: str,
+                                      username: str, password: str) -> bool:
+        """Update HPE BIOS using iLORest tool"""
+        logger.info("Executing HPE BIOS update via iLORest")
+        
+        try:
+            import subprocess
+            
+            # Build iLORest command for BIOS update
+            cmd = [
+                'ilorest',
+                'flashfwpkg',
+                firmware_info.file_path,
+                '--url', target_ip,
+                '--user', username,
+                '--password', password,
+                '--component', 'bios'
+            ]
+            
+            logger.info(f"Executing: {' '.join(cmd[:-2])} --password [HIDDEN]")
+            
+            # Execute with timeout
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)  # 30 minute timeout
+            
+            if result.returncode == 0:
+                logger.info("HPE BIOS firmware update completed successfully")
+                return True
+            else:
+                logger.error(f"HPE BIOS firmware update failed: {result.stderr}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            logger.error("HPE BIOS firmware update timed out")
+            return False
+        except Exception as e:
+            logger.error(f"HPE BIOS firmware update error: {e}")
+            return False
+    
+    async def _update_supermicro_bios_ipmi(self, firmware_info: FirmwareInfo, target_ip: str,
+                                          username: str, password: str) -> bool:
+        """Update Supermicro BIOS using IPMItool"""
+        logger.info("Executing Supermicro BIOS update via IPMItool")
+        
+        try:
+            import subprocess
+            
+            # Build ipmitool command for BIOS update
+            cmd = [
+                'ipmitool',
+                '-I', 'lanplus',
+                '-H', target_ip,
+                '-U', username,
+                '-P', password,
+                'hpm', 'upgrade',
+                firmware_info.file_path,
+                'force'
+            ]
+            
+            logger.info(f"Executing: {' '.join(cmd[:-4])} -P [HIDDEN] {' '.join(cmd[-3:])}")
+            
+            # Execute with timeout
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)  # 1 hour timeout
+            
+            if result.returncode == 0:
+                logger.info("Supermicro BIOS firmware update completed successfully")
+                return True
+            else:
+                logger.error(f"Supermicro BIOS firmware update failed: {result.stderr}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            logger.error("Supermicro BIOS firmware update timed out")
+            return False
+        except Exception as e:
+            logger.error(f"Supermicro BIOS firmware update error: {e}")
+            return False
+    
+    # Placeholder implementations for other methods (to be expanded)
+    async def _update_hpe_bios_sum(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("HPE SUM BIOS update not yet implemented")
+        return False
+    
+    async def _update_hpe_bios_ipmi(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("HPE IPMI BIOS update not yet implemented") 
+        return False
+    
+    async def _update_hpe_ilo_ilorest(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("HPE iLO iLORest update not yet implemented")
+        return False
+    
+    async def _update_hpe_ilo_redfish(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("HPE iLO Redfish update not yet implemented")
+        return False
+    
+    async def _update_supermicro_bios_sum(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Supermicro SUM BIOS update not yet implemented")
+        return False
+    
+    async def _update_supermicro_bios_remote(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Supermicro remote sumtool BIOS update not yet implemented")
+        return False
+    
+    async def _update_supermicro_bmc_ipmi(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Supermicro BMC IPMI update not yet implemented")
+        return False
+    
+    async def _update_supermicro_bmc_sum(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Supermicro BMC SUM update not yet implemented")
+        return False
+    
+    async def _update_dell_bios_racadm(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Dell RACADM BIOS update not yet implemented")
+        return False
+    
+    async def _update_dell_bios_dup(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Dell DUP BIOS update not yet implemented")
+        return False
+    
+    async def _update_dell_idrac_racadm(self, firmware_info, target_ip, username, password) -> bool:
+        logger.warning("Dell iDRAC RACADM update not yet implemented")
+        return False
     
     async def _update_generic_firmware(self, firmware_info: FirmwareInfo,
                                      target_ip: str, username: str, password: str,
@@ -712,21 +1059,266 @@ class FirmwareManager:
         import random
         return random.random() > 0.10
     
-    # Vendor-specific firmware version retrieval methods (stubs for now)
+    # Vendor-specific firmware version retrieval methods
     async def _get_hpe_firmware_versions(self, target_ip: str, username: str, password: str) -> Dict[FirmwareType, str]:
-        """Get firmware versions from HPE servers"""
-        # Placeholder - would use HPE tools like iLORest
-        return await self._get_mock_firmware_versions(target_ip, {"vendor": "hpe"})
+        """Get firmware versions from HPE servers using multiple methods"""
+        logger.info(f"Getting HPE firmware versions from {target_ip}")
+        
+        try:
+            # Method 1: Try iLORest CLI tool
+            if await self._is_command_available("ilorest"):
+                logger.debug("Using iLORest for HPE firmware version detection")
+                versions = await self._get_hpe_versions_ilorest(target_ip, username, password)
+                if versions:
+                    return versions
+            
+            # Method 2: Try direct Redfish API calls
+            try:
+                from .redfish_manager import RedfishManager
+                redfish = RedfishManager()
+                if await redfish.test_connection(target_ip, username, password):
+                    logger.debug("Using Redfish API for HPE firmware version detection")
+                    versions = await redfish.get_firmware_versions(target_ip, username, password)
+                    if versions:
+                        return versions
+            except Exception as e:
+                logger.debug(f"Redfish version detection failed: {e}")
+            
+            # Method 3: Try IPMI-based detection
+            if await self._is_command_available("ipmitool"):
+                logger.debug("Using IPMItool for HPE firmware version detection")
+                versions = await self._get_hpe_versions_ipmi(target_ip, username, password)
+                if versions:
+                    return versions
+            
+            logger.warning("No HPE firmware detection method succeeded, using fallback")
+            return await self._get_mock_firmware_versions(target_ip, {"vendor": "hpe"})
+            
+        except Exception as e:
+            logger.error(f"HPE firmware version detection failed: {e}")
+            return await self._get_mock_firmware_versions(target_ip, {"vendor": "hpe"})
     
     async def _get_supermicro_firmware_versions(self, target_ip: str, username: str, password: str) -> Dict[FirmwareType, str]:
-        """Get firmware versions from Supermicro servers"""
-        # Placeholder - would use Supermicro tools like IPMICFG
-        return await self._get_mock_firmware_versions(target_ip, {"vendor": "supermicro"})
+        """Get firmware versions from Supermicro servers using multiple methods"""
+        logger.info(f"Getting Supermicro firmware versions from {target_ip}")
+        
+        try:
+            # Method 1: Try IPMItool (most reliable for Supermicro)
+            if await self._is_command_available("ipmitool"):
+                logger.debug("Using IPMItool for Supermicro firmware version detection")
+                versions = await self._get_supermicro_versions_ipmi(target_ip, username, password)
+                if versions:
+                    return versions
+            
+            # Method 2: Try SSH + sumtool on remote server
+            logger.debug("Attempting SSH-based sumtool firmware detection")
+            versions = await self._get_supermicro_versions_ssh(target_ip, username, password)
+            if versions:
+                return versions
+                
+            # Method 3: Try Redfish (limited support on older Supermicro)
+            try:
+                from .redfish_manager import RedfishManager
+                redfish = RedfishManager()
+                if await redfish.test_connection(target_ip, username, password):
+                    logger.debug("Using Redfish API for Supermicro firmware version detection")
+                    versions = await redfish.get_firmware_versions(target_ip, username, password)
+                    if versions:
+                        return versions
+            except Exception as e:
+                logger.debug(f"Redfish version detection failed: {e}")
+            
+            logger.warning("No Supermicro firmware detection method succeeded, using fallback")
+            return await self._get_mock_firmware_versions(target_ip, {"vendor": "supermicro"})
+            
+        except Exception as e:
+            logger.error(f"Supermicro firmware version detection failed: {e}")
+            return await self._get_mock_firmware_versions(target_ip, {"vendor": "supermicro"})
     
     async def _get_dell_firmware_versions(self, target_ip: str, username: str, password: str) -> Dict[FirmwareType, str]:
-        """Get firmware versions from Dell servers"""
-        # Placeholder - would use Dell tools like RACADM
-        return await self._get_mock_firmware_versions(target_ip, {"vendor": "dell"})
+        """Get firmware versions from Dell servers using multiple methods"""
+        logger.info(f"Getting Dell firmware versions from {target_ip}")
+        
+        try:
+            # Method 1: Try RACADM (Dell Remote Access Controller Admin)
+            if await self._is_command_available("racadm"):
+                logger.debug("Using RACADM for Dell firmware version detection")
+                versions = await self._get_dell_versions_racadm(target_ip, username, password)
+                if versions:
+                    return versions
+            
+            # Method 2: Try Redfish API (iDRAC9+ support)
+            try:
+                from .redfish_manager import RedfishManager
+                redfish = RedfishManager()
+                if await redfish.test_connection(target_ip, username, password):
+                    logger.debug("Using Redfish API for Dell firmware version detection")
+                    versions = await redfish.get_firmware_versions(target_ip, username, password)
+                    if versions:
+                        return versions
+            except Exception as e:
+                logger.debug(f"Redfish version detection failed: {e}")
+            
+            # Method 3: Try IPMI-based detection
+            if await self._is_command_available("ipmitool"):
+                logger.debug("Using IPMItool for Dell firmware version detection")
+                versions = await self._get_dell_versions_ipmi(target_ip, username, password)
+                if versions:
+                    return versions
+            
+            logger.warning("No Dell firmware detection method succeeded, using fallback")
+            return await self._get_mock_firmware_versions(target_ip, {"vendor": "dell"})
+            
+        except Exception as e:
+            logger.error(f"Dell firmware version detection failed: {e}")
+            return await self._get_mock_firmware_versions(target_ip, {"vendor": "dell"})
+    
+    # ============================================================================
+    # Vendor-Specific Version Detection Implementation Methods
+    # ============================================================================
+    
+    async def _get_hpe_versions_ilorest(self, target_ip: str, username: str, password: str) -> Optional[Dict[FirmwareType, str]]:
+        """Get HPE firmware versions using iLORest CLI"""
+        try:
+            import subprocess
+            
+            cmd = [
+                'ilorest',
+                'info',
+                '--url', target_ip,
+                '--user', username,
+                '--password', password,
+                '--json'
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            
+            if result.returncode == 0:
+                import json
+                data = json.loads(result.stdout)
+                
+                versions = {}
+                # Parse iLORest output for firmware versions
+                for item in data.get('info', []):
+                    if 'bios' in item.get('name', '').lower():
+                        versions[FirmwareType.BIOS] = item.get('version', 'unknown')
+                    elif 'ilo' in item.get('name', '').lower():
+                        versions[FirmwareType.BMC] = item.get('version', 'unknown')
+                
+                logger.debug(f"HPE iLORest detected versions: {versions}")
+                return versions if versions else None
+                
+        except Exception as e:
+            logger.debug(f"HPE iLORest version detection failed: {e}")
+        
+        return None
+    
+    async def _get_supermicro_versions_ipmi(self, target_ip: str, username: str, password: str) -> Optional[Dict[FirmwareType, str]]:
+        """Get Supermicro firmware versions using IPMItool"""
+        try:
+            import subprocess
+            
+            # Get BMC version
+            cmd_bmc = [
+                'ipmitool',
+                '-I', 'lanplus',
+                '-H', target_ip,
+                '-U', username,
+                '-P', password,
+                'mc', 'info'
+            ]
+            
+            result = subprocess.run(cmd_bmc, capture_output=True, text=True, timeout=30)
+            
+            if result.returncode == 0:
+                versions = {}
+                
+                # Parse BMC version from mc info output
+                for line in result.stdout.split('\n'):
+                    if 'firmware revision' in line.lower():
+                        version_parts = line.split(':')
+                        if len(version_parts) > 1:
+                            versions[FirmwareType.BMC] = version_parts[1].strip()
+                
+                # Try to get BIOS version via IPMI
+                cmd_bios = [
+                    'ipmitool',
+                    '-I', 'lanplus', 
+                    '-H', target_ip,
+                    '-U', username,
+                    '-P', password,
+                    'fru', 'print', '0'
+                ]
+                
+                result_bios = subprocess.run(cmd_bios, capture_output=True, text=True, timeout=30)
+                
+                if result_bios.returncode == 0:
+                    for line in result_bios.stdout.split('\n'):
+                        if 'product version' in line.lower():
+                            version_parts = line.split(':')
+                            if len(version_parts) > 1:
+                                versions[FirmwareType.BIOS] = version_parts[1].strip()
+                
+                logger.debug(f"Supermicro IPMI detected versions: {versions}")
+                return versions if versions else None
+                
+        except Exception as e:
+            logger.debug(f"Supermicro IPMI version detection failed: {e}")
+        
+        return None
+    
+    async def _get_supermicro_versions_ssh(self, target_ip: str, username: str, password: str) -> Optional[Dict[FirmwareType, str]]:
+        """Get Supermicro firmware versions using SSH + sumtool"""
+        try:
+            from ..utils.network import SSHManager
+            
+            ssh_manager = SSHManager({})
+            ssh_client = ssh_manager.connect(target_ip, username, password, port=22)
+            
+            if ssh_client:
+                # Check if sumtool is available
+                stdout, stderr, exit_code = ssh_client.exec_command("which sumtool")
+                
+                if exit_code == 0:
+                    # Get BIOS version
+                    stdout, stderr, exit_code = ssh_client.exec_command("sumtool -i")
+                    
+                    if exit_code == 0:
+                        versions = {}
+                        
+                        for line in stdout.split('\n'):
+                            if 'bios version' in line.lower():
+                                version_parts = line.split(':')
+                                if len(version_parts) > 1:
+                                    versions[FirmwareType.BIOS] = version_parts[1].strip()
+                            elif 'bmc version' in line.lower():
+                                version_parts = line.split(':')
+                                if len(version_parts) > 1:
+                                    versions[FirmwareType.BMC] = version_parts[1].strip()
+                        
+                        ssh_client.close()
+                        logger.debug(f"Supermicro SSH detected versions: {versions}")
+                        return versions if versions else None
+                
+                ssh_client.close()
+                
+        except Exception as e:
+            logger.debug(f"Supermicro SSH version detection failed: {e}")
+        
+        return None
+    
+    # Placeholder implementations for other detection methods
+    async def _get_hpe_versions_ipmi(self, target_ip: str, username: str, password: str) -> Optional[Dict[FirmwareType, str]]:
+        logger.debug("HPE IPMI version detection not yet implemented")
+        return None
+    
+    async def _get_dell_versions_racadm(self, target_ip: str, username: str, password: str) -> Optional[Dict[FirmwareType, str]]:
+        logger.debug("Dell RACADM version detection not yet implemented")
+        return None
+    
+    async def _get_dell_versions_ipmi(self, target_ip: str, username: str, password: str) -> Optional[Dict[FirmwareType, str]]:
+        logger.debug("Dell IPMI version detection not yet implemented")
+        return None
 
 
 # Custom exceptions

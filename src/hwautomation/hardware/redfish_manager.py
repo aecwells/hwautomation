@@ -466,10 +466,57 @@ class RedfishManager:
             logger.error(f"Failed to get firmware versions via Redfish: {e}")
             return {}
     
+    async def update_firmware(self, target_ip: str, username: str, password: str,
+                            firmware_path: str, firmware_type, operation_id: Optional[str] = None) -> bool:
+        """
+        Update firmware via Redfish API (unified interface).
+        
+        Args:
+            target_ip: Target server IP address
+            username: BMC username
+            password: BMC password  
+            firmware_path: Path to firmware file
+            firmware_type: Type of firmware (FirmwareType enum)
+            operation_id: Optional operation ID for tracking
+            
+        Returns:
+            True if update was successful, False otherwise
+        """
+        logger.info(f"Starting Redfish firmware update for {firmware_type.value} on {target_ip}")
+        
+        try:
+            # Set up temporary manager for this operation
+            original_host = self.host
+            original_auth = self.auth
+            
+            self.host = target_ip
+            self.auth = HTTPBasicAuth(username, password)
+            
+            # Check connection first
+            if not await self.test_connection(target_ip, username, password):
+                logger.error(f"Cannot establish Redfish connection to {target_ip}")
+                return False
+            
+            # Call the actual update method
+            result = await self.update_firmware_redfish(firmware_type.value, firmware_path, operation_id)
+            
+            # Restore original configuration
+            self.host = original_host
+            self.auth = original_auth
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Redfish firmware update failed: {e}")
+            # Restore original configuration on error
+            self.host = original_host if 'original_host' in locals() else self.host
+            self.auth = original_auth if 'original_auth' in locals() else self.auth
+            return False
+    
     async def update_firmware_redfish(self, firmware_type: str, firmware_path: str,
                                     operation_id: Optional[str] = None) -> bool:
         """
-        Update firmware via Redfish API.
+        Update firmware via Redfish API using SimpleUpdate or MultipartHTTP.
         
         Args:
             firmware_type: Type of firmware (BIOS, BMC, etc.)
@@ -496,41 +543,234 @@ class RedfishManager:
                 logger.error("Failed to get UpdateService information")
                 return False
             
-            # Check if simple update is supported
+            # Check available update methods
             actions = update_service.get('Actions', {})
             simple_update_action = actions.get('#UpdateService.SimpleUpdate')
             
-            if not simple_update_action:
-                logger.warning("SimpleUpdate action not supported")
-                return False
+            # Method 1: Try SimpleUpdate (most common)
+            if simple_update_action and firmware_path:
+                logger.info("Attempting SimpleUpdate method")
+                success = await self._perform_simple_update(simple_update_action, firmware_path, firmware_type)
+                if success:
+                    return True
             
-            # Prepare firmware update
-            update_uri = simple_update_action.get('target')
-            if not update_uri:
-                logger.error("No update target URI found")
-                return False
+            # Method 2: Try MultipartHTTPPush (for direct file upload)
+            multipart_uri = update_service.get('MultipartHttpPushUri')
+            if multipart_uri and firmware_path:
+                logger.info("Attempting MultipartHTTPPush method")
+                success = await self._perform_multipart_update(multipart_uri, firmware_path, firmware_type)
+                if success:
+                    return True
             
-            # For demonstration, simulate the update process
-            # In production, this would upload the firmware file and trigger update
-            logger.info(f"Simulating Redfish firmware update for {firmware_type}")
+            # Method 3: Try HttpPushUri (for HTTP upload)
+            http_push_uri = update_service.get('HttpPushUri')
+            if http_push_uri and firmware_path:
+                logger.info("Attempting HttpPushUri method")
+                success = await self._perform_http_push_update(http_push_uri, firmware_path, firmware_type)
+                if success:
+                    return True
             
-            # Simulate update time
-            import asyncio
-            await asyncio.sleep(2)
-            
-            # Simulate 90% success rate
-            import random
-            success = random.random() > 0.10
-            
-            if success:
-                logger.info(f"Redfish firmware update completed: {firmware_type}")
-            else:
-                logger.error(f"Redfish firmware update failed: {firmware_type}")
-            
-            return success
+            logger.warning(f"No suitable Redfish update method available for {firmware_type}")
+            return False
             
         except Exception as e:
             logger.error(f"Redfish firmware update exception: {e}")
+            return False
+    
+    async def _perform_simple_update(self, simple_update_action: Dict[str, Any], 
+                                   firmware_path: str, firmware_type: str) -> bool:
+        """Perform firmware update using SimpleUpdate action"""
+        try:
+            update_uri = simple_update_action.get('target')
+            if not update_uri:
+                logger.error("No update target URI found in SimpleUpdate action")
+                return False
+            
+            # Check if we need to upload file first or provide URI
+            # For now, simulate the update process since we'd need a proper firmware repository
+            logger.info(f"Executing SimpleUpdate for {firmware_type}")
+            
+            # In production, this would:
+            # 1. Upload firmware to a web server
+            # 2. POST to update_uri with ImageURI pointing to uploaded file
+            # 3. Monitor task status until completion
+            
+            payload = {
+                "ImageURI": f"file://{firmware_path}",  # This would be HTTP URL in production
+                "Targets": ["/redfish/v1/Systems/System.Embedded.1"],  # Dell example
+                "TransferProtocol": "HTTP"
+            }
+            
+            response = self._make_request('POST', update_uri, payload)
+            
+            if response:
+                # Check for task or immediate success
+                if response.get('@odata.type') == '#Task.v1_0_0.Task':
+                    task_uri = response.get('@odata.id')
+                    logger.info(f"Firmware update task created: {task_uri}")
+                    
+                    # Monitor task status (simplified for demo)
+                    return await self._monitor_update_task(task_uri, firmware_type)
+                else:
+                    logger.info(f"Firmware update initiated successfully for {firmware_type}")
+                    return True
+            else:
+                logger.error("SimpleUpdate request failed")
+                return False
+                
+        except Exception as e:
+            logger.error(f"SimpleUpdate failed: {e}")
+            return False
+    
+    async def _perform_multipart_update(self, multipart_uri: str, firmware_path: str, firmware_type: str) -> bool:
+        """Perform firmware update using MultipartHTTPPush"""
+        try:
+            logger.info(f"Executing MultipartHTTPPush for {firmware_type}")
+            
+            # Check if firmware file exists
+            import os
+            if not os.path.exists(firmware_path):
+                logger.error(f"Firmware file not found: {firmware_path}")
+                return False
+            
+            # Prepare multipart upload
+            with open(firmware_path, 'rb') as firmware_file:
+                files = {
+                    'UpdateFile': (os.path.basename(firmware_path), firmware_file, 'application/octet-stream')
+                }
+                
+                # Additional form data
+                data = {
+                    'UpdateParameters': json.dumps({
+                        'Targets': ['/redfish/v1/Systems/System.Embedded.1'],
+                        '@Redfish.OperationApplyTime': 'OnReset'
+                    })
+                }
+                
+                # Make multipart request
+                url = urljoin(f"https://{self.host}", multipart_uri)
+                
+                response = requests.post(
+                    url,
+                    files=files,
+                    data=data,
+                    auth=self.auth,
+                    verify=False,
+                    timeout=1800  # 30 minute timeout for firmware upload
+                )
+                
+                if response.status_code in [200, 202]:
+                    logger.info(f"MultipartHTTPPush successful for {firmware_type}")
+                    
+                    # Check for task
+                    if response.status_code == 202:
+                        task_location = response.headers.get('Location')
+                        if task_location:
+                            return await self._monitor_update_task(task_location, firmware_type)
+                    
+                    return True
+                else:
+                    logger.error(f"MultipartHTTPPush failed: {response.status_code} - {response.text}")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"MultipartHTTPPush failed: {e}")
+            return False
+    
+    async def _perform_http_push_update(self, http_push_uri: str, firmware_path: str, firmware_type: str) -> bool:
+        """Perform firmware update using HttpPushUri"""
+        try:
+            logger.info(f"Executing HttpPushUri update for {firmware_type}")
+            
+            # Check if firmware file exists
+            import os
+            if not os.path.exists(firmware_path):
+                logger.error(f"Firmware file not found: {firmware_path}")
+                return False
+            
+            # Upload firmware file
+            with open(firmware_path, 'rb') as firmware_file:
+                url = urljoin(f"https://{self.host}", http_push_uri)
+                
+                headers = {
+                    'Content-Type': 'application/octet-stream'
+                }
+                
+                response = requests.post(
+                    url,
+                    data=firmware_file,
+                    headers=headers,
+                    auth=self.auth,
+                    verify=False,
+                    timeout=1800  # 30 minute timeout
+                )
+                
+                if response.status_code in [200, 202]:
+                    logger.info(f"HttpPushUri update successful for {firmware_type}")
+                    
+                    # Check for task
+                    if response.status_code == 202:
+                        task_location = response.headers.get('Location')
+                        if task_location:
+                            return await self._monitor_update_task(task_location, firmware_type)
+                    
+                    return True
+                else:
+                    logger.error(f"HttpPushUri update failed: {response.status_code} - {response.text}")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"HttpPushUri update failed: {e}")
+            return False
+    
+    async def _monitor_update_task(self, task_uri: str, firmware_type: str) -> bool:
+        """Monitor firmware update task status"""
+        try:
+            logger.info(f"Monitoring firmware update task for {firmware_type}")
+            
+            max_wait_time = 1800  # 30 minutes
+            check_interval = 30   # 30 seconds
+            elapsed_time = 0
+            
+            while elapsed_time < max_wait_time:
+                task_info = self._make_request('GET', task_uri)
+                
+                if not task_info:
+                    logger.error("Failed to get task information")
+                    return False
+                
+                task_state = task_info.get('TaskState')
+                task_status = task_info.get('TaskStatus')
+                
+                logger.debug(f"Task state: {task_state}, status: {task_status}")
+                
+                if task_state == 'Completed':
+                    if task_status == 'OK':
+                        logger.info(f"Firmware update completed successfully for {firmware_type}")
+                        return True
+                    else:
+                        logger.error(f"Firmware update completed with errors: {task_status}")
+                        return False
+                elif task_state in ['Exception', 'Killed', 'Cancelled']:
+                    logger.error(f"Firmware update failed with state: {task_state}")
+                    return False
+                elif task_state in ['New', 'Starting', 'Running']:
+                    # Task is still running
+                    progress = task_info.get('PercentComplete', 0)
+                    logger.info(f"Firmware update progress: {progress}%")
+                else:
+                    logger.warning(f"Unknown task state: {task_state}")
+                
+                # Wait before next check
+                import asyncio
+                await asyncio.sleep(check_interval)
+                elapsed_time += check_interval
+            
+            logger.error(f"Firmware update task timed out after {max_wait_time} seconds")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Task monitoring failed: {e}")
             return False
     
     def test_connection(self) -> Tuple[bool, str]:
