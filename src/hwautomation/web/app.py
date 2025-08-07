@@ -221,7 +221,7 @@ def create_app():
                 available_machines = []
                 stats['maas_status'] = 'disconnected'
             
-            return render_template('enhanced_dashboard.html', 
+            return render_template('dashboard.html', 
                                  stats=stats, 
                                  device_types=device_types,
                                  available_machines=available_machines)
@@ -235,7 +235,7 @@ def create_app():
                 'database_servers': 0,
                 'maas_status': 'disconnected'
             }
-            return render_template('enhanced_dashboard.html', 
+            return render_template('dashboard.html', 
                                  stats=default_stats, 
                                  device_types=[],
                                  available_machines=[])
