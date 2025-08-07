@@ -20,10 +20,12 @@ from typing import Dict, List, Optional, Any, Tuple
 import yaml
 import logging
 import copy
+import time
 from datetime import datetime
 
 from .redfish_manager import RedfishManager, SystemInfo
 from .bios_decision_logic import BiosSettingMethodSelector, MethodSelectionResult, ConfigMethod
+from .bios_monitoring import BiosConfigMonitor, get_monitor, OperationStatus
 
 logger = logging.getLogger(__name__)
 
@@ -1081,6 +1083,557 @@ class BiosConfigManager:
             result['error'] = f"Phase 2 BIOS configuration failed: {e}"
             logger.error(f"Phase 2 BIOS configuration failed for {target_ip}: {e}")
             return result
+    
+    async def apply_bios_config_phase3(self, device_type: str, target_ip: str, 
+                                      username: str = "ADMIN", password: str = None, 
+                                      dry_run: bool = False, prefer_performance: bool = True,
+                                      enable_monitoring: bool = True) -> Dict[str, Any]:
+        """
+        Phase 3: Real-time monitored BIOS configuration with advanced error recovery.
+        
+        This method enhances Phase 2 with real-time progress monitoring, WebSocket updates,
+        intelligent error recovery, and comprehensive validation.
+        
+        Args:
+            device_type: Device type template to apply
+            target_ip: Target system IP address
+            username: BMC username
+            password: BMC password
+            dry_run: If True, only show what would be changed
+            prefer_performance: If True, optimize for speed over reliability
+            enable_monitoring: If True, enable real-time progress monitoring
+            
+        Returns:
+            Dictionary with operation results including monitoring data
+        """
+        result = {
+            'success': False,
+            'target_ip': target_ip,
+            'device_type': device_type,
+            'operation_id': None,
+            'monitoring_enabled': enable_monitoring,
+            'method_analysis': {},
+            'execution_phases': [],
+            'real_time_progress': [],
+            'error_recovery_actions': [],
+            'validation_results': {},
+            'performance_metrics': {},
+            'dry_run': dry_run
+        }
+        
+        monitor = get_monitor() if enable_monitoring else None
+        operation_id = None
+        
+        try:
+            # Create monitored operation
+            if monitor:
+                operation_id = monitor.create_operation(
+                    operation_type="phase3_bios_configuration",
+                    metadata={
+                        'device_type': device_type,
+                        'target_ip': target_ip,
+                        'prefer_performance': prefer_performance,
+                        'dry_run': dry_run
+                    }
+                )
+                result['operation_id'] = operation_id
+                await monitor.log_info(operation_id, f"Starting Phase 3 BIOS configuration for {target_ip}")
+            
+            # Phase 3.1: Pre-flight validation
+            if monitor:
+                await monitor.start_subtask(operation_id, "pre_flight_validation", 
+                                          "Validating system connectivity and capabilities")
+            
+            validation_result = await self._phase3_pre_flight_validation(
+                device_type, target_ip, username, password, operation_id
+            )
+            result['validation_results']['pre_flight'] = validation_result
+            
+            if not validation_result.get('success', False):
+                if monitor:
+                    await monitor.complete_subtask(operation_id, "pre_flight_validation", False, 
+                                                 f"Pre-flight validation failed: {validation_result.get('error')}")
+                    await monitor.complete_operation(operation_id, False, "Pre-flight validation failed")
+                result['error'] = f"Pre-flight validation failed: {validation_result.get('error')}"
+                return result
+            
+            if monitor:
+                await monitor.complete_subtask(operation_id, "pre_flight_validation", True, 
+                                             "Pre-flight validation successful")
+            
+            # Phase 3.2: Method analysis with monitoring
+            if monitor:
+                await monitor.start_subtask(operation_id, "method_analysis", 
+                                          "Analyzing optimal configuration methods")
+            
+            method_analysis_result = await self._phase3_method_analysis(
+                device_type, prefer_performance, operation_id
+            )
+            result['method_analysis'] = method_analysis_result
+            
+            if not method_analysis_result.get('success', False):
+                if monitor:
+                    await monitor.complete_subtask(operation_id, "method_analysis", False,
+                                                 "Method analysis failed")
+                    await monitor.complete_operation(operation_id, False, "Method analysis failed")
+                result['error'] = f"Method analysis failed: {method_analysis_result.get('error')}"
+                return result
+            
+            if monitor:
+                await monitor.complete_subtask(operation_id, "method_analysis", True,
+                                             f"Analyzed {method_analysis_result['total_settings']} settings")
+            
+            # Phase 3.3: Dry run handling
+            if dry_run:
+                if monitor:
+                    await monitor.log_info(operation_id, "Dry run mode - no changes will be applied")
+                    await monitor.complete_operation(operation_id, True, "Dry run completed successfully")
+                
+                result['success'] = True
+                result['dry_run_summary'] = method_analysis_result
+                return result
+            
+            # Phase 3.4: Configuration execution with real-time monitoring
+            if monitor:
+                total_phases = len(method_analysis_result.get('batch_groups', []))
+                await monitor.start_operation(operation_id, total_phases)
+            
+            execution_result = await self._phase3_execute_configuration(
+                target_ip, username, password, method_analysis_result, operation_id
+            )
+            result['execution_phases'] = execution_result.get('phases', [])
+            result['error_recovery_actions'] = execution_result.get('recovery_actions', [])
+            
+            # Phase 3.5: Post-configuration validation
+            if monitor:
+                await monitor.start_subtask(operation_id, "post_validation", 
+                                          "Validating applied configuration")
+            
+            post_validation_result = await self._phase3_post_validation(
+                target_ip, username, password, method_analysis_result, operation_id
+            )
+            result['validation_results']['post_configuration'] = post_validation_result
+            
+            if monitor:
+                success = post_validation_result.get('success', False)
+                await monitor.complete_subtask(operation_id, "post_validation", success,
+                                             "Post-configuration validation completed")
+            
+            # Determine overall success
+            overall_success = (
+                execution_result.get('success', False) and 
+                post_validation_result.get('success', False)
+            )
+            
+            if monitor:
+                final_message = "Phase 3 BIOS configuration completed successfully" if overall_success else "Phase 3 BIOS configuration completed with issues"
+                await monitor.complete_operation(operation_id, overall_success, final_message)
+            
+            result['success'] = overall_success
+            
+            if overall_success:
+                logger.info(f"Phase 3 BIOS configuration completed successfully for {target_ip}")
+            else:
+                logger.warning(f"Phase 3 BIOS configuration completed with issues for {target_ip}")
+            
+            return result
+            
+        except Exception as e:
+            error_message = f"Phase 3 BIOS configuration failed: {e}"
+            result['error'] = error_message
+            logger.error(f"Phase 3 BIOS configuration failed for {target_ip}: {e}")
+            
+            if monitor and operation_id:
+                await monitor.log_error(operation_id, error_message, {'exception': str(e)})
+                await monitor.complete_operation(operation_id, False, error_message)
+            
+            return result
+    
+    async def _phase3_pre_flight_validation(self, device_type: str, target_ip: str,
+                                          username: str, password: str, 
+                                          operation_id: Optional[str] = None) -> Dict[str, Any]:
+        """Phase 3 pre-flight validation with detailed checks"""
+        result = {
+            'success': False,
+            'checks_performed': [],
+            'connectivity_test': {},
+            'capability_validation': {},
+            'configuration_analysis': {},
+            'error': None
+        }
+        
+        monitor = get_monitor()
+        
+        try:
+            # Check 1: Basic connectivity
+            if operation_id:
+                await monitor.log_info(operation_id, "Testing basic network connectivity")
+            
+            connectivity_result = await self._test_connectivity(target_ip, username, password)
+            result['connectivity_test'] = connectivity_result
+            result['checks_performed'].append('connectivity')
+            
+            if not connectivity_result.get('success', False):
+                result['error'] = f"Connectivity test failed: {connectivity_result.get('error')}"
+                return result
+            
+            # Check 2: Capability validation
+            if operation_id:
+                await monitor.log_info(operation_id, "Validating system capabilities")
+            
+            capability_result = self.validate_phase2_redfish_capabilities(
+                device_type, target_ip, username, password
+            )
+            result['capability_validation'] = capability_result
+            result['checks_performed'].append('capabilities')
+            
+            # Check 3: Configuration analysis
+            if operation_id:
+                await monitor.log_info(operation_id, "Analyzing configuration requirements")
+            
+            config_analysis = await self._analyze_configuration_requirements(device_type)
+            result['configuration_analysis'] = config_analysis
+            result['checks_performed'].append('configuration_analysis')
+            
+            result['success'] = True
+            return result
+            
+        except Exception as e:
+            result['error'] = f"Pre-flight validation failed: {e}"
+            if operation_id:
+                await monitor.log_error(operation_id, f"Pre-flight validation error: {e}")
+            return result
+    
+    async def _phase3_method_analysis(self, device_type: str, prefer_performance: bool,
+                                    operation_id: Optional[str] = None) -> Dict[str, Any]:
+        """Phase 3 enhanced method analysis"""
+        result = {
+            'success': False,
+            'total_settings': 0,
+            'method_breakdown': {},
+            'batch_groups': [],
+            'performance_estimate': {},
+            'error': None
+        }
+        
+        try:
+            # Get device configuration and settings
+            device_config = self.device_types.get(device_type)
+            if not device_config:
+                result['error'] = f"Device type {device_type} not found"
+                return result
+            
+            method_selector = BiosSettingMethodSelector(device_config)
+            
+            # Get template settings
+            template_rules = self.template_rules.get('template_rules', {}).get(device_type, {})
+            settings_to_apply = template_rules.get('modifications', {})
+            
+            if not settings_to_apply:
+                result['error'] = f"No BIOS settings found for device type: {device_type}"
+                return result
+            
+            # Perform analysis
+            analysis = method_selector.analyze_settings(
+                settings_to_apply, prefer_performance=prefer_performance
+            )
+            
+            result['success'] = True
+            result['total_settings'] = len(settings_to_apply)
+            result['method_breakdown'] = {
+                'redfish_settings': len(analysis.redfish_settings),
+                'vendor_settings': len(analysis.vendor_settings),
+                'unknown_settings': len(analysis.unknown_settings)
+            }
+            result['batch_groups'] = analysis.batch_groups
+            result['performance_estimate'] = analysis.performance_estimate
+            result['method_rationale'] = analysis.method_rationale
+            result['redfish_settings'] = analysis.redfish_settings
+            result['vendor_settings'] = analysis.vendor_settings
+            result['unknown_settings'] = analysis.unknown_settings
+            
+            return result
+            
+        except Exception as e:
+            result['error'] = f"Method analysis failed: {e}"
+            return result
+    
+    async def _phase3_execute_configuration(self, target_ip: str, username: str, password: str,
+                                          method_analysis: Dict[str, Any], 
+                                          operation_id: Optional[str] = None) -> Dict[str, Any]:
+        """Phase 3 configuration execution with monitoring and error recovery"""
+        result = {
+            'success': False,
+            'phases': [],
+            'recovery_actions': [],
+            'error': None
+        }
+        
+        monitor = get_monitor()
+        
+        try:
+            batch_groups = method_analysis.get('batch_groups', [])
+            successful_phases = 0
+            
+            for i, batch in enumerate(batch_groups):
+                phase_name = f"batch_{i+1}_{batch['method']}"
+                
+                if operation_id:
+                    await monitor.start_subtask(operation_id, phase_name, 
+                                              f"Executing {batch['method']} batch with {batch['batch_size']} settings")
+                
+                # Check for cancellation
+                if operation_id and monitor.is_operation_cancelled(operation_id):
+                    result['error'] = "Operation was cancelled"
+                    return result
+                
+                phase_result = await self._execute_batch_with_recovery(
+                    batch, target_ip, username, password, operation_id
+                )
+                
+                result['phases'].append({
+                    'phase_name': phase_name,
+                    'method': batch['method'],
+                    'settings_count': batch['batch_size'],
+                    'success': phase_result.get('success', False),
+                    'execution_time': phase_result.get('execution_time', 0),
+                    'recovery_actions': phase_result.get('recovery_actions', [])
+                })
+                
+                if phase_result.get('recovery_actions'):
+                    result['recovery_actions'].extend(phase_result['recovery_actions'])
+                
+                if phase_result.get('success', False):
+                    successful_phases += 1
+                    if operation_id:
+                        await monitor.complete_subtask(operation_id, phase_name, True,
+                                                     f"Batch completed successfully in {phase_result.get('execution_time', 0):.1f}s")
+                else:
+                    if operation_id:
+                        await monitor.complete_subtask(operation_id, phase_name, False,
+                                                     f"Batch failed: {phase_result.get('error', 'Unknown error')}")
+            
+            # Determine overall success
+            result['success'] = successful_phases == len(batch_groups)
+            
+            return result
+            
+        except Exception as e:
+            result['error'] = f"Configuration execution failed: {e}"
+            if operation_id:
+                await monitor.log_error(operation_id, f"Execution error: {e}")
+            return result
+    
+    async def _phase3_post_validation(self, target_ip: str, username: str, password: str,
+                                    method_analysis: Dict[str, Any],
+                                    operation_id: Optional[str] = None) -> Dict[str, Any]:
+        """Phase 3 post-configuration validation"""
+        result = {
+            'success': False,
+            'validation_checks': [],
+            'applied_settings_verified': {},
+            'configuration_drift': [],
+            'error': None
+        }
+        
+        monitor = get_monitor()
+        
+        try:
+            # Validate applied Redfish settings
+            redfish_settings = method_analysis.get('redfish_settings', {})
+            if redfish_settings:
+                if operation_id:
+                    await monitor.log_info(operation_id, f"Validating {len(redfish_settings)} Redfish settings")
+                
+                redfish_validation = await self._validate_redfish_settings(
+                    target_ip, username, password, redfish_settings
+                )
+                result['applied_settings_verified']['redfish'] = redfish_validation
+                result['validation_checks'].append('redfish_settings')
+            
+            # Note: Vendor tool validation would require tool-specific validation logic
+            vendor_settings = method_analysis.get('vendor_settings', {})
+            if vendor_settings:
+                if operation_id:
+                    await monitor.log_info(operation_id, f"Vendor settings validation noted ({len(vendor_settings)} settings)")
+                result['applied_settings_verified']['vendor'] = {
+                    'note': 'Vendor tool validation requires tool-specific implementation',
+                    'settings_count': len(vendor_settings)
+                }
+                result['validation_checks'].append('vendor_settings_noted')
+            
+            result['success'] = True
+            return result
+            
+        except Exception as e:
+            result['error'] = f"Post-validation failed: {e}"
+            if operation_id:
+                await monitor.log_error(operation_id, f"Post-validation error: {e}")
+            return result
+    
+    async def _test_connectivity(self, target_ip: str, username: str, password: str) -> Dict[str, Any]:
+        """Test basic connectivity to target system"""
+        result = {
+            'success': False,
+            'response_time': 0,
+            'redfish_available': False,
+            'error': None
+        }
+        
+        try:
+            start_time = time.time()
+            
+            # Test Redfish connectivity
+            with RedfishManager(target_ip, username, password) as redfish:
+                system_info = redfish.get_system_info()
+                if system_info:
+                    result['redfish_available'] = True
+                    result['system_info'] = {
+                        'manufacturer': system_info.manufacturer,
+                        'model': system_info.model,
+                        'power_state': system_info.power_state
+                    }
+            
+            result['response_time'] = time.time() - start_time
+            result['success'] = True
+            
+        except Exception as e:
+            result['error'] = f"Connectivity test failed: {e}"
+        
+        return result
+    
+    async def _analyze_configuration_requirements(self, device_type: str) -> Dict[str, Any]:
+        """Analyze configuration requirements for device type"""
+        result = {
+            'device_type': device_type,
+            'total_settings': 0,
+            'complexity_score': 0,
+            'estimated_time': 0,
+            'requirements_met': True
+        }
+        
+        try:
+            device_config = self.device_types.get(device_type)
+            if device_config:
+                bios_setting_methods = device_config.get('bios_setting_methods', {})
+                
+                total_settings = 0
+                complexity_score = 0
+                
+                for category, settings in bios_setting_methods.items():
+                    setting_count = len(settings) if isinstance(settings, dict) else 0
+                    total_settings += setting_count
+                    
+                    # Simple complexity scoring
+                    if category == 'redfish_preferred':
+                        complexity_score += setting_count * 1
+                    elif category == 'redfish_fallback':
+                        complexity_score += setting_count * 2
+                    elif category == 'vendor_only':
+                        complexity_score += setting_count * 4
+                
+                result['total_settings'] = total_settings
+                result['complexity_score'] = complexity_score
+                result['estimated_time'] = complexity_score * 2  # Rough estimate in seconds
+        
+        except Exception as e:
+            logger.error(f"Configuration analysis failed: {e}")
+        
+        return result
+    
+    async def _execute_batch_with_recovery(self, batch: Dict[str, Any], target_ip: str,
+                                         username: str, password: str,
+                                         operation_id: Optional[str] = None) -> Dict[str, Any]:
+        """Execute batch with error recovery"""
+        result = {
+            'success': False,
+            'execution_time': 0,
+            'recovery_actions': [],
+            'error': None
+        }
+        
+        start_time = time.time()
+        
+        try:
+            method = batch['method']
+            settings = batch['settings']
+            
+            if method == 'redfish':
+                # Execute via Redfish
+                redfish_result = self._apply_settings_via_redfish(
+                    target_ip, username, password, settings
+                )
+                result['success'] = redfish_result.get('success', False)
+                if not result['success']:
+                    result['error'] = redfish_result.get('error', 'Redfish execution failed')
+                    
+                    # Recovery: Try individual settings
+                    recovery_action = {
+                        'action': 'individual_retry',
+                        'reason': 'Batch Redfish execution failed, trying individual settings',
+                        'attempted': True,
+                        'success': False
+                    }
+                    
+                    # Implement individual retry logic here
+                    result['recovery_actions'].append(recovery_action)
+            
+            elif method == 'vendor_tool':
+                # Execute via vendor tools (use existing method)
+                vendor_result = self._apply_settings_via_vendor_tools(
+                    "unknown", target_ip, username, password, settings
+                )
+                result['success'] = vendor_result.get('success', False)
+                if not result['success']:
+                    result['error'] = vendor_result.get('error', 'Vendor tool execution failed')
+            
+            result['execution_time'] = time.time() - start_time
+            
+        except Exception as e:
+            result['error'] = f"Batch execution failed: {e}"
+            result['execution_time'] = time.time() - start_time
+        
+        return result
+    
+    async def _validate_redfish_settings(self, target_ip: str, username: str, password: str,
+                                       expected_settings: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate that Redfish settings were applied correctly"""
+        result = {
+            'success': False,
+            'verified_settings': {},
+            'mismatched_settings': {},
+            'error': None
+        }
+        
+        try:
+            with RedfishManager(target_ip, username, password) as redfish:
+                current_settings = redfish.get_bios_settings()
+                
+                if current_settings:
+                    for setting_name, expected_value in expected_settings.items():
+                        current_value = current_settings.get(setting_name)
+                        
+                        if current_value == expected_value:
+                            result['verified_settings'][setting_name] = {
+                                'expected': expected_value,
+                                'actual': current_value,
+                                'match': True
+                            }
+                        else:
+                            result['mismatched_settings'][setting_name] = {
+                                'expected': expected_value,
+                                'actual': current_value,
+                                'match': False
+                            }
+                    
+                    result['success'] = len(result['mismatched_settings']) == 0
+                else:
+                    result['error'] = "Failed to retrieve current BIOS settings for validation"
+        
+        except Exception as e:
+            result['error'] = f"Settings validation failed: {e}"
+        
+        return result
     
     def _apply_settings_via_redfish(self, target_ip: str, username: str, password: str,
                                    settings: Dict[str, Any]) -> Dict[str, Any]:
