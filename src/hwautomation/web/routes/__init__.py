@@ -25,19 +25,19 @@ except ImportError:
     init_database_routes = None
 
 try:
-    from .orchestration import orchestration_bp, init_orchestration_routes
+    from .orchestration import init_orchestration_routes, orchestration_bp
 except ImportError:
     orchestration_bp = None
     init_orchestration_routes = None
 
 try:
-    from .maas import maas_bp, init_maas_routes
+    from .maas import init_maas_routes, maas_bp
 except ImportError:
     maas_bp = None
     init_maas_routes = None
 
 try:
-    from .logs import logs_bp, init_logs_routes
+    from .logs import init_logs_routes, logs_bp
 except ImportError:
     logs_bp = None
     init_logs_routes = None
@@ -49,10 +49,16 @@ except ImportError:
     init_firmware_routes = None
 
 __all__ = [
-    'core_bp', 'init_core_routes',
-    'database_bp', 'init_database_routes', 
-    'orchestration_bp', 'init_orchestration_routes',
-    'maas_bp', 'init_maas_routes',
-    'logs_bp', 'init_logs_routes',
-    'firmware_bp', 'init_firmware_routes'
+    "core_bp",
+    "init_core_routes",
+    "database_bp",
+    "init_database_routes",
+    "orchestration_bp",
+    "init_orchestration_routes",
+    "maas_bp",
+    "init_maas_routes",
+    "logs_bp",
+    "init_logs_routes",
+    "firmware_bp",
+    "init_firmware_routes",
 ]

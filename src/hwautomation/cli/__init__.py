@@ -6,4 +6,4 @@ This module contains all command-line interface components.
 
 from .main import main
 
-__all__ = ['main']
+__all__ = ["main"]

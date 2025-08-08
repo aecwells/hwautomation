@@ -3,4 +3,4 @@
 from .helper import DbHelper
 from .migrations import DatabaseMigrator
 
-__all__ = ['DbHelper', 'DatabaseMigrator']
+__all__ = ["DbHelper", "DatabaseMigrator"]
