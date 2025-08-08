@@ -50,6 +50,7 @@ class ServerProvisioningWorkflow:
         device_type: str,
         target_ipmi_ip: Optional[str] = None,
         rack_location: Optional[str] = None,
+        subnet_mask: Optional[str] = None,
         gateway: Optional[str] = None,
         **kwargs,
     ) -> Workflow:
@@ -61,6 +62,7 @@ class ServerProvisioningWorkflow:
             device_type: Device type (e.g., 's2.c2.small')
             target_ipmi_ip: Optional target IPMI IP address (can be set later)
             rack_location: Optional physical rack location (can be set later)
+            subnet_mask: Optional subnet mask for network configuration
             gateway: Optional gateway IP address for network configuration
             **kwargs: Additional metadata
 
@@ -171,6 +173,7 @@ class ServerProvisioningWorkflow:
         device_type: str,
         target_ipmi_ip: Optional[str] = None,
         rack_location: Optional[str] = None,
+        subnet_mask: Optional[str] = None,
         gateway: Optional[str] = None,
         firmware_policy: str = "recommended",
         **kwargs,
@@ -204,7 +207,7 @@ class ServerProvisioningWorkflow:
                 "Firmware management not available - using regular provisioning workflow"
             )
             return self.create_provisioning_workflow(
-                server_id, device_type, target_ipmi_ip, rack_location, gateway, **kwargs
+                server_id, device_type, target_ipmi_ip, rack_location, subnet_mask, gateway, **kwargs
             )
 
         workflow_id = f"fw_provision_{server_id}_{int(time.time())}"
@@ -262,7 +265,7 @@ class ServerProvisioningWorkflow:
                 name="configure_ipmi",
                 description="Configure IPMI settings and network parameters",
                 function=lambda ctx: self._configure_ipmi_with_params(
-                    ctx, target_ipmi_ip, gateway
+                    ctx, target_ipmi_ip, subnet_mask, gateway
                 ),
                 timeout=600,  # 10 minutes
                 retry_count=3,
@@ -396,11 +399,13 @@ class ServerProvisioningWorkflow:
         self,
         context: WorkflowContext,
         target_ipmi_ip: Optional[str],
+        subnet_mask: Optional[str],
         gateway: Optional[str],
     ) -> Dict[str, Any]:
         """Configure IPMI with optional parameters"""
         # Use existing IPMI configuration logic but with optional parameters
         context.target_ipmi_ip = target_ipmi_ip
+        context.subnet_mask = subnet_mask
         context.gateway = gateway
         return self._configure_ipmi(context)
 
@@ -1516,12 +1521,15 @@ class ServerProvisioningWorkflow:
                 host=context.server_ip, username="ubuntu", timeout=60
             )
 
-            # Set IPMI IP address
+            # Set IPMI IP address with dynamic network configuration
+            subnet_mask = getattr(context, "subnet_mask", "255.255.255.0")  # Default if not provided
+            gateway_ip = getattr(context, "gateway", "192.168.100.1")  # Default if not provided
+            
             ipmi_commands = [
                 f"ipmitool lan set 1 ipsrc static",
                 f"ipmitool lan set 1 ipaddr {context.target_ipmi_ip}",
-                f"ipmitool lan set 1 netmask 255.255.255.0",  # Adjust as needed
-                f"ipmitool lan set 1 defgw ipaddr 192.168.100.1",  # Adjust as needed
+                f"ipmitool lan set 1 netmask {subnet_mask}",
+                f"ipmitool lan set 1 defgw ipaddr {gateway_ip}",
                 f"ipmitool lan set 1 access on",
             ]
 

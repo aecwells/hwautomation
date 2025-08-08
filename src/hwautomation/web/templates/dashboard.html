@@ -75,7 +75,7 @@
             <p class="text-muted">Commission multiple devices of the same type simultaneously. Ensure only one device type is physically connected.</p>
 
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label for="device-type-select" class="form-label">BMC Device Type:</label>
                     <select class="form-select" id="device-type-select">
                         <option value="">Select device type...</option>
@@ -84,17 +84,22 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="ipmi-base-range" class="form-label">IPMI Base IP Range (Optional):</label>
+                <div class="col-md-2">
+                    <label for="ipmi-base-range" class="form-label">IPMI Base IP (Optional):</label>
                     <input type="text" class="form-control" id="ipmi-base-range" placeholder="192.168.100.50">
-                    <div class="form-text">Base IP for IPMI assignment (auto-incremented for batch)</div>
+                    <div class="form-text">Base IP for IPMI assignment</div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label for="subnet-mask" class="form-label">Subnet Mask (Optional):</label>
+                    <input type="text" class="form-control" id="subnet-mask" placeholder="255.255.255.0" value="255.255.255.0">
+                    <div class="form-text">Network subnet mask</div>
+                </div>
+                <div class="col-md-2">
                     <label for="gateway-ip" class="form-label">Gateway IP (Optional):</label>
                     <input type="text" class="form-control" id="gateway-ip" placeholder="192.168.100.1">
-                    <div class="form-text">Gateway IP for network configuration</div>
+                    <div class="form-text">Gateway IP for network config</div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label">&nbsp;</label>
                     <div>
                         <button class="btn btn-primary" id="discover-devices-btn">
@@ -224,6 +229,7 @@
         // UI Elements
         const deviceTypeSelect = document.getElementById('device-type-select');
         const ipmiBaseRange = document.getElementById('ipmi-base-range');
+        const subnetMask = document.getElementById('subnet-mask');
         const gatewayIp = document.getElementById('gateway-ip');
         const discoverDevicesBtn = document.getElementById('discover-devices-btn');
         const startBatchBtn = document.getElementById('start-batch-btn');
@@ -236,24 +242,55 @@
         const refreshWorkflowsBtn = document.getElementById('refresh-workflows-btn');
         const clearLogBtn = document.getElementById('clear-log-btn');
 
+        // IP validation function
+        function validateIPAddress(value) {
+            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipPattern.test(value)) return false;
+            
+            const octets = value.split('.');
+            return octets.every(octet => {
+                const num = parseInt(octet);
+                return num >= 0 && num <= 255;
+            });
+        }
+
         // Real-time IPMI validation
         ipmiBaseRange.addEventListener('input', function() {
             const value = this.value.trim();
-            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-
+            
             if (!value) {
                 this.classList.remove('is-valid', 'is-invalid');
                 return;
             }
 
-            if (ipPattern.test(value)) {
-                const octets = value.split('.');
-                const validOctets = octets.every(octet => {
-                    const num = parseInt(octet);
-                    return num >= 0 && num <= 255;
-                });
+            if (validateIPAddress(value)) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
 
-                if (validOctets) {
+        // Real-time subnet mask validation
+        subnetMask.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (!value) {
+                this.classList.remove('is-valid', 'is-invalid');
+                return;
+            }
+
+            // Validate subnet mask (should be valid IP format with specific patterns)
+            if (validateIPAddress(value)) {
+                // Check if it's a valid subnet mask pattern
+                const octets = value.split('.').map(o => parseInt(o));
+                const binaryMask = octets.map(o => o.toString(2).padStart(8, '0')).join('');
+                
+                // Valid subnet mask should have consecutive 1s followed by consecutive 0s
+                const isValidMask = /^1*0*$/.test(binaryMask) && binaryMask.includes('1');
+                
+                if (isValidMask) {
                     this.classList.remove('is-invalid');
                     this.classList.add('is-valid');
                 } else {
@@ -269,27 +306,15 @@
         // Real-time gateway validation
         gatewayIp.addEventListener('input', function() {
             const value = this.value.trim();
-            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-
+            
             if (!value) {
                 this.classList.remove('is-valid', 'is-invalid');
                 return;
             }
 
-            if (ipPattern.test(value)) {
-                const octets = value.split('.');
-                const validOctets = octets.every(octet => {
-                    const num = parseInt(octet);
-                    return num >= 0 && num <= 255;
-                });
-
-                if (validOctets) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                }
+            if (validateIPAddress(value)) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
             } else {
                 this.classList.remove('is-valid');
                 this.classList.add('is-invalid');
@@ -454,6 +479,7 @@
             const selectedDevices = Array.from(document.querySelectorAll('.device-checkbox:checked')).map(cb => cb.value);
             const deviceType = deviceTypeSelect.value;
             let ipmiRange = ipmiBaseRange.value.trim();
+            let subnet = subnetMask.value.trim();
             let gateway = gatewayIp.value.trim();
 
             if (!deviceType || selectedDevices.length === 0) {
@@ -462,49 +488,43 @@
             }
 
             // Validate IPMI range if provided
-            const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
-            if (ipmiRange && !ipPattern.test(ipmiRange)) {
+            if (ipmiRange && !validateIPAddress(ipmiRange)) {
                 alert('Please enter a valid IP address for IPMI range (e.g., 192.168.100.50)');
                 ipmiBaseRange.focus();
                 return;
             }
 
-            // Validate IP octets are in valid range if IPMI range provided
-            if (ipmiRange) {
-                const octets = ipmiRange.split('.');
-                for (let octet of octets) {
-                    const num = parseInt(octet);
-                    if (num < 0 || num > 255) {
-                        alert('Invalid IPMI IP address: octets must be between 0-255');
-                        ipmiBaseRange.focus();
-                        return;
-                    }
+            // Validate subnet mask if provided
+            if (subnet && !validateIPAddress(subnet)) {
+                alert('Please enter a valid subnet mask (e.g., 255.255.255.0)');
+                subnetMask.focus();
+                return;
+            }
+
+            // Validate subnet mask format if provided
+            if (subnet) {
+                const octets = subnet.split('.').map(o => parseInt(o));
+                const binaryMask = octets.map(o => o.toString(2).padStart(8, '0')).join('');
+                const isValidMask = /^1*0*$/.test(binaryMask) && binaryMask.includes('1');
+                
+                if (!isValidMask) {
+                    alert('Please enter a valid subnet mask (e.g., 255.255.255.0, 255.255.0.0, etc.)');
+                    subnetMask.focus();
+                    return;
                 }
             }
 
             // Validate gateway if provided
-            if (gateway && !ipPattern.test(gateway)) {
+            if (gateway && !validateIPAddress(gateway)) {
                 alert('Please enter a valid IP address for gateway (e.g., 192.168.100.1)');
                 gatewayIp.focus();
                 return;
             }
 
-            // Validate gateway octets are in valid range if provided
-            if (gateway) {
-                const octets = gateway.split('.');
-                for (let octet of octets) {
-                    const num = parseInt(octet);
-                    if (num < 0 || num > 255) {
-                        alert('Invalid gateway IP address: octets must be between 0-255');
-                        gatewayIp.focus();
-                        return;
-                    }
-                }
-            }
-
             // Build confirmation message
             let confirmMsg = `Start batch commissioning of ${selectedDevices.length} devices as type "${deviceType}"?`;
             if (ipmiRange) confirmMsg += `\nIPMI Base: ${ipmiRange}`;
+            if (subnet) confirmMsg += `\nSubnet Mask: ${subnet}`;
             if (gateway) confirmMsg += `\nGateway: ${gateway}`;
 
             if (!confirm(confirmMsg)) {
@@ -524,6 +544,7 @@
 
                 // Only include optional fields if they have values
                 if (ipmiRange) requestBody.ipmi_range = ipmiRange;
+                if (subnet) requestBody.subnet_mask = subnet;
                 if (gateway) requestBody.gateway = gateway;
 
                 const response = await fetch('/api/batch/commission', {

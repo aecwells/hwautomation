@@ -322,6 +322,7 @@ def init_orchestration_routes(app, workflow_manager, socketio):
             device_type = data.get("device_type")
             device_ids = data.get("device_ids", [])
             ipmi_range = data.get("ipmi_range")
+            subnet_mask = data.get("subnet_mask")
             gateway = data.get("gateway")
 
             if not device_type:
@@ -350,6 +351,7 @@ def init_orchestration_routes(app, workflow_manager, socketio):
                     server_id=device_id,
                     device_type=device_type,
                     target_ipmi_ip=target_ipmi_ip,
+                    subnet_mask=subnet_mask,
                     gateway=gateway,
                 )
 
