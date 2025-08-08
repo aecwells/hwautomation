@@ -15,8 +15,9 @@ from typing import Any, Dict, List, Optional
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_socketio import emit
+from ...logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Create blueprint for firmware routes
 firmware_bp = Blueprint("firmware", __name__, url_prefix="/firmware")

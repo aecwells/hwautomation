@@ -25,8 +25,9 @@ from .exceptions import (
     WorkflowError,
 )
 from .workflow_manager import Workflow, WorkflowContext, WorkflowManager, WorkflowStep
+from ..logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ServerProvisioningWorkflow:
@@ -46,7 +47,7 @@ class ServerProvisioningWorkflow:
 
     def __init__(self, workflow_manager: WorkflowManager):
         self.manager = workflow_manager
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
     def create_provisioning_workflow(
         self,

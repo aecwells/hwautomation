@@ -5,11 +5,10 @@ Logs routes for HWAutomation Web Interface
 Handles log management, viewing, searching, and downloading.
 """
 
-import logging
-
 from flask import Blueprint, Response, jsonify, render_template, request
+from hwautomation.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Create blueprint for logs routes
 logs_bp = Blueprint("logs", __name__, url_prefix="/api/logs")

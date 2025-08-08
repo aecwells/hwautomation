@@ -5,16 +5,16 @@ Implements automated IPMI configuration based on BMC boarding process requiremen
 Handles different server types (Supermicro, HP iLO) with vendor-specific settings.
 ."""
 
-import logging
 import subprocess
 import time
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
+from hwautomation.logging import get_logger
 from ..utils.network import SSHClient
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class IPMIVendor(Enum):

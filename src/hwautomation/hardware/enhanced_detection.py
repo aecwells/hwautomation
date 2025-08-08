@@ -14,8 +14,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from ..maas.client import MaasClient
 from ..utils.env_config import load_config
 from ..utils.network import SSHClient
+from ..logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass

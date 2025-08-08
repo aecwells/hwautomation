@@ -6,13 +6,13 @@ complete firmware-first provisioning workflow.
 ."""
 
 import asyncio
-import logging
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from hwautomation.logging import get_logger
 from ..orchestration.exceptions import WorkflowError
 from .bios_config import BiosConfigManager
 from .bios_monitoring import BiosConfigMonitor
@@ -24,7 +24,7 @@ from .firmware_manager import (
     UpdatePriority,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ProvisioningPhase(Enum):

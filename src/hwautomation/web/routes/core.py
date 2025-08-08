@@ -5,12 +5,12 @@ Core routes for HWAutomation Web Interface
 Handles main dashboard, health checks, and core application routes.
 ."""
 
-import logging
 from datetime import datetime
 
 from flask import Blueprint, jsonify, render_template, request
+from hwautomation.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Create blueprint for core routes
 core_bp = Blueprint("core", __name__)

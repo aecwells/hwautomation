@@ -21,9 +21,14 @@ from hwautomation.database.migrations import DatabaseMigrator
 from hwautomation.maas.client import create_maas_client
 from hwautomation.utils.env_config import get_config, load_config
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Configure unified logging
+from hwautomation.logging import setup_logging, get_logger
+import os
+
+# Set up unified logging system
+environment = os.getenv('HW_AUTOMATION_ENV', 'development')
+setup_logging(environment=environment)
+logger = get_logger(__name__)
 
 
 def init_database(config):

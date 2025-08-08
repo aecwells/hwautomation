@@ -13,8 +13,9 @@ from ipaddress import AddressValueError, IPv4Address
 from typing import Any, Dict, List, Optional, Tuple
 
 from ..utils.network import SSHClient, SSHManager
+from ..logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -89,7 +90,7 @@ class HardwareDiscoveryManager:
             ssh_manager: SSH manager for remote connections
         ."""
         self.ssh_manager = ssh_manager
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
     def discover_hardware(
         self, host: str, username: str = "ubuntu", key_file: str = None

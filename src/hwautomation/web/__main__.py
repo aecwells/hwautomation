@@ -13,11 +13,14 @@ import os
 import sys
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Configure unified logging
+from hwautomation.logging import setup_logging, get_logger
+import os
+
+# Set up unified logging system
+environment = os.getenv('HW_AUTOMATION_ENV', 'development')
+setup_logging(environment=environment)
+logger = get_logger(__name__)
 
 
 def main():

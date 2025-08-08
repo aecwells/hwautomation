@@ -31,8 +31,9 @@ from .bios_decision_logic import (
 )
 from .bios_monitoring import BiosConfigMonitor, OperationStatus, get_monitor
 from .redfish_manager import RedfishManager, SystemInfo
+from ..logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class BiosConfigManager:

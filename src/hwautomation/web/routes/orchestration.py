@@ -8,8 +8,9 @@ import logging
 import threading
 
 from flask import Blueprint, current_app, jsonify, request
+from ...logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Create blueprint for orchestration routes
 orchestration_bp = Blueprint("orchestration", __name__, url_prefix="/api/orchestration")

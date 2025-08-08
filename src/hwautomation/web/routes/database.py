@@ -5,13 +5,13 @@ Database routes for HWAutomation Web Interface
 Handles database management, table viewing, and database operations.
 ."""
 
-import logging
 import os
-
 import sqlite3
-from flask import Blueprint, jsonify, render_template, request
 
-logger = logging.getLogger(__name__)
+from flask import Blueprint, jsonify, render_template, request
+from hwautomation.logging import get_logger
+
+logger = get_logger(__name__)
 
 # Create blueprint for database routes
 database_bp = Blueprint("database", __name__, url_prefix="/api/database")

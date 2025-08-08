@@ -5,15 +5,15 @@ Provides functionality to list, filter, and select MaaS machines for commissioni
 without requiring manual entry of Machine IDs.
 ."""
 
-import logging
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
+from hwautomation.logging import get_logger
 from ..maas.client import MaasClient
 from ..utils.env_config import load_config
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class MachineStatus(Enum):

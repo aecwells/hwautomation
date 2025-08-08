@@ -6,7 +6,6 @@ Provides WebSocket support, detailed sub-task reporting, and cancellation capabi
 
 import asyncio
 import json
-import logging
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -14,7 +13,9 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, AsyncIterator, Callable, Dict, List, Optional
 
-logger = logging.getLogger(__name__)
+from hwautomation.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class OperationStatus(Enum):

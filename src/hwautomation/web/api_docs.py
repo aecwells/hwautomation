@@ -6,12 +6,11 @@ This module provides comprehensive API documentation using Flask-RESTX,
 making the API self-documenting and interactive.
 ."""
 
-import logging
-
 from flask import Blueprint
 from flask_restx import Api, Namespace, Resource, fields
+from hwautomation.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Create API documentation blueprint
 api_docs_bp = Blueprint("api_docs", __name__)

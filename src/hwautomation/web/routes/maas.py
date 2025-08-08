@@ -4,11 +4,10 @@ MaaS routes for HWAutomation Web Interface.
 Handles MaaS integration, device discovery, and batch commissioning operations.
 ."""
 
-import logging
-
 from flask import Blueprint, current_app, jsonify, request
+from hwautomation.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # Create blueprint for MaaS routes
 maas_bp = Blueprint("maas", __name__, url_prefix="/api/maas")

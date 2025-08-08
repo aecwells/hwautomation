@@ -33,8 +33,9 @@ from .exceptions import (
     SSHConnectionError,
     WorkflowError,
 )
+from ..logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class WorkflowStatus(Enum):
@@ -127,7 +128,7 @@ class WorkflowManager:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.workflows: Dict[str, "Workflow"] = {}
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
         # Type annotations for fields that will be set
         self.firmware_manager: Optional[Any] = None  # FirmwareManager

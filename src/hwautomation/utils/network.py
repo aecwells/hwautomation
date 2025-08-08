@@ -2,15 +2,15 @@
 Network utility functions for hardware automation.
 ."""
 
-import logging
 import platform
 import subprocess
 from pathlib import Path
 from typing import Optional, Tuple
 
 import paramiko
+from hwautomation.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def ping_host(ip_address: str, timeout: int = 5) -> bool:

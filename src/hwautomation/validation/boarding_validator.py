@@ -5,16 +5,16 @@ Implements validation steps from the BMC boarding process document.
 Ensures all requirements are met before considering a device properly configured.
 ."""
 
-import logging
 import re
 import subprocess
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
+from hwautomation.logging import get_logger
 from ..utils.network import SSHClient
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ValidationStatus(Enum):
