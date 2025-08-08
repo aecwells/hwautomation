@@ -1,9 +1,15 @@
 # Hardware Automation Package
 
+![CI/CD Pipeline](https://github.com/aecwells/hwautomation/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Tests](https://github.com/aecwells/hwautomation/actions/workflows/test.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/aecwells/hwautomation/branch/main/graph/badge.svg)](https://codecov.io/gh/aecwells/hwautomation)
 ![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
+![Code Quality](https://img.shields.io/badge/code%20quality-black%20%7C%20isort%20%7C%20flake8%20%7C%20mypy-brightgreen)
+![Security](https://img.shields.io/badge/security-bandit%20scanned-green)
 ![License](https://img.shields.io/github/license/aecwells/hwautomation)
+![Latest Release](https://img.shields.io/github/v/release/aecwells/hwautomation?include_prereleases)
+![GitHub Issues](https://img.shields.io/github/issues/aecwells/hwautomation)
+![GitHub Stars](https://img.shields.io/github/stars/aecwells/hwautomation)
 
 A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with production-ready web GUI, complete CLI capabilities, and enterprise-grade firmware management.
 
@@ -31,6 +37,16 @@ A comprehensive Python package for hardware automation, server management, and i
 - **🏗️ Team-Friendly Architecture**: Single-responsibility blueprints enable parallel development
 - **🧪 Easier Testing**: Modular structure simplifies unit testing and debugging
 - **📈 Scalable Foundation**: Clean architecture ready for new features and team expansion
+
+### **Code Quality & CI/CD Enhancements**
+- **🚀 Comprehensive CI/CD Pipeline**: Multi-stage GitHub Actions workflow with quality gates
+- **🎨 Code Formatting**: Automated Black formatting applied to entire codebase (59+ files)
+- **📦 Import Organization**: isort import sorting for consistent code structure
+- **🔍 Code Analysis**: flake8 linting with project-specific configurations
+- **🛡️ Security Scanning**: Bandit security analysis integrated into CI pipeline
+- **📊 Type Checking**: MyPy type checking configured for gradual adoption
+- **🧪 Multi-Version Testing**: Python 3.9-3.12 compatibility testing
+- **📈 Test Coverage**: Automated coverage reporting with realistic baselines
 
 ## 🚀 Quick Start (Container-First)
 
