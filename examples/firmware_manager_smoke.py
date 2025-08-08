@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Smoke test for the Phase 4 Firmware Manager using project-relative paths.
+Firmware Manager smoke test using project-relative paths.
 
 This is a manual/demo script, not part of pytest collection.
 Run from repo root:
-  python examples/firmware_manager_smoke.py
+    python examples/firmware_manager_smoke.py
 """
 
 import asyncio
@@ -30,7 +30,7 @@ async def run_smoke():
     from hwautomation.hardware.firmware_manager import FirmwareManager
 
     print("=" * 80)
-    print("Phase 4 Firmware Manager - Smoke Test")
+    print("Firmware Manager - Smoke Test")
     print("=" * 80)
 
     try:

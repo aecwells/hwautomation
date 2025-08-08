@@ -62,6 +62,10 @@ Package development and distribution guidelines
 ### `PROJECT_ORGANIZATION.md`
 Overall project structure and development guidelines
 
+### `PROJECT_STATUS_AND_ROADMAP.md`
+
+High-level status of implemented features and upcoming work
+
 ## Quick Links
 
 - [Main README](../README.md) - Project overview and quick start

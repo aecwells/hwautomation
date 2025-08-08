@@ -9,17 +9,17 @@ This directory contains tests for the HWAutomation project.
 - `test_bios_config.py` - BIOS configuration tests
 - `test_utils.py` - Utility function tests
 
-### Phase 2 Enhanced BIOS Configuration Tests ⭐
+### BIOS Configuration Tests ⭐
 
 - **`test_phase2_focused.py`** - Comprehensive Phase 2 decision logic testing
 - **`test_phase2_decision_logic.py`** - Detailed Phase 2 integration testing
 
-### Phase 3 Real-time Monitoring Tests 🚀
+### Real-time Monitoring Tests 🚀
 
 - **`test_phase3_standalone.py`** - Complete Phase 3 monitoring demonstration
 - **`test_phase3_monitoring.py`** - Phase 3 monitoring system integration tests
 
-### Phase 4 Firmware Update Tests 🔧
+### Firmware Update Tests 🔧
 
 - **`test_phase4_firmware_demo.py`** - Complete Phase 4 firmware-first provisioning demonstration
 - **`test_firmware_manager.py`** - Firmware management and update functionality tests
@@ -48,15 +48,15 @@ python -m pytest tests/test_database.py
 # Run with coverage
 python -m pytest tests/ --cov=hwautomation
 
-# Run Phase 2 enhanced tests (standalone, no hardware required)
+# Run BIOS configuration tests (standalone, no hardware required)
 python3 tests/test_phase2_focused.py
 python3 tests/test_phase2_decision_logic.py
 
-# Run Phase 3 monitoring tests (standalone demonstrations)
+# Run monitoring tests (standalone demonstrations)
 python3 tests/test_phase3_standalone.py
 python3 tests/test_phase3_monitoring.py
 
-# Run Phase 4 firmware update tests (demonstrations)
+# Run firmware update tests (demonstrations)
 python3 examples/phase4_firmware_demo.py
 python3 tests/test_firmware_manager.py
 python3 tests/test_firmware_integration.py
