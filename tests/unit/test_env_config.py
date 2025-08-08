@@ -124,11 +124,18 @@ MAAS_TIMEOUT=120
 """
         )
 
-        config = Config(str(env_file))
-        assert config.get("project.name") == "test_project"
-        assert config.get("project.debug") is True
-        assert config.get("database.path") == "/tmp/test.db"
-        assert config.get("maas.timeout") == 120
+        # Clear any existing environment variables that might interfere
+        env_vars_to_clear = ["PROJECT_NAME", "DEBUG", "DATABASE_PATH", "MAAS_TIMEOUT"]
+        with patch.dict(os.environ, {}, clear=False):
+            # Remove the environment variables for this test
+            for var in env_vars_to_clear:
+                os.environ.pop(var, None)
+
+            config = Config(str(env_file))
+            assert config.get("project.name") == "test_project"
+            assert config.get("project.debug") is True
+            assert config.get("database.path") == "/tmp/test.db"
+            assert config.get("maas.timeout") == 120
 
     def test_load_nonexistent_env_file(self):
         """Test handling of nonexistent .env file."""
