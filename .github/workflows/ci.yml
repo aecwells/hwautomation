@@ -40,10 +40,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
+        pip install black==24.4.2  # Pin black version for consistency
 
     - name: Check code formatting with Black
       run: |
-        black --check --diff src/ tests/
+        black --check --diff --line-length=88 --target-version=py39 src/ tests/
 
     - name: Check import sorting with isort
       run: |
