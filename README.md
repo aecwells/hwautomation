@@ -1,7 +1,6 @@
 # Hardware Automation Package
 
 ![CI/CD Pipeline](https://github.com/aecwells/hwautomation/actions/workflows/ci.yml/badge.svg?branch=main)
-![Tests](https://github.com/aecwells/hwautomation/actions/workflows/test.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/aecwells/hwautomation/branch/main/graph/badge.svg)](https://codecov.io/gh/aecwells/hwautomation)
 ![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 ![Code Quality](https://img.shields.io/badge/code%20quality-black%20%7C%20isort%20%7C%20flake8%20%7C%20mypy-brightgreen)
