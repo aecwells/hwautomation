@@ -736,7 +736,7 @@ class BiosConfigManager:
                 logger.error(f"Error loading XML template {xml_file}: {e}")
     
     # ==========================================
-    # Redfish Integration Methods (Phase 1)
+    # Redfish Integration Methods
     # ==========================================
     
     def test_redfish_connection(self, target_ip: str, username: str = "ADMIN", 
@@ -954,7 +954,7 @@ class BiosConfigManager:
                                 username: str = "ADMIN", password: str = None, 
                                 dry_run: bool = False, prefer_performance: bool = True) -> Dict[str, Any]:
         """
-        Phase 2: Per-setting method selection with enhanced decision logic.
+        Step-wise per-setting method selection with enhanced decision logic.
         
         This method analyzes each BIOS setting individually and chooses the optimal
         method (Redfish vs vendor tools) based on setting characteristics, device
@@ -1073,15 +1073,15 @@ class BiosConfigManager:
             result['success'] = success
             
             if success:
-                logger.info(f"Phase 2 BIOS configuration completed successfully for {target_ip}")
+                logger.info(f"BIOS configuration (per-setting decision) completed successfully for {target_ip}")
             else:
-                logger.warning(f"Phase 2 BIOS configuration completed with some issues for {target_ip}")
+                logger.warning(f"BIOS configuration (per-setting decision) completed with some issues for {target_ip}")
             
             return result
             
         except Exception as e:
-            result['error'] = f"Phase 2 BIOS configuration failed: {e}"
-            logger.error(f"Phase 2 BIOS configuration failed for {target_ip}: {e}")
+            result['error'] = f"Per-setting BIOS configuration failed: {e}"
+            logger.error(f"Per-setting BIOS configuration failed for {target_ip}: {e}")
             return result
     
     async def apply_bios_config_phase3(self, device_type: str, target_ip: str, 
@@ -1089,9 +1089,9 @@ class BiosConfigManager:
                                       dry_run: bool = False, prefer_performance: bool = True,
                                       enable_monitoring: bool = True) -> Dict[str, Any]:
         """
-        Phase 3: Real-time monitored BIOS configuration with advanced error recovery.
+        Real-time monitored BIOS configuration with advanced error recovery.
         
-        This method enhances Phase 2 with real-time progress monitoring, WebSocket updates,
+        This method enhances the per-setting path with real-time progress monitoring, WebSocket updates,
         intelligent error recovery, and comprehensive validation.
         
         Args:
@@ -1137,9 +1137,9 @@ class BiosConfigManager:
                     }
                 )
                 result['operation_id'] = operation_id
-                await monitor.log_info(operation_id, f"Starting Phase 3 BIOS configuration for {target_ip}")
+                await monitor.log_info(operation_id, f"Starting monitored BIOS configuration for {target_ip}")
             
-            # Phase 3.1: Pre-flight validation
+            # Stage 1: Pre-flight validation
             if monitor:
                 await monitor.start_subtask(operation_id, "pre_flight_validation", 
                                           "Validating system connectivity and capabilities")
@@ -1161,7 +1161,7 @@ class BiosConfigManager:
                 await monitor.complete_subtask(operation_id, "pre_flight_validation", True, 
                                              "Pre-flight validation successful")
             
-            # Phase 3.2: Method analysis with monitoring
+            # Stage 2: Method analysis with monitoring
             if monitor:
                 await monitor.start_subtask(operation_id, "method_analysis", 
                                           "Analyzing optimal configuration methods")
@@ -1183,7 +1183,7 @@ class BiosConfigManager:
                 await monitor.complete_subtask(operation_id, "method_analysis", True,
                                              f"Analyzed {method_analysis_result['total_settings']} settings")
             
-            # Phase 3.3: Dry run handling
+            # Stage 3: Dry run handling
             if dry_run:
                 if monitor:
                     await monitor.log_info(operation_id, "Dry run mode - no changes will be applied")
@@ -1193,7 +1193,7 @@ class BiosConfigManager:
                 result['dry_run_summary'] = method_analysis_result
                 return result
             
-            # Phase 3.4: Configuration execution with real-time monitoring
+            # Stage 4: Configuration execution with real-time monitoring
             if monitor:
                 total_phases = len(method_analysis_result.get('batch_groups', []))
                 await monitor.start_operation(operation_id, total_phases)
@@ -1204,7 +1204,7 @@ class BiosConfigManager:
             result['execution_phases'] = execution_result.get('phases', [])
             result['error_recovery_actions'] = execution_result.get('recovery_actions', [])
             
-            # Phase 3.5: Post-configuration validation
+            # Stage 5: Post-configuration validation
             if monitor:
                 await monitor.start_subtask(operation_id, "post_validation", 
                                           "Validating applied configuration")
@@ -1226,22 +1226,22 @@ class BiosConfigManager:
             )
             
             if monitor:
-                final_message = "Phase 3 BIOS configuration completed successfully" if overall_success else "Phase 3 BIOS configuration completed with issues"
+                final_message = "Monitored BIOS configuration completed successfully" if overall_success else "Monitored BIOS configuration completed with issues"
                 await monitor.complete_operation(operation_id, overall_success, final_message)
             
             result['success'] = overall_success
             
             if overall_success:
-                logger.info(f"Phase 3 BIOS configuration completed successfully for {target_ip}")
+                logger.info(f"Monitored BIOS configuration completed successfully for {target_ip}")
             else:
-                logger.warning(f"Phase 3 BIOS configuration completed with issues for {target_ip}")
+                logger.warning(f"Monitored BIOS configuration completed with issues for {target_ip}")
             
             return result
             
         except Exception as e:
-            error_message = f"Phase 3 BIOS configuration failed: {e}"
+            error_message = f"Monitored BIOS configuration failed: {e}"
             result['error'] = error_message
-            logger.error(f"Phase 3 BIOS configuration failed for {target_ip}: {e}")
+            logger.error(f"Monitored BIOS configuration failed for {target_ip}: {e}")
             
             if monitor and operation_id:
                 await monitor.log_error(operation_id, error_message, {'exception': str(e)})
@@ -1252,7 +1252,7 @@ class BiosConfigManager:
     async def _phase3_pre_flight_validation(self, device_type: str, target_ip: str,
                                           username: str, password: str, 
                                           operation_id: Optional[str] = None) -> Dict[str, Any]:
-        """Phase 3 pre-flight validation with detailed checks"""
+        """Pre-flight validation with detailed checks for monitored flow"""
         result = {
             'success': False,
             'checks_performed': [],
@@ -1306,7 +1306,7 @@ class BiosConfigManager:
     
     async def _phase3_method_analysis(self, device_type: str, prefer_performance: bool,
                                     operation_id: Optional[str] = None) -> Dict[str, Any]:
-        """Phase 3 enhanced method analysis"""
+        """Enhanced method analysis for monitored flow"""
         result = {
             'success': False,
             'total_settings': 0,
@@ -1361,7 +1361,7 @@ class BiosConfigManager:
     async def _phase3_execute_configuration(self, target_ip: str, username: str, password: str,
                                           method_analysis: Dict[str, Any], 
                                           operation_id: Optional[str] = None) -> Dict[str, Any]:
-        """Phase 3 configuration execution with monitoring and error recovery"""
+        """Configuration execution with monitoring and error recovery"""
         result = {
             'success': False,
             'phases': [],
@@ -1427,7 +1427,7 @@ class BiosConfigManager:
     async def _phase3_post_validation(self, target_ip: str, username: str, password: str,
                                     method_analysis: Dict[str, Any],
                                     operation_id: Optional[str] = None) -> Dict[str, Any]:
-        """Phase 3 post-configuration validation"""
+        """Post-configuration validation for monitored flow"""
         result = {
             'success': False,
             'validation_checks': [],

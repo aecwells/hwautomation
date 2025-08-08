@@ -1,8 +1,7 @@
 """
-Phase 3: Advanced Integration and Monitoring - Real-time Progress Monitoring
+Real-time progress monitoring for BIOS configuration operations.
 
-This module implements real-time progress monitoring for BIOS configuration operations
-with WebSocket support, detailed sub-task reporting, and cancellation capabilities.
+Provides WebSocket support, detailed sub-task reporting, and cancellation capabilities.
 """
 
 import asyncio

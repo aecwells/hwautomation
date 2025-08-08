@@ -1,8 +1,8 @@
 """
-Firmware Management Module - Phase 4 Implementation
+Firmware Management Module
 
-This module provides comprehensive firmware management capabilities for servers,
-including version checking, updates, and integration with the Phase 3 BIOS configuration system.
+Comprehensive firmware management capabilities for servers, including version checking,
+updates, and integration with the enhanced BIOS configuration system.
 """
 
 import asyncio

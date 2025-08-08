@@ -253,7 +253,7 @@ ssh:
 ```python
 from hwautomation import DbHelper
 from hwautomation.maas.client import create_maas_client
-from hwautomation.utils.config import load_config
+from hwautomation.utils.env_config import load_config
 
 # Load configuration
 config = load_config()
@@ -373,20 +373,15 @@ docker compose up -d app
 ### 6. Command Line Usage
 
 ```bash
-# Run the main CLI interface
-python src/hwautomation/cli/main.py
+# Run CLI via console scripts
+hw-cli --help
+hwautomation --help
 
-# BIOS configuration management
-python scripts/bios_manager.py list-types
-python scripts/bios_manager.py show-config s2_c2_small
-python scripts/bios_manager.py generate-xml s2_c2_small --output config.xml
+# Start web interface
+hw-web
 
-# Database management
-python scripts/db_manager.py status
-python scripts/db_manager.py backup
-
-# Use the examples
-python examples/basic_usage.py
+# Run examples
+python examples/run.py --list
 ```
 
 ## Package Structure

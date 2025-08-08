@@ -610,7 +610,7 @@ def create_app():
 
     @app.route('/api/orchestration/provision-firmware-first', methods=['POST'])
     def api_start_firmware_first_provisioning():
-        """Start a firmware-first server provisioning workflow (Phase 4)."""
+        """Start a firmware-first server provisioning workflow."""
         try:
             data = request.get_json()
             

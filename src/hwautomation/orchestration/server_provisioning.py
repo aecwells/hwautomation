@@ -159,7 +159,7 @@ class ServerProvisioningWorkflow:
         **kwargs
     ) -> Workflow:
         """
-        Create a firmware-first provisioning workflow (Phase 4).
+    Create a firmware-first provisioning workflow.
         
         This workflow combines firmware updates with the existing provisioning process:
         1. Commission server via MaaS
@@ -218,7 +218,7 @@ class ServerProvisioningWorkflow:
             retry_count=3
         ))
         
-        # Step 4: Firmware-First Provisioning (Phase 4)
+    # Step 4: Firmware-First Provisioning
         workflow.add_step(WorkflowStep(
             name="firmware_first_provisioning",
             description="Execute firmware updates and BIOS configuration",

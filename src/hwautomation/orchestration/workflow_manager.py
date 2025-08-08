@@ -128,7 +128,7 @@ class WorkflowManager:
         self.ssh_manager = SSHManager(config.get('ssh', {}))
         self.discovery_manager = HardwareDiscoveryManager(self.ssh_manager)
         
-        # Initialize firmware management (Phase 4)
+    # Initialize firmware management
         try:
             self.firmware_manager = FirmwareManager()
             self.firmware_workflow = FirmwareProvisioningWorkflow()
@@ -186,7 +186,7 @@ class WorkflowManager:
                                      skip_firmware_check: bool = False,
                                      skip_bios_config: bool = False) -> Optional['Workflow']:
         """
-        Create a firmware-first provisioning workflow (Phase 4).
+    Create a firmware-first provisioning workflow.
         
         Args:
             server_id: Unique identifier for the server
@@ -194,8 +194,8 @@ class WorkflowManager:
             target_ip: Target server IP address
             credentials: Authentication credentials
             firmware_policy: Firmware update policy ('recommended', 'latest', 'security_only')
-            skip_firmware_check: Skip firmware update phase
-            skip_bios_config: Skip BIOS configuration phase
+            skip_firmware_check: Skip firmware update step
+            skip_bios_config: Skip BIOS configuration step
             
         Returns:
             Workflow: Configured firmware-first workflow or None if firmware not available

@@ -1,8 +1,8 @@
 """
-Firmware-First Provisioning Workflow - Phase 4 Implementation
+Firmware-First Provisioning Workflow
 
-This module integrates firmware updates with the existing enhanced BIOS configuration
-system to provide a complete firmware-first provisioning workflow.
+Integrates firmware updates with the enhanced BIOS configuration system to provide a
+complete firmware-first provisioning workflow.
 """
 
 import asyncio
@@ -118,8 +118,8 @@ class FirmwareProvisioningWorkflow:
         await self.monitor.start_operation(context.operation_id, total_subtasks=6)
         
         try:
-            # Phase 1: Pre-flight validation
-            logger.info("Phase 1: Pre-flight validation")
+            # Step 1: Pre-flight validation
+            logger.info("Pre-flight validation")
             await self.monitor.start_subtask(context.operation_id, "pre_flight", 
                                            "Pre-flight system validation")
             
@@ -130,9 +130,9 @@ class FirmwareProvisioningWorkflow:
             await self.monitor.update_progress(context.operation_id, 10, 
                                              "Pre-flight validation completed")
             
-            # Phase 2: Firmware version analysis
+            # Step 2: Firmware version analysis
             if not context.skip_firmware_check:
-                logger.info("Phase 2: Firmware version analysis")
+                logger.info("Firmware version analysis")
                 await self.monitor.start_subtask(context.operation_id, "firmware_analysis", 
                                                "Analyzing current firmware versions")
                 
@@ -147,9 +147,9 @@ class FirmwareProvisioningWorkflow:
                     f"Found {len(updates_needed)} updates needed ({len(critical_updates)} critical)")
                 await self.monitor.complete_subtask(context.operation_id, "firmware_analysis", True)
                 
-                # Phase 3: Firmware updates
+                # Step 3: Firmware updates
                 if updates_needed:
-                    logger.info(f"Phase 3: Firmware updates ({len(updates_needed)} components)")
+                    logger.info(f"Firmware updates ({len(updates_needed)} components)")
                     await self.monitor.start_subtask(context.operation_id, "firmware_update", 
                         f"Updating {len(updates_needed)} firmware components")
                     
@@ -166,10 +166,10 @@ class FirmwareProvisioningWorkflow:
                     await self.monitor.complete_subtask(context.operation_id, "firmware_update", 
                                                        len(failed_updates) == 0)
                     
-                    # Phase 4: System reboot and validation
+                    # Step 4: System reboot and validation
                     reboot_required = any(r.requires_reboot for r in successful_updates)
                     if reboot_required:
-                        logger.info("Phase 4: System reboot and validation")
+                        logger.info("System reboot and validation")
                         await self.monitor.start_subtask(context.operation_id, "system_reboot", 
                                                        "System reboot and validation")
                         
@@ -188,11 +188,11 @@ class FirmwareProvisioningWorkflow:
                 await self.monitor.update_progress(context.operation_id, 70, 
                                                  "Firmware check skipped")
             
-            # Phase 5: BIOS configuration
+            # Step 5: BIOS configuration
             if not context.skip_bios_config:
-                logger.info("Phase 5: BIOS configuration")
+                logger.info("BIOS configuration")
                 await self.monitor.start_subtask(context.operation_id, "bios_config", 
-                                               "Applying BIOS configuration with Phase 3 monitoring")
+                                               "Applying BIOS configuration with enhanced monitoring")
                 
                 await self._execute_bios_configuration(context)
                 phases_completed.append(ProvisioningPhase.BIOS_CONFIGURATION)
@@ -207,8 +207,8 @@ class FirmwareProvisioningWorkflow:
                 await self.monitor.update_progress(context.operation_id, 90, 
                                                  "BIOS configuration skipped")
             
-            # Phase 6: Final validation
-            logger.info("Phase 6: Final validation")
+            # Step 6: Final validation
+            logger.info("Final validation")
             await self.monitor.start_subtask(context.operation_id, "final_validation", 
                                            "Final system validation")
             
@@ -374,13 +374,13 @@ class FirmwareProvisioningWorkflow:
             raise WorkflowError(f"System reboot failed: {e}")
     
     async def _execute_bios_configuration(self, context: ProvisioningContext):
-        """Execute BIOS configuration using Phase 3 enhanced logic"""
+        """Execute BIOS configuration using enhanced monitoring logic"""
         logger.debug(f"Executing BIOS configuration for {context.device_type}")
         
         try:
-            logger.info("Applying BIOS configuration using Phase 3 enhanced logic...")
+            logger.info("Applying BIOS configuration with enhanced monitoring...")
             
-            # Use the existing Phase 3 BIOS configuration system
+            # Use the existing enhanced BIOS configuration system (phase 3 API)
             bios_result = await self.bios_manager.apply_bios_config_phase3(
                 context.device_type,
                 context.target_ip,
@@ -403,7 +403,7 @@ class FirmwareProvisioningWorkflow:
                 "success_rate": f"{bios_result.success_rate:.1f}%"
             }
             
-            logger.info("Phase 3 BIOS configuration results:")
+            logger.info("BIOS configuration results:")
             logger.info(f"  Settings applied: {context.bios_results['settings_applied']}")
             logger.info(f"  Redfish method: {context.bios_results['redfish_settings']} settings")
             logger.info(f"  Vendor tools: {context.bios_results['vendor_tool_settings']} settings")

@@ -1,7 +1,7 @@
 """
-Enhanced BIOS Configuration Decision Logic (Phase 2)
+Enhanced BIOS Configuration Decision Logic
 
-This module implements intelligent per-setting method selection for BIOS configuration,
+Implements intelligent per-setting method selection for BIOS configuration,
 optimizing between Redfish and vendor tools based on setting characteristics,
 device capabilities, and performance considerations.
 """
