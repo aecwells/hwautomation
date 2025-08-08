@@ -14,14 +14,14 @@ class DbHelper:
     """Database helper class for managing server information"""
 
     def __init__(
-        self, tablename: str, db_path: str = ":memory:", auto_migrate: bool = True
+        self, db_path: str = "hw_automation.db", tablename: str = "servers", auto_migrate: bool = True
     ):
         """
         Initialize database helper.
 
         Args:
-            tablename: Name of the main table (for backward compatibility)
-            db_path: Path to database file (:memory: for in-memory)
+            db_path: Path to database file (defaults to hw_automation.db)
+            tablename: Name of the main table (for backward compatibility, defaults to servers)
             auto_migrate: Whether to automatically apply migrations
         """
         self.tablename = tablename
@@ -49,6 +49,10 @@ class DbHelper:
             print(f"Migration failed: {e}")
             # Fall back to old table creation if migration fails
             self.createdbtable_legacy()
+
+    def get_connection(self):
+        """Get a database connection context manager"""
+        return self.sql_database
 
     def createdbtable_legacy(self):
         """Legacy table creation for backward compatibility"""
