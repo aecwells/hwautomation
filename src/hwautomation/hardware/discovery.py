@@ -218,7 +218,7 @@ class HardwareDiscoveryManager:
                 install_stdout, stderr, exit_code = ssh_client.exec_command(
                     "sudo apt-get update && sudo apt-get install -y ipmitool"
                 )
-                if install_exit_code != 0:
+                if exit_code != 0:
                     errors.append("ipmitool not available and installation failed")
                     return ipmi_info
 
