@@ -39,7 +39,8 @@ def dashboard():
             'available_machines': 0,
             'device_types': 0,
             'database_servers': 0,
-            'ready_servers': 0
+            'ready_servers': 0,
+            'maas_status': 'disconnected'
         }
         
         # Get server count from database if available
@@ -64,8 +65,10 @@ def dashboard():
                 maas_client_instance = create_maas_client(maas_config)
                 machines = maas_client_instance.get_machines()
                 stats['available_machines'] = len([m for m in machines if m.get('status') == 'Ready'])
+                stats['maas_status'] = 'connected'
         except Exception as e:
             logger.warning(f"Could not get MaaS stats: {e}")
+            stats['maas_status'] = 'disconnected'
         
         # Get available device types
         device_types = ['a1.c5.large', 'd1.c1.small', 'd1.c2.medium', 'd1.c2.large']
@@ -76,7 +79,18 @@ def dashboard():
                              device_types=device_types)
     except Exception as e:
         logger.error(f"Dashboard error: {e}")
-        return render_template('dashboard.html', error=str(e))
+        # Provide default stats when there's an error
+        default_stats = {
+            'available_machines': 0,
+            'device_types': 0,
+            'database_servers': 0,
+            'ready_servers': 0,
+            'maas_status': 'disconnected'
+        }
+        return render_template('dashboard.html', 
+                             stats=default_stats, 
+                             device_types=[],
+                             error=str(e))
 
 def init_core_routes(app, db_helper, maas_client, config):
     """Initialize core routes with dependencies."""
