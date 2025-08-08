@@ -11,11 +11,15 @@ from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 from datetime import datetime, timedelta
 
+# Mark all tests in this file as web interface tests
+pytestmark = [pytest.mark.web, pytest.mark.integration]
+
 # Test fixture imports
 import sys
-sys.path.append('src')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from hwautomation.web.firmware_routes import FirmwareWebManager, firmware_bp, init_firmware_routes
+from hwautomation.web.routes.firmware import FirmwareWebManager, firmware_bp, init_firmware_routes
 from hwautomation.hardware.firmware_manager import FirmwareManager
 from hwautomation.orchestration.workflow_manager import WorkflowManager
 from hwautomation.database.helper import DbHelper
@@ -223,7 +227,7 @@ class TestFirmwareRoutesInitialization:
         init_firmware_routes(firmware_manager, workflow_manager, db_helper, socketio)
         
         # Check that global firmware_web_manager was set
-        from hwautomation.web.firmware_routes import firmware_web_manager
+        from hwautomation.web.routes.firmware import firmware_web_manager
         assert firmware_web_manager is not None
         assert firmware_web_manager.firmware_manager == firmware_manager
     
@@ -243,7 +247,7 @@ class TestFirmwareWebIntegration:
     def test_app(self):
         """Create a test Flask app with firmware routes."""
         from flask import Flask
-        from hwautomation.web.firmware_routes import firmware_bp
+        from hwautomation.web.routes.firmware import firmware_bp
         
         app = Flask(__name__)
         app.config['TESTING'] = True

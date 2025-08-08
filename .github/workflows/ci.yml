@@ -94,7 +94,7 @@ jobs:
     
     - name: Run unit tests
       run: |
-        pytest tests/ -m "unit" --cov=src/hwautomation --cov-report=xml --cov-report=term --junitxml=junit.xml
+        pytest tests/unit/ --cov=src/hwautomation --cov-report=xml --cov-report=term --junitxml=junit.xml
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
