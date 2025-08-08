@@ -53,6 +53,10 @@ dev = [
     "pre-commit>=2.20.0",
     "sphinx>=5.0.0",
     "sphinx-rtd-theme>=1.0.0",
+    # Type stubs for mypy
+    "types-requests",
+    "types-PyYAML",
+    "types-oauthlib",
 ]
 
 web = [
