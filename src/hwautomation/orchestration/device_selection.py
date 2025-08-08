@@ -161,7 +161,11 @@ class DeviceSelectionService:
                 )
 
             # Check if machine has an owner (shouldn't commission owned machines)
-            if machine.get("owner") and machine.get("owner") and machine["owner"].get("username"):
+            if (
+                machine.get("owner")
+                and machine.get("owner")
+                and machine["owner"].get("username")
+            ):
                 owner = machine["owner"].get("username")
                 return False, f"Machine is owned by '{owner}', cannot commission"
 

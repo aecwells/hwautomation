@@ -306,8 +306,10 @@ class ServerProvisioningWorkflow:
 
             # Get server IP from context
             if not context.server_data:
-                raise WorkflowError("Server data not available for firmware provisioning")
-            
+                raise WorkflowError(
+                    "Server data not available for firmware provisioning"
+                )
+
             server_ip = context.server_data.get("ip_address")
             if not server_ip:
                 raise WorkflowError(
@@ -378,9 +380,9 @@ class ServerProvisioningWorkflow:
                         "bios_settings_applied": result.bios_settings_applied,
                         "execution_time": result.execution_time,
                         "phases_completed": [
-                        phase.value for phase in result.phases_completed
-                    ],
-                }
+                            phase.value for phase in result.phases_completed
+                        ],
+                    }
 
                 # Update database
                 if context.db_helper:
@@ -437,7 +439,7 @@ class ServerProvisioningWorkflow:
             # Get firmware results from context
             if not context.server_data:
                 raise WorkflowError("Server data not available for finalization")
-            
+
             firmware_result = context.server_data.get("firmware_result", {})
 
             # Update server information
@@ -831,7 +833,9 @@ class ServerProvisioningWorkflow:
             username = ssh_config.get("username", "ubuntu")
 
             if not context.server_ip:
-                raise WorkflowError("Server IP address not available for hardware discovery")
+                raise WorkflowError(
+                    "Server IP address not available for hardware discovery"
+                )
 
             context.report_sub_task("Running hardware discovery scan")
             hardware_result = self.manager.discovery_manager.discover_hardware(
@@ -974,7 +978,9 @@ class ServerProvisioningWorkflow:
 
         try:
             if not context.server_ip:
-                raise WorkflowError("Server IP address not available for BIOS configuration")
+                raise WorkflowError(
+                    "Server IP address not available for BIOS configuration"
+                )
 
             # Establish SSH connection
             context.report_sub_task("Connecting to server via SSH")
@@ -1178,11 +1184,11 @@ class ServerProvisioningWorkflow:
             # Get server IP for pulling current BIOS config
             if not context.server_data:
                 raise WorkflowError("Server data not available for BIOS config parsing")
-            
+
             server_ip = context.server_data.get("ip_address")
             if not server_ip:
                 raise WorkflowError("Server IP not available for BIOS config parsing")
-                
+
             bios_config = self.manager.bios_manager.pull_current_bios_config(
                 server_ip, ssh_client.username, ssh_client.password
             )
@@ -1372,10 +1378,17 @@ class ServerProvisioningWorkflow:
 
         try:
             # Check if this is a supported vendor
-            if hasattr(context, "original_bios_config") and context.original_bios_config is not None:
+            if (
+                hasattr(context, "original_bios_config")
+                and context.original_bios_config is not None
+            ):
                 # Check if this is a dummy config by looking for the Note element
                 note_element = context.original_bios_config.find("Note")
-                if note_element is not None and note_element.text and "not yet implemented" in note_element.text:
+                if (
+                    note_element is not None
+                    and note_element.text
+                    and "not yet implemented" in note_element.text
+                ):
                     vendor = context.original_bios_config.get("vendor", "Unknown")
                     logger.info(
                         f"Skipping BIOS modification for {vendor} server - not yet supported"
@@ -1400,11 +1413,14 @@ class ServerProvisioningWorkflow:
             # Apply modifications for supported servers (primarily Supermicro)
             # Use the apply_template_to_config method with just device_type
             if context.original_bios_config is None:
-                raise WorkflowError("Original BIOS configuration not available for modification")
-                
-            modified_config, changes_made = self.manager.bios_manager.apply_template_to_config(
-                context.original_bios_config,
-                context.device_type
+                raise WorkflowError(
+                    "Original BIOS configuration not available for modification"
+                )
+
+            modified_config, changes_made = (
+                self.manager.bios_manager.apply_template_to_config(
+                    context.original_bios_config, context.device_type
+                )
             )
 
             context.modified_bios_config = modified_config
@@ -1425,11 +1441,11 @@ class ServerProvisioningWorkflow:
         # Get server IP from context
         if not context.server_data:
             raise WorkflowError("Server data not available for BIOS config push")
-        
+
         server_ip = context.server_data.get("ip_address")
         if not server_ip:
             raise WorkflowError("Server IP not available for BIOS config push")
-            
+
         logger.info(f"Pushing modified BIOS configuration to {server_ip}")
 
         try:
@@ -1465,7 +1481,9 @@ class ServerProvisioningWorkflow:
         """Push BIOS configuration for Supermicro servers"""
         try:
             if not context.server_ip:
-                raise WorkflowError("Server IP address not available for BIOS configuration")
+                raise WorkflowError(
+                    "Server IP address not available for BIOS configuration"
+                )
 
             # Reconnect via SSH
             ssh_client = self.manager.ssh_manager.connect(
@@ -1533,7 +1551,9 @@ class ServerProvisioningWorkflow:
             time.sleep(30)
 
             if not context.server_ip:
-                raise WorkflowError("Server IP address not available for IPMI configuration")
+                raise WorkflowError(
+                    "Server IP address not available for IPMI configuration"
+                )
 
             # Configure IPMI via SSH
             ssh_client = self.manager.ssh_manager.connect(

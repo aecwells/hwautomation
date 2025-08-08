@@ -128,7 +128,7 @@ class WorkflowManager:
         self.config = config
         self.workflows: Dict[str, "Workflow"] = {}
         self.logger = logging.getLogger(__name__)
-        
+
         # Type annotations for fields that will be set
         self.firmware_manager: Optional[Any] = None  # FirmwareManager
         self.firmware_workflow: Optional[FirmwareProvisioningWorkflow] = None
@@ -281,7 +281,7 @@ class WorkflowManager:
             # Execute the firmware provisioning workflow
             if not self.firmware_workflow:
                 raise WorkflowError("Firmware workflow not available")
-                
+
             result = await self.firmware_workflow.execute_firmware_first_provisioning(
                 provisioning_context
             )
