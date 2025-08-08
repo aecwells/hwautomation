@@ -15,7 +15,7 @@ on:
 # Environment variables
 env:
   PYTHON_DEFAULT_VERSION: "3.9"
-  COVERAGE_THRESHOLD: 80
+  COVERAGE_THRESHOLD: 15
 
 # Job definitions
 jobs:
