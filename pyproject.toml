@@ -96,6 +96,7 @@ markers = [
     "workflow: marks tests as workflow orchestration tests",
     "web: marks tests as web interface tests",
     "network: marks tests as requiring network access",
+    "asyncio: marks tests as asynchronous tests",
 ]
 
 # Test discovery and execution

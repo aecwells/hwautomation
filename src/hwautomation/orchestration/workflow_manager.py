@@ -15,7 +15,8 @@ from typing import Any, Callable, Dict, List, Optional
 from ..database.helper import DbHelper
 from ..hardware.bios_config import BiosConfigManager
 from ..hardware.discovery import HardwareDiscoveryManager
-from ..hardware.firmware_manager import FirmwareManager
+# Lazy import to avoid circular dependency - imported inside methods where needed
+# from ..hardware.firmware_manager import FirmwareManager
 from ..hardware.firmware_provisioning_workflow import (
     FirmwareProvisioningWorkflow,
     ProvisioningContext,
@@ -144,6 +145,8 @@ class WorkflowManager:
 
         # Initialize firmware management
         try:
+            # Lazy import to avoid circular dependency
+            from ..hardware.firmware_manager import FirmwareManager
             self.firmware_manager = FirmwareManager()
             self.firmware_workflow = FirmwareProvisioningWorkflow()
             logger.info("Firmware management initialized successfully")

@@ -373,35 +373,158 @@ class TestFirmwareExceptions:
 
 
 @pytest.mark.integration
+@pytest.mark.performance
 class TestFirmwareManagerIntegration:
     """Integration tests for FirmwareManager"""
 
     @pytest.mark.asyncio
     async def test_full_firmware_check_workflow(self):
         """Test complete firmware check workflow"""
+        import time
+        
+        start_time = time.time()
         firmware_manager = FirmwareManager()
 
         # Test with mock data
         firmware_info = await firmware_manager.check_firmware_versions(
             "a1.c5.large", "192.168.1.100", "admin", "password"
         )
+        
+        check_time = time.time() - start_time
 
         # Should return firmware info for BIOS and BMC
         assert len(firmware_info) >= 2
         assert FirmwareType.BIOS in firmware_info
         assert FirmwareType.BMC in firmware_info
+        
+        # Performance assertion: firmware check should complete within 5 seconds
+        assert check_time < 5.0, f"Firmware check took {check_time:.2f}s, expected < 5.0s"
 
         # Check if any updates are needed
         updates_needed = [fw for fw in firmware_info.values() if fw.update_required]
 
         if updates_needed:
-            # Test batch update
+            # Test batch update timing
+            update_start = time.time()
             results = await firmware_manager.update_firmware_batch(
                 "a1.c5.large", "192.168.1.100", "admin", "password", updates_needed
             )
+            update_time = time.time() - update_start
 
             assert len(results) == len(updates_needed)
             assert all(isinstance(r, FirmwareUpdateResult) for r in results)
+            
+            # Performance assertion: batch update should complete within reasonable time
+            expected_time = len(updates_needed) * 10  # 10 seconds per update max
+            assert update_time < expected_time, f"Batch update took {update_time:.2f}s, expected < {expected_time}s"
+
+
+@pytest.mark.performance
+class TestFirmwareManagerPerformance:
+    """Performance-focused tests for FirmwareManager"""
+
+    @pytest.fixture
+    def firmware_manager(self, temp_config_file):
+        """Create a FirmwareManager instance for testing"""
+        return FirmwareManager(config_file=temp_config_file)
+
+    def test_firmware_info_creation_performance(self):
+        """Test performance of creating FirmwareInfo objects"""
+        import time
+        
+        start_time = time.time()
+        
+        # Create many FirmwareInfo objects to test performance
+        firmware_objects = []
+        for i in range(1000):
+            firmware_info = FirmwareInfo(
+                firmware_type=FirmwareType.BIOS,
+                current_version=f"1.0.{i}",
+                latest_version=f"1.1.{i}",
+                update_required=True,
+                priority=UpdatePriority.NORMAL,  # Use NORMAL instead of RECOMMENDED
+                file_path=f"/path/to/firmware_{i}.bin",
+                checksum=f"sha256_{i}",
+                release_notes=f"Release notes {i}",
+                estimated_time=300,
+                requires_reboot=True,
+            )
+            firmware_objects.append(firmware_info)
+        
+        creation_time = time.time() - start_time
+        
+        # Performance assertion: should create 1000 objects in under 1 second
+        assert creation_time < 1.0, f"Creating 1000 FirmwareInfo objects took {creation_time:.2f}s, expected < 1.0s"
+        assert len(firmware_objects) == 1000
+
+    def test_repository_scan_performance(self):
+        """Test performance of repository scanning operations"""
+        import time
+        import tempfile
+        import os
+        
+        # Create a temporary directory with firmware files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create mock firmware files
+            start_time = time.time()
+            
+            for vendor in ['supermicro', 'dell', 'hp']:
+                vendor_dir = os.path.join(temp_dir, vendor)
+                os.makedirs(vendor_dir, exist_ok=True)
+                for fw_type in ['bios', 'bmc']:
+                    for i in range(10):  # 10 files per type
+                        fw_file = os.path.join(vendor_dir, f"{fw_type}_firmware_{i}.bin")
+                        with open(fw_file, 'w') as f:
+                            f.write(f"Mock firmware data {i}")
+            
+            # Simulate repository scanning by walking the directory
+            file_count = 0
+            for root, dirs, files in os.walk(temp_dir):
+                file_count += len(files)
+            
+            scan_time = time.time() - start_time
+            
+            # Performance assertion: scanning should complete within 2 seconds
+            assert scan_time < 2.0, f"Repository scan took {scan_time:.2f}s, expected < 2.0s"
+            
+            # Verify results
+            assert file_count == 60  # 3 vendors * 2 types * 10 files = 60 files
+
+    def test_firmware_update_result_serialization_performance(self):
+        """Test performance of FirmwareUpdateResult serialization"""
+        import time
+        
+        # Create a FirmwareUpdateResult object with correct API
+        result = FirmwareUpdateResult(
+            firmware_type=FirmwareType.BIOS,
+            success=True,
+            old_version="1.0.0",  # Use old_version instead of version_before
+            new_version="1.1.0",  # Use new_version instead of version_after
+            execution_time=45.5,
+            requires_reboot=True,
+            error_message=None,
+            warnings=[],
+        )
+        
+        start_time = time.time()
+        
+        # Serialize many times to test performance
+        serialized_results = []
+        for i in range(10000):
+            serialized = result.to_dict()
+            serialized_results.append(serialized)
+        
+        serialization_time = time.time() - start_time
+        
+        # Performance assertion: should serialize 10000 objects in under 1 second
+        assert serialization_time < 1.0, f"Serializing 10000 results took {serialization_time:.2f}s, expected < 1.0s"
+        assert len(serialized_results) == 10000
+        
+        # Verify serialization correctness
+        sample = serialized_results[0]
+        assert sample["firmware_type"] == "bios"  # Should be serialized to string
+        assert sample["success"] == True
+        assert sample["execution_time"] == 45.5
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import requests
 import yaml
 
-from ..orchestration.exceptions import WorkflowError
+from ..exceptions import FirmwareUpdateException, WorkflowError
 
 logger = logging.getLogger(__name__)
 
@@ -1627,8 +1627,4 @@ class FirmwareManager:
         return None
 
 
-# Custom exceptions
-class FirmwareUpdateException(WorkflowError):
-    """Firmware update specific exception"""
-
-    pass
+# Custom exceptions are now imported from shared exceptions module
