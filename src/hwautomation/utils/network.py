@@ -222,7 +222,7 @@ class SSHClient:
         """Establish SSH connection."""
         try:
             self.client = paramiko.SSHClient()
-            
+
             # Set host key policy based on verification preference
             if self.verify_host_key:
                 # Load system host keys and known_hosts

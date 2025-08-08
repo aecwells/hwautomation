@@ -29,35 +29,39 @@ class DbHelper:
         ."""
         # Validate tablename to prevent SQL injection
         if not tablename.isidentifier():
-            raise ValueError(f"Invalid table name: {tablename}. Must be a valid SQL identifier.")
-        
+            raise ValueError(
+                f"Invalid table name: {tablename}. Must be a valid SQL identifier."
+            )
+
         self.tablename = tablename
         self.db_path = db_path
         # Enable thread-safe SQLite connections for orchestration workflows
         self.sql_database = sqlite3.connect(db_path, check_same_thread=False)
         self.sql_db_worker = self.sql_database
 
+        # Apply migrations if requested
+        if auto_migrate:
+            self.migrate_database()
+
     def _validate_identifier(self, identifier: str, name: str = "identifier") -> str:
         """
         Validate SQL identifier (table/column name) to prevent injection.
-        
+
         Args:
             identifier: The identifier to validate
             name: Description of the identifier for error messages
-            
+
         Returns:
             The validated identifier
-            
+
         Raises:
             ValueError: If identifier is invalid
         """
         if not identifier.isidentifier():
-            raise ValueError(f"Invalid {name}: {identifier}. Must be a valid SQL identifier.")
+            raise ValueError(
+                f"Invalid {name}: {identifier}. Must be a valid SQL identifier."
+            )
         return identifier
-
-        # Apply migrations if requested
-        if auto_migrate:
-            self.migrate_database()
 
     def migrate_database(self):
         """Apply database migrations to ensure current schema."""
