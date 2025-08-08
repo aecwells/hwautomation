@@ -390,41 +390,41 @@ def create_test_makefile():
 
 # Run all tests
 test:
-	pytest
+    pytest
 
 # Run only unit tests (fast)
 test-unit:
-	pytest tests/unit/ -m "not slow"
+    pytest tests/unit/ -m "not slow"
 
 # Run integration tests
 test-integration:
-	pytest tests/integration/ -m integration
+    pytest tests/integration/ -m integration
 
 # Run tests with coverage
 test-cov:
-	pytest --cov=src/hwautomation --cov-report=term-missing
+    pytest --cov=src/hwautomation --cov-report=term-missing
 
 # Generate HTML coverage report
 test-html:
-	pytest --cov=src/hwautomation --cov-report=html
-	@echo "Coverage report generated in htmlcov/index.html"
+    pytest --cov=src/hwautomation --cov-report=html
+    @echo "Coverage report generated in htmlcov/index.html"
 
 # Run tests in parallel (faster)
 test-parallel:
-	pytest -n auto
+    pytest -n auto
 
 # Clean test artifacts
 clean-test:
-	rm -rf .pytest_cache/
-	rm -rf htmlcov/
-	rm -rf .coverage
-	rm -rf coverage.xml
-	find . -name "*.pyc" -delete
-	find . -name "__pycache__" -type d -exec rm -rf {} +
+    rm -rf .pytest_cache/
+    rm -rf htmlcov/
+    rm -rf .coverage
+    rm -rf coverage.xml
+    find . -name "*.pyc" -delete
+    find . -name "__pycache__" -type d -exec rm -rf {} +
 
 # Install test dependencies
 install-test:
-	pip install -e .[dev]
+    pip install -e .[dev]
 """
 
     with open("Makefile", "w") as f:

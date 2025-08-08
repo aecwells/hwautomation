@@ -36,14 +36,14 @@ SMBIOS 2.8 present.
 
 Handle 0x0100, DMI type 1, 27 bytes
 System Information
-	Manufacturer: QEMU
-	Product Name: Standard PC (i440FX + PIIX, 1996)
-	Version: pc-i440fx-9.2
-	Serial Number: Not Specified
-	UUID: aa2801b2-3c76-4563-b55a-a8211a1a10d5
-	Wake-up Type: Power Switch
-	SKU Number: Not Specified
-	Family: Not Specified
+    Manufacturer: QEMU
+    Product Name: Standard PC (i440FX + PIIX, 1996)
+    Version: pc-i440fx-9.2
+    Serial Number: Not Specified
+    UUID: aa2801b2-3c76-4563-b55a-a8211a1a10d5
+    Wake-up Type: Power Switch
+    SKU Number: Not Specified
+    Family: Not Specified
     """
 
     mock_ip_addr = """
