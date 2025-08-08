@@ -33,21 +33,240 @@ dependencies = [
     "PyYAML>=5.4.0",
     "paramiko>=2.7.0",
     "python-dotenv>=1.0.0",
+    "flask>=2.0.0",
+    "flask-socketio>=5.0.0",
+    "flask-restx>=1.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=6.0",
-    "pytest-cov",
-    "black",
-    "flake8",
-    "mypy",
+    "pytest-cov>=3.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+    "isort>=5.10.0",
+    "pre-commit>=2.20.0",
+    "sphinx>=5.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+]
+
+web = [
+    "flask>=2.0.0",
+    "flask-socketio>=5.0.0",
+    "flask-restx>=1.0.0",
+    "gunicorn>=20.0.0",
+]
+
+testing = [
+    "pytest>=6.0",
+    "pytest-cov>=3.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.10.0",
+    "pytest-html>=3.0.0",
+    "factory-boy>=3.2.0",
+    "responses>=0.20.0",
 ]
 
 [project.scripts]
 hwautomation = "hwautomation.cli.main:main"
 hw-web = "hwautomation.web.__main__:main"
 hw-cli = "hwautomation.cli.main:main"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Add custom markers
+markers = [
+    "unit: marks tests as unit tests (fast, isolated)",
+    "integration: marks tests as integration tests (slower, requires services)",
+    "performance: marks tests as performance tests (timing-sensitive)",
+    "slow: marks tests as slow running (>5 seconds)",
+    "api: marks tests as API endpoint tests",
+    "database: marks tests as database operation tests",
+    "bios: marks tests as BIOS configuration tests",
+    "maas: marks tests as MaaS integration tests",
+    "firmware: marks tests as firmware management tests",
+    "workflow: marks tests as workflow orchestration tests",
+    "web: marks tests as web interface tests",
+]
+
+# Test discovery and execution
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--tb=short",
+    "--showlocals",
+    "--durations=10",
+    "--color=yes",
+    # Coverage reporting
+    "--cov=src/hwautomation",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+    "--cov-fail-under=80",
+    # Performance and resource management
+    "--maxfail=5",
+    "--timeout=300",
+]
+
+# Test filtering
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    # Specific ignores for third-party libraries
+    "ignore:.*pkg_resources.*:DeprecationWarning",
+    "ignore:.*distutils.*:DeprecationWarning",
+]
+
+# Asyncio configuration
+asyncio_mode = "auto"
+
+# Test timeout (seconds)
+timeout = 300
+timeout_method = "thread"
+
+# Logging configuration during tests
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/hwautomation"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/virtualenv/*",
+    "*/.venv/*",
+    "*/site-packages/*",
+    "*/examples/*",
+    "*/tools/*",
+]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+ignore_errors = true
+precision = 2
+show_missing = true
+skip_covered = false
+sort = "Cover"
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "HWAutomation Test Coverage Report"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+# Black code formatting
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # Directories
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | hwautomation-env
+)/
+'''
+
+# isort import sorting
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
+skip_glob = ["*/migrations/*", "*/.venv/*", "*/hwautomation-env/*"]
+known_first_party = ["hwautomation"]
+known_third_party = [
+    "pytest",
+    "flask",
+    "requests",
+    "yaml",
+    "paramiko",
+    "sqlite3",
+]
+
+# MyPy type checking
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Enable gradually
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false  # Enable gradually
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+show_column_numbers = true
+show_error_context = true
+
+# Exclude paths
+exclude = [
+    "hwautomation-env/",
+    "build/",
+    "dist/",
+]
+
+# Per-module options
+[[tool.mypy.overrides]]
+module = [
+    "paramiko.*",
+    "requests_oauthlib.*",
+    "flask_socketio.*",
+    "flask_restx.*",
+]
+ignore_missing_imports = true
+
+# Bandit security configuration
+[tool.bandit]
+exclude_dirs = ["tests", "examples", "docs"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_substitution for tests
 
 [project.urls]
 Homepage = "https://github.com/yourorg/hwautomation"
