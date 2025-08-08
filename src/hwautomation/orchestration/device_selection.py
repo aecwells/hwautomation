@@ -10,6 +10,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Tuple
 
 from hwautomation.logging import get_logger
+
 from ..maas.client import MaasClient
 from ..utils.env_config import load_config
 

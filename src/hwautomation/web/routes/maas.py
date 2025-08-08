@@ -5,6 +5,7 @@ Handles MaaS integration, device discovery, and batch commissioning operations.
 ."""
 
 from flask import Blueprint, current_app, jsonify, request
+
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)

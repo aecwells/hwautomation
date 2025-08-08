@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import paramiko
+
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)

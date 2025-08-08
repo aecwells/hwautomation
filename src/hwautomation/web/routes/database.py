@@ -6,9 +6,10 @@ Handles database management, table viewing, and database operations.
 ."""
 
 import os
-import sqlite3
 
+import sqlite3
 from flask import Blueprint, jsonify, render_template, request
+
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)

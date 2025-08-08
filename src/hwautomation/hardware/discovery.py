@@ -12,8 +12,8 @@ from dataclasses import asdict, dataclass
 from ipaddress import AddressValueError, IPv4Address
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..utils.network import SSHClient, SSHManager
 from ..logging import get_logger
+from ..utils.network import SSHClient, SSHManager
 
 logger = get_logger(__name__)
 

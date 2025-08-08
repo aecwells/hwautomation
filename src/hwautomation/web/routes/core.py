@@ -8,6 +8,7 @@ Handles main dashboard, health checks, and core application routes.
 from datetime import datetime
 
 from flask import Blueprint, jsonify, render_template, request
+
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)

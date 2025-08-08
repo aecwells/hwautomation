@@ -243,7 +243,7 @@ handlers:
     level: INFO
     formatter: standard
     stream: ext://sys.stdout
-  
+
   file:
     class: logging.handlers.RotatingFileHandler
     level: DEBUG
@@ -251,7 +251,7 @@ handlers:
     filename: logs/hwautomation.log
     maxBytes: 10485760  # 10MB
     backupCount: 5
-  
+
   error_file:
     class: logging.handlers.RotatingFileHandler
     level: ERROR
@@ -265,12 +265,12 @@ loggers:
     level: DEBUG
     handlers: [console, file, error_file]
     propagate: false
-  
+
   hwautomation.hardware:
     level: DEBUG
     handlers: [file]
     propagate: true
-  
+
   hwautomation.web:
     level: INFO
     handlers: [console, file]

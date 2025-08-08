@@ -11,18 +11,17 @@ import os
 import sys
 import threading
 import time
+import uuid
 from pathlib import Path
 
 from flask import Flask
 from flask_socketio import SocketIO
 
 # Configure unified logging
-from hwautomation.logging import setup_logging, get_logger, set_correlation_id
-import os
-import uuid
+from hwautomation.logging import get_logger, set_correlation_id, setup_logging
 
 # Set up unified logging system
-environment = os.getenv('HW_AUTOMATION_ENV', 'development')
+environment = os.getenv("HW_AUTOMATION_ENV", "development")
 setup_logging(environment=environment)
 logger = get_logger(__name__)
 
@@ -59,20 +58,24 @@ def create_app():
 
     # Add correlation tracking to all requests
     from flask import request
-    
+
     @app.before_request
     def before_request():
         """Set correlation ID for each request for better debugging."""
-        correlation_id = request.headers.get('X-Correlation-ID') or f"req-{uuid.uuid4().hex[:8]}"
+        correlation_id = (
+            request.headers.get("X-Correlation-ID") or f"req-{uuid.uuid4().hex[:8]}"
+        )
         set_correlation_id(correlation_id)
-        
+
         # Log request start with correlation
         logger.info(f"Request started: {request.method} {request.path}")
 
     @app.after_request
     def after_request(response):
         """Log request completion with correlation."""
-        logger.info(f"Request completed: {request.method} {request.path} - Status: {response.status_code}")
+        logger.info(
+            f"Request completed: {request.method} {request.path} - Status: {response.status_code}"
+        )
         return response
 
     # Load configuration and initialize services

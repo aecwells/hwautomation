@@ -12,6 +12,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 from hwautomation.logging import get_logger
+
 from ..utils.network import SSHClient
 
 logger = get_logger(__name__)

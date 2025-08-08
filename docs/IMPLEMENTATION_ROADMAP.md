@@ -8,7 +8,7 @@ Based on comprehensive analysis of the HWAutomation project, I've identified cri
 
 ### **Large Files Requiring Immediate Attention:**
 - `bios_config.py` (2,484 lines) - **CRITICAL PRIORITY**
-- `server_provisioning.py` (2,004 lines) - **HIGH PRIORITY** 
+- `server_provisioning.py` (2,004 lines) - **HIGH PRIORITY**
 - `firmware_manager.py` (1,672 lines) - **HIGH PRIORITY**
 - `discovery.py` (859 lines) - **MEDIUM PRIORITY**
 

@@ -8,6 +8,7 @@ making the API self-documenting and interactive.
 
 from flask import Blueprint
 from flask_restx import Api, Namespace, Resource, fields
+
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)

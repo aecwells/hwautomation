@@ -14,11 +14,10 @@ import sys
 from pathlib import Path
 
 # Configure unified logging
-from hwautomation.logging import setup_logging, get_logger
-import os
+from hwautomation.logging import get_logger, setup_logging
 
 # Set up unified logging system
-environment = os.getenv('HW_AUTOMATION_ENV', 'development')
+environment = os.getenv("HW_AUTOMATION_ENV", "development")
 setup_logging(environment=environment)
 logger = get_logger(__name__)
 

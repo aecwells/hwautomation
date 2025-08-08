@@ -24,6 +24,7 @@ from ..hardware.firmware_provisioning_workflow import (
     ProvisioningContext,
 )
 from ..hardware.ipmi import IpmiManager
+from ..logging import get_logger
 from ..maas.client import MaasClient
 from ..utils.network import SSHManager
 from .exceptions import (
@@ -33,7 +34,6 @@ from .exceptions import (
     SSHConnectionError,
     WorkflowError,
 )
-from ..logging import get_logger
 
 logger = get_logger(__name__)
 

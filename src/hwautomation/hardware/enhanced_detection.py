@@ -11,10 +11,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
+from ..logging import get_logger
 from ..maas.client import MaasClient
 from ..utils.env_config import load_config
 from ..utils.network import SSHClient
-from ..logging import get_logger
 
 logger = get_logger(__name__)
 

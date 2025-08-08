@@ -4,15 +4,15 @@ import { resolve } from 'path';
 export default defineConfig({
   // Base path for assets
   base: '/static/',
-  
+
   // Build configuration
   build: {
     // Output directory relative to project root
     outDir: 'src/hwautomation/web/static/dist',
-    
+
     // Generate manifest for Flask integration
     manifest: true,
-    
+
     // Rollup options
     rollupOptions: {
       input: {
@@ -21,7 +21,7 @@ export default defineConfig({
         dashboard: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/dashboard.js'),
         firmware: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/firmware.js'),
         database: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/database.js'),
-        
+
         // Main application CSS
         main: resolve(__dirname, 'src/hwautomation/web/assets/scss/main.scss'),
         dashboard_styles: resolve(__dirname, 'src/hwautomation/web/assets/scss/pages/dashboard.scss'),
@@ -47,13 +47,13 @@ export default defineConfig({
         }
       }
     },
-    
+
     // Clean dist directory
     emptyOutDir: true,
-    
+
     // Source maps for debugging
     sourcemap: true,
-    
+
     // Minification
     minify: 'terser',
     terserOptions: {
@@ -63,7 +63,7 @@ export default defineConfig({
       }
     }
   },
-  
+
   // CSS configuration
   css: {
     preprocessorOptions: {
@@ -81,7 +81,7 @@ export default defineConfig({
       ]
     }
   },
-  
+
   // Server configuration for development
   server: {
     host: '0.0.0.0',
@@ -99,16 +99,16 @@ export default defineConfig({
       }
     }
   },
-  
+
   // Preview server configuration
   preview: {
     host: '0.0.0.0',
     port: 3001
   },
-  
+
   // Plugin configuration
   plugins: [],
-  
+
   // Resolve configuration
   resolve: {
     alias: {
@@ -118,7 +118,7 @@ export default defineConfig({
       '@components': resolve(__dirname, 'src/hwautomation/web/assets/js/components')
     }
   },
-  
+
   // Environment variables
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),

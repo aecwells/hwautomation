@@ -16,17 +16,18 @@ src_path = project_root / "src"
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
+import os
+
 from hwautomation import *
 from hwautomation.database.migrations import DatabaseMigrator
+
+# Configure unified logging
+from hwautomation.logging import get_logger, setup_logging
 from hwautomation.maas.client import create_maas_client
 from hwautomation.utils.env_config import get_config, load_config
 
-# Configure unified logging
-from hwautomation.logging import setup_logging, get_logger
-import os
-
 # Set up unified logging system
-environment = os.getenv('HW_AUTOMATION_ENV', 'development')
+environment = os.getenv("HW_AUTOMATION_ENV", "development")
 setup_logging(environment=environment)
 logger = get_logger(__name__)
 

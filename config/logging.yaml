@@ -9,12 +9,12 @@ formatters:
   standard:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     datefmt: '%Y-%m-%d %H:%M:%S'
-  
+
   detailed:
     format: '%(asctime)s - %(correlation_id)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s'
     datefmt: '%Y-%m-%d %H:%M:%S'
     (): hwautomation.logging.config.StructuredFormatter
-  
+
   json:
     (): hwautomation.logging.config.JSONFormatter
 
@@ -31,7 +31,7 @@ handlers:
     formatter: detailed
     filters: [correlation]
     stream: ext://sys.stdout
-  
+
   file:
     class: logging.handlers.RotatingFileHandler
     level: DEBUG
@@ -42,7 +42,7 @@ handlers:
     backupCount: 5
     mode: 'a'
     encoding: 'utf-8'
-  
+
   error_file:
     class: logging.handlers.RotatingFileHandler
     level: ERROR
@@ -60,22 +60,22 @@ loggers:
     level: DEBUG
     handlers: [console, file, error_file]
     propagate: false
-  
+
   hwautomation.hardware:
     level: DEBUG
     handlers: [file]
     propagate: true
-  
+
   hwautomation.web:
     level: INFO
     handlers: [console, file]
     propagate: true
-  
+
   hwautomation.orchestration:
     level: INFO
     handlers: [file]
     propagate: true
-  
+
   hwautomation.maas:
     level: INFO
     handlers: [file]

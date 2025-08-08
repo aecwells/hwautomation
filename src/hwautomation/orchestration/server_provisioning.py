@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from ..logging import get_logger
 from .exceptions import (
     BiosConfigurationError,
     CommissioningError,
@@ -25,7 +26,6 @@ from .exceptions import (
     WorkflowError,
 )
 from .workflow_manager import Workflow, WorkflowContext, WorkflowManager, WorkflowStep
-from ..logging import get_logger
 
 logger = get_logger(__name__)
 

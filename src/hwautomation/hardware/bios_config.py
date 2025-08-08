@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 import yaml
 
+from ..logging import get_logger
 from .bios_decision_logic import (
     BiosSettingMethodSelector,
     ConfigMethod,
@@ -31,7 +32,6 @@ from .bios_decision_logic import (
 )
 from .bios_monitoring import BiosConfigMonitor, OperationStatus, get_monitor
 from .redfish_manager import RedfishManager, SystemInfo
-from ..logging import get_logger
 
 logger = get_logger(__name__)
 

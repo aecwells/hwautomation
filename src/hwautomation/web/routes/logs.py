@@ -6,6 +6,7 @@ Handles log management, viewing, searching, and downloading.
 """
 
 from flask import Blueprint, Response, jsonify, render_template, request
+
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)
