@@ -1,9 +1,9 @@
 """
 MAAS API client for hardware automation.
 Handles authentication and API interactions with MAAS server.
-"""
+."""
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
 from oauthlib.oauth1 import SIGNATURE_PLAINTEXT
@@ -11,7 +11,7 @@ from requests_oauthlib import OAuth1Session
 
 
 class MaasClient:
-    """MAAS API client for server management"""
+    """MAAS API client for server management."""
 
     def __init__(self, host: str, consumer_key: str, consumer_token: str, secret: str):
         """
@@ -37,7 +37,7 @@ class MaasClient:
         )
 
     def _extract_owner_name(self, machine: Dict) -> str:
-        """Safely extract owner name from machine data"""
+        """Safely extract owner name from machine data."""
         owner = machine.get("owner")
         if owner:
             if isinstance(owner, dict):
@@ -47,7 +47,7 @@ class MaasClient:
         return "None"
 
     def get_machines(self) -> List[Dict]:
-        """Get list of all machines from MAAS"""
+        """Get list of all machines from MAAS."""
         try:
             response = self.session.get(f"{self.host}/api/2.0/machines/")
             response.raise_for_status()
@@ -57,7 +57,7 @@ class MaasClient:
             return []
 
     def get_machine(self, system_id: str) -> Optional[Dict]:
-        """Get specific machine by system ID"""
+        """Get specific machine by system ID."""
         try:
             response = self.session.get(f"{self.host}/api/2.0/machines/{system_id}/")
             response.raise_for_status()
@@ -67,7 +67,7 @@ class MaasClient:
             return None
 
     def commission_machine(self, system_id: str, enable_ssh: bool = True) -> bool:
-        """Commission a machine"""
+        """Commission a machine."""
         try:
             data = {"enable_ssh": 1 if enable_ssh else 0}
             response = self.session.post(
@@ -86,7 +86,7 @@ class MaasClient:
 
         This is useful for machines in 'Ready' status without IP addresses or
         when you need to restart the commissioning process from scratch.
-        """
+        ."""
         try:
             # Get current machine status
             machine = self.get_machine(system_id)
@@ -140,7 +140,7 @@ class MaasClient:
             return False
 
     def abort_machine_operation(self, system_id: str) -> bool:
-        """Abort any running operation on a machine"""
+        """Abort any running operation on a machine."""
         try:
             response = self.session.post(
                 f"{self.host}/api/2.0/machines/{system_id}/op-abort"
@@ -153,7 +153,7 @@ class MaasClient:
             return False
 
     def deploy_machine(self, system_id: str, os_name: str = None) -> bool:
-        """Deploy a machine"""
+        """Deploy a machine."""
         try:
             data = {}
             if os_name:
@@ -170,7 +170,7 @@ class MaasClient:
             return False
 
     def release_machine(self, system_id: str) -> bool:
-        """Release a machine"""
+        """Release a machine."""
         try:
             response = self.session.post(
                 f"{self.host}/api/2.0/machines/{system_id}/op-release"
@@ -183,12 +183,12 @@ class MaasClient:
             return False
 
     def get_machine_status(self, system_id: str) -> Optional[str]:
-        """Get machine status"""
+        """Get machine status."""
         machine = self.get_machine(system_id)
         return machine.get("status_name") if machine else None
 
     def get_machine_ip(self, system_id: str) -> Optional[str]:
-        """Get machine IP address from interface set"""
+        """Get machine IP address from interface set."""
         machine = self.get_machine(system_id)
         if not machine:
             return None
@@ -206,26 +206,26 @@ class MaasClient:
         return None
 
     def get_machines_by_status(self, status: str) -> List[Dict]:
-        """Get machines filtered by status"""
+        """Get machines filtered by status."""
         machines = self.get_machines()
         return [m for m in machines if m.get("status_name") == status]
 
     def get_ready_machines(self) -> List[Dict]:
-        """Get machines in 'Ready' status"""
+        """Get machines in 'Ready' status."""
         return self.get_machines_by_status("Ready")
 
     def get_deployed_machines(self) -> List[Dict]:
-        """Get machines in 'Deployed' status"""
+        """Get machines in 'Deployed' status."""
         return self.get_machines_by_status("Deployed")
 
     def get_available_machines(self) -> List[Dict]:
-        """Get machines available for commissioning (Ready, New, Failed commissioning)"""
+        """Get machines available for commissioning (Ready, New, Failed commissioning)."""
         machines = self.get_machines()
         available_statuses = ["Ready", "New", "Failed commissioning", "Failed testing"]
         return [m for m in machines if m.get("status_name") in available_statuses]
 
     def get_machines_summary(self) -> List[Dict]:
-        """Get simplified machine information for selection UI"""
+        """Get simplified machine information for selection UI."""
         machines = self.get_machines()
         summary = []
 
@@ -269,7 +269,7 @@ class MaasClient:
         return summary
 
     def _extract_ip_addresses(self, machine: Dict) -> List[str]:
-        """Extract all IP addresses from machine interfaces"""
+        """Extract all IP addresses from machine interfaces."""
         ip_addresses = []
 
         interface_set = machine.get("interface_set")
@@ -295,13 +295,13 @@ class MaasClient:
         return list(set(ip_addresses))  # Remove duplicates
 
     def get_machine_details(self, system_id: str) -> Optional[Dict]:
-        """Get detailed machine information including hardware specs"""
+        """Get detailed machine information including hardware specs."""
         machine = self.get_machine(system_id)
         if not machine:
             return None
 
         # Extract detailed hardware information
-        details = {
+        details: Dict[str, Any] = {
             "basic_info": {
                 "system_id": machine.get("system_id"),
                 "hostname": machine.get("hostname", machine.get("fqdn", "Unknown")),
@@ -379,7 +379,7 @@ class MaasClient:
         return details
 
     def tag_machine(self, system_id: str, tag: str) -> bool:
-        """Apply a tag to a machine"""
+        """Apply a tag to a machine."""
         try:
             # For now, just log the tag operation - MAAS API for tags can be complex
             # In a full implementation, this would use the MAAS tags API
@@ -390,7 +390,7 @@ class MaasClient:
             return False
 
     def mark_machine_ready(self, system_id: str) -> bool:
-        """Mark a machine as ready (this is typically done automatically by MAAS after commissioning)"""
+        """Mark a machine as ready (this is typically done automatically by MAAS after commissioning)."""
         try:
             # In MAAS, machines become "Ready" automatically after successful commissioning
             # This method is primarily for logging/tracking purposes
@@ -414,7 +414,7 @@ def create_maas_client(config: Dict = None) -> MaasClient:
 
     Returns:
         Configured MaasClient instance
-    """
+    ."""
     if config is None:
         # Load configuration from environment
         from ..utils.env_config import load_config

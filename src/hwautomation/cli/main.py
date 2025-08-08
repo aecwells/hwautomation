@@ -3,7 +3,7 @@
 Main CLI entry point for HWAutomation.
 
 Provides command-line interface for hardware automation operations.
-"""
+."""
 
 import argparse
 import logging

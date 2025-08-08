@@ -1,7 +1,7 @@
 """
 Database migration system for hardware automation project.
 Handles schema changes and data upgrades between versions.
-"""
+."""
 
 import json
 import os
@@ -12,7 +12,7 @@ import sqlite3
 
 
 class DatabaseMigrator:
-    """Handles database schema migrations"""
+    """Handles database schema migrations."""
 
     def __init__(self, db_path: str = ":memory:"):
         """
@@ -20,7 +20,7 @@ class DatabaseMigrator:
 
         Args:
             db_path: Path to the SQLite database file
-        """
+        ."""
         self.db_path = db_path
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
@@ -29,7 +29,7 @@ class DatabaseMigrator:
         self._ensure_migrations_table()
 
     def _ensure_migrations_table(self):
-        """Create the migrations tracking table if it doesn't exist"""
+        """Create the migrations tracking table if it doesn't exist."""
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -39,31 +39,31 @@ class DatabaseMigrator:
                 applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 checksum TEXT
             )
-        """
+        ."""
         )
         self.connection.commit()
 
     def get_current_version(self) -> int:
-        """Get the current database schema version"""
+        """Get the current database schema version."""
         result = self.cursor.execute(
             "SELECT MAX(version) FROM schema_migrations"
         ).fetchone()
         return result[0] if result[0] is not None else 0
 
     def get_applied_migrations(self) -> List[int]:
-        """Get list of all applied migration versions"""
+        """Get list of all applied migration versions."""
         results = self.cursor.execute(
             "SELECT version FROM schema_migrations ORDER BY version"
         ).fetchall()
         return [row[0] for row in results]
 
     def record_migration(self, version: int, name: str, checksum: str = None):
-        """Record that a migration has been applied"""
+        """Record that a migration has been applied."""
         self.cursor.execute(
             """
             INSERT INTO schema_migrations (version, name, checksum)
             VALUES (?, ?, ?)
-        """,
+        .""",
             (version, name, checksum),
         )
         self.connection.commit()
@@ -76,7 +76,7 @@ class DatabaseMigrator:
             version: Migration version number
             name: Human-readable migration name
             migration_func: Function that performs the migration
-        """
+        ."""
         current_version = self.get_current_version()
 
         if version <= current_version:
@@ -106,7 +106,7 @@ class DatabaseMigrator:
             raise
 
     def migrate_to_latest(self):
-        """Apply all pending migrations"""
+        """Apply all pending migrations."""
         migrations = self.get_all_migrations()
         applied = self.get_applied_migrations()
 
@@ -118,7 +118,7 @@ class DatabaseMigrator:
         """
         Get all available migrations in order.
         Returns list of (version, name, migration_function) tuples.
-        """
+        ."""
         return [
             (1, "Initial schema", self._migration_001_initial_schema),
             (2, "Add IPMI fields", self._migration_002_add_ipmi_fields),
@@ -134,7 +134,7 @@ class DatabaseMigrator:
 
     # Migration functions
     def _migration_001_initial_schema(self, cursor):
-        """Migration 001: Create initial schema"""
+        """Migration 001: Create initial schema."""
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS servers (
@@ -149,11 +149,11 @@ class DatabaseMigrator:
                 kcs_status TEXT,
                 host_interface_status TEXT
             )
-        """
+        ."""
         )
 
     def _migration_002_add_ipmi_fields(self, cursor):
-        """Migration 002: Add additional IPMI-related fields"""
+        """Migration 002: Add additional IPMI-related fields."""
         # Check if columns already exist
         cursor.execute("PRAGMA table_info(servers)")
         columns = [row[1] for row in cursor.fetchall()]
@@ -179,7 +179,7 @@ class DatabaseMigrator:
             )
 
     def _migration_003_add_timestamps(self, cursor):
-        """Migration 003: Add timestamp tracking"""
+        """Migration 003: Add timestamp tracking."""
         cursor.execute("PRAGMA table_info(servers)")
         columns = [row[1] for row in cursor.fetchall()]
 
@@ -204,11 +204,11 @@ class DatabaseMigrator:
             BEGIN
                 UPDATE servers SET updated_at = CURRENT_TIMESTAMP WHERE server_id = NEW.server_id;
             END
-        """
+        ."""
         )
 
     def _migration_004_add_metadata(self, cursor):
-        """Migration 004: Add server metadata fields"""
+        """Migration 004: Add server metadata fields."""
         cursor.execute("PRAGMA table_info(servers)")
         columns = [row[1] for row in cursor.fetchall()]
 
@@ -229,7 +229,7 @@ class DatabaseMigrator:
                 )
 
     def _migration_005_add_power_state(self, cursor):
-        """Migration 005: Add power state tracking"""
+        """Migration 005: Add power state tracking."""
         cursor.execute("PRAGMA table_info(servers)")
         columns = [row[1] for row in cursor.fetchall()]
 
@@ -253,11 +253,11 @@ class DatabaseMigrator:
                 changed_by TEXT,
                 FOREIGN KEY (server_id) REFERENCES servers (server_id)
             )
-        """
+        ."""
         )
 
     def _migration_006_add_device_workflow_fields(self, cursor):
-        """Migration 006: Add device type and workflow-related fields"""
+        """Migration 006: Add device type and workflow-related fields."""
         cursor.execute("PRAGMA table_info(servers)")
         columns = [row[1] for row in cursor.fetchall()]
 
@@ -306,7 +306,7 @@ class DatabaseMigrator:
             """
             CREATE INDEX IF NOT EXISTS idx_servers_workflow_id
             ON servers(workflow_id)
-        """
+        ."""
         )
 
         # Create index on device_type for filtering
@@ -314,7 +314,7 @@ class DatabaseMigrator:
             """
             CREATE INDEX IF NOT EXISTS idx_servers_device_type
             ON servers(device_type)
-        """
+        ."""
         )
 
         # Create workflow history table for tracking workflow executions
@@ -334,7 +334,7 @@ class DatabaseMigrator:
                 metadata TEXT, -- JSON string for additional data
                 FOREIGN KEY (server_id) REFERENCES servers (server_id)
             )
-        """
+        ."""
         )
 
         # Create index on workflow history for performance
@@ -342,18 +342,18 @@ class DatabaseMigrator:
             """
             CREATE INDEX IF NOT EXISTS idx_workflow_history_server_id
             ON workflow_history(server_id)
-        """
+        ."""
         )
 
         cursor.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_workflow_history_workflow_id
             ON workflow_history(workflow_id)
-        """
+        ."""
         )
 
     def backup_database(self, backup_path: str = None):
-        """Create a backup of the current database"""
+        """Create a backup of the current database."""
         if backup_path is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_path = f"hw_automation_backup_{timestamp}.db"
@@ -370,7 +370,7 @@ class DatabaseMigrator:
         return backup_path
 
     def export_schema_info(self) -> Dict[str, Any]:
-        """Export current schema information for debugging"""
+        """Export current schema information for debugging."""
         schema_info: Dict[str, Any] = {
             "current_version": self.get_current_version(),
             "applied_migrations": self.get_applied_migrations(),
@@ -402,7 +402,7 @@ class DatabaseMigrator:
         return schema_info
 
     def close(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.connection:
             self.connection.close()
 
@@ -414,7 +414,7 @@ def migrate_existing_database(old_db_path: str, new_db_path: str = None):
     Args:
         old_db_path: Path to existing database
         new_db_path: Path for migrated database (optional)
-    """
+    ."""
     if new_db_path is None:
         new_db_path = old_db_path
 

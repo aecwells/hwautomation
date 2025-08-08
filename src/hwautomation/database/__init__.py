@@ -1,4 +1,4 @@
-"""Database package for hardware automation"""
+"""Database package for hardware automation."""
 
 from .helper import DbHelper
 from .migrations import DatabaseMigrator

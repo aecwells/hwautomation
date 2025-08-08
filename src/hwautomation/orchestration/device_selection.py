@@ -3,7 +3,7 @@ Device Selection Service
 
 Provides functionality to list, filter, and select MaaS machines for commissioning
 without requiring manual entry of Machine IDs.
-"""
+."""
 
 import logging
 from dataclasses import dataclass
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class MachineStatus(Enum):
-    """MaaS machine status categories"""
+    """MaaS machine status categories."""
 
     AVAILABLE = "available"  # Ready, New, Failed commissioning
     COMMISSIONED = "commissioned"  # Commissioned, Testing
@@ -27,7 +27,7 @@ class MachineStatus(Enum):
 
 @dataclass
 class MachineFilter:
-    """Filter criteria for machine selection"""
+    """Filter criteria for machine selection."""
 
     status_category: Optional[MachineStatus] = None
     min_cpu_count: Optional[int] = None
@@ -41,7 +41,7 @@ class MachineFilter:
 
 
 class DeviceSelectionService:
-    """Service for selecting MaaS devices for commissioning"""
+    """Service for selecting MaaS devices for commissioning."""
 
     def __init__(self, maas_client: MaasClient = None, config: Dict = None):
         """
@@ -50,7 +50,7 @@ class DeviceSelectionService:
         Args:
             maas_client: MaaS client instance (will create if None)
             config: Configuration dictionary
-        """
+        ."""
         if maas_client:
             self.maas_client = maas_client
         else:
@@ -73,7 +73,7 @@ class DeviceSelectionService:
 
         Returns:
             List of machine summaries matching the filter
-        """
+        ."""
         try:
             # Get machine summaries from MaaS
             machines = self.maas_client.get_machines_summary()
@@ -99,7 +99,7 @@ class DeviceSelectionService:
 
         Returns:
             Machine summary if found, None otherwise
-        """
+        ."""
         try:
             machines = self.maas_client.get_machines_summary()
             for machine in machines:
@@ -120,7 +120,7 @@ class DeviceSelectionService:
 
         Returns:
             Detailed machine information
-        """
+        ."""
         try:
             return self.maas_client.get_machine_details(system_id)
         except Exception as e:
@@ -136,7 +136,7 @@ class DeviceSelectionService:
 
         Returns:
             Tuple of (is_valid, reason)
-        """
+        ."""
         try:
             machine = self.maas_client.get_machine(system_id)
             if not machine:
@@ -190,7 +190,7 @@ class DeviceSelectionService:
 
         Returns:
             Suggested device type string
-        """
+        ."""
         try:
             details = self.get_machine_details(system_id)
             if not details:
@@ -218,7 +218,7 @@ class DeviceSelectionService:
     def _apply_filters(
         self, machines: List[Dict], machine_filter: MachineFilter
     ) -> List[Dict]:
-        """Apply filtering criteria to machine list"""
+        """Apply filtering criteria to machine list."""
         filtered = []
 
         for machine in machines:
@@ -294,7 +294,7 @@ class DeviceSelectionService:
         return filtered
 
     def _categorize_status(self, status: str) -> MachineStatus:
-        """Categorize MaaS machine status"""
+        """Categorize MaaS machine status."""
         status_lower = status.lower()
 
         available_statuses = [
@@ -318,7 +318,7 @@ class DeviceSelectionService:
             return MachineStatus.OTHER
 
     def get_status_summary(self) -> Dict[str, int]:
-        """Get summary of machine statuses"""
+        """Get summary of machine statuses."""
         try:
             machines = self.maas_client.get_machines_summary()
 

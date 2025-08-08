@@ -2,7 +2,7 @@
 MaaS routes for HWAutomation Web Interface.
 
 Handles MaaS integration, device discovery, and batch commissioning operations.
-"""
+."""
 
 import logging
 

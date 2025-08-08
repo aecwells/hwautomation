@@ -3,11 +3,11 @@ Enhanced Hardware Detection Service
 
 Provides intelligent device detection and matching between MaaS hardware
 and BMC device types, with automated IPMI configuration validation.
-"""
+."""
 
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class HardwareSpec:
-    """Hardware specification for device type matching"""
+    """Hardware specification for device type matching."""
 
     cpu_model_pattern: Optional[str] = None
     cpu_count_min: Optional[int] = None
@@ -35,7 +35,7 @@ class HardwareSpec:
 
 @dataclass
 class BMCDeviceType:
-    """BMC device type definition"""
+    """BMC device type definition."""
 
     device_type: str
     display_name: str
@@ -47,19 +47,19 @@ class BMCDeviceType:
 
 @dataclass
 class IPMIValidation:
-    """IPMI validation results"""
+    """IPMI validation results."""
 
     is_accessible: bool
     firmware_version: Optional[str] = None
     oob_license_active: bool = False
     kcs_control: Optional[str] = None
     host_interface: Optional[str] = None
-    requires_update: List[str] = None
-    validation_errors: List[str] = None
+    requires_update: List[str] = field(default_factory=list)
+    validation_errors: List[str] = field(default_factory=list)
 
 
 class EnhancedHardwareDetector:
-    """Enhanced hardware detection with BMC device type matching"""
+    """Enhanced hardware detection with BMC device type matching."""
 
     def __init__(self, maas_client: MaasClient = None, config: Dict = None):
         """
@@ -68,13 +68,13 @@ class EnhancedHardwareDetector:
         Args:
             maas_client: MaaS client instance
             config: Configuration dictionary
-        """
+        ."""
         self.maas_client = maas_client
         self.config = config or load_config()
         self.device_types = self._load_device_types()
 
     def _load_device_types(self) -> Dict[str, BMCDeviceType]:
-        """Load BMC device type definitions from configuration"""
+        """Load BMC device type definitions from configuration."""
         device_types = {}
 
         # Define BMC device types based on the boarding document
@@ -224,8 +224,12 @@ class EnhancedHardwareDetector:
 
         Returns:
             List of (device_type, confidence_score) tuples, sorted by confidence
-        """
+        ."""
         try:
+            if self.maas_client is None:
+                logger.warning("MaaS client not available")
+                return []
+
             machine = self.maas_client.get_machine(system_id)
             if not machine:
                 logger.warning(f"Machine {system_id} not found in MaaS")
@@ -250,7 +254,7 @@ class EnhancedHardwareDetector:
             return []
 
     def _extract_hardware_info(self, machine: Dict) -> Dict:
-        """Extract relevant hardware information from MaaS machine data"""
+        """Extract relevant hardware information from MaaS machine data."""
         hardware_info = {
             "cpu_model": "",
             "cpu_count": 0,
@@ -320,7 +324,7 @@ class EnhancedHardwareDetector:
     def _calculate_match_confidence(
         self, hardware_info: Dict, device_spec: BMCDeviceType
     ) -> float:
-        """Calculate confidence score for hardware matching a device specification"""
+        """Calculate confidence score for hardware matching a device specification."""
         confidence = 0.0
         total_criteria = 0
 
@@ -383,7 +387,7 @@ class EnhancedHardwareDetector:
 
         Returns:
             IPMIValidation object with validation results
-        """
+        ."""
         validation = IPMIValidation(
             is_accessible=False, requires_update=[], validation_errors=[]
         )
@@ -465,7 +469,7 @@ class EnhancedHardwareDetector:
 
         Returns:
             Dictionary mapping machine_id to list of compatible device types
-        """
+        ."""
         machine_device_types = {}
 
         for machine_id in machine_ids:
@@ -479,9 +483,9 @@ class EnhancedHardwareDetector:
         return machine_device_types
 
     def get_device_type_info(self, device_type: str) -> Optional[BMCDeviceType]:
-        """Get information about a specific device type"""
+        """Get information about a specific device type."""
         return self.device_types.get(device_type)
 
     def list_all_device_types(self) -> List[BMCDeviceType]:
-        """List all available BMC device types"""
+        """List all available BMC device types."""
         return list(self.device_types.values())

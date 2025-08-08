@@ -3,7 +3,7 @@
 Database routes for HWAutomation Web Interface
 
 Handles database management, table viewing, and database operations.
-"""
+."""
 
 import logging
 import os

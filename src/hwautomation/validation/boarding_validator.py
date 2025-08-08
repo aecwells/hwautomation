@@ -3,7 +3,7 @@ BMC Boarding Validation Service
 
 Implements validation steps from the BMC boarding process document.
 Ensures all requirements are met before considering a device properly configured.
-"""
+."""
 
 import logging
 import re
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class ValidationStatus(Enum):
-    """Validation status levels"""
+    """Validation status levels."""
 
     PASS = "pass"
     FAIL = "fail"
@@ -28,7 +28,7 @@ class ValidationStatus(Enum):
 
 @dataclass
 class ValidationResult:
-    """Individual validation result"""
+    """Individual validation result."""
 
     check_name: str
     status: ValidationStatus
@@ -39,7 +39,7 @@ class ValidationResult:
 
 @dataclass
 class BoardingValidation:
-    """Complete boarding validation results"""
+    """Complete boarding validation results."""
 
     device_id: str
     device_type: str
@@ -48,11 +48,11 @@ class BoardingValidation:
     summary: Dict[str, int] = field(default_factory=dict)
 
     def __post_init__(self):
-        """Calculate summary after initialization"""
+        """Calculate summary after initialization."""
         self.update_summary()
 
     def update_summary(self):
-        """Update validation summary counts"""
+        """Update validation summary counts."""
         self.summary = {
             "total": len(self.validations),
             "passed": len(
@@ -79,7 +79,7 @@ class BoardingValidation:
 
 
 class BMCBoardingValidator:
-    """Validates BMC boarding according to the boarding process document"""
+    """Validates BMC boarding according to the boarding process document."""
 
     def __init__(self, config: Dict = None):
         """
@@ -87,13 +87,13 @@ class BMCBoardingValidator:
 
         Args:
             config: Configuration dictionary
-        """
+        ."""
         self.config = config or {}
         self.required_bios_settings = self._load_bios_requirements()
         self.required_ipmi_settings = self._load_ipmi_requirements()
 
     def _load_bios_requirements(self) -> Dict[str, Dict]:
-        """Load BIOS requirements from boarding document"""
+        """Load BIOS requirements from boarding document."""
         return {
             "rocketlake": {
                 "security": {
@@ -207,7 +207,7 @@ class BMCBoardingValidator:
         }
 
     def _load_ipmi_requirements(self) -> Dict[str, Dict]:
-        """Load IPMI requirements from boarding document"""
+        """Load IPMI requirements from boarding document."""
         return {
             "supermicro": {
                 "oob_license": "activated",
@@ -237,7 +237,7 @@ class BMCBoardingValidator:
 
         Returns:
             Complete validation results
-        """
+        ."""
         validation = BoardingValidation(
             device_id=device_id,
             device_type=device_type,
@@ -291,7 +291,7 @@ class BMCBoardingValidator:
     def _validate_connectivity(
         self, device_id: str, server_ip: str, ipmi_ip: str
     ) -> List[ValidationResult]:
-        """Validate basic connectivity to server and IPMI"""
+        """Validate basic connectivity to server and IPMI."""
         results = []
 
         # Test server IP connectivity
@@ -358,7 +358,7 @@ class BMCBoardingValidator:
 
         # Test SSH connectivity to server
         try:
-            ssh_client = SSHClient(server_ip, timeout=10)
+            ssh_client = SSHClient(server_ip, username="root", timeout=10)
             ssh_client.connect()
 
             results.append(
@@ -368,7 +368,7 @@ class BMCBoardingValidator:
                     message=f"SSH connection to {server_ip} successful",
                 )
             )
-            ssh_client.disconnect()
+            ssh_client.close()
 
         except Exception as e:
             results.append(
@@ -385,22 +385,24 @@ class BMCBoardingValidator:
     def _validate_hardware_info(
         self, device_id: str, server_ip: str
     ) -> List[ValidationResult]:
-        """Validate hardware information discovery"""
+        """Validate hardware information discovery."""
         results = []
 
         try:
-            ssh_client = SSHClient(server_ip, timeout=30)
+            ssh_client = SSHClient(server_ip, username="root", timeout=30)
             ssh_client.connect()
 
             # Check CPU information
-            cpu_info = ssh_client.execute_command("lscpu | grep 'Model name'")
-            if cpu_info and "Intel" in cpu_info:
+            stdout, stderr, exit_code = ssh_client.exec_command(
+                "lscpu | grep 'Model name'"
+            )
+            if exit_code == 0 and stdout and "Intel" in stdout:
                 results.append(
                     ValidationResult(
                         check_name="cpu_detection",
                         status=ValidationStatus.PASS,
                         message="CPU information detected successfully",
-                        details={"cpu_info": cpu_info.strip()},
+                        details={"cpu_info": stdout.strip()},
                     )
                 )
             else:
@@ -409,19 +411,19 @@ class BMCBoardingValidator:
                         check_name="cpu_detection",
                         status=ValidationStatus.WARNING,
                         message="CPU information may not be complete",
-                        details={"cpu_info": cpu_info},
+                        details={"cpu_info": stdout if stdout else ""},
                     )
                 )
 
             # Check memory information
-            mem_info = ssh_client.execute_command("free -h | grep 'Mem:'")
-            if mem_info:
+            stdout, stderr, exit_code = ssh_client.exec_command("free -h | grep 'Mem:'")
+            if exit_code == 0 and stdout:
                 results.append(
                     ValidationResult(
                         check_name="memory_detection",
                         status=ValidationStatus.PASS,
                         message="Memory information detected successfully",
-                        details={"memory_info": mem_info.strip()},
+                        details={"memory_info": stdout.strip()},
                     )
                 )
             else:
@@ -434,16 +436,16 @@ class BMCBoardingValidator:
                 )
 
             # Check disk information
-            disk_info = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "lsblk -d -o NAME,SIZE,MODEL | grep -v loop"
             )
-            if disk_info:
+            if exit_code == 0 and stdout:
                 results.append(
                     ValidationResult(
                         check_name="storage_detection",
                         status=ValidationStatus.PASS,
                         message="Storage information detected successfully",
-                        details={"storage_info": disk_info.strip()},
+                        details={"storage_info": stdout.strip()},
                     )
                 )
             else:
@@ -456,17 +458,17 @@ class BMCBoardingValidator:
                 )
 
             # Check network interfaces
-            nic_info = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "ip link show | grep -E '^[0-9]+:' | grep -v lo"
             )
-            if nic_info:
-                nic_count = len(nic_info.strip().split("\n"))
+            if exit_code == 0 and stdout:
+                nic_count = len(stdout.strip().split("\n"))
                 results.append(
                     ValidationResult(
                         check_name="network_interfaces",
                         status=ValidationStatus.PASS,
                         message=f"Detected {nic_count} network interfaces",
-                        details={"interfaces": nic_info.strip()},
+                        details={"interfaces": stdout.strip()},
                     )
                 )
             else:
@@ -478,7 +480,7 @@ class BMCBoardingValidator:
                     )
                 )
 
-            ssh_client.disconnect()
+            ssh_client.close()
 
         except Exception as e:
             results.append(
@@ -495,7 +497,7 @@ class BMCBoardingValidator:
     def _validate_ipmi_configuration(
         self, device_id: str, ipmi_ip: str, device_type: str
     ) -> List[ValidationResult]:
-        """Validate IPMI configuration according to boarding requirements"""
+        """Validate IPMI configuration according to boarding requirements."""
         results = []
 
         try:
@@ -652,18 +654,18 @@ class BMCBoardingValidator:
     def _validate_bios_configuration(
         self, device_id: str, server_ip: str, device_type: str
     ) -> List[ValidationResult]:
-        """Validate BIOS configuration (basic checks via OS)"""
+        """Validate BIOS configuration (basic checks via OS)."""
         results = []
 
         try:
-            ssh_client = SSHClient(server_ip, timeout=30)
+            ssh_client = SSHClient(server_ip, username="root", timeout=30)
             ssh_client.connect()
 
             # Check boot mode (UEFI vs Legacy)
-            boot_mode = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "[ -d /sys/firmware/efi ] && echo 'UEFI' || echo 'Legacy'"
             )
-            if boot_mode and "UEFI" in boot_mode:
+            if exit_code == 0 and stdout and "UEFI" in stdout:
                 results.append(
                     ValidationResult(
                         check_name="boot_mode",
@@ -671,7 +673,7 @@ class BMCBoardingValidator:
                         message="System is booted in UEFI mode",
                     )
                 )
-            elif boot_mode and "Legacy" in boot_mode:
+            elif exit_code == 0 and stdout and "Legacy" in stdout:
                 results.append(
                     ValidationResult(
                         check_name="boot_mode",
@@ -689,10 +691,10 @@ class BMCBoardingValidator:
                 )
 
             # Check for Secure Boot status
-            secure_boot = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "mokutil --sb-state 2>/dev/null || echo 'Not available'"
             )
-            if secure_boot and "disabled" in secure_boot.lower():
+            if exit_code == 0 and stdout and "disabled" in stdout.lower():
                 results.append(
                     ValidationResult(
                         check_name="secure_boot",
@@ -700,7 +702,7 @@ class BMCBoardingValidator:
                         message="Secure Boot is disabled as required",
                     )
                 )
-            elif secure_boot and "enabled" in secure_boot.lower():
+            elif exit_code == 0 and stdout and "enabled" in stdout.lower():
                 results.append(
                     ValidationResult(
                         check_name="secure_boot",
@@ -721,10 +723,10 @@ class BMCBoardingValidator:
             if "sgx" in device_type.lower() or any(
                 x in device_type for x in ["s5", "icx", "spr"]
             ):
-                sgx_status = ssh_client.execute_command(
+                stdout, stderr, exit_code = ssh_client.exec_command(
                     "grep -i sgx /proc/cpuinfo | head -1"
                 )
-                if sgx_status:
+                if exit_code == 0 and stdout:
                     results.append(
                         ValidationResult(
                             check_name="sgx_support",
@@ -741,7 +743,7 @@ class BMCBoardingValidator:
                         )
                     )
 
-            ssh_client.disconnect()
+            ssh_client.close()
 
         except Exception as e:
             results.append(
@@ -757,19 +759,19 @@ class BMCBoardingValidator:
     def _validate_network_configuration(
         self, device_id: str, server_ip: str
     ) -> List[ValidationResult]:
-        """Validate network configuration"""
+        """Validate network configuration."""
         results = []
 
         try:
-            ssh_client = SSHClient(server_ip, timeout=30)
+            ssh_client = SSHClient(server_ip, username="root", timeout=30)
             ssh_client.connect()
 
             # Check network interface count
-            interfaces = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "ip link show | grep -E '^[0-9]+:' | grep -v lo | wc -l"
             )
-            if interfaces:
-                iface_count = int(interfaces.strip())
+            if exit_code == 0 and stdout:
+                iface_count = int(stdout.strip())
                 if iface_count >= 2:
                     results.append(
                         ValidationResult(
@@ -788,11 +790,11 @@ class BMCBoardingValidator:
                     )
 
             # Check for active network interfaces
-            active_interfaces = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "ip link show up | grep -E '^[0-9]+:' | grep -v lo | wc -l"
             )
-            if active_interfaces:
-                active_count = int(active_interfaces.strip())
+            if exit_code == 0 and stdout:
+                active_count = int(stdout.strip())
                 results.append(
                     ValidationResult(
                         check_name="active_interfaces",
@@ -802,10 +804,10 @@ class BMCBoardingValidator:
                 )
 
             # Check DNS resolution
-            dns_test = ssh_client.execute_command(
+            stdout, stderr, exit_code = ssh_client.exec_command(
                 "nslookup google.com >/dev/null 2>&1 && echo 'OK' || echo 'FAIL'"
             )
-            if dns_test and "OK" in dns_test:
+            if exit_code == 0 and stdout and "OK" in stdout:
                 results.append(
                     ValidationResult(
                         check_name="dns_resolution",
@@ -822,7 +824,7 @@ class BMCBoardingValidator:
                     )
                 )
 
-            ssh_client.disconnect()
+            ssh_client.close()
 
         except Exception as e:
             results.append(
@@ -838,7 +840,7 @@ class BMCBoardingValidator:
     def _validate_device_page_requirements(
         self, device_id: str, device_type: str
     ) -> List[ValidationResult]:
-        """Validate device page requirements from boarding document"""
+        """Validate device page requirements from boarding document."""
         results = []
 
         # This would typically validate against your device management system

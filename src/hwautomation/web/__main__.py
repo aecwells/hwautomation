@@ -6,7 +6,7 @@ This allows running the web application as a Python module:
     python -m hwautomation.web
 
 This is cleaner than having a separate webapp.py launcher in the root directory.
-"""
+."""
 
 import logging
 import os

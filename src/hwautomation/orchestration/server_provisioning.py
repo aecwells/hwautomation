@@ -3,7 +3,7 @@ Server Provisioning Workflow
 
 Implements the complete server provisioning workflow from commissioning
 through BIOS configuration to IPMI setup and finalization.
-"""
+."""
 
 import asyncio
 import json
@@ -42,7 +42,7 @@ class ServerProvisioningWorkflow:
     6. Push updated BIOS config
     7. Update IPMI configuration
     8. Finalize and tag server
-    """
+    ."""
 
     def __init__(self, workflow_manager: WorkflowManager):
         self.manager = workflow_manager
@@ -77,7 +77,7 @@ class ServerProvisioningWorkflow:
         based on device status and SSH connectivity. target_ipmi_ip, rack_location,
         and gateway are optional and can be configured in a final manual step after
         hardware discovery.
-        """
+        ."""
         workflow_id = f"provision_{server_id}_{int(time.time())}"
         workflow = self.manager.create_workflow(workflow_id)
 
@@ -204,7 +204,7 @@ class ServerProvisioningWorkflow:
 
             Returns:
                 Workflow: Configured firmware-first provisioning workflow
-        """
+        ."""
         if not self.manager.firmware_workflow:
             # Fall back to regular provisioning if firmware not available
             logger.warning(
@@ -300,7 +300,7 @@ class ServerProvisioningWorkflow:
     def _execute_firmware_first_provisioning(
         self, context: WorkflowContext, device_type: str, firmware_policy: str
     ) -> Dict[str, Any]:
-        """Execute firmware-first provisioning step"""
+        """Execute firmware-first provisioning step."""
         try:
             context.report_sub_task("Preparing firmware-first provisioning...")
 
@@ -422,7 +422,7 @@ class ServerProvisioningWorkflow:
         subnet_mask: Optional[str],
         gateway: Optional[str],
     ) -> Dict[str, Any]:
-        """Configure IPMI with optional parameters"""
+        """Configure IPMI with optional parameters."""
         # Use existing IPMI configuration logic but with optional parameters
         context.target_ipmi_ip = target_ipmi_ip
         context.subnet_mask = subnet_mask
@@ -432,7 +432,7 @@ class ServerProvisioningWorkflow:
     def _finalize_server_firmware_first(
         self, context: WorkflowContext, rack_location: Optional[str]
     ) -> Dict[str, Any]:
-        """Finalize server with firmware-first specific updates"""
+        """Finalize server with firmware-first specific updates."""
         try:
             context.report_sub_task("Finalizing firmware-first provisioned server...")
 
@@ -475,7 +475,7 @@ class ServerProvisioningWorkflow:
             return {"success": False, "error": str(e)}
 
     def _commission_server(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 1: Commission server via MaaS and add to database"""
+        """Step 1: Commission server via MaaS and add to database."""
         logger.info(f"Commissioning server {context.server_id}")
 
         try:
@@ -670,7 +670,7 @@ class ServerProvisioningWorkflow:
             raise CommissioningError(f"Failed to commission server: {e}")
 
     def _get_server_ip(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 2: Retrieve server IP address and test SSH connectivity"""
+        """Step 2: Retrieve server IP address and test SSH connectivity."""
         logger.info(f"Retrieving IP address for server {context.server_id}")
 
         try:
@@ -768,7 +768,7 @@ class ServerProvisioningWorkflow:
 
         This is a lightweight connectivity test used during commissioning validation
         to determine if force recommissioning is needed.
-        """
+        ."""
         import socket
         import subprocess
 
@@ -823,7 +823,7 @@ class ServerProvisioningWorkflow:
             return False
 
     def _discover_hardware(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 3: Discover hardware information including IPMI address and store in database"""
+        """Step 3: Discover hardware information including IPMI address and store in database."""
         logger.info(f"Discovering hardware information for server {context.server_ip}")
 
         try:
@@ -951,7 +951,7 @@ class ServerProvisioningWorkflow:
             raise
 
     def _test_ipmi_connectivity(self, ipmi_ip: str, context: WorkflowContext) -> bool:
-        """Test IPMI connectivity to verify the discovered address"""
+        """Test IPMI connectivity to verify the discovered address."""
         try:
             # Simple ping test to IPMI address
             result = subprocess.run(
@@ -973,7 +973,7 @@ class ServerProvisioningWorkflow:
             return False
 
     def _pull_bios_config(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 4: Pull BIOS config via SSH"""
+        """Step 4: Pull BIOS config via SSH."""
         logger.info(f"Pulling BIOS configuration from {context.server_ip}")
 
         try:
@@ -1020,7 +1020,7 @@ class ServerProvisioningWorkflow:
             raise BiosConfigurationError(f"BIOS config pull failed: {e}")
 
     def _detect_server_vendor(self, ssh_client) -> str:
-        """Detect server vendor using DMI information"""
+        """Detect server vendor using DMI information."""
         try:
             # Try dmidecode first
             stdout, stderr, exit_code = ssh_client.exec_command(
@@ -1067,7 +1067,7 @@ class ServerProvisioningWorkflow:
     def _pull_bios_config_supermicro(
         self, ssh_client, context: WorkflowContext
     ) -> Dict[str, Any]:
-        """Pull BIOS configuration from Supermicro server using sumtool"""
+        """Pull BIOS configuration from Supermicro server using sumtool."""
         # Check if sumtool is available and install if needed
         context.report_sub_task("Checking for sumtool availability")
         logger.info("Checking for sumtool availability...")
@@ -1207,7 +1207,7 @@ class ServerProvisioningWorkflow:
     def _create_dummy_bios_config(
         self, context: WorkflowContext, vendor: str
     ) -> Dict[str, Any]:
-        """Create a dummy BIOS config for non-Supermicro servers"""
+        """Create a dummy BIOS config for non-Supermicro servers."""
         logger.info(f"Creating dummy BIOS config for {vendor} server")
 
         # Create a simple XML structure
@@ -1235,7 +1235,7 @@ class ServerProvisioningWorkflow:
         }
 
     def _install_sumtool_on_server(self, ssh_client) -> bool:
-        """Install Supermicro sumtool on remote server"""
+        """Install Supermicro sumtool on remote server."""
         try:
             # Check if sumtool is already installed
             stdout, stderr, exit_code = ssh_client.exec_command("which sumtool")
@@ -1321,7 +1321,7 @@ class ServerProvisioningWorkflow:
             sudo cp sum /usr/local/bin/sumtool && \
             sudo chmod +x /usr/local/bin/sumtool && \
             sudo ln -sf /usr/local/bin/sumtool /usr/bin/sumtool
-            """
+            ."""
 
             logger.debug(f"Install command: {install_command}")
             stdout, stderr, exit_code = ssh_client.exec_command(install_command.strip())
@@ -1371,7 +1371,7 @@ class ServerProvisioningWorkflow:
             return False
 
     def _modify_bios_config(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 5: Modify BIOS configuration"""
+        """Step 5: Modify BIOS configuration."""
         logger.info(
             f"Modifying BIOS configuration for device type {context.device_type}"
         )
@@ -1437,7 +1437,7 @@ class ServerProvisioningWorkflow:
             raise BiosConfigurationError(f"BIOS config modification failed: {e}")
 
     def _push_bios_config(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 6: Push updated BIOS config"""
+        """Step 6: Push updated BIOS config."""
         # Get server IP from context
         if not context.server_data:
             raise WorkflowError("Server data not available for BIOS config push")
@@ -1478,7 +1478,7 @@ class ServerProvisioningWorkflow:
             raise BiosConfigurationError(f"BIOS config push failed: {e}")
 
     def _push_bios_config_supermicro(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Push BIOS configuration for Supermicro servers"""
+        """Push BIOS configuration for Supermicro servers."""
         try:
             if not context.server_ip:
                 raise WorkflowError(
@@ -1521,7 +1521,7 @@ class ServerProvisioningWorkflow:
             raise BiosConfigurationError(f"Supermicro BIOS config push failed: {e}")
 
     def _configure_ipmi_conditional(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 7: Configure IPMI settings (only if target IP is provided)"""
+        """Step 7: Configure IPMI settings (only if target IP is provided)."""
 
         # Skip IPMI configuration if no target IP provided
         if not context.target_ipmi_ip:
@@ -1543,7 +1543,7 @@ class ServerProvisioningWorkflow:
         return self._configure_ipmi(context)
 
     def _configure_ipmi(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Configure IPMI settings with provided target IP"""
+        """Configure IPMI settings with provided target IP."""
         logger.info(f"Configuring IPMI with IP {context.target_ipmi_ip}")
 
         try:
@@ -1612,7 +1612,7 @@ class ServerProvisioningWorkflow:
             raise IPMIConfigurationError(f"IPMI configuration failed: {e}")
 
     def _finalize_server_basic(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 8: Basic server finalization without IPMI/rack requirements"""
+        """Step 8: Basic server finalization without IPMI/rack requirements."""
         logger.info(f"Finalizing basic server commissioning for {context.server_id}")
 
         try:
@@ -1686,7 +1686,7 @@ class ServerProvisioningWorkflow:
             raise Exception(f"Server finalization failed: {e}")
 
     def _get_next_steps(self, context: WorkflowContext) -> List[str]:
-        """Get list of manual steps that may be needed"""
+        """Get list of manual steps that may be needed."""
         next_steps = []
 
         if not context.target_ipmi_ip:
@@ -1706,7 +1706,7 @@ class ServerProvisioningWorkflow:
         return next_steps
 
     def _finalize_server(self, context: WorkflowContext) -> Dict[str, Any]:
-        """Step 8: Finalize server and update database with completion status"""
+        """Step 8: Finalize server and update database with completion status."""
         logger.info(f"Finalizing server {context.server_id}")
 
         try:
@@ -1811,7 +1811,7 @@ class ServerProvisioningWorkflow:
         Note: The workflow automatically detects when force recommissioning is needed
         based on device status and SSH connectivity. Devices in Ready/Commissioned
         state without SSH-accessible IP addresses will be automatically force recommissioned.
-        """
+        ."""
         # Create workflow
         workflow = self.create_provisioning_workflow(
             server_id=server_id,
@@ -1868,7 +1868,7 @@ class ServerProvisioningWorkflow:
 
         Returns:
             Dict containing configuration results
-        """
+        ."""
         try:
             logger.info(f"Starting manual IPMI configuration for {server_id}")
 
@@ -1977,7 +1977,7 @@ class ServerProvisioningWorkflow:
             }
 
     def _record_workflow_start(self, context: WorkflowContext):
-        """Record workflow start in the workflow_history table"""
+        """Record workflow start in the workflow_history table."""
         try:
             if context.db_helper and context.workflow_id:
                 from datetime import datetime
@@ -1987,7 +1987,7 @@ class ServerProvisioningWorkflow:
                     """
                     INSERT INTO workflow_history (workflow_id, server_id, workflow_type, device_type, status, start_time)
                     VALUES (?, ?, ?, ?, ?, ?)
-                """,
+                .""",
                     (
                         context.workflow_id,
                         context.server_id,

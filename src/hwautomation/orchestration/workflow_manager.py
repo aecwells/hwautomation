@@ -3,7 +3,7 @@ Workflow Manager for Hardware Orchestration
 
 This module provides the main orchestration engine that coordinates
 MaaS operations, BIOS configuration, and IPMI setup workflows.
-"""
+."""
 
 import logging
 import time
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class WorkflowStatus(Enum):
-    """Workflow execution status"""
+    """Workflow execution status."""
 
     PENDING = "pending"
     RUNNING = "running"
@@ -48,7 +48,7 @@ class WorkflowStatus(Enum):
 
 
 class StepStatus(Enum):
-    """Individual step status"""
+    """Individual step status."""
 
     PENDING = "pending"
     RUNNING = "running"
@@ -59,7 +59,7 @@ class StepStatus(Enum):
 
 @dataclass
 class WorkflowStep:
-    """Represents a single workflow step"""
+    """Represents a single workflow step."""
 
     name: str
     description: str
@@ -75,7 +75,7 @@ class WorkflowStep:
 
 @dataclass
 class WorkflowContext:
-    """Shared context for workflow execution"""
+    """Shared context for workflow execution."""
 
     server_id: str
     device_type: str
@@ -111,7 +111,7 @@ class WorkflowContext:
             self.hardware_info = {}
 
     def report_sub_task(self, sub_task_description: str):
-        """Report a sub-task being executed"""
+        """Report a sub-task being executed."""
         if self.sub_task_callback:
             self.sub_task_callback(sub_task_description)
 
@@ -122,7 +122,7 @@ class WorkflowManager:
 
     Coordinates the entire server provisioning process from commissioning
     through BIOS configuration to IPMI setup.
-    """
+    ."""
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
@@ -170,21 +170,21 @@ class WorkflowManager:
             self.firmware_workflow = None
 
     def create_workflow(self, workflow_id: str) -> "Workflow":
-        """Create a new workflow instance"""
+        """Create a new workflow instance."""
         workflow = Workflow(workflow_id, self)
         self.workflows[workflow_id] = workflow
         return workflow
 
     def get_workflow(self, workflow_id: str) -> Optional["Workflow"]:
-        """Get an existing workflow"""
+        """Get an existing workflow."""
         return self.workflows.get(workflow_id)
 
     def list_workflows(self) -> List[str]:
-        """List all workflow IDs"""
+        """List all workflow IDs."""
         return list(self.workflows.keys())
 
     def get_active_workflows(self) -> List[Dict[str, Any]]:
-        """Get all active workflows with their status"""
+        """Get all active workflows with their status."""
         active_workflows = []
         for workflow_id, workflow in self.workflows.items():
             if workflow.status in [WorkflowStatus.RUNNING, WorkflowStatus.PENDING]:
@@ -192,11 +192,11 @@ class WorkflowManager:
         return active_workflows
 
     def get_all_workflows(self) -> List[Dict[str, Any]]:
-        """Get all workflows with their status"""
+        """Get all workflows with their status."""
         return [workflow.get_status() for workflow in self.workflows.values()]
 
     def cancel_workflow(self, workflow_id: str) -> bool:
-        """Cancel a running workflow"""
+        """Cancel a running workflow."""
         workflow = self.get_workflow(workflow_id)
         if workflow:
             workflow.cancel()
@@ -204,7 +204,7 @@ class WorkflowManager:
         return False
 
     def cleanup_workflow(self, workflow_id: str):
-        """Clean up completed or failed workflow"""
+        """Clean up completed or failed workflow."""
         if workflow_id in self.workflows:
             del self.workflows[workflow_id]
 
@@ -232,7 +232,7 @@ class WorkflowManager:
 
             Returns:
                 Workflow: Configured firmware-first workflow or None if firmware not available
-        """
+        ."""
         if not self.firmware_workflow or not self.firmware_manager:
             logger.warning(
                 "Firmware management not available - cannot create firmware-first workflow"
@@ -274,7 +274,7 @@ class WorkflowManager:
         workflow_context: "WorkflowContext",
         provisioning_context: ProvisioningContext,
     ) -> bool:
-        """Execute the firmware-first provisioning workflow"""
+        """Execute the firmware-first provisioning workflow."""
         try:
             workflow_context.report_sub_task("Starting firmware-first provisioning...")
 
@@ -326,7 +326,7 @@ class WorkflowManager:
             return False
 
     def _update_firmware_provisioning_results(self, server_id: str, result):
-        """Update database with firmware provisioning results"""
+        """Update database with firmware provisioning results."""
         try:
             # Update server record with firmware provisioning information
             updates = {
@@ -356,7 +356,7 @@ class Workflow:
 
     Manages the execution of a sequence of steps with error handling,
     retries, and status tracking.
-    """
+    ."""
 
     def __init__(self, workflow_id: str, manager: WorkflowManager):
         self.id = workflow_id
@@ -372,15 +372,15 @@ class Workflow:
         self.current_sub_task: Optional[str] = None  # Track current sub-task
 
     def add_step(self, step: WorkflowStep):
-        """Add a step to the workflow"""
+        """Add a step to the workflow."""
         self.steps.append(step)
 
     def set_progress_callback(self, callback: Callable):
-        """Set callback for progress updates"""
+        """Set callback for progress updates."""
         self.progress_callback = callback
 
     def _report_sub_task(self, sub_task_description: str):
-        """Report a sub-task being executed"""
+        """Report a sub-task being executed."""
         self.current_sub_task = sub_task_description
         logger.info(f"Sub-task: {sub_task_description}")
 
@@ -413,7 +413,7 @@ class Workflow:
 
         Returns:
             bool: True if successful, False otherwise
-        """
+        ."""
         self.context = context
         self.status = WorkflowStatus.RUNNING
         self.start_time = datetime.now()
@@ -456,7 +456,7 @@ class Workflow:
     def _execute_step(
         self, step: WorkflowStep, step_num: int, total_steps: int
     ) -> bool:
-        """Execute a single workflow step with retry logic"""
+        """Execute a single workflow step with retry logic."""
         step.status = StepStatus.RUNNING
         step.start_time = datetime.now()
 
@@ -531,7 +531,7 @@ class Workflow:
         return False
 
     def cancel(self):
-        """Cancel the workflow execution"""
+        """Cancel the workflow execution."""
         self.status = WorkflowStatus.CANCELLED
         self.end_time = datetime.now()
         logger.info(f"Workflow {self.id} cancelled")
@@ -558,7 +558,7 @@ class Workflow:
             )
 
     def get_status(self) -> Dict[str, Any]:
-        """Get current workflow status"""
+        """Get current workflow status."""
         status_data = {
             "id": self.id,
             "status": self.status.value,

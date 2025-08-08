@@ -1,7 +1,7 @@
 """
 Database helper module for hardware automation.
 Provides database connectivity and basic operations.
-"""
+."""
 
 from typing import Dict, List, Optional
 
@@ -11,7 +11,7 @@ from .migrations import DatabaseMigrator
 
 
 class DbHelper:
-    """Database helper class for managing server information"""
+    """Database helper class for managing server information."""
 
     def __init__(
         self,
@@ -26,7 +26,7 @@ class DbHelper:
             db_path: Path to database file (defaults to hw_automation.db)
             tablename: Name of the main table (for backward compatibility, defaults to servers)
             auto_migrate: Whether to automatically apply migrations
-        """
+        ."""
         self.tablename = tablename
         self.db_path = db_path
         # Enable thread-safe SQLite connections for orchestration workflows
@@ -38,7 +38,7 @@ class DbHelper:
             self.migrate_database()
 
     def migrate_database(self):
-        """Apply database migrations to ensure current schema"""
+        """Apply database migrations to ensure current schema."""
         try:
             migrator = DatabaseMigrator(self.db_path)
             migrator.migrate_to_latest()
@@ -54,11 +54,11 @@ class DbHelper:
             self.createdbtable_legacy()
 
     def get_connection(self):
-        """Get a database connection context manager"""
+        """Get a database connection context manager."""
         return self.sql_database
 
     def createdbtable_legacy(self):
-        """Legacy table creation for backward compatibility"""
+        """Legacy table creation for backward compatibility."""
         self.sql_db_worker.execute(
             " CREATE TABLE IF NOT EXISTS " + self.tablename + " ("
             "server_id TEXT,"  # system_id
@@ -75,7 +75,7 @@ class DbHelper:
         )
 
     def createdbtable(self):
-        """Create table using current schema (handled by migrations)"""
+        """Create table using current schema (handled by migrations)."""
         # Table creation is now handled by the migration system
         # This method exists for backward compatibility
         try:
@@ -91,7 +91,7 @@ class DbHelper:
             self.createdbtable_legacy()
 
     def createrowforserver(self, serverid: str):
-        """Create a new row for a server"""
+        """Create a new row for a server."""
         table_name = self._get_table_name()
         self.sql_db_worker.execute(
             f"INSERT INTO {table_name} (server_id) VALUES (?)", (serverid,)
@@ -99,7 +99,7 @@ class DbHelper:
         self.sql_db_worker.commit()
 
     def updateserverinfo(self, serverid: str, column: str, colval: str):
-        """Update server information"""
+        """Update server information."""
         table_name = self._get_table_name()
         self.sql_db_worker.execute(
             f"UPDATE {table_name} SET {column} = ? WHERE server_id = ?",
@@ -108,7 +108,7 @@ class DbHelper:
         self.sql_db_worker.commit()
 
     def checkifserveridexists(self, serverid: str) -> List[bool]:
-        """Check if a server ID exists in the database"""
+        """Check if a server ID exists in the database."""
         table_name = self._get_table_name()
         check = [
             item[0]
@@ -120,20 +120,20 @@ class DbHelper:
         return check
 
     def checkready(self, serverid: str):
-        """Check if a server is ready"""
+        """Check if a server is ready."""
         table_name = self._get_table_name()
         return self.sql_db_worker.execute(
             f"SELECT is_ready FROM {table_name} WHERE server_id = ?", (serverid,)
         )
 
     def printtableinfo(self):
-        """Print table information"""
+        """Print table information."""
         table_name = self._get_table_name()
         result = self.sql_db_worker.execute(f"SELECT * FROM {table_name}").fetchall()
         print(result)
 
     def getserverswithworkingips(self) -> List[str]:
-        """Get list of server IPs that are working/reachable"""
+        """Get list of server IPs that are working/reachable."""
         table_name = self._get_table_name()
         result = self.sql_db_worker.execute(
             f"SELECT ip_address FROM {table_name} WHERE ip_address_works = 'TRUE' AND ip_address != 'Unreachable'"
@@ -141,7 +141,7 @@ class DbHelper:
         return [row[0] for row in result if row[0]]
 
     def _get_table_name(self) -> str:
-        """Get the actual table name to use (handles migration from old to new table names)"""
+        """Get the actual table name to use (handles migration from old to new table names)."""
         # Check if 'servers' table exists (new schema)
         result = self.sql_db_worker.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='servers'"
@@ -153,7 +153,7 @@ class DbHelper:
             return self.tablename
 
     def get_database_version(self) -> int:
-        """Get current database schema version"""
+        """Get current database schema version."""
         try:
             result = self.sql_db_worker.execute(
                 "SELECT MAX(version) FROM schema_migrations"
@@ -164,7 +164,7 @@ class DbHelper:
             return 0
 
     def update_server_metadata(self, server_id: str, **kwargs):
-        """Update server with new metadata fields"""
+        """Update server with new metadata fields."""
         table_name = self._get_table_name()
 
         # Get available columns
@@ -184,7 +184,7 @@ class DbHelper:
             self.sql_db_worker.commit()
 
     def get_server_by_id(self, server_id: str) -> Optional[Dict]:
-        """Get complete server information by ID"""
+        """Get complete server information by ID."""
         table_name = self._get_table_name()
         result = self.sql_db_worker.execute(
             f"SELECT * FROM {table_name} WHERE server_id = ?", (server_id,)
@@ -200,6 +200,6 @@ class DbHelper:
         return None
 
     def close(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.sql_database:
             self.sql_database.close()

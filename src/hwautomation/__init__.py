@@ -3,7 +3,7 @@ Hardware Automation Package
 
 A Python package for automating server hardware management through MAAS API,
 IPMI, and RedFish interfaces.
-"""
+."""
 
 __version__ = "1.0.0"
 __author__ = "Hardware Automation Team"

@@ -3,12 +3,12 @@ Firmware-First Provisioning Workflow
 
 Integrates firmware updates with the enhanced BIOS configuration system to provide a
 complete firmware-first provisioning workflow.
-"""
+."""
 
 import asyncio
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProvisioningPhase(Enum):
-    """Firmware-first provisioning phases"""
+    """Firmware-first provisioning phases."""
 
     PRE_FLIGHT = "pre_flight"
     FIRMWARE_ANALYSIS = "firmware_analysis"
@@ -40,7 +40,7 @@ class ProvisioningPhase(Enum):
 
 @dataclass
 class ProvisioningContext:
-    """Context for firmware-first provisioning operations"""
+    """Context for firmware-first provisioning operations."""
 
     server_id: str
     device_type: str
@@ -61,7 +61,7 @@ class ProvisioningContext:
 
 @dataclass
 class ProvisioningResult:
-    """Result of firmware-first provisioning operation"""
+    """Result of firmware-first provisioning operation."""
 
     success: bool
     operation_id: str
@@ -72,18 +72,15 @@ class ProvisioningResult:
     firmware_updates_applied: int = 0
     bios_settings_applied: int = 0
     error_message: Optional[str] = None
-    warnings: List[str] = None
-
-    def __post_init__(self):
-        if self.warnings is None:
-            self.warnings = []
+    warnings: List[str] = field(default_factory=list)
 
 
+@dataclass
 class FirmwareProvisioningWorkflow:
-    """Complete firmware-first provisioning workflow"""
+    """Complete firmware-first provisioning workflow."""
 
     def __init__(self):
-        """Initialize the firmware-first provisioning workflow"""
+        """Initialize the firmware-first provisioning workflow."""
         self.firmware_manager = FirmwareManager()
         self.bios_manager = BiosConfigManager()
         self.monitor = BiosConfigMonitor()
@@ -109,7 +106,7 @@ class FirmwareProvisioningWorkflow:
 
         Returns:
             ProvisioningResult with operation details
-        """
+        ."""
         logger.info(f"Starting firmware-first provisioning for {context.server_id}")
         logger.info(f"  Device: {context.device_type}")
         logger.info(f"  Target: {context.target_ip}")
@@ -350,7 +347,7 @@ class FirmwareProvisioningWorkflow:
             )
 
     async def _execute_pre_flight_validation(self, context: ProvisioningContext):
-        """Execute pre-flight system validation"""
+        """Execute pre-flight system validation."""
         logger.debug(f"Executing pre-flight validation for {context.target_ip}")
 
         try:
@@ -370,25 +367,25 @@ class FirmwareProvisioningWorkflow:
             raise WorkflowError(f"Pre-flight validation failed: {e}")
 
     async def _validate_network_connectivity(self, target_ip: str):
-        """Validate network connectivity to target system"""
+        """Validate network connectivity to target system."""
         # Simulate network connectivity check
         await asyncio.sleep(0.5)
         logger.debug(f"Network connectivity validated for {target_ip}")
 
     async def _validate_bmc_credentials(self, context: ProvisioningContext):
-        """Validate BMC credentials"""
+        """Validate BMC credentials."""
         # Simulate credential validation
         await asyncio.sleep(0.3)
         logger.debug(f"BMC credentials validated for {context.target_ip}")
 
     async def _validate_system_readiness(self, context: ProvisioningContext):
-        """Validate system readiness for provisioning"""
+        """Validate system readiness for provisioning."""
         # Simulate system readiness check
         await asyncio.sleep(0.2)
         logger.debug(f"System readiness validated for {context.target_ip}")
 
     async def _execute_firmware_analysis(self, context: ProvisioningContext):
-        """Execute firmware version analysis"""
+        """Execute firmware version analysis."""
         logger.debug(f"Executing firmware analysis for {context.device_type}")
 
         try:
@@ -416,7 +413,7 @@ class FirmwareProvisioningWorkflow:
     async def _execute_firmware_updates(
         self, context: ProvisioningContext, updates_needed: List[FirmwareInfo]
     ):
-        """Execute firmware updates"""
+        """Execute firmware updates."""
         logger.debug(f"Executing firmware updates for {len(updates_needed)} components")
 
         try:
@@ -455,7 +452,7 @@ class FirmwareProvisioningWorkflow:
             raise WorkflowError(f"Firmware updates failed: {e}")
 
     async def _execute_system_reboot(self, context: ProvisioningContext):
-        """Execute system reboot and validation"""
+        """Execute system reboot and validation."""
         logger.debug(f"Executing system reboot for {context.target_ip}")
 
         try:
@@ -471,7 +468,7 @@ class FirmwareProvisioningWorkflow:
             raise WorkflowError(f"System reboot failed: {e}")
 
     async def _execute_bios_configuration(self, context: ProvisioningContext):
-        """Execute BIOS configuration using enhanced monitoring logic"""
+        """Execute BIOS configuration using enhanced monitoring logic."""
         logger.debug(f"Executing BIOS configuration for {context.device_type}")
 
         try:
@@ -518,7 +515,7 @@ class FirmwareProvisioningWorkflow:
             raise WorkflowError(f"BIOS configuration failed: {e}")
 
     async def _execute_final_validation(self, context: ProvisioningContext):
-        """Execute final system validation"""
+        """Execute final system validation."""
         logger.debug(f"Executing final validation for {context.target_ip}")
 
         try:
@@ -535,13 +532,13 @@ class FirmwareProvisioningWorkflow:
             raise WorkflowError(f"Final validation failed: {e}")
 
     async def _validate_final_configuration(self, context: ProvisioningContext):
-        """Validate final system configuration"""
+        """Validate final system configuration."""
         # Simulate final configuration validation
         await asyncio.sleep(0.5)
         logger.debug(f"Final configuration validated for {context.target_ip}")
 
     async def _validate_system_health(self, context: ProvisioningContext):
-        """Validate system health"""
+        """Validate system health."""
         # Simulate system health validation
         await asyncio.sleep(0.3)
         logger.debug(f"System health validated for {context.target_ip}")
@@ -566,7 +563,7 @@ class FirmwareProvisioningWorkflow:
 
         Returns:
             ProvisioningContext instance
-        """
+        ."""
         return ProvisioningContext(
             server_id=server_id,
             device_type=device_type,
@@ -578,12 +575,12 @@ class FirmwareProvisioningWorkflow:
 
 # Factory function for creating workflow instances
 def create_firmware_provisioning_workflow() -> FirmwareProvisioningWorkflow:
-    """Create a new firmware provisioning workflow instance"""
+    """Create a new firmware provisioning workflow instance."""
     return FirmwareProvisioningWorkflow()
 
 
 # Custom exceptions
 class FirmwareProvisioningException(WorkflowError):
-    """Firmware provisioning specific exception"""
+    """Firmware provisioning specific exception."""
 
     pass

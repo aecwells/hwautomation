@@ -4,7 +4,7 @@ Redfish hardware management module for standardized BMC operations.
 This module provides a standardized interface for hardware management operations
 using the DMTF Redfish standard. It handles basic operations like power control,
 system information retrieval, and simple BIOS configuration.
-"""
+."""
 
 import json
 import logging
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RedfishCapabilities:
-    """Redfish capabilities discovered from the BMC"""
+    """Redfish capabilities discovered from the BMC."""
 
     supports_bios_config: bool = False
     supports_power_control: bool = False
@@ -34,7 +34,7 @@ class RedfishCapabilities:
 
 @dataclass
 class SystemInfo:
-    """System information retrieved via Redfish"""
+    """System information retrieved via Redfish."""
 
     manufacturer: Optional[str] = None
     model: Optional[str] = None
@@ -52,7 +52,7 @@ class RedfishManager:
 
     Provides standardized hardware operations using the DMTF Redfish API.
     Handles authentication, service discovery, and basic hardware operations.
-    """
+    ."""
 
     def __init__(
         self,
@@ -73,7 +73,7 @@ class RedfishManager:
             port: BMC port (default 443 for HTTPS)
             use_https: Whether to use HTTPS (default True)
             verify_ssl: Whether to verify SSL certificates (default False)
-        """
+        ."""
         self.host = host
         self.username = username
         self.password = password
@@ -88,21 +88,23 @@ class RedfishManager:
 
         # Disable SSL warnings if not verifying
         if not verify_ssl:
-            requests.packages.urllib3.disable_warnings()
+            import urllib3
 
-        self._service_root = None
-        self._capabilities = None
+            urllib3.disable_warnings()
+
+        self._service_root: Optional[Dict[str, Any]] = None
+        self._capabilities: Optional[RedfishCapabilities] = None
 
     def __enter__(self):
-        """Context manager entry"""
+        """Context manager entry."""
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit"""
+        """Context manager exit."""
         self.close()
 
     def close(self):
-        """Close the session"""
+        """Close the session."""
         if self.session:
             self.session.close()
 
@@ -120,7 +122,7 @@ class RedfishManager:
 
         Raises:
             Exception: If request fails
-        """
+        ."""
         try:
             response = self.session.request(method, url, timeout=30, **kwargs)
             response.raise_for_status()
@@ -138,7 +140,7 @@ class RedfishManager:
 
         Returns:
             JSON response as dictionary
-        """
+        ."""
         response = self._make_request("GET", url)
         return response.json()
 
@@ -148,7 +150,7 @@ class RedfishManager:
 
         Returns:
             Service root information
-        """
+        ."""
         if self._service_root is None:
             logger.info(f"Discovering Redfish service root at {self.host}")
             service_url = urljoin(self.base_url, "/redfish/v1/")
@@ -162,7 +164,7 @@ class RedfishManager:
 
         Returns:
             RedfishCapabilities object
-        """
+        ."""
         if self._capabilities is not None:
             return self._capabilities
 
@@ -208,7 +210,7 @@ class RedfishManager:
 
         Returns:
             SystemInfo object or None if failed
-        """
+        ."""
         try:
             capabilities = self.discover_capabilities()
             if not capabilities.supports_system_info:
@@ -265,7 +267,7 @@ class RedfishManager:
 
         Returns:
             Power state string ('On', 'Off', etc.) or None if failed
-        """
+        ."""
         try:
             system_info = self.get_system_info()
             if system_info:
@@ -284,7 +286,7 @@ class RedfishManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
         try:
             capabilities = self.discover_capabilities()
             if not capabilities.supports_power_control:
@@ -347,7 +349,7 @@ class RedfishManager:
 
         Returns:
             Dictionary of BIOS settings or None if failed
-        """
+        ."""
         try:
             capabilities = self.discover_capabilities()
             if not capabilities.supports_bios_config:
@@ -380,7 +382,7 @@ class RedfishManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
         return self.set_bios_settings({attribute: value})
 
     def set_bios_settings(self, settings: Dict[str, Any]) -> bool:
@@ -392,7 +394,7 @@ class RedfishManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
         try:
             capabilities = self.discover_capabilities()
             if not capabilities.supports_bios_config:
@@ -433,14 +435,14 @@ class RedfishManager:
 
         Returns:
             Dictionary mapping firmware types to versions
-        """
+        ."""
         try:
             # Temporarily create a new manager instance for the target
             temp_manager = RedfishManager(
-                target_ip, username, password, port=self.port, use_ssl=self.use_ssl
+                target_ip, username, password, port=self.port, use_https=self.use_https
             )
 
-            firmware_versions = {}
+            firmware_versions: Dict[str, str] = {}
 
             # Try to get system information first
             service_root = temp_manager.discover_service_root()
@@ -451,36 +453,33 @@ class RedfishManager:
                 return firmware_versions
 
             # Get systems collection
-            systems_response = temp_manager._make_request("GET", systems_uri)
+            systems_response = temp_manager._get_json(systems_uri)
             if not systems_response or "Members" not in systems_response:
                 logger.warning(f"No system members found for {target_ip}")
                 return firmware_versions
 
             # Get first system
             system_uri = systems_response["Members"][0]["@odata.id"]
-            system_info = temp_manager._make_request("GET", system_uri)
+            system_info = temp_manager._get_json(system_uri)
 
             if system_info:
                 # Extract BIOS version
                 bios_version = system_info.get("BiosVersion")
                 if bios_version:
-                    # Import here to avoid circular import
-                    from .firmware_manager import FirmwareType
-
-                    firmware_versions[FirmwareType.BIOS] = bios_version
+                    firmware_versions["BIOS"] = bios_version
 
                 # Try to get BMC version from manager info
                 managers_uri = service_root.get("Managers", {}).get("@odata.id")
                 if managers_uri:
-                    managers_response = temp_manager._make_request("GET", managers_uri)
+                    managers_response = temp_manager._get_json(managers_uri)
                     if managers_response and "Members" in managers_response:
                         manager_uri = managers_response["Members"][0]["@odata.id"]
-                        manager_info = temp_manager._make_request("GET", manager_uri)
+                        manager_info = temp_manager._get_json(manager_uri)
 
                         if manager_info:
                             bmc_version = manager_info.get("FirmwareVersion")
                             if bmc_version:
-                                firmware_versions[FirmwareType.BMC] = bmc_version
+                                firmware_versions["BMC"] = bmc_version
 
             logger.debug(
                 f"Retrieved firmware versions via Redfish: {firmware_versions}"
@@ -513,7 +512,7 @@ class RedfishManager:
 
         Returns:
             True if update was successful, False otherwise
-        """
+        ."""
         logger.info(
             f"Starting Redfish firmware update for {firmware_type.value} on {target_ip}"
         )
@@ -521,13 +520,13 @@ class RedfishManager:
         try:
             # Set up temporary manager for this operation
             original_host = self.host
-            original_auth = self.auth
+            original_auth = self.session.auth
 
             self.host = target_ip
-            self.auth = HTTPBasicAuth(username, password)
+            self.session.auth = HTTPBasicAuth(username, password)
 
             # Check connection first
-            if not await self.test_connection(target_ip, username, password):
+            if not self.test_connection():
                 logger.error(f"Cannot establish Redfish connection to {target_ip}")
                 return False
 
@@ -562,7 +561,7 @@ class RedfishManager:
 
         Returns:
             True if update was successful, False otherwise
-        """
+        ."""
         try:
             logger.info(f"Starting Redfish firmware update: {firmware_type}")
 
@@ -575,7 +574,7 @@ class RedfishManager:
                 return False
 
             # Get update service info
-            update_service = self._make_request("GET", update_service_uri)
+            update_service = self._get_json(update_service_uri)
             if not update_service:
                 logger.error("Failed to get UpdateService information")
                 return False
@@ -628,7 +627,7 @@ class RedfishManager:
         firmware_path: str,
         firmware_type: str,
     ) -> bool:
-        """Perform firmware update using SimpleUpdate action"""
+        """Perform firmware update using SimpleUpdate action."""
         try:
             update_uri = simple_update_action.get("target")
             if not update_uri:
@@ -650,12 +649,14 @@ class RedfishManager:
                 "TransferProtocol": "HTTP",
             }
 
-            response = self._make_request("POST", update_uri, payload)
+            response = self._make_request("POST", update_uri, json=payload)
 
-            if response:
+            if response and response.status_code == 200:
+                # Parse the JSON response
+                response_data = response.json()
                 # Check for task or immediate success
-                if response.get("@odata.type") == "#Task.v1_0_0.Task":
-                    task_uri = response.get("@odata.id")
+                if response_data.get("@odata.type") == "#Task.v1_0_0.Task":
+                    task_uri = response_data.get("@odata.id")
                     logger.info(f"Firmware update task created: {task_uri}")
 
                     # Monitor task status (simplified for demo)
@@ -676,7 +677,7 @@ class RedfishManager:
     async def _perform_multipart_update(
         self, multipart_uri: str, firmware_path: str, firmware_type: str
     ) -> bool:
-        """Perform firmware update using MultipartHTTPPush"""
+        """Perform firmware update using MultipartHTTPPush."""
         try:
             logger.info(f"Executing MultipartHTTPPush for {firmware_type}")
 
@@ -744,7 +745,7 @@ class RedfishManager:
     async def _perform_http_push_update(
         self, http_push_uri: str, firmware_path: str, firmware_type: str
     ) -> bool:
-        """Perform firmware update using HttpPushUri"""
+        """Perform firmware update using HttpPushUri."""
         try:
             logger.info(f"Executing HttpPushUri update for {firmware_type}")
 
@@ -793,7 +794,7 @@ class RedfishManager:
             return False
 
     async def _monitor_update_task(self, task_uri: str, firmware_type: str) -> bool:
-        """Monitor firmware update task status"""
+        """Monitor firmware update task status."""
         try:
             logger.info(f"Monitoring firmware update task for {firmware_type}")
 
@@ -802,7 +803,7 @@ class RedfishManager:
             elapsed_time = 0
 
             while elapsed_time < max_wait_time:
-                task_info = self._make_request("GET", task_uri)
+                task_info = self._get_json(task_uri)
 
                 if not task_info:
                     logger.error("Failed to get task information")
@@ -855,7 +856,7 @@ class RedfishManager:
 
         Returns:
             Tuple of (success, message)
-        """
+        ."""
         try:
             service_root = self.discover_service_root()
             service_version = service_root.get("RedfishVersion", "Unknown")
@@ -890,5 +891,5 @@ def create_redfish_manager(
 
     Returns:
         RedfishManager instance
-    """
+    ."""
     return RedfishManager(host, username, password, **kwargs)

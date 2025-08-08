@@ -4,7 +4,7 @@ Enhanced BIOS Configuration Decision Logic
 Implements intelligent per-setting method selection for BIOS configuration,
 optimizing between Redfish and vendor tools based on setting characteristics,
 device capabilities, and performance considerations.
-"""
+."""
 
 import logging
 from dataclasses import dataclass
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigMethod(Enum):
-    """BIOS configuration methods"""
+    """BIOS configuration methods."""
 
     REDFISH = "redfish"
     VENDOR_TOOL = "vendor_tool"
@@ -23,7 +23,7 @@ class ConfigMethod(Enum):
 
 
 class SettingPriority(Enum):
-    """Setting priority levels for method selection"""
+    """Setting priority levels for method selection."""
 
     REDFISH_PREFERRED = "redfish_preferred"  # Fast, reliable via Redfish
     REDFISH_FALLBACK = "redfish_fallback"  # Works via Redfish but vendor is better
@@ -33,7 +33,7 @@ class SettingPriority(Enum):
 
 @dataclass
 class SettingMethodInfo:
-    """Information about how to handle a specific BIOS setting"""
+    """Information about how to handle a specific BIOS setting."""
 
     setting_name: str
     priority: SettingPriority
@@ -48,7 +48,7 @@ class SettingMethodInfo:
 
 @dataclass
 class MethodSelectionResult:
-    """Result of method selection analysis"""
+    """Result of method selection analysis."""
 
     redfish_settings: Dict[str, Any]  # Settings to apply via Redfish
     vendor_settings: Dict[str, Any]  # Settings to apply via vendor tools
@@ -64,7 +64,7 @@ class BiosSettingMethodSelector:
 
     Analyzes device configuration and BIOS settings to determine the optimal
     method (Redfish vs vendor tools) for each individual setting.
-    """
+    ."""
 
     def __init__(self, device_config: Dict[str, Any]):
         """
@@ -72,14 +72,14 @@ class BiosSettingMethodSelector:
 
         Args:
             device_config: Device configuration from device_mappings.yaml
-        """
+        ."""
         self.device_config = device_config
         self.setting_methods = self._parse_setting_methods()
         self.performance_hints = device_config.get("method_performance", {})
         self.redfish_compatibility = device_config.get("redfish_compatibility", {})
 
     def _parse_setting_methods(self) -> Dict[str, SettingMethodInfo]:
-        """Parse setting method configuration into structured data"""
+        """Parse setting method configuration into structured data."""
         methods = {}
         bios_setting_methods = self.device_config.get("bios_setting_methods", {})
 
@@ -144,7 +144,7 @@ class BiosSettingMethodSelector:
 
         Returns:
             MethodSelectionResult with optimized method selection
-        """
+        ."""
         redfish_settings = {}
         vendor_settings = {}
         unknown_settings = {}
@@ -205,7 +205,7 @@ class BiosSettingMethodSelector:
     def _select_method_for_setting(
         self, method_info: SettingMethodInfo, prefer_performance: bool
     ) -> Tuple[ConfigMethod, str]:
-        """Select the best method for a known setting"""
+        """Select the best method for a known setting."""
 
         if method_info.priority == SettingPriority.REDFISH_PREFERRED:
             return (
@@ -257,7 +257,7 @@ class BiosSettingMethodSelector:
     def _analyze_unknown_setting(
         self, setting_name: str, setting_value: Any
     ) -> Tuple[ConfigMethod, str]:
-        """Analyze unknown setting and guess best method"""
+        """Analyze unknown setting and guess best method."""
         setting_lower = setting_name.lower()
 
         # Heuristics for unknown settings
@@ -322,7 +322,7 @@ class BiosSettingMethodSelector:
         vendor_settings: Dict[str, Any],
         redfish_batch_size: int,
     ) -> Dict[str, float]:
-        """Calculate estimated execution time for each method"""
+        """Calculate estimated execution time for each method."""
 
         # Calculate Redfish time (batched operations)
         redfish_count = len(redfish_settings)
@@ -364,7 +364,7 @@ class BiosSettingMethodSelector:
         vendor_settings: Dict[str, Any],
         batch_size: int,
     ) -> List[Dict[str, Any]]:
-        """Create optimized batch groups for execution"""
+        """Create optimized batch groups for execution."""
         batch_groups = []
 
         # Create Redfish batches
@@ -400,7 +400,7 @@ class BiosSettingMethodSelector:
         return batch_groups
 
     def get_method_statistics(self) -> Dict[str, Any]:
-        """Get statistics about configured method preferences"""
+        """Get statistics about configured method preferences."""
         stats = {
             "total_settings": len(self.setting_methods),
             "redfish_preferred": 0,
@@ -444,7 +444,7 @@ class BiosSettingMethodSelector:
 
         Returns:
             Dictionary mapping setting names to availability status
-        """
+        ."""
         validation_results = {}
 
         for setting_name, method_info in self.setting_methods.items():

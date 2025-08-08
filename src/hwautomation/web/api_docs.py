@@ -4,7 +4,7 @@ OpenAPI/Swagger documentation for HWAutomation API endpoints.
 
 This module provides comprehensive API documentation using Flask-RESTX,
 making the API self-documenting and interactive.
-"""
+."""
 
 import logging
 
@@ -237,7 +237,7 @@ class HealthCheck(Resource):
         },
     )
     def get(self):
-        """Get system health status"""
+        """Get system health status."""
         pass
 
 
@@ -252,7 +252,7 @@ class Dashboard(Resource):
         },
     )
     def get(self):
-        """Get dashboard statistics and status"""
+        """Get dashboard statistics and status."""
         pass
 
 
@@ -271,7 +271,7 @@ class ProvisionServer(Resource):
         },
     )
     def post(self):
-        """Start server provisioning workflow"""
+        """Start server provisioning workflow."""
         pass
 
 
@@ -284,7 +284,7 @@ class WorkflowList(Resource):
         responses={200: "Success - Workflows retrieved", 500: "Internal Server Error"},
     )
     def get(self):
-        """Get list of all workflows"""
+        """Get list of all workflows."""
         pass
 
 
@@ -302,7 +302,7 @@ class WorkflowStatus(Resource):
         },
     )
     def get(self, workflow_id):
-        """Get workflow status and progress"""
+        """Get workflow status and progress."""
         pass
 
 
@@ -321,7 +321,7 @@ class WorkflowCancel(Resource):
         },
     )
     def post(self, workflow_id):
-        """Cancel a running workflow"""
+        """Cancel a running workflow."""
         pass
 
 
@@ -338,7 +338,7 @@ class DatabaseInfo(Resource):
         },
     )
     def get(self):
-        """Get database information and statistics"""
+        """Get database information and statistics."""
         pass
 
 
@@ -356,7 +356,7 @@ class MaaSDiscover(Resource):
         },
     )
     def get(self):
-        """Discover available devices from MaaS"""
+        """Discover available devices from MaaS."""
         pass
 
 
@@ -380,14 +380,14 @@ class SystemLogs(Resource):
         },
     )
     def get(self):
-        """Get system logs with filtering options"""
+        """Get system logs with filtering options."""
         pass
 
 
 # Error handlers for consistent API responses
 @api.errorhandler(ValueError)
 def handle_value_error(error):
-    """Handle validation errors"""
+    """Handle validation errors."""
     return {
         "success": False,
         "error": str(error),
@@ -397,7 +397,7 @@ def handle_value_error(error):
 
 @api.errorhandler(KeyError)
 def handle_key_error(error):
-    """Handle missing parameter errors"""
+    """Handle missing parameter errors."""
     return {
         "success": False,
         "error": f"Missing required parameter: {str(error)}",
@@ -407,7 +407,7 @@ def handle_key_error(error):
 
 @api.errorhandler(Exception)
 def handle_generic_error(error):
-    """Handle unexpected errors"""
+    """Handle unexpected errors."""
     logger.exception("Unexpected API error")
     return {
         "success": False,
@@ -417,6 +417,6 @@ def handle_generic_error(error):
 
 
 def init_api_docs(app):
-    """Initialize API documentation with the Flask app"""
+    """Initialize API documentation with the Flask app."""
     app.register_blueprint(api_docs_bp)
     return api

@@ -1,6 +1,6 @@
 """
 IPMI management module for hardware automation.
-"""
+."""
 
 import subprocess
 from typing import Dict, List, Optional
@@ -9,7 +9,7 @@ from ..utils.network import get_ipmi_ip_via_ssh
 
 
 class IpmiManager:
-    """Manages IPMI operations for servers"""
+    """Manages IPMI operations for servers."""
 
     def __init__(self, username: str = "ADMIN", timeout: int = 30):
         """
@@ -18,7 +18,7 @@ class IpmiManager:
         Args:
             username: IPMI username
             timeout: Command timeout in seconds
-        """
+        ."""
         self.username = username
         self.timeout = timeout
 
@@ -34,7 +34,7 @@ class IpmiManager:
 
         Returns:
             List of discovered IPMI IP addresses
-        """
+        ."""
         ipmi_ips = []
 
         for server_ip in server_ips:
@@ -66,7 +66,7 @@ class IpmiManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
         try:
             cmd = [
                 "ssh",
@@ -105,7 +105,7 @@ class IpmiManager:
 
         Returns:
             Dictionary mapping server IPs to success status
-        """
+        ."""
         results = {}
 
         for server_ip in server_ips:
@@ -125,7 +125,7 @@ class IpmiManager:
 
         Returns:
             Power status string or None if failed
-        """
+        ."""
         try:
             cmd = [
                 "ipmitool",
@@ -174,7 +174,7 @@ class IpmiManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
         valid_actions = ["on", "off", "cycle", "reset"]
         if action.lower() not in valid_actions:
             print(f"Invalid power action: {action}. Valid actions: {valid_actions}")
@@ -221,7 +221,7 @@ class IpmiManager:
 
         Returns:
             Dictionary of sensor data or None if failed
-        """
+        ."""
         try:
             cmd = [
                 "ipmitool",

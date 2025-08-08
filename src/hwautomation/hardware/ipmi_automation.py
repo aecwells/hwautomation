@@ -3,12 +3,12 @@ IPMI Automation Service
 
 Implements automated IPMI configuration based on BMC boarding process requirements.
 Handles different server types (Supermicro, HP iLO) with vendor-specific settings.
-"""
+."""
 
 import logging
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class IPMIVendor(Enum):
-    """Supported IPMI vendors"""
+    """Supported IPMI vendors."""
 
     SUPERMICRO = "supermicro"
     HP_ILO = "hp_ilo"
@@ -28,7 +28,7 @@ class IPMIVendor(Enum):
 
 @dataclass
 class IPMISettings:
-    """IPMI configuration settings"""
+    """IPMI configuration settings."""
 
     admin_password: str
     kcs_control: Optional[str] = None  # 'user' for Supermicro
@@ -41,18 +41,18 @@ class IPMISettings:
 
 @dataclass
 class IPMIConfigResult:
-    """Result of IPMI configuration attempt"""
+    """Result of IPMI configuration attempt."""
 
     success: bool
     vendor: IPMIVendor
     firmware_version: Optional[str] = None
-    settings_applied: List[str] = None
-    errors: List[str] = None
-    warnings: List[str] = None
+    settings_applied: List[str] = field(default_factory=list)
+    errors: List[str] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
 
 
 class IPMIAutomationService:
-    """Service for automating IPMI configuration according to BMC boarding requirements"""
+    """Service for automating IPMI configuration according to BMC boarding requirements."""
 
     def __init__(self, config: Dict = None):
         """
@@ -60,7 +60,7 @@ class IPMIAutomationService:
 
         Args:
             config: Configuration dictionary
-        """
+        ."""
         self.config = config or {}
         self.default_passwords = {
             IPMIVendor.SUPERMICRO: self.config.get("ipmi_default_password", "ADMIN"),
@@ -80,7 +80,7 @@ class IPMIAutomationService:
 
         Returns:
             Detected IPMI vendor
-        """
+        ."""
         try:
             # Try to get MC info to detect vendor
             cmd = [
@@ -143,7 +143,7 @@ class IPMIAutomationService:
         - Set KCS control to 'user' (disables OS access)
         - Disable Host Interface (device must be powered off)
         - Ensure OOB license is activated
-        """
+        ."""
         result = IPMIConfigResult(
             success=False,
             vendor=IPMIVendor.SUPERMICRO,
@@ -304,7 +304,7 @@ class IPMIAutomationService:
         - Set Require Host Authentication to ENABLED
         - Set Require Login for iLO RBSU to ENABLED
         - Create ADMIN user with default password
-        """
+        ."""
         result = IPMIConfigResult(
             success=False,
             vendor=IPMIVendor.HP_ILO,
@@ -412,7 +412,7 @@ class IPMIAutomationService:
 
         Returns:
             IPMIConfigResult with configuration results
-        """
+        ."""
         if admin_password is None:
             admin_password = self.config.get("ipmi_default_password", "ADMIN")
 
@@ -435,7 +435,7 @@ class IPMIAutomationService:
     def _create_ipmi_settings(
         self, device_type: str, vendor: IPMIVendor, admin_password: str
     ) -> IPMISettings:
-        """Create IPMI settings based on device type and vendor"""
+        """Create IPMI settings based on device type and vendor."""
         settings = IPMISettings(admin_password=admin_password)
 
         if vendor == IPMIVendor.SUPERMICRO:
@@ -456,7 +456,7 @@ class IPMIAutomationService:
     def _configure_generic_ipmi(
         self, ipmi_ip: str, settings: IPMISettings
     ) -> IPMIConfigResult:
-        """Configure generic IPMI when vendor is unknown"""
+        """Configure generic IPMI when vendor is unknown."""
         result = IPMIConfigResult(
             success=False,
             vendor=IPMIVendor.UNKNOWN,
@@ -536,11 +536,11 @@ class IPMIAutomationService:
 
         Returns:
             Validation results dictionary
-        """
+        ."""
         if admin_password is None:
             admin_password = self.config.get("ipmi_default_password", "ADMIN")
 
-        validation = {
+        validation: Dict[str, Any] = {
             "ipmi_accessible": False,
             "authentication_working": False,
             "power_control_working": False,
@@ -548,6 +548,7 @@ class IPMIAutomationService:
             "vendor_detected": None,
             "requirements_met": [],
             "requirements_missing": [],
+            "errors": [],
             "warnings": [],
         }
 

@@ -1,4 +1,4 @@
-"""MAAS integration package"""
+"""MAAS integration package."""
 
 from .client import MaasClient
 

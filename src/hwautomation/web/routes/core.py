@@ -3,7 +3,7 @@
 Core routes for HWAutomation Web Interface
 
 Handles main dashboard, health checks, and core application routes.
-"""
+."""
 
 import logging
 from datetime import datetime

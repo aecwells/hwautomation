@@ -1,4 +1,4 @@
-"""Utility functions package"""
+"""Utility functions package."""
 
 from .config import load_config
 from .network import ping_host

@@ -47,7 +47,7 @@ class FirmwareWebManager:
             Dict containing firmware status, versions, and update availability
         """
         try:
-            inventory = {
+            inventory: Dict[str, Any] = {
                 "servers": [],
                 "update_summary": {
                     "total_servers": 0,
@@ -136,7 +136,7 @@ class FirmwareWebManager:
                 if firmware_base_path.exists():
                     # Count firmware files
                     firmware_extensions = [".bin", ".rom", ".fwpkg", ".fw", ".img"]
-                    firmware_files = []
+                    firmware_files: List[Path] = []
                     for ext in firmware_extensions:
                         firmware_files.extend(firmware_base_path.rglob(f"*{ext}"))
 

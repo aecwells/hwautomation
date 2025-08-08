@@ -1,6 +1,6 @@
 """
 Network utility functions for hardware automation.
-"""
+."""
 
 import logging
 import platform
@@ -23,7 +23,7 @@ def ping_host(ip_address: str, timeout: int = 5) -> bool:
 
     Returns:
         True if host is reachable, False otherwise
-    """
+    ."""
     try:
         # Determine ping command based on OS
         system = platform.system().lower()
@@ -56,7 +56,7 @@ def get_ipmi_ip_via_ssh(
 
     Returns:
         IPMI IP address if found, None otherwise
-    """
+    ."""
     try:
         cmd = [
             "ssh",
@@ -95,7 +95,7 @@ def test_port_connectivity(host: str, port: int, timeout: int = 5) -> bool:
 
     Returns:
         True if port is reachable, False otherwise
-    """
+    ."""
     import socket
 
     try:
@@ -118,7 +118,7 @@ def resolve_hostname(hostname: str) -> Optional[str]:
 
     Returns:
         IP address if resolution successful, None otherwise
-    """
+    ."""
     import socket
 
     try:
@@ -134,7 +134,7 @@ class SSHManager:
 
     Provides a simplified interface for SSH connections with proper
     error handling and resource management.
-    """
+    ."""
 
     def __init__(self, config: dict = None):
         """
@@ -142,7 +142,7 @@ class SSHManager:
 
         Args:
             config: SSH configuration dictionary
-        """
+        ."""
         self.config = config or {}
         self.default_username = self.config.get("default_username", "ubuntu")
         self.default_timeout = self.config.get("timeout", 60)
@@ -171,7 +171,7 @@ class SSHManager:
 
         Raises:
             Exception: If connection fails
-        """
+        ."""
         username = username or self.default_username
         timeout = timeout or self.default_timeout
         key_file = key_file or self.key_file
@@ -187,7 +187,7 @@ class SSHClient:
 
     Manages a single SSH connection with methods for command execution
     and file transfer operations.
-    """
+    ."""
 
     def __init__(
         self,
@@ -206,7 +206,7 @@ class SSHClient:
             password: SSH password (if not using keys)
             key_file: Path to SSH private key file
             timeout: Connection timeout in seconds
-        """
+        ."""
         self.host = host
         self.username = username
         self.password = password
@@ -216,7 +216,7 @@ class SSHClient:
         self.sftp = None
 
     def connect(self):
-        """Establish SSH connection"""
+        """Establish SSH connection."""
         try:
             self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -248,7 +248,7 @@ class SSHClient:
 
         Returns:
             Tuple of (stdout, stderr, exit_code)
-        """
+        ."""
         if not self.client:
             raise Exception("SSH client not connected")
 
@@ -272,7 +272,7 @@ class SSHClient:
         Args:
             local_path: Local file path
             remote_path: Remote file path
-        """
+        ."""
         if not self.client:
             raise Exception("SSH client not connected")
 
@@ -294,7 +294,7 @@ class SSHClient:
         Args:
             remote_path: Remote file path
             local_path: Local file path
-        """
+        ."""
         if not self.client:
             raise Exception("SSH client not connected")
 
@@ -314,7 +314,7 @@ class SSHClient:
             raise
 
     def close(self):
-        """Close SSH connection"""
+        """Close SSH connection."""
         try:
             if self.sftp:
                 self.sftp.close()
@@ -330,10 +330,10 @@ class SSHClient:
             logger.error(f"Error closing SSH connection: {e}")
 
     def __enter__(self):
-        """Context manager entry"""
+        """Context manager entry."""
         self.connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit"""
+        """Context manager exit."""
         self.close()

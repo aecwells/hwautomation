@@ -11,7 +11,7 @@ The smart approach:
 4. Push the updated configuration back
 
 This preserves MAC addresses, boot order, and other hardware-specific settings.
-"""
+."""
 
 import copy
 import logging
@@ -20,7 +20,7 @@ import time
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, cast
 
 import yaml
 
@@ -51,7 +51,7 @@ class BiosConfigManager:
     - s2_c2_large (Large compute nodes)
     - storage_nodes
     - etc.
-    """
+    ."""
 
     def __init__(self, config_dir: Optional[str] = None):
         """
@@ -59,17 +59,18 @@ class BiosConfigManager:
 
         Args:
             config_dir: Directory containing BIOS configuration files
-        """
+        ."""
         if config_dir is None:
             # Default to configs directory in project root
             project_root = Path(__file__).parent.parent.parent.parent
-            config_dir = project_root / "configs" / "bios"
+            self.config_dir = project_root / "configs" / "bios"
+        else:
+            self.config_dir = Path(config_dir)
 
-        self.config_dir = Path(config_dir)
-        self.device_types = {}
-        self.template_rules = {}
-        self.preserve_settings = set()
-        self.xml_templates = {}  # Initialize xml_templates
+        self.device_types: Dict[str, Any] = {}
+        self.template_rules: Dict[str, Any] = {}
+        self.preserve_settings: set[str] = set()
+        self.xml_templates: Dict[str, str] = {}  # Initialize xml_templates
 
         # Ensure config directory exists
         self.config_dir.mkdir(parents=True, exist_ok=True)
@@ -392,7 +393,7 @@ class BiosConfigManager:
         Note:
             This is a placeholder for actual BIOS configuration retrieval.
             Implementation would depend on the specific BMC interface (IPMI/RedFish).
-        """
+        ."""
         # TODO: Implement actual BIOS configuration retrieval
         # This would use IPMI/RedFish to get current BIOS settings
         logger.info(f"Pulling current BIOS config from {target_ip}")
@@ -434,7 +435,7 @@ class BiosConfigManager:
 
         Returns:
             Tuple of (modified_config, list_of_changes)
-        """
+        ."""
         if device_type not in self.template_rules.get("template_rules", {}):
             raise ValueError(f"No template rules found for device type: {device_type}")
 
@@ -495,7 +496,7 @@ class BiosConfigManager:
 
         Returns:
             True if setting should be preserved, False otherwise
-        """
+        ."""
         for preserve_pattern in self.preserve_settings:
             if preserve_pattern.endswith("*"):
                 # Wildcard match
@@ -521,15 +522,19 @@ class BiosConfigManager:
 
         Returns:
             Tuple of (is_valid, list_of_validation_errors)
-        """
+        ."""
         validation_errors = []
 
         # Check that preserved settings are actually preserved
-        original_settings = {
-            s.get("name"): s.get("value") for s in original_config.findall("Setting")
+        original_settings: Dict[str, str] = {
+            cast(str, s.get("name")): cast(str, s.get("value"))
+            for s in original_config.findall("Setting")
+            if s.get("name") is not None and s.get("value") is not None
         }
-        modified_settings = {
-            s.get("name"): s.get("value") for s in modified_config.findall("Setting")
+        modified_settings: Dict[str, str] = {
+            cast(str, s.get("name")): cast(str, s.get("value"))
+            for s in modified_config.findall("Setting")
+            if s.get("name") is not None and s.get("value") is not None
         }
 
         for setting_name in original_settings:
@@ -573,7 +578,7 @@ class BiosConfigManager:
 
         Returns:
             List of conflict descriptions
-        """
+        ."""
         conflicts = []
 
         # Example conflict checks
@@ -617,7 +622,7 @@ class BiosConfigManager:
         Note:
             This is a placeholder for actual BIOS configuration application.
             Implementation would depend on the specific BMC interface (IPMI/RedFish).
-        """
+        ."""
         try:
             if backup:
                 backup_path = self._create_backup(target_ip, modified_config)
@@ -680,7 +685,7 @@ class BiosConfigManager:
 
         Returns:
             Dictionary with operation results
-        """
+        ."""
         result = {
             "success": False,
             "target_ip": target_ip,
@@ -776,7 +781,7 @@ class BiosConfigManager:
     # ==========================================
 
     def test_redfish_connection(
-        self, target_ip: str, username: str = "ADMIN", password: str = None
+        self, target_ip: str, username: str = "ADMIN", password: Optional[str] = None
     ) -> Tuple[bool, str]:
         """
         Test Redfish connectivity to target system.
@@ -788,7 +793,10 @@ class BiosConfigManager:
 
         Returns:
             Tuple of (success, message)
-        """
+        ."""
+        if password is None:
+            return False, "Password is required for Redfish connection"
+
         try:
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.test_connection()
@@ -796,7 +804,7 @@ class BiosConfigManager:
             return False, f"Redfish connection test failed: {e}"
 
     def get_system_info_via_redfish(
-        self, target_ip: str, username: str = "ADMIN", password: str = None
+        self, target_ip: str, username: str = "ADMIN", password: Optional[str] = None
     ) -> Optional[SystemInfo]:
         """
         Get system information via Redfish.
@@ -808,7 +816,11 @@ class BiosConfigManager:
 
         Returns:
             SystemInfo object or None if failed
-        """
+        ."""
+        if password is None:
+            logger.error("Password is required for Redfish connection")
+            return None
+
         try:
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.get_system_info()
@@ -817,7 +829,7 @@ class BiosConfigManager:
             return None
 
     def get_bios_settings_via_redfish(
-        self, target_ip: str, username: str = "ADMIN", password: str = None
+        self, target_ip: str, username: str = "ADMIN", password: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Get current BIOS settings via Redfish.
@@ -829,7 +841,11 @@ class BiosConfigManager:
 
         Returns:
             Dictionary of BIOS settings or None if failed
-        """
+        ."""
+        if password is None:
+            logger.error("Password is required for Redfish connection")
+            return None
+
         try:
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.get_bios_settings()
@@ -842,7 +858,7 @@ class BiosConfigManager:
         target_ip: str,
         settings: Dict[str, Any],
         username: str = "ADMIN",
-        password: str = None,
+        password: Optional[str] = None,
     ) -> bool:
         """
         Set BIOS settings via Redfish.
@@ -855,7 +871,11 @@ class BiosConfigManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
+        if password is None:
+            logger.error("Password is required for Redfish connection")
+            return False
+
         try:
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.set_bios_settings(settings)
@@ -864,7 +884,11 @@ class BiosConfigManager:
             return False
 
     def power_control_via_redfish(
-        self, target_ip: str, action: str, username: str = "ADMIN", password: str = None
+        self,
+        target_ip: str,
+        action: str,
+        username: str = "ADMIN",
+        password: Optional[str] = None,
     ) -> bool:
         """
         Control system power via Redfish.
@@ -877,7 +901,11 @@ class BiosConfigManager:
 
         Returns:
             True if successful, False otherwise
-        """
+        ."""
+        if password is None:
+            logger.error("Password is required for Redfish connection")
+            return False
+
         try:
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.power_control(action)
@@ -890,7 +918,7 @@ class BiosConfigManager:
         target_ip: str,
         device_type: str,
         username: str = "ADMIN",
-        password: str = None,
+        password: Optional[str] = None,
     ) -> str:
         """
         Determine the best method for BIOS configuration.
@@ -903,7 +931,11 @@ class BiosConfigManager:
 
         Returns:
             Configuration method: 'redfish', 'vendor_tool', or 'hybrid'
-        """
+        ."""
+        if password is None:
+            logger.info("No password provided, defaulting to vendor tools")
+            return "vendor_tool"
+
         try:
             # Test Redfish capabilities
             redfish_available, _ = self.test_redfish_connection(
@@ -959,7 +991,7 @@ class BiosConfigManager:
         device_type: str,
         target_ip: str,
         username: str = "ADMIN",
-        password: str = None,
+        password: Optional[str] = None,
         dry_run: bool = False,
         prefer_redfish: bool = True,
     ) -> Dict[str, Any]:
@@ -976,7 +1008,18 @@ class BiosConfigManager:
 
         Returns:
             Dictionary with operation results
-        """
+        ."""
+        if password is None:
+            return {
+                "success": False,
+                "error": "Password is required for BIOS configuration",
+                "target_ip": target_ip,
+                "device_type": device_type,
+                "method_used": "none",
+                "changes_made": [],
+                "validation_errors": ["Password required"],
+            }
+
         result = {
             "success": False,
             "target_ip": target_ip,
@@ -1033,7 +1076,7 @@ class BiosConfigManager:
         device_type: str,
         target_ip: str,
         username: str = "ADMIN",
-        password: str = None,
+        password: Optional[str] = None,
         dry_run: bool = False,
         prefer_performance: bool = True,
     ) -> Dict[str, Any]:
@@ -1054,7 +1097,7 @@ class BiosConfigManager:
 
         Returns:
             Dictionary with operation results including per-setting method selection
-        """
+        ."""
         result = {
             "success": False,
             "target_ip": target_ip,
@@ -1068,6 +1111,12 @@ class BiosConfigManager:
             "validation_errors": [],
             "dry_run": dry_run,
         }
+
+        if password is None:
+            cast(List[str], result["validation_errors"]).append(
+                "Password is required for BIOS configuration"
+            )
+            return result
 
         try:
             # Get device configuration for decision logic
@@ -1199,7 +1248,7 @@ class BiosConfigManager:
         device_type: str,
         target_ip: str,
         username: str = "ADMIN",
-        password: str = None,
+        password: Optional[str] = None,
         dry_run: bool = False,
         prefer_performance: bool = True,
         enable_monitoring: bool = True,
@@ -1221,7 +1270,7 @@ class BiosConfigManager:
 
         Returns:
             Dictionary with operation results including monitoring data
-        """
+        ."""
         result = {
             "success": False,
             "target_ip": target_ip,
@@ -1236,6 +1285,10 @@ class BiosConfigManager:
             "performance_metrics": {},
             "dry_run": dry_run,
         }
+
+        if password is None:
+            result["error"] = "Password is required for BIOS configuration"
+            return result
 
         monitor = get_monitor() if enable_monitoring else None
         operation_id = None
@@ -1259,7 +1312,7 @@ class BiosConfigManager:
                 )
 
             # Stage 1: Pre-flight validation
-            if monitor:
+            if monitor and operation_id:
                 await monitor.start_subtask(
                     operation_id,
                     "pre_flight_validation",
@@ -1425,7 +1478,7 @@ class BiosConfigManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Pre-flight validation with detailed checks for monitored flow"""
+        """Pre-flight validation with detailed checks for monitored flow."""
         result = {
             "success": False,
             "checks_performed": [],
@@ -1495,7 +1548,7 @@ class BiosConfigManager:
         prefer_performance: bool,
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Enhanced method analysis for monitored flow"""
+        """Enhanced method analysis for monitored flow."""
         result = {
             "success": False,
             "total_settings": 0,
@@ -1559,7 +1612,7 @@ class BiosConfigManager:
         method_analysis: Dict[str, Any],
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Configuration execution with monitoring and error recovery"""
+        """Configuration execution with monitoring and error recovery."""
         result = {"success": False, "phases": [], "recovery_actions": [], "error": None}
 
         monitor = get_monitor()
@@ -1638,7 +1691,7 @@ class BiosConfigManager:
         method_analysis: Dict[str, Any],
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Post-configuration validation for monitored flow"""
+        """Post-configuration validation for monitored flow."""
         result = {
             "success": False,
             "validation_checks": [],
@@ -1691,7 +1744,7 @@ class BiosConfigManager:
     async def _test_connectivity(
         self, target_ip: str, username: str, password: str
     ) -> Dict[str, Any]:
-        """Test basic connectivity to target system"""
+        """Test basic connectivity to target system."""
         result = {
             "success": False,
             "response_time": 0,
@@ -1724,7 +1777,7 @@ class BiosConfigManager:
     async def _analyze_configuration_requirements(
         self, device_type: str
     ) -> Dict[str, Any]:
-        """Analyze configuration requirements for device type"""
+        """Analyze configuration requirements for device type."""
         result = {
             "device_type": device_type,
             "total_settings": 0,
@@ -1772,7 +1825,7 @@ class BiosConfigManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
-        """Execute batch with error recovery"""
+        """Execute batch with error recovery."""
         result = {
             "success": False,
             "execution_time": 0,
@@ -1834,7 +1887,7 @@ class BiosConfigManager:
         password: str,
         expected_settings: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """Validate that Redfish settings were applied correctly"""
+        """Validate that Redfish settings were applied correctly."""
         result = {
             "success": False,
             "verified_settings": {},
@@ -1974,7 +2027,7 @@ class BiosConfigManager:
         device_type: str,
         target_ip: str,
         username: str = "ADMIN",
-        password: str = None,
+        password: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Validate which configured Redfish settings are actually available on the target system."""
         result = {
@@ -1991,6 +2044,10 @@ class BiosConfigManager:
             device_config = self.device_types.get(device_type)
             if not device_config:
                 result["error"] = f"Device type {device_type} not found"
+                return result
+
+            if password is None:
+                result["error"] = "Password is required for Redfish validation"
                 return result
 
             # Get available Redfish BIOS settings from target system
@@ -2218,7 +2275,7 @@ class BiosConfigManager:
 
         Returns:
             Device configuration dictionary or None if not found
-        """
+        ."""
         return self.device_types.get("device_types", {}).get(device_type)
 
     def get_motherboard_for_device(self, device_type: str) -> Optional[List[str]]:
@@ -2230,7 +2287,7 @@ class BiosConfigManager:
 
         Returns:
             List of compatible motherboard models
-        """
+        ."""
         config = self.get_device_config(device_type)
         return config.get("motherboards", []) if config else None
 
@@ -2248,7 +2305,7 @@ class BiosConfigManager:
 
         Returns:
             XML configuration string or None if template not found
-        """
+        ."""
         logger.warning(
             "generate_xml_config() is deprecated. Use apply_bios_config_smart() instead."
         )
@@ -2279,7 +2336,7 @@ class BiosConfigManager:
 
         Returns:
             XML configuration string
-        """
+        ."""
         root = ET.Element("BiosConfig")
         root.set("deviceType", device_type)
         if motherboard:
@@ -2336,7 +2393,7 @@ class BiosConfigManager:
         Args:
             device_type: Device type name
             xml_content: XML configuration content
-        """
+        ."""
         logger.warning("save_xml_template() is deprecated. Use template rules instead.")
 
         xml_dir = self.config_dir / "xml_templates"
@@ -2387,7 +2444,7 @@ class BiosConfigManager:
             target_ip: Target system IP address
             username: BMC username
             password: BMC password
-        """
+        ."""
         logger.warning(
             "apply_bios_config() is deprecated. Use apply_bios_config_smart() instead."
         )
@@ -2416,188 +2473,3 @@ class BiosConfigManager:
                 logger.info(f"Loaded XML template for {device_type}")
             except Exception as e:
                 logger.error(f"Error loading XML template {xml_file}: {e}")
-
-    def get_device_types(self) -> List[str]:
-        """Get list of available device types."""
-        return list(self.device_types.get("device_types", {}).keys())
-
-    def get_device_config(self, device_type: str) -> Optional[Dict[str, Any]]:
-        """
-        Get configuration for a specific device type.
-
-        Args:
-            device_type: Device type (e.g., 's2_c2_small')
-
-        Returns:
-            Device configuration dictionary or None if not found
-        """
-        return self.device_types.get("device_types", {}).get(device_type)
-
-    def get_motherboard_for_device(self, device_type: str) -> Optional[List[str]]:
-        """
-        Get compatible motherboards for a device type.
-
-        Args:
-            device_type: Device type
-
-        Returns:
-            List of compatible motherboard models
-        """
-        config = self.get_device_config(device_type)
-        return config.get("motherboards", []) if config else None
-
-    def generate_xml_config(
-        self, device_type: str, motherboard: str = None
-    ) -> Optional[str]:
-        """
-        Generate XML BIOS configuration for a device type.
-
-        Args:
-            device_type: Device type (e.g., 's2_c2_small')
-            motherboard: Specific motherboard model (optional)
-
-        Returns:
-            XML configuration string or None if template not found
-        """
-        # First try device-specific template
-        if device_type in self.xml_templates:
-            tree = self.xml_templates[device_type]
-            return ET.tostring(tree.getroot(), encoding="unicode")
-
-        # If no template exists, generate from device config
-        config = self.get_device_config(device_type)
-        if not config:
-            logger.error(f"No configuration found for device type: {device_type}")
-            return None
-
-        return self._generate_xml_from_config(config, device_type, motherboard)
-
-    def _generate_xml_from_config(
-        self, config: Dict[str, Any], device_type: str, motherboard: str = None
-    ) -> str:
-        """
-        Generate XML from device configuration dictionary.
-
-        Args:
-            config: Device configuration
-            device_type: Device type name
-            motherboard: Motherboard model
-
-        Returns:
-            XML configuration string
-        """
-        root = ET.Element("BiosConfig")
-        root.set("deviceType", device_type)
-        if motherboard:
-            root.set("motherboard", motherboard)
-
-        # Add CPU configuration
-        if "cpu_configs" in config:
-            cpu_elem = ET.SubElement(root, "CPU")
-            for key, value in config["cpu_configs"].items():
-                setting = ET.SubElement(cpu_elem, "Setting")
-                setting.set("name", key)
-                setting.set("value", str(value).lower())
-
-        # Add Memory configuration
-        if "memory_configs" in config:
-            memory_elem = ET.SubElement(root, "Memory")
-            for key, value in config["memory_configs"].items():
-                setting = ET.SubElement(memory_elem, "Setting")
-                setting.set("name", key)
-                setting.set("value", str(value).lower())
-
-        # Add Boot configuration
-        if "boot_configs" in config:
-            boot_elem = ET.SubElement(root, "Boot")
-            for key, value in config["boot_configs"].items():
-                setting = ET.SubElement(boot_elem, "Setting")
-                setting.set("name", key)
-                setting.set("value", str(value).lower())
-
-        # Pretty print the XML
-        self._indent_xml(root)
-        return ET.tostring(root, encoding="unicode")
-
-    def _indent_xml(self, elem: ET.Element, level: int = 0):
-        """Add indentation to XML for pretty printing."""
-        i = "\n" + level * "  "
-        if len(elem):
-            if not elem.text or not elem.text.strip():
-                elem.text = i + "  "
-            if not elem.tail or not elem.tail.strip():
-                elem.tail = i
-            for child in elem:
-                self._indent_xml(child, level + 1)
-            if not child.tail or not child.tail.strip():
-                child.tail = i
-        else:
-            if level and (not elem.tail or not elem.tail.strip()):
-                elem.tail = i
-
-    def save_xml_template(self, device_type: str, xml_content: str):
-        """
-        Save XML template for a device type.
-
-        Args:
-            device_type: Device type name
-            xml_content: XML configuration content
-        """
-        xml_dir = self.config_dir / "xml_templates"
-        xml_dir.mkdir(exist_ok=True)
-
-        xml_file = xml_dir / f"{device_type}.xml"
-        try:
-            # Validate XML before saving
-            ET.fromstring(xml_content)
-
-            with open(xml_file, "w") as f:
-                f.write(xml_content)
-
-            # Reload templates
-            self._load_xml_templates()
-            logger.info(f"Saved XML template for {device_type}")
-
-        except ET.ParseError as e:
-            logger.error(f"Invalid XML for {device_type}: {e}")
-            raise ValueError(f"Invalid XML content: {e}")
-        except Exception as e:
-            logger.error(f"Error saving XML template: {e}")
-            raise
-
-    def list_templates(self) -> List[str]:
-        """List available XML templates."""
-        return list(self.xml_templates.keys())
-
-    def apply_bios_config(
-        self,
-        device_type: str,
-        target_ip: str,
-        username: str = "ADMIN",
-        password: str = None,
-    ):
-        """
-        Apply BIOS configuration to a target system.
-
-        Args:
-            device_type: Device type
-            target_ip: Target system IP address
-            username: BMC username
-            password: BMC password
-
-        Note:
-            This is a placeholder for actual BIOS configuration application.
-            Implementation would depend on the specific BMC interface (IPMI/RedFish).
-        """
-        xml_config = self.generate_xml_config(device_type)
-        if not xml_config:
-            raise ValueError(
-                f"No configuration available for device type: {device_type}"
-            )
-
-        # TODO: Implement actual BIOS configuration application
-        # This would integrate with IPMI/RedFish managers
-        logger.info(f"Would apply BIOS config for {device_type} to {target_ip}")
-        logger.debug(f"XML Config:\n{xml_config}")
-
-        return xml_config

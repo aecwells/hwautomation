@@ -3,7 +3,7 @@ Hardware Discovery Module
 
 This module provides tools for discovering hardware information from remote systems
 via SSH, including IPMI addresses, system specifications, and network interfaces.
-"""
+."""
 
 import json
 import logging
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class NetworkInterface:
-    """Network interface information"""
+    """Network interface information."""
 
     name: str
     mac_address: str
@@ -30,7 +30,7 @@ class NetworkInterface:
 
 @dataclass
 class IPMIInfo:
-    """IPMI configuration information"""
+    """IPMI configuration information."""
 
     ip_address: Optional[str] = None
     mac_address: Optional[str] = None
@@ -43,7 +43,7 @@ class IPMIInfo:
 
 @dataclass
 class SystemInfo:
-    """System hardware information"""
+    """System hardware information."""
 
     manufacturer: Optional[str] = None
     product_name: Optional[str] = None
@@ -59,7 +59,7 @@ class SystemInfo:
 
 @dataclass
 class HardwareDiscovery:
-    """Complete hardware discovery results"""
+    """Complete hardware discovery results."""
 
     hostname: str
     system_info: SystemInfo
@@ -69,7 +69,7 @@ class HardwareDiscovery:
     discovery_errors: List[str]
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization"""
+        """Convert to dictionary for JSON serialization."""
         return asdict(self)
 
 
@@ -79,7 +79,7 @@ class HardwareDiscoveryManager:
 
     This class uses SSH to connect to systems and run discovery commands
     to gather hardware information including IPMI configuration.
-    """
+    ."""
 
     def __init__(self, ssh_manager: SSHManager):
         """
@@ -87,7 +87,7 @@ class HardwareDiscoveryManager:
 
         Args:
             ssh_manager: SSH manager for remote connections
-        """
+        ."""
         self.ssh_manager = ssh_manager
         self.logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ class HardwareDiscoveryManager:
 
         Returns:
             Complete hardware discovery results
-        """
+        ."""
         errors: List[str] = []
 
         try:
@@ -150,7 +150,7 @@ class HardwareDiscoveryManager:
     def _discover_system_info(
         self, ssh_client: SSHClient, errors: List[str]
     ) -> SystemInfo:
-        """Discover system hardware information using dmidecode and vendor tools"""
+        """Discover system hardware information using dmidecode and vendor tools."""
         system_info = SystemInfo()
 
         try:
@@ -207,7 +207,7 @@ class HardwareDiscoveryManager:
         return system_info
 
     def _discover_ipmi_info(self, ssh_client: SSHClient, errors: List[str]) -> IPMIInfo:
-        """Discover IPMI configuration information"""
+        """Discover IPMI configuration information."""
         ipmi_info = IPMIInfo()
 
         try:
@@ -250,7 +250,7 @@ class HardwareDiscoveryManager:
     def _discover_vendor_specific_info(
         self, ssh_client: SSHClient, manufacturer: str, errors: List[str]
     ) -> Dict[str, Any]:
-        """Discover vendor-specific hardware information"""
+        """Discover vendor-specific hardware information."""
         vendor_info = {}
 
         try:
@@ -278,8 +278,8 @@ class HardwareDiscoveryManager:
     def _discover_supermicro_info(
         self, ssh_client: SSHClient, errors: List[str]
     ) -> Dict[str, Any]:
-        """Discover Supermicro-specific information using sumtool"""
-        supermicro_info = {}
+        """Discover Supermicro-specific information using sumtool."""
+        supermicro_info: Dict[str, Any] = {}
 
         try:
             # Check if sumtool is available
@@ -329,7 +329,7 @@ class HardwareDiscoveryManager:
     def _discover_hpe_info(
         self, ssh_client: SSHClient, errors: List[str]
     ) -> Dict[str, Any]:
-        """Discover HPE-specific information using hpssacli or ssacli"""
+        """Discover HPE-specific information using hpssacli or ssacli."""
         hpe_info = {}
 
         try:
@@ -374,8 +374,8 @@ class HardwareDiscoveryManager:
     def _discover_dell_info(
         self, ssh_client: SSHClient, errors: List[str]
     ) -> Dict[str, Any]:
-        """Discover Dell-specific information using omreport"""
-        dell_info = {}
+        """Discover Dell-specific information using omreport."""
+        dell_info: Dict[str, Any] = {}
 
         try:
             # Check for Dell OpenManage tools
@@ -403,7 +403,7 @@ class HardwareDiscoveryManager:
         return dell_info
 
     def _install_sumtool(self, ssh_client: SSHClient, errors: List[str]) -> bool:
-        """Install Supermicro sumtool"""
+        """Install Supermicro sumtool."""
         try:
             # Check if sumtool is already installed
             stdout, stderr, exit_code = ssh_client.exec_command("which sumtool")
@@ -412,16 +412,14 @@ class HardwareDiscoveryManager:
                 return True
 
             # Update package lists
-            stdout, stderr, exit_code = ssh_client.exec_command(
-                "sudo apt-get update", timeout=300
-            )
+            stdout, stderr, exit_code = ssh_client.exec_command("sudo apt-get update")
             if exit_code != 0:
                 errors.append("Failed to update package lists")
                 return False
 
             # Install dependencies
             stdout, stderr, exit_code = ssh_client.exec_command(
-                "sudo apt-get install -y wget alien", timeout=300
+                "sudo apt-get install -y wget alien"
             )
             if exit_code != 0:
                 errors.append("Failed to install dependencies for sumtool")
@@ -439,7 +437,7 @@ class HardwareDiscoveryManager:
             ]
 
             for cmd in commands:
-                stdout, stderr, exit_code = ssh_client.exec_command(cmd, timeout=300)
+                stdout, stderr, exit_code = ssh_client.exec_command(cmd)
                 if exit_code != 0:
                     errors.append(f"sumtool installation step failed: {cmd}")
                     return False
@@ -458,12 +456,10 @@ class HardwareDiscoveryManager:
             return False
 
     def _install_hpe_tools(self, ssh_client: SSHClient, errors: List[str]) -> bool:
-        """Install HPE management tools"""
+        """Install HPE management tools."""
         try:
             # Update package lists
-            stdout, stderr, exit_code = ssh_client.exec_command(
-                "sudo apt-get update", timeout=300
-            )
+            stdout, stderr, exit_code = ssh_client.exec_command("sudo apt-get update")
             if exit_code != 0:
                 errors.append("Failed to update package lists")
                 return False
@@ -478,7 +474,7 @@ class HardwareDiscoveryManager:
             ]
 
             for cmd in commands:
-                stdout, stderr, exit_code = ssh_client.exec_command(cmd, timeout=300)
+                stdout, stderr, exit_code = ssh_client.exec_command(cmd)
                 if exit_code != 0:
                     self.logger.warning(f"HPE tools installation step failed: {cmd}")
                     # Continue with next command as some may be optional
@@ -497,12 +493,10 @@ class HardwareDiscoveryManager:
             return False
 
     def _install_dell_tools(self, ssh_client: SSHClient, errors: List[str]) -> bool:
-        """Install Dell OpenManage tools"""
+        """Install Dell OpenManage tools."""
         try:
             # Update package lists
-            stdout, stderr, exit_code = ssh_client.exec_command(
-                "sudo apt-get update", timeout=300
-            )
+            stdout, stderr, exit_code = ssh_client.exec_command("sudo apt-get update")
             if exit_code != 0:
                 errors.append("Failed to update package lists")
                 return False
@@ -516,14 +510,14 @@ class HardwareDiscoveryManager:
             ]
 
             for cmd in commands:
-                stdout, stderr, exit_code = ssh_client.exec_command(cmd, timeout=300)
+                stdout, stderr, exit_code = ssh_client.exec_command(cmd)
                 if exit_code != 0:
                     self.logger.warning(f"Dell tools installation step failed: {cmd}")
                     # Continue with next command as some may be optional
 
             # Start services
             ssh_client.exec_command(
-                "sudo /opt/dell/srvadmin/sbin/srvadmin-services.sh start", timeout=60
+                "sudo /opt/dell/srvadmin/sbin/srvadmin-services.sh start"
             )
 
             # Verify installation
@@ -540,7 +534,7 @@ class HardwareDiscoveryManager:
             return False
 
     def _parse_sumtool_system_info(self, output: str) -> Dict[str, Any]:
-        """Parse sumtool system information output"""
+        """Parse sumtool system information output."""
         info = {}
 
         for line in output.split("\n"):
@@ -562,7 +556,7 @@ class HardwareDiscoveryManager:
         return info
 
     def _parse_sumtool_bios_info(self, output: str) -> Dict[str, Any]:
-        """Parse sumtool BIOS information output"""
+        """Parse sumtool BIOS information output."""
         info = {}
 
         for line in output.split("\n"):
@@ -580,7 +574,7 @@ class HardwareDiscoveryManager:
         return info
 
     def _parse_sumtool_bmc_info(self, output: str) -> Dict[str, Any]:
-        """Parse sumtool BMC information output"""
+        """Parse sumtool BMC information output."""
         info = {}
 
         for line in output.split("\n"):
@@ -598,7 +592,7 @@ class HardwareDiscoveryManager:
         return info
 
     def _parse_hpe_controller_info(self, output: str) -> Dict[str, Any]:
-        """Parse HPE controller information output"""
+        """Parse HPE controller information output."""
         info = {}
         controllers = []
 
@@ -630,7 +624,7 @@ class HardwareDiscoveryManager:
         return info
 
     def _parse_dell_chassis_info(self, output: str) -> Dict[str, Any]:
-        """Parse Dell chassis information output"""
+        """Parse Dell chassis information output."""
         info = {}
 
         for line in output.split("\n"):
@@ -652,7 +646,7 @@ class HardwareDiscoveryManager:
     def _discover_network_interfaces(
         self, ssh_client: SSHClient, errors: List[str]
     ) -> List[NetworkInterface]:
-        """Discover network interface information"""
+        """Discover network interface information."""
         interfaces = []
 
         try:
@@ -669,7 +663,7 @@ class HardwareDiscoveryManager:
         return interfaces
 
     def _parse_dmidecode_system(self, output: str) -> SystemInfo:
-        """Parse dmidecode system output"""
+        """Parse dmidecode system output."""
         system_info = SystemInfo()
 
         for line in output.split("\n"):
@@ -686,7 +680,7 @@ class HardwareDiscoveryManager:
         return system_info
 
     def _parse_dmidecode_bios(self, output: str) -> Dict[str, str]:
-        """Parse dmidecode BIOS output"""
+        """Parse dmidecode BIOS output."""
         bios_info = {}
 
         for line in output.split("\n"):
@@ -699,8 +693,8 @@ class HardwareDiscoveryManager:
         return bios_info
 
     def _parse_lscpu(self, output: str) -> Dict[str, Any]:
-        """Parse lscpu output"""
-        cpu_info = {}
+        """Parse lscpu output."""
+        cpu_info: Dict[str, Any] = {}
 
         for line in output.split("\n"):
             line = line.strip()
@@ -715,7 +709,7 @@ class HardwareDiscoveryManager:
         return cpu_info
 
     def _parse_memory_info(self, output: str) -> Optional[str]:
-        """Parse free command output for total memory"""
+        """Parse free command output for total memory."""
         for line in output.split("\n"):
             if line.startswith("Mem:"):
                 parts = line.split()
@@ -724,7 +718,7 @@ class HardwareDiscoveryManager:
         return None
 
     def _parse_ipmi_lan_config(self, output: str) -> IPMIInfo:
-        """Parse ipmitool lan print output"""
+        """Parse ipmitool lan print output."""
         ipmi_info = IPMIInfo()
 
         for line in output.split("\n"):
@@ -752,7 +746,7 @@ class HardwareDiscoveryManager:
         return ipmi_info
 
     def _parse_ip_addr(self, output: str) -> List[NetworkInterface]:
-        """Parse ip addr show output"""
+        """Parse ip addr show output."""
         interfaces = []
         current_interface = None
 
@@ -795,12 +789,12 @@ class HardwareDiscoveryManager:
         return interfaces
 
     def _cidr_to_netmask(self, cidr: int) -> str:
-        """Convert CIDR notation to netmask"""
+        """Convert CIDR notation to netmask."""
         mask = (0xFFFFFFFF >> (32 - cidr)) << (32 - cidr)
         return f"{(mask >> 24) & 0xff}.{(mask >> 16) & 0xff}.{(mask >> 8) & 0xff}.{mask & 0xff}"
 
     def _get_timestamp(self) -> str:
-        """Get current timestamp"""
+        """Get current timestamp."""
         from datetime import datetime
 
         return datetime.now().isoformat()
@@ -818,7 +812,7 @@ class HardwareDiscoveryManager:
 
         Returns:
             IPMI IP address if found, None otherwise
-        """
+        ."""
         try:
             discovery = self.discover_hardware(host, username, key_file)
             return discovery.ipmi_info.ip_address

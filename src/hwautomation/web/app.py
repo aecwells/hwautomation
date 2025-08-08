@@ -4,7 +4,7 @@ Flask Web Application for HWAutomation - Refactored with Blueprints.
 
 Clean modular web interface with organized route blueprints.
 Core workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration
-"""
+."""
 
 import logging
 import os

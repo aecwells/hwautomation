@@ -1,4 +1,4 @@
-"""Hardware management package"""
+"""Hardware management package."""
 
 from .bios_config import BiosConfigManager
 from .discovery import (

@@ -1,6 +1,6 @@
 """
 Configuration management for hardware automation.
-"""
+."""
 
 import json
 import os
@@ -19,7 +19,7 @@ def load_config(config_path: str = None) -> Dict[str, Any]:
 
     Returns:
         Configuration dictionary
-    """
+    ."""
     config = {}
 
     # Try to load from file if provided
@@ -37,7 +37,7 @@ def load_config(config_path: str = None) -> Dict[str, Any]:
 
 
 def load_config_file(config_path: str) -> Dict[str, Any]:
-    """Load configuration from JSON or YAML file"""
+    """Load configuration from JSON or YAML file."""
     path = Path(config_path)
 
     try:
@@ -56,7 +56,7 @@ def load_config_file(config_path: str) -> Dict[str, Any]:
 
 
 def load_config_from_env() -> Dict[str, Any]:
-    """Load configuration from environment variables"""
+    """Load configuration from environment variables."""
     config: Dict[str, Any] = {}
 
     # MAAS configuration
@@ -99,7 +99,7 @@ def load_config_from_env() -> Dict[str, Any]:
 
 
 def apply_default_config(config: Dict[str, Any]) -> Dict[str, Any]:
-    """Apply default configuration values"""
+    """Apply default configuration values."""
     defaults: Dict[str, Dict[str, Any]] = {
         "maas": {
             "host": "http://192.168.100.253:5240/MAAS",
@@ -130,7 +130,7 @@ def apply_default_config(config: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def save_config(config: Dict[str, Any], config_path: str):
-    """Save configuration to file"""
+    """Save configuration to file."""
     path = Path(config_path)
 
     try:
@@ -150,7 +150,7 @@ def save_config(config: Dict[str, Any], config_path: str):
 
 
 def create_sample_config(config_path: str = "config.yaml"):
-    """Create a sample configuration file"""
+    """Create a sample configuration file."""
     sample_config = {
         "maas": {
             "host": "http://your-maas-server:5240/MAAS",

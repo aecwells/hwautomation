@@ -2,7 +2,7 @@
 Real-time progress monitoring for BIOS configuration operations.
 
 Provides WebSocket support, detailed sub-task reporting, and cancellation capabilities.
-"""
+."""
 
 import asyncio
 import json
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class OperationStatus(Enum):
-    """BIOS configuration operation status"""
+    """BIOS configuration operation status."""
 
     PENDING = "pending"
     RUNNING = "running"
@@ -29,7 +29,7 @@ class OperationStatus(Enum):
 
 
 class ProgressEventType(Enum):
-    """Types of progress events"""
+    """Types of progress events."""
 
     OPERATION_STARTED = "operation_started"
     OPERATION_COMPLETED = "operation_completed"
@@ -46,7 +46,7 @@ class ProgressEventType(Enum):
 
 @dataclass
 class ProgressEvent:
-    """Progress event data structure"""
+    """Progress event data structure."""
 
     event_type: ProgressEventType
     operation_id: str
@@ -58,7 +58,7 @@ class ProgressEvent:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization"""
+        """Convert to dictionary for JSON serialization."""
         return {
             "event_type": self.event_type.value,
             "operation_id": self.operation_id,
@@ -73,7 +73,7 @@ class ProgressEvent:
 
 @dataclass
 class OperationProgress:
-    """Overall operation progress tracking"""
+    """Overall operation progress tracking."""
 
     operation_id: str
     status: OperationStatus
@@ -90,7 +90,7 @@ class OperationProgress:
 
     @property
     def duration(self) -> Optional[timedelta]:
-        """Calculate operation duration"""
+        """Calculate operation duration."""
         if self.start_time:
             end = self.end_time or datetime.now()
             return end - self.start_time
@@ -98,7 +98,7 @@ class OperationProgress:
 
     @property
     def estimated_completion(self) -> Optional[datetime]:
-        """Estimate completion time based on current progress"""
+        """Estimate completion time based on current progress."""
         if self.progress_percentage > 0 and self.status == OperationStatus.RUNNING:
             duration = self.duration
             if duration:
@@ -110,28 +110,28 @@ class OperationProgress:
 
 
 class ProgressCallback:
-    """Interface for progress callbacks"""
+    """Interface for progress callbacks."""
 
     async def on_progress_event(self, event: ProgressEvent):
-        """Handle progress event"""
+        """Handle progress event."""
         pass
 
     async def on_operation_status_change(
         self, operation_id: str, status: OperationStatus
     ):
-        """Handle operation status change"""
+        """Handle operation status change."""
         pass
 
 
 class WebSocketProgressCallback(ProgressCallback):
-    """WebSocket-based progress callback for real-time updates"""
+    """WebSocket-based progress callback for real-time updates."""
 
     def __init__(self, websocket_handler=None):
         self.websocket_handler = websocket_handler
         self.connected_clients = set()
 
     async def on_progress_event(self, event: ProgressEvent):
-        """Send progress event via WebSocket"""
+        """Send progress event via WebSocket."""
         if self.websocket_handler and self.connected_clients:
             message = {"type": "progress_event", "data": event.to_dict()}
             await self._broadcast_message(message)
@@ -139,7 +139,7 @@ class WebSocketProgressCallback(ProgressCallback):
     async def on_operation_status_change(
         self, operation_id: str, status: OperationStatus
     ):
-        """Send status change via WebSocket"""
+        """Send status change via WebSocket."""
         if self.websocket_handler and self.connected_clients:
             message = {
                 "type": "status_change",
@@ -152,7 +152,7 @@ class WebSocketProgressCallback(ProgressCallback):
             await self._broadcast_message(message)
 
     async def _broadcast_message(self, message: Dict[str, Any]):
-        """Broadcast message to all connected clients"""
+        """Broadcast message to all connected clients."""
         if self.websocket_handler:
             disconnected_clients = set()
             for client in self.connected_clients:
@@ -166,11 +166,11 @@ class WebSocketProgressCallback(ProgressCallback):
             self.connected_clients -= disconnected_clients
 
     def add_client(self, websocket):
-        """Add WebSocket client"""
+        """Add WebSocket client."""
         self.connected_clients.add(websocket)
 
     def remove_client(self, websocket):
-        """Remove WebSocket client"""
+        """Remove WebSocket client."""
         self.connected_clients.discard(websocket)
 
 
@@ -180,7 +180,7 @@ class BiosConfigMonitor:
 
     Provides comprehensive progress tracking, error monitoring, and real-time
     updates for BIOS configuration operations with WebSocket support.
-    """
+    ."""
 
     def __init__(self):
         self.operations: Dict[str, OperationProgress] = {}
@@ -189,11 +189,11 @@ class BiosConfigMonitor:
         self.max_history_size = 1000
 
     def add_progress_callback(self, callback: ProgressCallback):
-        """Add progress callback for real-time updates"""
+        """Add progress callback for real-time updates."""
         self.progress_callbacks.append(callback)
 
     def remove_progress_callback(self, callback: ProgressCallback):
-        """Remove progress callback"""
+        """Remove progress callback."""
         if callback in self.progress_callbacks:
             self.progress_callbacks.remove(callback)
 
@@ -202,7 +202,7 @@ class BiosConfigMonitor:
         operation_type: str = "bios_configuration",
         metadata: Optional[Dict[str, Any]] = None,
     ) -> str:
-        """Create new monitored operation"""
+        """Create new monitored operation."""
         operation_id = str(uuid.uuid4())
 
         self.operations[operation_id] = OperationProgress(
@@ -225,7 +225,7 @@ class BiosConfigMonitor:
         return operation_id
 
     async def start_operation(self, operation_id: str, total_subtasks: int = 0):
-        """Start monitoring an operation"""
+        """Start monitoring an operation."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -242,7 +242,7 @@ class BiosConfigMonitor:
         success: bool = True,
         final_message: str = "Operation completed",
     ):
-        """Complete an operation"""
+        """Complete an operation."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -271,7 +271,7 @@ class BiosConfigMonitor:
     async def cancel_operation(
         self, operation_id: str, reason: str = "Operation cancelled"
     ):
-        """Cancel an operation"""
+        """Cancel an operation."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -293,7 +293,7 @@ class BiosConfigMonitor:
     async def start_subtask(
         self, operation_id: str, subtask_name: str, description: str = ""
     ):
-        """Start a subtask within an operation"""
+        """Start a subtask within an operation."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -318,7 +318,7 @@ class BiosConfigMonitor:
         success: bool = True,
         message: str = "",
     ):
-        """Complete a subtask"""
+        """Complete a subtask."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -363,7 +363,7 @@ class BiosConfigMonitor:
         message: str = "",
         metadata: Optional[Dict[str, Any]] = None,
     ):
-        """Update operation progress"""
+        """Update operation progress."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -387,7 +387,7 @@ class BiosConfigMonitor:
         error_message: str,
         error_details: Optional[Dict[str, Any]] = None,
     ):
-        """Log an error during operation"""
+        """Log an error during operation."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -405,7 +405,7 @@ class BiosConfigMonitor:
         await self._emit_event(event)
 
     async def log_warning(self, operation_id: str, warning_message: str):
-        """Log a warning during operation"""
+        """Log a warning during operation."""
         if operation_id not in self.operations:
             raise ValueError(f"Operation {operation_id} not found")
 
@@ -427,7 +427,7 @@ class BiosConfigMonitor:
         info_message: str,
         metadata: Optional[Dict[str, Any]] = None,
     ):
-        """Log an info message during operation"""
+        """Log an info message during operation."""
         event = ProgressEvent(
             event_type=ProgressEventType.INFO_MESSAGE,
             operation_id=operation_id,
@@ -439,16 +439,16 @@ class BiosConfigMonitor:
         await self._emit_event(event)
 
     def get_operation_status(self, operation_id: str) -> Optional[OperationProgress]:
-        """Get current operation status"""
+        """Get current operation status."""
         return self.operations.get(operation_id)
 
     def is_operation_cancelled(self, operation_id: str) -> bool:
-        """Check if operation is cancelled"""
+        """Check if operation is cancelled."""
         operation = self.operations.get(operation_id)
         return operation.cancellation_requested if operation else False
 
     def get_active_operations(self) -> List[OperationProgress]:
-        """Get all active operations"""
+        """Get all active operations."""
         return [
             op
             for op in self.operations.values()
@@ -456,13 +456,13 @@ class BiosConfigMonitor:
         ]
 
     def get_operation_history(self, operation_id: str) -> List[ProgressEvent]:
-        """Get event history for an operation"""
+        """Get event history for an operation."""
         return [
             event for event in self.event_history if event.operation_id == operation_id
         ]
 
     async def _emit_event(self, event: ProgressEvent):
-        """Emit progress event to all callbacks"""
+        """Emit progress event to all callbacks."""
         # Add to history
         self.event_history.append(event)
 
@@ -478,7 +478,7 @@ class BiosConfigMonitor:
                 logger.error(f"Error in progress callback: {e}")
 
     async def _emit_status_change(self, operation_id: str, status: OperationStatus):
-        """Emit status change to all callbacks"""
+        """Emit status change to all callbacks."""
         for callback in self.progress_callbacks:
             try:
                 await callback.on_operation_status_change(operation_id, status)
@@ -491,7 +491,7 @@ global_monitor = BiosConfigMonitor()
 
 
 def get_monitor() -> BiosConfigMonitor:
-    """Get the global monitor instance"""
+    """Get the global monitor instance."""
     return global_monitor
 
 
@@ -499,5 +499,5 @@ async def create_monitored_operation(
     operation_type: str = "bios_configuration",
     metadata: Optional[Dict[str, Any]] = None,
 ) -> str:
-    """Create a new monitored operation"""
+    """Create a new monitored operation."""
     return global_monitor.create_operation(operation_type, metadata)

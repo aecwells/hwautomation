@@ -3,7 +3,7 @@ Firmware Management Module
 
 Comprehensive firmware management capabilities for servers, including version checking,
 updates, and integration with the enhanced BIOS configuration system.
-"""
+."""
 
 import asyncio
 import hashlib
@@ -12,7 +12,7 @@ import logging
 import os
 import tempfile
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class FirmwareType(Enum):
-    """Types of firmware that can be updated"""
+    """Types of firmware that can be updated."""
 
     BIOS = "bios"
     BMC = "bmc"
@@ -38,7 +38,7 @@ class FirmwareType(Enum):
 
 
 class UpdatePriority(Enum):
-    """Priority levels for firmware updates"""
+    """Priority levels for firmware updates."""
 
     CRITICAL = "critical"  # Security updates, must install
     HIGH = "high"  # Important bug fixes
@@ -47,7 +47,7 @@ class UpdatePriority(Enum):
 
 
 class UpdatePolicy(Enum):
-    """Firmware update policies"""
+    """Firmware update policies."""
 
     MANUAL = "manual"  # Manual approval required
     RECOMMENDED = "recommended"  # Install recommended updates
@@ -57,7 +57,7 @@ class UpdatePolicy(Enum):
 
 @dataclass
 class FirmwareInfo:
-    """Firmware information structure"""
+    """Firmware information structure."""
 
     firmware_type: FirmwareType
     current_version: str
@@ -74,13 +74,13 @@ class FirmwareInfo:
     download_url: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization"""
+        """Convert to dictionary for serialization."""
         return asdict(self)
 
 
 @dataclass
 class FirmwareUpdateResult:
-    """Firmware update operation result"""
+    """Firmware update operation result."""
 
     firmware_type: FirmwareType
     success: bool
@@ -89,7 +89,7 @@ class FirmwareUpdateResult:
     execution_time: float
     requires_reboot: bool
     error_message: Optional[str] = None
-    warnings: List[str] = None
+    warnings: List[str] = field(default_factory=list)
     operation_id: Optional[str] = None
 
     def __post_init__(self):
@@ -97,7 +97,7 @@ class FirmwareUpdateResult:
             self.warnings = []
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization"""
+        """Convert to dictionary for serialization."""
         data = asdict(self)
         data["firmware_type"] = self.firmware_type.value
         return data
@@ -105,7 +105,7 @@ class FirmwareUpdateResult:
 
 @dataclass
 class FirmwareRepository:
-    """Firmware repository configuration"""
+    """Firmware repository configuration."""
 
     base_path: str
     vendors: Dict[str, Dict[str, Any]]
@@ -115,7 +115,7 @@ class FirmwareRepository:
 
     @classmethod
     def from_config(cls, config_path: str) -> "FirmwareRepository":
-        """Load repository configuration from file"""
+        """Load repository configuration from file."""
         try:
             with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
@@ -134,19 +134,19 @@ class FirmwareRepository:
 
 
 class FirmwareManager:
-    """Comprehensive firmware management for servers"""
+    """Comprehensive firmware management for servers."""
 
     def __init__(self, config_path: Optional[str] = None):
-        """Initialize firmware manager with configuration
+        """Initialize firmware manager with configuration.
 
         Args:
             config_path: Path to firmware configuration file
-        """
+        ."""
         self.config_path = config_path or self._get_default_config_path()
         self.repository = self._load_firmware_repository()
         self.vendor_tools = self._initialize_vendor_tools()
-        self._firmware_cache = {}
-        self._cache_timestamp = {}
+        self._firmware_cache: Dict[str, Any] = {}
+        self._cache_timestamp: Dict[str, float] = {}
 
         # Ensure firmware directory exists
         os.makedirs(self.repository.base_path, exist_ok=True)
@@ -156,7 +156,7 @@ class FirmwareManager:
         )
 
     def _get_default_config_path(self) -> str:
-        """Get default firmware configuration path"""
+        """Get default firmware configuration path."""
         return os.path.join(
             os.path.dirname(__file__),
             "..",
@@ -168,7 +168,7 @@ class FirmwareManager:
         )
 
     def _load_firmware_repository(self) -> FirmwareRepository:
-        """Load firmware repository configuration"""
+        """Load firmware repository configuration."""
         try:
             repo = FirmwareRepository.from_config(self.config_path)
 
@@ -190,7 +190,7 @@ class FirmwareManager:
             return FirmwareRepository(base_path=default_path, vendors={})
 
     def _initialize_vendor_tools(self) -> Dict[str, Any]:
-        """Initialize vendor-specific firmware tools"""
+        """Initialize vendor-specific firmware tools."""
         tools = {}
 
         # HPE tools
@@ -219,7 +219,7 @@ class FirmwareManager:
     async def check_firmware_versions(
         self, device_type: str, target_ip: str, username: str, password: str
     ) -> Dict[FirmwareType, FirmwareInfo]:
-        """Check current vs latest firmware versions
+        """Check current vs latest firmware versions.
 
         Args:
             device_type: Server device type (e.g., 'a1.c5.large')
@@ -229,7 +229,7 @@ class FirmwareManager:
 
         Returns:
             Dictionary mapping firmware types to version information
-        """
+        ."""
         logger.info(f"Checking firmware versions for {device_type} at {target_ip}")
 
         try:
@@ -287,7 +287,7 @@ class FirmwareManager:
             raise FirmwareUpdateException(f"Firmware version check failed: {e}")
 
     def _get_vendor_info(self, device_type: str) -> Dict[str, str]:
-        """Get vendor information from device type"""
+        """Get vendor information from device type."""
         # Map device types to vendor information
         device_mappings = {
             "a1.c5.large": {"vendor": "hpe", "model": "Gen10", "bmc": "iLO5"},
@@ -303,7 +303,7 @@ class FirmwareManager:
     async def _get_current_firmware_versions(
         self, target_ip: str, username: str, password: str, vendor_info: Dict[str, str]
     ) -> Dict[FirmwareType, str]:
-        """Get current firmware versions from the system"""
+        """Get current firmware versions from the system."""
         logger.debug(f"Getting current firmware versions from {target_ip}")
 
         try:
@@ -311,10 +311,10 @@ class FirmwareManager:
             try:
                 from .redfish_manager import RedfishManager
 
-                redfish = RedfishManager()
+                redfish = RedfishManager(target_ip, username, password)
 
                 # Test Redfish connection
-                if await redfish.test_connection(target_ip, username, password):
+                if redfish.test_connection():
                     versions = await redfish.get_firmware_versions(
                         target_ip, username, password
                     )
@@ -322,7 +322,14 @@ class FirmwareManager:
                         logger.debug(
                             f"Retrieved firmware versions via Redfish: {versions}"
                         )
-                        return versions
+                        # Convert string keys to FirmwareType enums
+                        converted_versions = {}
+                        for key, value in versions.items():
+                            if key == "BIOS":
+                                converted_versions[FirmwareType.BIOS] = value
+                            elif key == "BMC":
+                                converted_versions[FirmwareType.BMC] = value
+                        return converted_versions
             except Exception as e:
                 logger.debug(f"Redfish firmware version retrieval failed: {e}")
 
@@ -352,7 +359,7 @@ class FirmwareManager:
     async def _get_mock_firmware_versions(
         self, target_ip: str, vendor_info: Dict[str, str]
     ) -> Dict[FirmwareType, str]:
-        """Get mock firmware versions for testing"""
+        """Get mock firmware versions for testing."""
         vendor = vendor_info.get("vendor", "").lower()
 
         if vendor == "hpe":
@@ -365,7 +372,7 @@ class FirmwareManager:
     async def _get_latest_firmware_versions(
         self, device_type: str, vendor_info: Dict[str, str]
     ) -> Dict[FirmwareType, str]:
-        """Get latest available firmware versions"""
+        """Get latest available firmware versions."""
         logger.debug(f"Getting latest firmware versions for {device_type}")
 
         # For now, return mock latest versions based on example files in config
@@ -409,7 +416,7 @@ class FirmwareManager:
             return {FirmwareType.BIOS: "1.1.0", FirmwareType.BMC: "1.1.0"}
 
     def _compare_versions(self, current: str, latest: str) -> bool:
-        """Compare firmware versions to determine if update is needed"""
+        """Compare firmware versions to determine if update is needed."""
         if current == "unknown" or latest == "unknown":
             return False
 
@@ -420,7 +427,7 @@ class FirmwareManager:
     def _determine_update_priority(
         self, fw_type: FirmwareType, current: str, latest: str
     ) -> UpdatePriority:
-        """Determine update priority based on firmware type and versions"""
+        """Determine update priority based on firmware type and versions."""
         # For now, use simple heuristics
         # In production, this would check security databases
 
@@ -432,7 +439,7 @@ class FirmwareManager:
             return UpdatePriority.NORMAL
 
     def _estimate_update_time(self, fw_type: FirmwareType) -> int:
-        """Estimate firmware update time in seconds"""
+        """Estimate firmware update time in seconds."""
         estimates = {
             FirmwareType.BIOS: 480,  # 8 minutes
             FirmwareType.BMC: 360,  # 6 minutes
@@ -450,7 +457,7 @@ class FirmwareManager:
         version: str,
         vendor_info: Dict[str, str],
     ) -> Optional[str]:
-        """Get firmware file path from configuration"""
+        """Get firmware file path from configuration."""
         try:
             vendor = vendor_info.get("vendor", "").lower()
             vendor_config = self.repository.vendors.get(vendor, {})
@@ -487,7 +494,7 @@ class FirmwareManager:
         version: str,
         vendor_info: Dict[str, str],
     ) -> Optional[str]:
-        """Get firmware checksum from configuration"""
+        """Get firmware checksum from configuration."""
         try:
             vendor = vendor_info.get("vendor", "").lower()
             vendor_config = self.repository.vendors.get(vendor, {})
@@ -516,7 +523,7 @@ class FirmwareManager:
         firmware_list: List[FirmwareInfo],
         operation_id: Optional[str] = None,
     ) -> List[FirmwareUpdateResult]:
-        """Update multiple firmware components in optimal order
+        """Update multiple firmware components in optimal order.
 
         Args:
             device_type: Server device type
@@ -528,7 +535,7 @@ class FirmwareManager:
 
         Returns:
             List of firmware update results
-        """
+        ."""
         logger.info(f"Starting batch firmware update for {target_ip}")
 
         if not firmware_list:
@@ -599,7 +606,7 @@ class FirmwareManager:
     def _sort_firmware_updates(
         self, firmware_list: List[FirmwareInfo]
     ) -> List[FirmwareInfo]:
-        """Sort firmware updates by priority and optimal update sequence"""
+        """Sort firmware updates by priority and optimal update sequence."""
 
         # Priority order (lower number = higher priority)
         priority_order = {
@@ -635,7 +642,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> FirmwareUpdateResult:
-        """Update a single firmware component
+        """Update a single firmware component.
 
         Args:
             firmware_info: Firmware information and update details
@@ -646,7 +653,7 @@ class FirmwareManager:
 
         Returns:
             Firmware update result
-        """
+        ."""
         logger.info(
             f"Updating {firmware_info.firmware_type.value} firmware on {target_ip}"
         )
@@ -723,7 +730,7 @@ class FirmwareManager:
             )
 
     async def _validate_firmware_file(self, firmware_info: FirmwareInfo) -> bool:
-        """Validate firmware file integrity"""
+        """Validate firmware file integrity."""
         if not firmware_info.file_path or not os.path.exists(firmware_info.file_path):
             logger.error(f"Firmware file not found: {firmware_info.file_path}")
             return False
@@ -747,7 +754,7 @@ class FirmwareManager:
         return True
 
     async def _calculate_file_checksum(self, file_path: str) -> str:
-        """Calculate SHA256 checksum of a file"""
+        """Calculate SHA256 checksum of a file."""
         hash_sha256 = hashlib.sha256()
 
         with open(file_path, "rb") as f:
@@ -764,7 +771,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update BIOS firmware using vendor-specific methods"""
+        """Update BIOS firmware using vendor-specific methods."""
         logger.info(f"Updating BIOS firmware on {target_ip}")
 
         vendor = firmware_info.vendor.lower() if firmware_info.vendor else "unknown"
@@ -774,18 +781,19 @@ class FirmwareManager:
             try:
                 from .redfish_manager import RedfishManager
 
-                redfish = RedfishManager()
+                redfish = RedfishManager(target_ip, username, password)
 
-                if await redfish.test_connection(target_ip, username, password):
+                if redfish.test_connection():
                     logger.info("Attempting BIOS update via Redfish API")
-                    success = await redfish.update_firmware(
-                        target_ip,
-                        username,
-                        password,
-                        firmware_info.file_path,
-                        FirmwareType.BIOS,
-                        operation_id,
-                    )
+                    if firmware_info.file_path:
+                        success = await redfish.update_firmware(
+                            target_ip,
+                            username,
+                            password,
+                            firmware_info.file_path,
+                            FirmwareType.BIOS,
+                            operation_id,
+                        )
                     if success:
                         logger.info("BIOS firmware updated successfully via Redfish")
                         return True
@@ -826,7 +834,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update BMC firmware using vendor-specific methods"""
+        """Update BMC firmware using vendor-specific methods."""
         logger.info(f"Updating BMC firmware on {target_ip}")
 
         vendor = firmware_info.vendor.lower() if firmware_info.vendor else "unknown"
@@ -836,18 +844,19 @@ class FirmwareManager:
             try:
                 from .redfish_manager import RedfishManager
 
-                redfish = RedfishManager()
+                redfish = RedfishManager(target_ip, username, password)
 
-                if await redfish.test_connection(target_ip, username, password):
+                if redfish.test_connection():
                     logger.info("Attempting BMC update via Redfish API")
-                    success = await redfish.update_firmware(
-                        target_ip,
-                        username,
-                        password,
-                        firmware_info.file_path,
-                        FirmwareType.BMC,
-                        operation_id,
-                    )
+                    if firmware_info.file_path:
+                        success = await redfish.update_firmware(
+                            target_ip,
+                            username,
+                            password,
+                            firmware_info.file_path,
+                            FirmwareType.BMC,
+                            operation_id,
+                        )
                     if success:
                         logger.info("BMC firmware updated successfully via Redfish")
                         return True
@@ -892,7 +901,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update HPE BIOS firmware using HPE-specific tools"""
+        """Update HPE BIOS firmware using HPE-specific tools."""
         logger.info(f"Updating HPE BIOS firmware on {target_ip}")
 
         try:
@@ -932,7 +941,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update HPE BMC (iLO) firmware"""
+        """Update HPE BMC (iLO) firmware."""
         logger.info(f"Updating HPE iLO firmware on {target_ip}")
 
         try:
@@ -969,7 +978,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update Supermicro BIOS firmware using Supermicro-specific tools"""
+        """Update Supermicro BIOS firmware using Supermicro-specific tools."""
         logger.info(f"Updating Supermicro BIOS firmware on {target_ip}")
 
         try:
@@ -1007,7 +1016,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update Supermicro BMC firmware"""
+        """Update Supermicro BMC firmware."""
         logger.info(f"Updating Supermicro BMC firmware on {target_ip}")
 
         try:
@@ -1044,7 +1053,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update Dell BIOS firmware using Dell-specific tools"""
+        """Update Dell BIOS firmware using Dell-specific tools."""
         logger.info(f"Updating Dell BIOS firmware on {target_ip}")
 
         try:
@@ -1077,7 +1086,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update Dell BMC (iDRAC) firmware"""
+        """Update Dell BMC (iDRAC) firmware."""
         logger.info(f"Updating Dell iDRAC firmware on {target_ip}")
 
         try:
@@ -1100,7 +1109,7 @@ class FirmwareManager:
     # ============================================================================
 
     async def _is_command_available(self, command: str) -> bool:
-        """Check if a command is available on the system"""
+        """Check if a command is available on the system."""
         try:
             import subprocess
 
@@ -1114,11 +1123,16 @@ class FirmwareManager:
     async def _update_hpe_bios_ilorest(
         self, firmware_info: FirmwareInfo, target_ip: str, username: str, password: str
     ) -> bool:
-        """Update HPE BIOS using iLORest tool"""
+        """Update HPE BIOS using iLORest tool."""
         logger.info("Executing HPE BIOS update via iLORest")
 
         try:
             import subprocess
+
+            # Validate firmware file path
+            if not firmware_info.file_path:
+                logger.error("Firmware file path is required for HPE BIOS update")
+                return False
 
             # Build iLORest command for BIOS update
             cmd = [
@@ -1159,11 +1173,18 @@ class FirmwareManager:
     async def _update_supermicro_bios_ipmi(
         self, firmware_info: FirmwareInfo, target_ip: str, username: str, password: str
     ) -> bool:
-        """Update Supermicro BIOS using IPMItool"""
+        """Update Supermicro BIOS using IPMItool."""
         logger.info("Executing Supermicro BIOS update via IPMItool")
 
         try:
             import subprocess
+
+            # Validate firmware file path
+            if not firmware_info.file_path:
+                logger.error(
+                    "Firmware file path is required for Supermicro BIOS update"
+                )
+                return False
 
             # Build ipmitool command for BIOS update
             cmd = [
@@ -1280,7 +1301,7 @@ class FirmwareManager:
         password: str,
         operation_id: Optional[str] = None,
     ) -> bool:
-        """Update generic firmware component"""
+        """Update generic firmware component."""
         logger.info(
             f"Updating {firmware_info.firmware_type.value} firmware on {target_ip}"
         )
@@ -1297,7 +1318,7 @@ class FirmwareManager:
     async def _get_hpe_firmware_versions(
         self, target_ip: str, username: str, password: str
     ) -> Dict[FirmwareType, str]:
-        """Get firmware versions from HPE servers using multiple methods"""
+        """Get firmware versions from HPE servers using multiple methods."""
         logger.info(f"Getting HPE firmware versions from {target_ip}")
 
         try:
@@ -1314,14 +1335,21 @@ class FirmwareManager:
             try:
                 from .redfish_manager import RedfishManager
 
-                redfish = RedfishManager()
-                if await redfish.test_connection(target_ip, username, password):
+                redfish = RedfishManager(target_ip, username, password)
+                if redfish.test_connection():
                     logger.debug("Using Redfish API for HPE firmware version detection")
-                    versions = await redfish.get_firmware_versions(
+                    raw_versions = await redfish.get_firmware_versions(
                         target_ip, username, password
                     )
-                    if versions:
-                        return versions
+                    if raw_versions:
+                        # Convert string keys to FirmwareType enums
+                        converted_versions: Dict[FirmwareType, str] = {}
+                        for key, value in raw_versions.items():
+                            if key == "BIOS":
+                                converted_versions[FirmwareType.BIOS] = value
+                            elif key == "BMC":
+                                converted_versions[FirmwareType.BMC] = value
+                        return converted_versions
             except Exception as e:
                 logger.debug(f"Redfish version detection failed: {e}")
 
@@ -1344,7 +1372,7 @@ class FirmwareManager:
     async def _get_supermicro_firmware_versions(
         self, target_ip: str, username: str, password: str
     ) -> Dict[FirmwareType, str]:
-        """Get firmware versions from Supermicro servers using multiple methods"""
+        """Get firmware versions from Supermicro servers using multiple methods."""
         logger.info(f"Getting Supermicro firmware versions from {target_ip}")
 
         try:
@@ -1369,16 +1397,23 @@ class FirmwareManager:
             try:
                 from .redfish_manager import RedfishManager
 
-                redfish = RedfishManager()
-                if await redfish.test_connection(target_ip, username, password):
+                redfish = RedfishManager(target_ip, username, password)
+                if redfish.test_connection():
                     logger.debug(
                         "Using Redfish API for Supermicro firmware version detection"
                     )
-                    versions = await redfish.get_firmware_versions(
+                    raw_versions = await redfish.get_firmware_versions(
                         target_ip, username, password
                     )
-                    if versions:
-                        return versions
+                    if raw_versions:
+                        # Convert string keys to FirmwareType enums
+                        converted_versions: Dict[FirmwareType, str] = {}
+                        for key, value in raw_versions.items():
+                            if key == "BIOS":
+                                converted_versions[FirmwareType.BIOS] = value
+                            elif key == "BMC":
+                                converted_versions[FirmwareType.BMC] = value
+                        return converted_versions
             except Exception as e:
                 logger.debug(f"Redfish version detection failed: {e}")
 
@@ -1398,7 +1433,7 @@ class FirmwareManager:
     async def _get_dell_firmware_versions(
         self, target_ip: str, username: str, password: str
     ) -> Dict[FirmwareType, str]:
-        """Get firmware versions from Dell servers using multiple methods"""
+        """Get firmware versions from Dell servers using multiple methods."""
         logger.info(f"Getting Dell firmware versions from {target_ip}")
 
         try:
@@ -1415,16 +1450,23 @@ class FirmwareManager:
             try:
                 from .redfish_manager import RedfishManager
 
-                redfish = RedfishManager()
-                if await redfish.test_connection(target_ip, username, password):
+                redfish = RedfishManager(target_ip, username, password)
+                if redfish.test_connection():
                     logger.debug(
                         "Using Redfish API for Dell firmware version detection"
                     )
-                    versions = await redfish.get_firmware_versions(
+                    raw_versions = await redfish.get_firmware_versions(
                         target_ip, username, password
                     )
-                    if versions:
-                        return versions
+                    if raw_versions:
+                        # Convert string keys to FirmwareType enums
+                        converted_versions: Dict[FirmwareType, str] = {}
+                        for key, value in raw_versions.items():
+                            if key == "BIOS":
+                                converted_versions[FirmwareType.BIOS] = value
+                            elif key == "BMC":
+                                converted_versions[FirmwareType.BMC] = value
+                        return converted_versions
             except Exception as e:
                 logger.debug(f"Redfish version detection failed: {e}")
 
@@ -1453,7 +1495,7 @@ class FirmwareManager:
     async def _get_hpe_versions_ilorest(
         self, target_ip: str, username: str, password: str
     ) -> Optional[Dict[FirmwareType, str]]:
-        """Get HPE firmware versions using iLORest CLI"""
+        """Get HPE firmware versions using iLORest CLI."""
         try:
             import subprocess
 
@@ -1495,7 +1537,7 @@ class FirmwareManager:
     async def _get_supermicro_versions_ipmi(
         self, target_ip: str, username: str, password: str
     ) -> Optional[Dict[FirmwareType, str]]:
-        """Get Supermicro firmware versions using IPMItool"""
+        """Get Supermicro firmware versions using IPMItool."""
         try:
             import subprocess
 
@@ -1564,12 +1606,12 @@ class FirmwareManager:
     async def _get_supermicro_versions_ssh(
         self, target_ip: str, username: str, password: str
     ) -> Optional[Dict[FirmwareType, str]]:
-        """Get Supermicro firmware versions using SSH + sumtool"""
+        """Get Supermicro firmware versions using SSH + sumtool."""
         try:
             from ..utils.network import SSHManager
 
             ssh_manager = SSHManager({})
-            ssh_client = ssh_manager.connect(target_ip, username, password, port=22)
+            ssh_client = ssh_manager.connect(target_ip, username, password)
 
             if ssh_client:
                 # Check if sumtool is available
