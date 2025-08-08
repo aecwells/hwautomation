@@ -30,6 +30,7 @@
     <style>
         .status-connected { color: #28a745; }
         .status-disconnected { color: #dc3545; }
+        .status-warning { color: #fd7e14; }
         .status-working { color: #ffc107; }
         .theme-toggle { border: none; background: none; color: inherit; }
         .theme-toggle:hover { background-color: rgba(0,0,0,0.1); }
@@ -64,6 +65,17 @@
             </div>
         </div>
     </nav>
+
+    <!-- Status Bar under Logo -->
+    <div class="bg-light border-bottom">
+        <div class="container py-2">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-cpu me-2 text-primary"></i>
+                <span class="fw-bold text-primary me-3">HWAutomation</span>
+                {% block status_indicators %}{% endblock %}
+            </div>
+        </div>
+    </div>
 
     <div class="container mt-4">
         <!-- Flash Messages -->

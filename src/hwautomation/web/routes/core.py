@@ -58,17 +58,20 @@ def dashboard():
                 logger.warning(f"Could not get database stats: {e}")
         
         # Get MaaS machines count if configured
-        try:
-            maas_config = config.get('maas', {})
-            if maas_config.get('url') and maas_config.get('consumer_key'):
+        maas_config = config.get('maas', {})
+        if not maas_config.get('host') or not maas_config.get('consumer_key'):
+            # MaaS not configured
+            stats['maas_status'] = 'not_configured'
+        else:
+            try:
                 from hwautomation.maas.client import create_maas_client
                 maas_client_instance = create_maas_client(maas_config)
                 machines = maas_client_instance.get_machines()
                 stats['available_machines'] = len([m for m in machines if m.get('status') == 'Ready'])
                 stats['maas_status'] = 'connected'
-        except Exception as e:
-            logger.warning(f"Could not get MaaS stats: {e}")
-            stats['maas_status'] = 'disconnected'
+            except Exception as e:
+                logger.warning(f"Could not get MaaS stats: {e}")
+                stats['maas_status'] = 'disconnected'
         
         # Get available device types
         device_types = ['a1.c5.large', 'd1.c1.small', 'd1.c2.medium', 'd1.c2.large']

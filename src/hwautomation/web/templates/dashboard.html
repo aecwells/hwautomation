@@ -4,12 +4,37 @@
 {% block nav_title %} - Batch Device Management{% endblock %}
 
 {% block extra_nav %}
-<span class="navbar-text me-3">
-    MaaS: <span id="maas-status" class="status-{{ 'connected' if stats.maas_status == 'connected' else 'disconnected' }}">
-        <i class="bi bi-{{ 'check-circle' if stats.maas_status == 'connected' else 'x-circle' }}"></i>
-        {{ stats.maas_status.title() }}
+{% endblock %}
+
+{% block status_indicators %}
+<div class="d-flex align-items-center">
+    <span class="me-4">
+        <i class="bi bi-cloud"></i>
+        <strong>MaaS:</strong> 
+        <span id="maas-status" class="status-{{ 'connected' if stats.maas_status == 'connected' else ('warning' if stats.maas_status == 'not_configured' else 'disconnected') }}">
+            {% if stats.maas_status == 'connected' %}
+                <i class="bi bi-check-circle-fill"></i> Connected
+            {% elif stats.maas_status == 'not_configured' %}
+                <i class="bi bi-gear-fill"></i> Not Configured
+            {% else %}
+                <i class="bi bi-x-circle-fill"></i> Disconnected
+            {% endif %}
+        </span>
     </span>
-</span>
+    <span class="me-4">
+        <i class="bi bi-database"></i>
+        <strong>Database:</strong> 
+        <span class="status-connected">
+            <i class="bi bi-check-circle-fill"></i>
+            Connected
+        </span>
+    </span>
+    <span class="me-4">
+        <i class="bi bi-hdd-rack"></i>
+        <strong>Available Devices:</strong> 
+        <span class="text-primary fw-bold">{{ stats.available_machines }}</span>
+    </span>
+</div>
 {% endblock %}
 
 {% block extra_css %}
