@@ -253,3 +253,10 @@ htmlcov/
 *~
 .DS_Store
 
+# Local development scripts and utilities
+test-ci.sh
+test-*.sh
+dev-*.sh
+local-*.sh
+debug-*.sh
+check-*.sh

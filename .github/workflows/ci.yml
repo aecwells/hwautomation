@@ -97,7 +97,7 @@ jobs:
     - name: Run unit tests
       run: |
         export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
-        pytest tests/unit/ --cov=src/hwautomation --cov-report=xml --cov-report=term --junitxml=junit.xml
+        pytest tests/unit/
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -272,7 +272,7 @@ jobs:
 
     - name: Check for known security vulnerabilities
       run: |
-        safety check --json --output safety-report.json
+        safety check --json -o safety-report.json
       continue-on-error: true
 
     - name: Run additional security checks

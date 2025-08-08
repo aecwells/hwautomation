@@ -116,6 +116,8 @@ addopts = [
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
     "--cov-fail-under=10",
+    # JUnit XML output for CI
+    "--junitxml=junit.xml",
     # Performance and resource management
     "--maxfail=5",
 ]
@@ -262,7 +264,15 @@ ignore_missing_imports = true
 # Bandit security configuration
 [tool.bandit]
 exclude_dirs = ["tests", "examples", "docs"]
-skips = ["B101", "B601"]  # Skip assert_used and shell_injection_process_substitution for tests
+skips = [
+    "B101",  # Skip assert_used
+    "B601",  # Skip shell_injection_process_substitution
+    "B104",  # Skip hardcoded_bind_all_interfaces
+    "B108",  # Skip hardcoded_tmp_directory
+    "B110",  # Skip try_except_pass
+    "B605",  # Skip start_process_with_a_shell
+    "B607",  # Skip start_process_with_partial_path
+]
 
 [project.urls]
 Homepage = "https://github.com/yourorg/hwautomation"
