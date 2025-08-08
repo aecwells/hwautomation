@@ -1,6 +1,6 @@
 # Hardware Automation Package
 
-![Tests](https://github.com/aecwells/hwautomation/workflows/Tests/badge.svg)
+![Tests](https://github.com/aecwells/hwautomation/actions/workflows/test.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/aecwells/hwautomation/branch/main/graph/badge.svg)](https://codecov.io/gh/aecwells/hwautomation)
 ![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 ![License](https://img.shields.io/github/license/aecwells/hwautomation)
@@ -10,6 +10,7 @@ A comprehensive Python package for hardware automation, server management, and i
 ## 🎯 Key Capabilities
 
 **Enterprise Hardware Automation Platform**
+
 - 🔧 **Complete Server Provisioning**: Automated workflows from commissioning to production-ready state
 - 💾 **Firmware Management**: Multi-vendor firmware updates with real vendor tools (HPE iLORest, Supermicro IPMItool, Dell RACADM)
 - ⚙️ **BIOS Configuration**: Intelligent configuration management with device-specific templates and monitoring
@@ -20,6 +21,7 @@ A comprehensive Python package for hardware automation, server management, and i
 ## 🚀 Quick Start (Container-First)
 
 ### Prerequisites
+
 - Docker and Docker Compose v2+
 - Git
 
@@ -28,13 +30,13 @@ A comprehensive Python package for hardware automation, server management, and i
 ```bash
 # Clone and start
 git clone <your-repo-url>
-cd HWAutomation
+cd hwautomation
 
 # Start the application
 docker compose up -d app
 
 # Access the web interface
-open http://localhost:5000
+# Open in your browser: <http://localhost:5000>
 ```
 
 The web GUI provides a modern dashboard for device management, workflow orchestration, and system monitoring.
@@ -42,6 +44,7 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 ## Features
 
 ### 🚀 **Firmware Management**
+
 - **🔧 Firmware-First Provisioning**: Complete workflow with firmware updates before system configuration
 - **💾 Multi-Vendor Firmware Support**: Real vendor tool integration (HPE iLORest, Supermicro IPMItool, Dell RACADM)
 - **📊 Intelligent Update Management**: Priority-based firmware ordering, compatibility checking, and automated rollback
@@ -49,21 +52,23 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 - **📈 Advanced Progress Monitoring**: Real-time sub-task reporting with WebSocket updates and operation tracking
 
 ### ⚙️ **BIOS Configuration Management**
+
 - **🎯 Smart Configuration**: Device-specific BIOS templates with intelligent pull-edit-push workflows
 - **📋 Template System**: Comprehensive BIOS settings templates organized by device type
 - **🔍 Enhanced Monitoring**: Real-time configuration progress with detailed sub-task reporting
-- **🏗️ Multi-Method Support**: RedFish API and vendor-specific tool integration with automatic fallback
+- **🏗️ Multi-Method Support**: Redfish API and vendor-specific tool integration with automatic fallback
 - **📊 Configuration Analytics**: Success rate tracking, execution time monitoring, and error analysis
 
 ### 🏗️ **Core Platform Capabilities**
+
 - **🌐 Container-First Architecture**: Production-ready Docker deployment with SQLite database
 - **🖥️ Modern Web GUI**: Primary interface with real-time monitoring and management capabilities  
 - **⚡ Multi-Stage Builds**: Optimized containers for development, production, web, and CLI use cases
-- ** Complete Orchestration**: Multiple workflow types including standard provisioning and firmware-first workflows
+- **Complete Orchestration**: Multiple workflow types including standard provisioning and firmware-first workflows
 - **🔍 Hardware Discovery**: SSH-based system information gathering with IPMI detection and vendor identification
 - **MAAS Integration**: Complete API client for Metal as a Service operations
 - **IPMI Management**: Hardware control via IPMI protocol
-- **RedFish Support**: Modern BMC management through RedFish APIs with firmware update capabilities
+- **Redfish Support**: Modern BMC management through Redfish APIs with firmware update capabilities
 - **Database Migrations**: Robust SQLite schema versioning and upgrade system
 - **Configuration Management**: Flexible YAML/JSON configuration with environment overrides
 - **Network Utilities**: SSH operations, connectivity testing, and IP management
@@ -73,16 +78,16 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 
 ### Container-First Design
 
-```
-HWAutomation/
+```text
+hwautomation/
 ├── docker/
 │   └── Dockerfile.web         # 🐳 Multi-stage container builds
 ├── docker-compose.yml         # 🏗️ Production service orchestration  
 ├── docker-compose.override.yml # 🛠️ Development overrides
 ├── src/hwautomation/          # 📦 Main package source code
 │   ├── web/                   # 🌐 Flask web application with firmware management
-│   ├── hardware/              # ⚙️ IPMI, RedFish, and Firmware management
-│   │   ├── firmware_manager.py           # � Multi-vendor firmware operations
+│   ├── hardware/              # ⚙️ IPMI, Redfish, and Firmware management
+│   │   ├── firmware_manager.py           # 🔧 Multi-vendor firmware operations
 │   │   └── firmware_provisioning_workflow.py # 🚀 Firmware-first workflows
 │   ├── orchestration/         # 🔄 Workflow management and server provisioning
 │   ├── database/              # 🗄️ SQLite operations and migrations
@@ -162,7 +167,7 @@ Fastest way to get started with full functionality:
 ```bash
 # Clone and run
 git clone <your-repo-url>
-cd HWAutomation
+cd hwautomation
 docker compose up -d app
 
 # Access web GUI at http://localhost:5000
@@ -173,7 +178,7 @@ docker compose up -d app
 ```bash
 # Clone the repository
 git clone <your-repo-url>
-cd HWAutomation
+cd hwautomation
 
 # Create and activate a virtual environment (recommended)
 python3 -m venv hwautomation-env
@@ -342,13 +347,13 @@ Launch the modern web interface:
 # Container deployment (recommended)
 docker compose up -d app
 
-# Access GUI at: http://127.0.0.1:5000
+# Access GUI at: <http://127.0.0.1:5000>
 ```
 
 **GUI Features:**
 - 🎛️ Interactive BIOS configuration management
-- � **Firmware Management Dashboard**: Real-time firmware status, version tracking, and update scheduling
-- �📊 Real-time dashboard with system status and workflow progress
+- 🧰 Firmware Management Dashboard: Real-time firmware status, version tracking, and update scheduling
+- 📊 Real-time dashboard with system status and workflow progress
 - ⚡ Live progress updates via WebSocket with detailed sub-task granularity
 - 🚀 **Firmware-First Provisioning**: Complete workflow orchestration from web interface
 - 📱 Responsive design for mobile/tablet
@@ -400,7 +405,7 @@ src/hwautomation/
 │   └── client.py          # MAAS API client
 ├── hardware/
 │   ├── ipmi.py                           # IPMI management
-│   ├── redfish_manager.py                # RedFish operations with firmware support
+│   ├── redfish_manager.py                # Redfish operations with firmware support
 │   ├── bios_config.py                    # BIOS configuration management
 │   ├── firmware_manager.py               # Multi-vendor firmware management
 │   └── firmware_provisioning_workflow.py # Complete firmware-first workflow
@@ -516,7 +521,7 @@ with RedfishManager("192.168.1.100", "admin", "password") as redfish:
 - `get_power_status(ip, password)` - Get IPMI power status
 - `power_on(ip, password)` - Power on server
 - `power_off(ip, password)` - Power off server
-- `get_system_info(ip, password)` - Get RedFish system information
+- `get_system_info(ip, password)` - Get Redfish system information
 
 #### Firmware Operations
 - `check_firmware_versions(device_type, ip, username, password)` - Comprehensive firmware analysis
@@ -567,7 +572,7 @@ See the `examples/` directory for complete working examples:
 - `firmware_manager_demo.py` - Firmware manager usage demo
 - `firmware_provisioning_demo.py` - Firmware-first provisioning demonstration
 - `enhanced_commissioning_demo.py` - Advanced commissioning workflows
-- Interactive examples for IPMI, RedFish, and database operations
+- Interactive examples for IPMI, Redfish, and database operations
 
 ## Testing
 

@@ -89,7 +89,7 @@ For detailed API documentation, see the individual module docstrings in the `src
 
 - `web/` - Flask web application and UI
 - `database/` - SQLite operations and migrations
-- `hardware/` - IPMI and RedFish hardware management
+- `hardware/` - IPMI and Redfish hardware management
 - `maas/` - MAAS API client and operations
 - `utils/` - Configuration and utility functions
 - `cli/` - Command-line interface
