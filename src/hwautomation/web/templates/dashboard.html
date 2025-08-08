@@ -21,6 +21,8 @@
 .real-time-log { background: #1e1e1e; color: #00ff00; font-family: 'Courier New', monospace; height: 300px; overflow-y: auto; padding: 15px; border-radius: 5px; }
 [data-bs-theme="dark"] .batch-controls { background: #2d3035; }
 [data-bs-theme="dark"] .real-time-log { background: #0d1117; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 {% endblock %}
 
 {% block content %}
@@ -102,9 +104,6 @@
                 <div class="col-md-4">
                     <label class="form-label">&nbsp;</label>
                     <div>
-                        <button class="btn btn-primary" id="discover-devices-btn">
-                            <i class="bi bi-search"></i> Discover Devices
-                        </button>
                         <button class="btn btn-success" id="start-batch-btn" disabled>
                             <i class="bi bi-play-fill"></i> Start Batch
                         </button>
@@ -117,9 +116,16 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="card device-card">
-                    <div class="card-header">
-                        <h5><i class="bi bi-list-check"></i> Available Devices</h5>
-                        <span class="badge bg-primary" id="device-count">0 devices</span>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0"><i class="bi bi-list-check"></i> Available Devices</h5>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary" id="device-count">0 devices</span>
+                            <button class="btn btn-outline-primary btn-sm" id="discover-devices-btn" title="Refresh device list">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <!-- Device Status Filters -->
@@ -167,7 +173,7 @@
                             {% else %}
                                 <div class="text-center text-muted">
                                     <i class="bi bi-inbox fs-1"></i>
-                                    <p>No devices discovered yet. Click "Discover Devices" to scan MaaS.</p>
+                                    <p>No devices discovered yet. Click the refresh button above to scan MaaS.</p>
                                 </div>
                             {% endif %}
                         </div>
@@ -333,9 +339,10 @@
         }
 
         // Discover devices from MaaS
-        discoverDevicesBtn.addEventListener('click', async function() {
-            this.disabled = true;
-            this.innerHTML = '<i class="bi bi-hourglass-split"></i> Discovering...';
+        async function discoverDevices() {
+            const btn = discoverDevicesBtn;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i>';
             addLog('Starting device discovery from MaaS API...', 'info');
 
             try {
@@ -353,9 +360,12 @@
                 addLog(`Discovery error: ${error.message}`, 'error');
             }
 
-            this.disabled = false;
-            this.innerHTML = '<i class="bi bi-search"></i> Discover Devices';
-        });
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+        }
+
+        // Add event listener for discover button
+        discoverDevicesBtn.addEventListener('click', discoverDevices);
 
         // Display discovered devices
         function displayDevices(devices) {
@@ -687,5 +697,11 @@
         // Initialize
         setupStatusFilters();
         addLog('Dashboard initialized - Ready for batch device commissioning', 'info');
+
+        // Auto-discover devices on page load
+        setTimeout(() => {
+            addLog('Auto-discovering devices...', 'info');
+            discoverDevices();
+        }, 1000);
     </script>
 {% endblock %}
