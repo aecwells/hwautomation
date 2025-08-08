@@ -18,6 +18,20 @@ A comprehensive Python package for hardware automation, server management, and i
 - 📊 **Real-time Monitoring**: Live progress tracking with WebSocket updates and comprehensive audit trails
 - 🏗️ **Multi-Vendor Support**: HPE Gen10, Supermicro X11, Dell PowerEdge with optimized device-specific workflows
 
+## 🎉 Recent Enhancements (August 2025)
+
+### **Web Interface Modernization**
+- **📐 Blueprint Architecture**: Refactored monolithic 853-line Flask app into modular blueprint structure
+- **🔧 Improved Maintainability**: 6 focused route modules (56-302 lines each) for easier development and testing
+- **📊 Enhanced Status Indicators**: Smart MaaS connection status with visual indicators (Connected/Disconnected/Not Configured)
+- **🎨 Better UI/UX**: Redesigned status bar positioning under logo with responsive design and proper color coding
+- **⚡ Zero Breaking Changes**: All existing URLs and APIs preserved during refactoring
+
+### **Developer Experience Improvements**
+- **🏗️ Team-Friendly Architecture**: Single-responsibility blueprints enable parallel development
+- **🧪 Easier Testing**: Modular structure simplifies unit testing and debugging
+- **📈 Scalable Foundation**: Clean architecture ready for new features and team expansion
+
 ## 🚀 Quick Start (Container-First)
 
 ### Prerequisites
@@ -39,7 +53,7 @@ docker compose up -d app
 # Open in your browser: <http://localhost:5000>
 ```
 
-The web GUI provides a modern dashboard for device management, workflow orchestration, and system monitoring.
+The web GUI provides a modern dashboard for device management, workflow orchestration, and system monitoring with an enhanced modular architecture and improved status indicators.
 
 ## Features
 
@@ -62,11 +76,12 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 ### 🏗️ **Core Platform Capabilities**
 
 - **🌐 Container-First Architecture**: Production-ready Docker deployment with SQLite database
-- **🖥️ Modern Web GUI**: Primary interface with real-time monitoring and management capabilities  
+- **🖥️ Modern Web GUI**: Blueprint-based Flask architecture with modular route organization and real-time status indicators
+- **📊 Enhanced Dashboard**: Intelligent status monitoring with MaaS connection indicators and system health visualization
 - **⚡ Multi-Stage Builds**: Optimized containers for development, production, web, and CLI use cases
 - **Complete Orchestration**: Multiple workflow types including standard provisioning and firmware-first workflows
 - **🔍 Hardware Discovery**: SSH-based system information gathering with IPMI detection and vendor identification
-- **MAAS Integration**: Complete API client for Metal as a Service operations
+- **MAAS Integration**: Complete API client for Metal as a Service operations with smart status detection
 - **IPMI Management**: Hardware control via IPMI protocol
 - **Redfish Support**: Modern BMC management through Redfish APIs with firmware update capabilities
 - **Database Migrations**: Robust SQLite schema versioning and upgrade system
@@ -85,7 +100,16 @@ hwautomation/
 ├── docker-compose.yml         # 🏗️ Production service orchestration  
 ├── docker-compose.override.yml # 🛠️ Development overrides
 ├── src/hwautomation/          # 📦 Main package source code
-│   ├── web/                   # 🌐 Flask web application with firmware management
+│   ├── web/                   # 🌐 Flask web application with blueprint architecture
+│   │   ├── app.py             # 🏭 Clean app factory with blueprint registration
+│   │   ├── routes/            # 📁 Modular blueprint organization (NEW)
+│   │   │   ├── core.py        # 🏠 Dashboard and health endpoints
+│   │   │   ├── database.py    # 🗄️ Database management routes
+│   │   │   ├── orchestration.py # 🔄 Workflow orchestration APIs
+│   │   │   ├── maas.py        # 🌐 MaaS integration endpoints
+│   │   │   ├── logs.py        # 📊 System logging APIs
+│   │   │   └── firmware.py    # 🔧 Firmware management routes
+│   │   └── templates/         # 🎨 Enhanced UI with status indicators
 │   ├── hardware/              # ⚙️ IPMI, Redfish, and Firmware management
 │   │   ├── firmware_manager.py           # 🔧 Multi-vendor firmware operations
 │   │   └── firmware_provisioning_workflow.py # 🚀 Firmware-first workflows
@@ -363,12 +387,30 @@ docker compose up -d app
 - 📁 Download configurations and logs
 - 💾 SQLite database management interface
 
-**API Endpoints:**
+**API Endpoints (Blueprint Architecture):**
 
+**Core Routes:**
+- `GET /` - Modern dashboard with enhanced status indicators
+- `GET /health` - System health check endpoint
+
+**Orchestration Routes:**
 - `POST /api/orchestration/provision` - Standard server provisioning workflow
 - `POST /api/orchestration/provision-firmware-first` - Firmware-first provisioning workflow
 - `GET /api/orchestration/workflows/{id}/status` - Real-time workflow status with sub-task details
 - `POST /api/orchestration/workflow/{id}/cancel` - Cancel running workflows with graceful cleanup
+
+**Database Routes:**
+- `GET /api/database/info` - Database statistics and information
+- `GET /api/database/export` - Export database data
+
+**MaaS Routes:**
+- `GET /api/maas/discover` - Discover available MaaS machines
+
+**Logs Routes:**
+- `GET /api/logs/` - System logs with filtering capabilities
+
+**Firmware Routes:**
+- `GET /api/firmware/status` - Firmware management status
 
 ### 6. Command Line Usage
 
@@ -390,9 +432,15 @@ python examples/run.py --list
 src/hwautomation/
 ├── __init__.py              # Main package exports
 ├── web/
-│   ├── app.py              # Flask web application with firmware API endpoints
-│   ├── firmware_routes.py  # Firmware management web routes
-│   └── templates/          # Web UI templates
+│   ├── app.py              # Clean Flask app factory with blueprint registration
+│   ├── routes/             # Modular blueprint architecture
+│   │   ├── core.py         # Dashboard and health endpoints
+│   │   ├── database.py     # Database management APIs
+│   │   ├── orchestration.py # Workflow orchestration APIs
+│   │   ├── maas.py         # MaaS integration endpoints
+│   │   ├── logs.py         # System logging APIs
+│   │   └── firmware.py     # Firmware management APIs
+│   └── templates/          # Enhanced web UI templates with status indicators
 ├── orchestration/
 │   ├── workflow_manager.py       # Core workflow orchestration
 │   └── server_provisioning.py   # Standard and firmware-first provisioning workflows
@@ -598,10 +646,24 @@ pytest --cov=hwautomation
 
 ## Contributing
 
-1. Follow the existing code structure
-2. Add tests for new functionality
-3. Update documentation
-4. Use black for code formatting: `black src/`
+### Development Guidelines
+
+1. **Blueprint Architecture**: Follow the modular blueprint structure in `src/hwautomation/web/routes/`
+   - Each blueprint handles a single functional domain (core, database, orchestration, etc.)
+   - Keep route modules focused and under 300 lines for maintainability
+   - Use proper dependency injection via Flask app context
+
+2. **Code Quality**: 
+   - Follow the existing code structure and patterns
+   - Add comprehensive tests for new functionality  
+   - Update documentation for any changes
+   - Use black for code formatting: `black src/`
+
+3. **Web Interface Development**:
+   - Status indicators should follow the established color scheme (green/red/orange)
+   - Maintain responsive design principles
+   - Test changes across different screen sizes
+   - Preserve backward compatibility for existing URLs
 
 ## License
 
