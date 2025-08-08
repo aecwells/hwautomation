@@ -1,5 +1,5 @@
 """
-Unified Logging Configuration for HWAutomation
+Unified Logging Configuration for HWAutomation.
 
 This module provides centralized logging configuration with support for:
 - Environment-specific configurations
@@ -14,7 +14,7 @@ import logging.handlers
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import yaml
 
@@ -228,12 +228,28 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
                     "level": "DEBUG",
                     "formatter": "detailed",
                     "stream": "ext://sys.stdout",
-                }
+                },
+                "file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": "DEBUG",
+                    "formatter": "detailed",
+                    "filename": "logs/hwautomation.log",
+                    "maxBytes": 5242880,  # 5MB
+                    "backupCount": 3,
+                },
+                "error_file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": "ERROR",
+                    "formatter": "detailed",
+                    "filename": "logs/errors.log",
+                    "maxBytes": 5242880,
+                    "backupCount": 5,
+                },
             },
             "loggers": {
                 "hwautomation": {
                     "level": "DEBUG",
-                    "handlers": ["console"],
+                    "handlers": ["console", "file", "error_file"],
                     "propagate": False,
                 }
             },
@@ -254,7 +270,7 @@ def setup_logging(
         environment: Environment name (auto-detected if None)
         force_reload: Force reload even if already configured
     """
-    global _logger_registry
+    global _logger_registry  # noqa: F824
 
     # Don't reconfigure unless forced
     if _logger_registry and not force_reload:
@@ -278,7 +294,9 @@ def setup_logging(
     logger.info(f"Logging configured for environment: {environment}")
 
 
-def get_logger(name: str, correlation_id: Optional[str] = None) -> logging.Logger:
+def get_logger(
+    name: str, correlation_id: Optional[str] = None
+) -> Union[logging.Logger, logging.LoggerAdapter]:
     """
     Get a logger instance with optional correlation ID.
 
@@ -334,7 +352,7 @@ def set_correlation_id(correlation_id: str) -> None:
     """
     import threading
 
-    threading.current_thread().correlation_id = correlation_id
+    setattr(threading.current_thread(), "correlation_id", correlation_id)
 
 
 def get_correlation_id() -> Optional[str]:

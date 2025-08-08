@@ -276,7 +276,6 @@ jobs:
         output-format: json
         args: "--save-as json safety-report.json"
       continue-on-error: true
-      if: ${{ secrets.SAFETY_API_KEY != '' }}  # Only run if API key exists
 
     - name: Run additional security checks
       run: |

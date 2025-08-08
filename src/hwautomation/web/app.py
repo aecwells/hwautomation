@@ -3,8 +3,8 @@
 Flask Web Application for HWAutomation - Refactored with Blueprints.
 
 Clean modular web interface with organized route blueprints.
-Core workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration
-."""
+Core workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration.
+"""
 
 import logging
 import os
@@ -146,8 +146,24 @@ def create_app():
                 logger.warning(f"Could not get MaaS stats: {e}")
                 stats["maas_status"] = "disconnected"
 
-        # Get available device types
-        device_types = ["a1.c5.large", "d1.c1.small", "d1.c2.medium", "d1.c2.large"]
+        # Get available device types from BIOS configuration
+        try:
+            bios_manager = BiosConfigManager()
+            device_types = bios_manager.get_device_types()
+            if not device_types:
+                # Fallback to default types if none loaded
+                device_types = [
+                    "a1.c5.large",
+                    "d1.c1.small",
+                    "d1.c2.medium",
+                    "d1.c2.large",
+                ]
+                logger.warning("No device types loaded from config, using defaults")
+        except Exception as e:
+            logger.warning(f"Could not load device types from config: {e}")
+            # Fallback to default types
+            device_types = ["a1.c5.large", "d1.c1.small", "d1.c2.medium", "d1.c2.large"]
+
         stats["device_types"] = len(device_types)
 
         return stats
