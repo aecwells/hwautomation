@@ -5,6 +5,7 @@ This directory contains practical examples and demonstrations of the Hardware Au
 ## Available Examples
 
 ### Basic Examples
+
 - **`basic_usage.py`** - Basic hardware automation usage
 - **`bios_config_example.py`** - Basic BIOS configuration examples
 - **`hardware_discovery_demo.py`** - Hardware discovery capabilities
@@ -14,6 +15,7 @@ This directory contains practical examples and demonstrations of the Hardware Au
 - **`workflow_subtasks_demo.py`** - Workflow subtask demonstrations
 
 ### Redfish Integration Examples
+
 - **`redfish_example.py`** - Basic Redfish API usage examples
 
 ### BIOS Configuration Examples

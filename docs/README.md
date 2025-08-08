@@ -5,7 +5,9 @@ This directory contains comprehensive documentation for the HWAutomation enterpr
 ## 📚 Documentation Structure
 
 ### `BIOS_AND_FIRMWARE.md`
+
 Complete guide to BIOS configuration and firmware management:
+
 - Multi-vendor BIOS configuration with intelligent method selection
 - Enterprise firmware management with real vendor tools (HPE iLORest, Supermicro IPMItool, Dell RACADM)
 - Firmware-first provisioning workflows
@@ -13,7 +15,9 @@ Complete guide to BIOS configuration and firmware management:
 - Device-specific templates and configuration management
 
 ### `WORKFLOW_ORCHESTRATION.md`
+
 Comprehensive workflow orchestration and automation system:
+
 - 7-step server provisioning workflow with optional firmware-first mode
 - Real-time sub-task reporting and progress tracking
 - Workflow lifecycle management with cancellation support
@@ -21,7 +25,9 @@ Comprehensive workflow orchestration and automation system:
 - API integration and direct Python usage examples
 
 ### `HARDWARE_COMMISSIONING.md`
+
 Hardware discovery and automated commissioning capabilities:
+
 - Automatic hardware discovery via SSH (system info, IPMI configuration)
 - Enhanced 8-step commissioning workflow with hardware discovery
 - Network range scanning for IPMI address discovery
@@ -39,6 +45,7 @@ Hardware discovery and automated commissioning capabilities:
 ## 📖 Documentation Scope
 
 These documents provide comprehensive coverage of:
+
 - **Hardware Automation**: Complete BIOS and firmware management
 - **Workflow Orchestration**: End-to-end server provisioning automation
 - **Hardware Discovery**: Automatic detection and commissioning
@@ -48,6 +55,7 @@ These documents provide comprehensive coverage of:
 ## 🔧 System Architecture
 
 The HWAutomation platform consists of:
+
 - **Container-First Architecture**: Docker-based deployment with single-container design
 - **SQLite Database**: Lightweight, embedded database with migration support
 - **Multi-Vendor Support**: HPE, Supermicro, Dell hardware integration
@@ -57,9 +65,11 @@ The HWAutomation platform consists of:
 For detailed implementation guidance, refer to the specific documentation files above.
 
 ### `PACKAGE_README.md`
+
 Package development and distribution guidelines
 
 ### `PROJECT_ORGANIZATION.md`
+
 Overall project structure and development guidelines
 
 ### `PROJECT_STATUS_AND_ROADMAP.md`
