@@ -12,6 +12,7 @@ This module provides comprehensive testing infrastructure including:
 import pytest
 import tempfile
 import os
+import time
 import asyncio
 from pathlib import Path
 from unittest.mock import Mock, patch, AsyncMock
@@ -353,33 +354,29 @@ def pytest_runtest_setup(item):
     if item.get_closest_marker("performance") and not os.getenv("RUN_PERFORMANCE_TESTS"):
         pytest.skip("Performance tests skipped (set RUN_PERFORMANCE_TESTS=1 to run)")
 
-# Test result collection
-@pytest.fixture(scope="session", autouse=True)
-def test_results_collector():
-    """Collect test results for reporting."""
-    results = {"passed": 0, "failed": 0, "skipped": 0}
-    yield results
+# Performance monitoring
+@pytest.fixture(scope="session")
+def performance_monitor():
+    """Monitor test performance across the session."""
+    metrics = {
+        "start_time": time.time(),
+        "test_times": [],
+        "slow_tests": []
+    }
     
-    # Print summary at end of session
-    total = sum(results.values())
-    if total > 0:
-        print(f"\n=== Test Results Summary ===")
-        print(f"Total tests: {total}")
-        print(f"Passed: {results['passed']} ({results['passed']/total*100:.1f}%)")
-        print(f"Failed: {results['failed']} ({results['failed']/total*100:.1f}%)")
-        print(f"Skipped: {results['skipped']} ({results['skipped']/total*100:.1f}%)")
-
-def pytest_runtest_makereport(item, call):
-    """Collect test result statistics."""
-    if call.when == "call":
-        results = item.session.test_results_collector
-        if call.excinfo is None:
-            results["passed"] += 1
-        else:
-            results["failed"] += 1
-    elif call.when == "setup" and call.excinfo is not None:
-        results = item.session.test_results_collector
-        results["skipped"] += 1
+    yield metrics
+    
+    # Print performance summary
+    total_time = time.time() - metrics["start_time"]
+    if metrics["test_times"]:
+        avg_time = sum(metrics["test_times"]) / len(metrics["test_times"])
+        print(f"\n=== Performance Summary ===")
+        print(f"Total session time: {total_time:.2f}s")
+        print(f"Average test time: {avg_time:.3f}s")
+        if metrics["slow_tests"]:
+            print(f"Slow tests (>5s):")
+            for test_name, duration in metrics["slow_tests"]:
+                print(f"  {test_name}: {duration:.2f}s")
 
 @pytest.fixture
 def sample_config():

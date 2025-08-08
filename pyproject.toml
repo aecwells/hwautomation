@@ -95,6 +95,7 @@ markers = [
     "firmware: marks tests as firmware management tests",
     "workflow: marks tests as workflow orchestration tests",
     "web: marks tests as web interface tests",
+    "network: marks tests as requiring network access",
 ]
 
 # Test discovery and execution
@@ -114,7 +115,6 @@ addopts = [
     "--cov-fail-under=80",
     # Performance and resource management
     "--maxfail=5",
-    "--timeout=300",
 ]
 
 # Test filtering
@@ -127,13 +127,6 @@ filterwarnings = [
     "ignore:.*pkg_resources.*:DeprecationWarning",
     "ignore:.*distutils.*:DeprecationWarning",
 ]
-
-# Asyncio configuration
-asyncio_mode = "auto"
-
-# Test timeout (seconds)
-timeout = 300
-timeout_method = "thread"
 
 # Logging configuration during tests
 log_cli = true
