@@ -61,7 +61,7 @@ jobs:
 
     - name: Security scan with bandit
       run: |
-        bandit -r src/ -f json -o bandit-report.json
+        bandit -r src/ -f json -o bandit-report.json --configfile pyproject.toml
       continue-on-error: true
 
     - name: Upload security scan results

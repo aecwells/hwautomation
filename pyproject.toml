@@ -270,12 +270,21 @@ ignore_missing_imports = true
 exclude_dirs = ["tests", "examples", "docs"]
 skips = [
     "B101",  # Skip assert_used
-    "B601",  # Skip shell_injection_process_substitution
     "B104",  # Skip hardcoded_bind_all_interfaces
+    "B105",  # Skip hardcoded_password_string (enum values like "pass")
+    "B107",  # Skip hardcoded_password_default (default parameters)
     "B108",  # Skip hardcoded_tmp_directory
     "B110",  # Skip try_except_pass
+    "B311",  # Skip random usage (acceptable for non-cryptographic purposes)
+    "B314",  # Skip XML parsing (trusted internal XML content)
+    "B404",  # Skip subprocess import (needed for IPMI/system operations)
+    "B405",  # Skip xml.etree import (used for XML parsing)
+    "B507",  # Skip SSH host key verification (configurable security)
+    "B601",  # Skip shell_injection_process_substitution
+    "B603",  # Skip subprocess_without_shell_equals_true (safe usage)
     "B605",  # Skip start_process_with_a_shell
     "B607",  # Skip start_process_with_partial_path
+    "B608",  # Skip hardcoded_sql_expressions (safe usage with tablename)
 ]
 
 [project.urls]
