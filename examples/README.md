@@ -18,8 +18,8 @@ This directory contains practical examples and demonstrations of the Hardware Au
 
 ### BIOS Configuration Examples
 
-- **`phase2_standalone_example.py`** ⭐ - Standalone BIOS configuration demonstration with intelligent per-setting method selection
-- **`example_phase2_integration.py`** - Integration example for production workflows
+- Use `bios_config_example.py` for BIOS configuration basics
+- Use `redfish_example.py` for Redfish-centric flows
 
 ## BIOS Configuration Decision Logic
 
@@ -41,7 +41,7 @@ These examples demonstrate the advanced capabilities of the enhanced BIOS config
 from hwautomation.hardware.bios_config import BiosConfigManager
 
 manager = BiosConfigManager()
-result = manager.apply_bios_config_phase2(
+result = manager.apply_bios_config_smart_enhanced(
     device_type="a1.c5.large",
     target_ip="192.168.1.100",
     username="ADMIN", 
@@ -67,7 +67,7 @@ export PYTHONPATH=/path/to/HWAutomation/src
 
 ```bash
 # BIOS configuration demo (recommended starting point)
-python3 examples/phase2_standalone_example.py
+python3 examples/bios_config_example.py
 
 # Basic usage examples
 python3 examples/basic_usage.py
@@ -116,6 +116,8 @@ List and run examples via a single entry point:
 ```bash
 python -m examples.run --list
 python -m examples.run firmware_manager_smoke -- --target-ip 192.168.1.100
+python -m examples.run firmware_manager_demo
+python -m examples.run firmware_provisioning_demo
 ```
 
 Common flags (most examples accept these):

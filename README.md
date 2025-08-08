@@ -564,8 +564,8 @@ export HW_DATABASE_PATH="/path/to/database.db"
 See the `examples/` directory for complete working examples:
 
 - `basic_usage.py` - Complete workflow demonstration
-- `phase4_implementation_example.py` - **Firmware-first provisioning demonstration**
-- `phase4_firmware_demo.py` - **Complete firmware management simulation**
+- `firmware_manager_demo.py` - Firmware manager usage demo
+- `firmware_provisioning_demo.py` - Firmware-first provisioning demonstration
 - `enhanced_commissioning_demo.py` - Advanced commissioning workflows
 - Interactive examples for IPMI, RedFish, and database operations
 

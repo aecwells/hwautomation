@@ -8,8 +8,9 @@ Successfully organized Enhanced BIOS configuration and related files into their 
 
 ### ✅ Examples → `examples/`
 
-- `example_phase2_integration.py` → `examples/example_phase2_integration.py`
-- `phase2_standalone_example.py` → `examples/phase2_standalone_example.py`
+Removed legacy Phase 2 example scripts in favor of neutral examples:
+
+- Use `examples/bios_config_example.py` and `examples/redfish_example.py`
 
 ### ✅ Tests → `tests/`  
 
@@ -67,8 +68,7 @@ python3 tests/test_phase2_decision_logic.py   # Available for full integration t
 
 ```bash
 cd /home/ubuntu/HWAutomation
-python3 examples/phase2_standalone_example.py        # ✅ PASSED
-python3 examples/example_phase2_integration.py       # Available for integration testing
+python3 examples/bios_config_example.py              # ✅ PASSED
 ```
 
 ## Project Structure After Cleanup
@@ -84,8 +84,8 @@ HWAutomation/
 │   └── device_mappings.yaml            # Device configuration
 ├── examples/                           # ✅ ORGANIZED
 │   ├── README.md                       # NEW: Comprehensive guide
-│   ├── phase2_standalone_example.py    # MOVED: BIOS config demo
-│   └── example_phase2_integration.py   # MOVED: Integration example
+│   ├── bios_config_example.py          # BIOS config demo
+│   └── redfish_example.py              # Redfish integration example
 ├── tests/                              # ✅ ORGANIZED  
 │   ├── README.md                       # UPDATED: Added new sections
 │   ├── test_phase2_focused.py          # MOVED: Focused BIOS logic testing
@@ -123,7 +123,7 @@ HWAutomation/
 
 ## Next Steps
 
-1. **Integration Teams**: Start with `examples/phase2_standalone_example.py`
+1. **Integration Teams**: Start with `examples/bios_config_example.py` and `examples/redfish_example.py`
 2. **Testing Teams**: Run tests in `tests/` directory for validation
 3. **Operations Teams**: Review documentation in `docs/` directory
 4. **Development Teams**: Use organized structure for future enhancements

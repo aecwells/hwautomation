@@ -14,7 +14,18 @@ import sys
 from pathlib import Path
 
 
-EXCLUDE = {"run.py", "_common.py", "README.md", "__init__.py"}
+EXCLUDE = {
+    "run.py",
+    "_common.py",
+    "README.md",
+    "__init__.py",
+    # Deprecated/legacy examples (kept temporarily for history, not runnable)
+    "phase2_standalone_example.py",
+    "example_phase2_integration.py",
+    "phase4_firmware_demo.py",
+    "phase4_implementation_example.py",
+    "test_phase4_implementation.py",
+}
 
 
 def discover() -> dict[str, Path]:

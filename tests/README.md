@@ -21,7 +21,6 @@ This directory contains tests for the HWAutomation project.
 
 ### Firmware Update Tests 🔧
 
-- **`test_phase4_firmware_demo.py`** - Complete Phase 4 firmware-first provisioning demonstration
 - **`test_firmware_manager.py`** - Firmware management and update functionality tests
 - **`test_firmware_integration.py`** - Integration tests for firmware-first workflows
 
@@ -56,8 +55,8 @@ python3 tests/test_phase2_decision_logic.py
 python3 tests/test_phase3_standalone.py
 python3 tests/test_phase3_monitoring.py
 
-# Run firmware update tests (demonstrations)
-python3 examples/phase4_firmware_demo.py
+# Run firmware provisioning demo
+python3 examples/firmware_provisioning_demo.py
 python3 tests/test_firmware_manager.py
 python3 tests/test_firmware_integration.py
 

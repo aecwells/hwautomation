@@ -2,7 +2,7 @@
 """
 Redfish Integration Example for HWAutomation
 
-This example demonstrates Phase 1 of Redfish integration:
+This example demonstrates Redfish integration:
 - Basic hardware discovery via Redfish
 - Power control operations
 - Simple BIOS configuration
