@@ -9,7 +9,7 @@ A comprehensive Python package for hardware automation, server management, and i
 
 ## 🎯 Key Capabilities
 
-**Enterprise Hardware Automation Platform**
+### **Enterprise Hardware Automation Platform**
 
 - 🔧 **Complete Server Provisioning**: Automated workflows from commissioning to production-ready state
 - 💾 **Firmware Management**: Multi-vendor firmware updates with real vendor tools (HPE iLORest, Supermicro IPMItool, Dell RACADM)
@@ -207,7 +207,8 @@ pip install -e .
 python -c 'import hwautomation; print("HWAutomation package imported successfully!")'
 ```
 
-> **Important Notes**: 
+> **Important Notes**:
+>
 > - When testing the import in bash, always use single quotes around the Python command to avoid bash history expansion issues with exclamation marks.
 > - If you get "bash: !': event not found" error, you're using double quotes instead of single quotes.
 > - The virtual environment approach is required on Ubuntu/Debian systems with externally-managed Python environments.
@@ -351,6 +352,7 @@ docker compose up -d app
 ```
 
 **GUI Features:**
+
 - 🎛️ Interactive BIOS configuration management
 - 🧰 Firmware Management Dashboard: Real-time firmware status, version tracking, and update scheduling
 - 📊 Real-time dashboard with system status and workflow progress
@@ -362,6 +364,7 @@ docker compose up -d app
 - 💾 SQLite database management interface
 
 **API Endpoints:**
+
 - `POST /api/orchestration/provision` - Standard server provisioning workflow
 - `POST /api/orchestration/provision-firmware-first` - Firmware-first provisioning workflow
 - `GET /api/orchestration/workflows/{id}/status` - Real-time workflow status with sub-task details
@@ -388,7 +391,7 @@ python examples/basic_usage.py
 
 ## Package Structure
 
-```
+```bash
 src/hwautomation/
 ├── __init__.py              # Main package exports
 ├── web/
@@ -434,6 +437,7 @@ Migrations are applied automatically when `auto_migrate=True` in configuration.
 ### Core Classes
 
 #### `DbHelper`
+
 Database operations and server information management.
 
 ```python
@@ -441,6 +445,7 @@ db_helper = DbHelper(tablename="servers", db_path="hw.db", auto_migrate=True)
 ```
 
 #### `MaasClient`
+
 MAAS API operations with OAuth1 authentication.
 
 ```python
@@ -449,6 +454,7 @@ maas_client = create_maas_client(config['maas'])
 ```
 
 #### `FirmwareManager`
+
 Multi-vendor firmware management with real vendor tool integration.
 
 ```python
@@ -469,6 +475,7 @@ results = await firmware_manager.update_firmware_batch(
 ```
 
 #### `FirmwareProvisioningWorkflow`
+
 Complete firmware-first provisioning workflow.
 
 ```python
@@ -483,6 +490,7 @@ result = await workflow.execute_firmware_first_provisioning(context)
 ```
 
 #### `IpmiManager`
+
 IPMI hardware control operations.
 
 ```python
@@ -491,6 +499,7 @@ ipmi_manager = IpmiManager(username="admin", timeout=30)
 ```
 
 #### `RedfishManager`
+
 Modern Redfish API management for standardized BMC operations.
 
 ```python
@@ -505,6 +514,7 @@ with RedfishManager("192.168.1.100", "admin", "password") as redfish:
 ### Key Methods
 
 #### Database Operations
+
 - `checkifserveridexists(server_id)` - Check if server exists
 - `createrowforserver(server_id)` - Create new server record
 - `updateserverinfo(server_id, field, value)` - Update server information
@@ -512,18 +522,21 @@ with RedfishManager("192.168.1.100", "admin", "password") as redfish:
 - `printtableinfo()` - Display database contents
 
 #### MAAS Operations
+
 - `get_machines()` - Retrieve all machines from MAAS
 - `commission_machine(system_id)` - Commission a machine
 - `deploy_machine(system_id, distro)` - Deploy OS to machine
 - `release_machine(system_id)` - Release machine back to pool
 
 #### Hardware Operations
+
 - `get_power_status(ip, password)` - Get IPMI power status
 - `power_on(ip, password)` - Power on server
 - `power_off(ip, password)` - Power off server
 - `get_system_info(ip, password)` - Get Redfish system information
 
 #### Firmware Operations
+
 - `check_firmware_versions(device_type, ip, username, password)` - Comprehensive firmware analysis
 - `update_firmware_batch(updates_list, ip, username, password, operation_id)` - Batch firmware updates
 - `execute_firmware_first_provisioning(context)` - Complete 6-step workflow with progress monitoring
@@ -558,6 +571,7 @@ Configuration can be provided via:
 3. Environment variables (with `HW_` prefix)
 
 Environment variable examples:
+
 ```bash
 export HW_MAAS_HOST="http://maas-server:5240/MAAS"
 export HW_MAAS_CONSUMER_KEY="your-key"
@@ -601,6 +615,7 @@ MIT License - see LICENSE file for details.
 ## Support
 
 For issues and questions:
+
 1. Check the examples directory
 2. Review the database migration documentation
 3. Open an issue on the project repository
