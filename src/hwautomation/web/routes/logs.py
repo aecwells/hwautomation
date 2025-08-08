@@ -377,6 +377,7 @@ def api_get_latest_activities():
 
 def init_logs_routes(app):
     """Initialize logs routes with dependencies."""
+
     # Page routes (not part of API blueprint)
     @app.route("/logs")
     def logs_view():

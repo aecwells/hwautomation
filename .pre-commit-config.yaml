@@ -121,7 +121,7 @@ repos:
       - id: pydocstyle
         name: Docstring style (pydocstyle)
         description: Check Python docstring style
-        args: [--convention=numpy, --add-ignore=D100,D104,D105]
+        args: [--convention=numpy, --add-ignore=D100,D104,D105,D202]
 
   # Spell checking for documentation
   - repo: https://github.com/crate-ci/typos
