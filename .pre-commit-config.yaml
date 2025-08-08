@@ -192,3 +192,7 @@ exclude: |
 # Performance settings
 fail_fast: false  # Continue running all hooks even if one fails
 minimum_pre_commit_version: '3.0.0'
+
+# For development - can temporarily skip strict checks
+# Run: SKIP=mypy,bandit,pydocstyle git commit -m "message"
+# to skip strict checks when needed
