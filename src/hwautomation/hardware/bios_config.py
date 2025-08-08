@@ -70,7 +70,7 @@ class BiosConfigManager:
         self.device_types: Dict[str, Any] = {}
         self.template_rules: Dict[str, Any] = {}
         self.preserve_settings: set[str] = set()
-        self.xml_templates: Dict[str, str] = {}  # Initialize xml_templates
+        self.xml_templates: Dict[str, ET.ElementTree] = {}  # Initialize xml_templates
 
         # Ensure config directory exists
         self.config_dir.mkdir(parents=True, exist_ok=True)
@@ -1098,7 +1098,7 @@ class BiosConfigManager:
         Returns:
             Dictionary with operation results including per-setting method selection
         ."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "target_ip": target_ip,
             "device_type": device_type,
@@ -1271,7 +1271,7 @@ class BiosConfigManager:
         Returns:
             Dictionary with operation results including monitoring data
         ."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "target_ip": target_ip,
             "device_type": device_type,
@@ -1325,7 +1325,7 @@ class BiosConfigManager:
             result["validation_results"]["pre_flight"] = validation_result
 
             if not validation_result.get("success", False):
-                if monitor:
+                if monitor and operation_id:
                     await monitor.complete_subtask(
                         operation_id,
                         "pre_flight_validation",
@@ -1340,7 +1340,7 @@ class BiosConfigManager:
                 )
                 return result
 
-            if monitor:
+            if monitor and operation_id:
                 await monitor.complete_subtask(
                     operation_id,
                     "pre_flight_validation",
@@ -1349,7 +1349,7 @@ class BiosConfigManager:
                 )
 
             # Stage 2: Method analysis with monitoring
-            if monitor:
+            if monitor and operation_id:
                 await monitor.start_subtask(
                     operation_id,
                     "method_analysis",
@@ -1362,7 +1362,7 @@ class BiosConfigManager:
             result["method_analysis"] = method_analysis_result
 
             if not method_analysis_result.get("success", False):
-                if monitor:
+                if monitor and operation_id:
                     await monitor.complete_subtask(
                         operation_id, "method_analysis", False, "Method analysis failed"
                     )
@@ -1374,7 +1374,7 @@ class BiosConfigManager:
                 )
                 return result
 
-            if monitor:
+            if monitor and operation_id:
                 await monitor.complete_subtask(
                     operation_id,
                     "method_analysis",
@@ -1384,7 +1384,7 @@ class BiosConfigManager:
 
             # Stage 3: Dry run handling
             if dry_run:
-                if monitor:
+                if monitor and operation_id:
                     await monitor.log_info(
                         operation_id, "Dry run mode - no changes will be applied"
                     )
@@ -1397,7 +1397,7 @@ class BiosConfigManager:
                 return result
 
             # Stage 4: Configuration execution with real-time monitoring
-            if monitor:
+            if monitor and operation_id:
                 total_phases = len(method_analysis_result.get("batch_groups", []))
                 await monitor.start_operation(operation_id, total_phases)
 
@@ -1410,7 +1410,7 @@ class BiosConfigManager:
             )
 
             # Stage 5: Post-configuration validation
-            if monitor:
+            if monitor and operation_id:
                 await monitor.start_subtask(
                     operation_id, "post_validation", "Validating applied configuration"
                 )
@@ -1420,7 +1420,7 @@ class BiosConfigManager:
             )
             result["validation_results"]["post_configuration"] = post_validation_result
 
-            if monitor:
+            if monitor and operation_id:
                 success = post_validation_result.get("success", False)
                 await monitor.complete_subtask(
                     operation_id,
@@ -1434,7 +1434,7 @@ class BiosConfigManager:
                 "success", False
             ) and post_validation_result.get("success", False)
 
-            if monitor:
+            if monitor and operation_id:
                 final_message = (
                     "Monitored BIOS configuration completed successfully"
                     if overall_success
@@ -1479,7 +1479,7 @@ class BiosConfigManager:
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Pre-flight validation with detailed checks for monitored flow."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "checks_performed": [],
             "connectivity_test": {},
@@ -1613,7 +1613,12 @@ class BiosConfigManager:
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Configuration execution with monitoring and error recovery."""
-        result = {"success": False, "phases": [], "recovery_actions": [], "error": None}
+        result: Dict[str, Any] = {
+            "success": False,
+            "phases": [],
+            "recovery_actions": [],
+            "error": None,
+        }
 
         monitor = get_monitor()
 
@@ -1692,7 +1697,7 @@ class BiosConfigManager:
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Post-configuration validation for monitored flow."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "validation_checks": [],
             "applied_settings_verified": {},
@@ -1745,7 +1750,7 @@ class BiosConfigManager:
         self, target_ip: str, username: str, password: str
     ) -> Dict[str, Any]:
         """Test basic connectivity to target system."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "response_time": 0,
             "redfish_available": False,
@@ -1826,7 +1831,7 @@ class BiosConfigManager:
         operation_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Execute batch with error recovery."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "execution_time": 0,
             "recovery_actions": [],
@@ -1888,7 +1893,7 @@ class BiosConfigManager:
         expected_settings: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Validate that Redfish settings were applied correctly."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "verified_settings": {},
             "mismatched_settings": {},
@@ -2030,7 +2035,7 @@ class BiosConfigManager:
         password: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Validate which configured Redfish settings are actually available on the target system."""
-        result = {
+        result: Dict[str, Any] = {
             "success": False,
             "device_type": device_type,
             "target_ip": target_ip,
@@ -2313,7 +2318,11 @@ class BiosConfigManager:
         # First try device-specific template
         if hasattr(self, "xml_templates") and device_type in self.xml_templates:
             tree = self.xml_templates[device_type]
-            return ET.tostring(tree.getroot(), encoding="unicode")
+            root = tree.getroot()
+            if root is not None:
+                return ET.tostring(root, encoding="unicode")
+            else:
+                raise ValueError(f"Invalid XML template for device type {device_type}")
 
         # If no template exists, generate from device config
         config = self.get_device_config(device_type)
