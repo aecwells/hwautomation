@@ -260,6 +260,8 @@ def api_start_firmware_first_provisioning():
 
 def init_orchestration_routes(app, workflow_manager, socketio):
     """Initialize orchestration routes with dependencies."""
+    # Store workflow manager in app context for blueprint route access
+    app._hwautomation_workflow_manager = workflow_manager
     
     # Workflow status endpoint (not part of orchestration prefix)
     @app.route('/api/workflows/status')
