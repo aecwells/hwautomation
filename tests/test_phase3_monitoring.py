@@ -130,6 +130,10 @@ class TestProgressCallback(ProgressCallback):
         print(f"🔄 Operation {operation_id} status changed to: {status.value}")
 
 
+import pytest
+
+
+@pytest.mark.asyncio
 async def test_phase3_monitoring():
     """Test Phase 3 real-time monitoring capabilities"""
     print("=" * 80)
@@ -315,6 +319,7 @@ async def configure_server_with_monitoring(device_type, target_ip, websocket_han
         return False
 
 
+@pytest.mark.asyncio
 async def test_monitoring_components():
     """Test individual monitoring components"""
     print("\n" + "=" * 80)
