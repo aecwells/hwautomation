@@ -14,7 +14,10 @@ class DbHelper:
     """Database helper class for managing server information"""
 
     def __init__(
-        self, db_path: str = "hw_automation.db", tablename: str = "servers", auto_migrate: bool = True
+        self,
+        db_path: str = "hw_automation.db",
+        tablename: str = "servers",
+        auto_migrate: bool = True,
     ):
         """
         Initialize database helper.
