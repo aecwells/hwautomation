@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Flask Web Application for HWAutomation - Refactored with Blueprints
+Flask Web Application for HWAutomation - Refactored with Blueprints.
 
 Clean modular web interface with organized route blueprints.
 Core workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration
@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 def create_app():
     """Application factory for Flask app with blueprint architecture."""
-
     # Add src to path for development
     project_root = Path(__file__).parent.parent.parent.parent
     src_path = project_root / "src"
@@ -103,7 +102,9 @@ def create_app():
 
         # Get MaaS machines count if configured
         maas_config = config.get("maas", {})
-        if not maas_config.get("host") or not maas_config.get("consumer_key"):
+        maas_host = maas_config.get("host") or maas_config.get("url")
+        maas_auth = maas_config.get("consumer_key") or maas_config.get("api_key")
+        if not maas_host or not maas_auth:
             # MaaS not configured
             stats["maas_status"] = "not_configured"
         else:
@@ -148,32 +149,32 @@ def create_app():
     # Register blueprints
     if core_bp:
         app.register_blueprint(core_bp)
-        if init_core_routes:
+        if init_core_routes is not None:
             init_core_routes(app, db_helper, maas_client, config)
 
     if database_bp:
         app.register_blueprint(database_bp)
-        if init_database_routes:
+        if init_database_routes is not None:
             init_database_routes(app, db_helper)
 
     if orchestration_bp:
         app.register_blueprint(orchestration_bp)
-        if init_orchestration_routes:
+        if init_orchestration_routes is not None:
             init_orchestration_routes(app, workflow_manager, socketio)
 
     if maas_bp:
         app.register_blueprint(maas_bp)
-        if init_maas_routes:
+        if init_maas_routes is not None:
             init_maas_routes(app, config, create_maas_client)
 
     if logs_bp:
         app.register_blueprint(logs_bp)
-        if init_logs_routes:
+        if init_logs_routes is not None:
             init_logs_routes(app)
 
     if firmware_bp:
         app.register_blueprint(firmware_bp)
-        if init_firmware_routes:
+        if init_firmware_routes is not None:
             init_firmware_routes(app, workflow_manager, db_helper, socketio)
 
     # WebSocket event handlers

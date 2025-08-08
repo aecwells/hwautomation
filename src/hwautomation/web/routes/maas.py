@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
 """
-MaaS routes for HWAutomation Web Interface
+MaaS routes for HWAutomation Web Interface.
 
 Handles MaaS integration, device discovery, and batch commissioning operations.
 """
@@ -42,24 +41,30 @@ def api_maas_discover():
         maas_client = create_maas_client(maas_config)
         machines = maas_client.get_machines()
 
-        # Filter for available machines
-        available_devices = []
+        # Return all machines with their status for filtering
+        all_devices = []
+        ready_devices = []
+
         for machine in machines:
-            if machine.get("status") == "Ready":
-                available_devices.append(
-                    {
-                        "system_id": machine.get("system_id"),
-                        "hostname": machine.get("hostname", "Unknown"),
-                        "status": machine.get("status"),
-                        "architecture": machine.get("architecture", "Unknown"),
-                        "cpu_count": machine.get("cpu_count", 0),
-                    }
-                )
+            device_info = {
+                "system_id": machine.get("system_id"),
+                "hostname": machine.get("hostname", "Unknown"),
+                "status": machine.get(
+                    "status_name"
+                ),  # Use status_name instead of status
+                "architecture": machine.get("architecture", "Unknown"),
+                "cpu_count": machine.get("cpu_count", 0),
+            }
+            all_devices.append(device_info)
+
+            # Count ready devices separately for backward compatibility
+            if machine.get("status_name") == "Ready":  # Use status_name
+                ready_devices.append(device_info)
 
         return jsonify(
             {
-                "devices": available_devices,
-                "available_count": len(available_devices),
+                "devices": all_devices,  # Return all devices for filtering
+                "available_count": len(ready_devices),  # Ready devices count
                 "total_discovered": len(machines),
             }
         )
@@ -71,4 +76,6 @@ def api_maas_discover():
 
 def init_maas_routes(app, config, create_maas_client):
     """Initialize MaaS routes with dependencies."""
-    pass  # Routes now defined outside
+    # Store configuration and MaaS client factory in app for routes to access
+    app._hwautomation_config = config
+    app._hwautomation_create_maas_client = create_maas_client
