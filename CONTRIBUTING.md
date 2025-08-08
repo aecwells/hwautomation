@@ -156,7 +156,7 @@ class ServerConfig:
     server_id: str
     device_type: str
     ipmi_ip: Optional[str] = None
-    
+
 def configure_bios(config: ServerConfig) -> Dict[str, Any]:
     """Configure BIOS settings for a server."""
     pass
@@ -193,7 +193,7 @@ def process_server(server_id: str) -> None:
         'server_id': server_id,
         'operation': 'process_server'
     })
-    
+
     try:
         # Process server
         logger.info(f"Server processing completed", extra={
@@ -226,24 +226,24 @@ from hwautomation.bios.config_manager import BiosConfigManager
 
 class TestBiosConfigManager:
     """Test suite for BiosConfigManager."""
-    
+
     @pytest.fixture
     def config_manager(self):
         """Create a BiosConfigManager instance for testing."""
         return BiosConfigManager()
-    
+
     def test_load_device_mappings(self, config_manager):
         """Test loading device mappings."""
         mappings = config_manager.load_device_mappings()
         assert isinstance(mappings, dict)
         assert len(mappings) > 0
-    
+
     @pytest.mark.integration
     def test_apply_config_integration(self, config_manager):
         """Integration test for applying BIOS configuration."""
         # This test requires actual hardware or simulation
         pass
-    
+
     @pytest.mark.performance
     def test_config_performance(self, config_manager):
         """Test configuration application performance."""
@@ -288,10 +288,10 @@ python -m pytest -m performance
 ```python
 def apply_bios_config(device_type: str, target_ip: str, config: Dict[str, Any]) -> Dict[str, Any]:
     """Apply BIOS configuration to a target device.
-    
+
     This function applies the specified BIOS configuration to the target device
     using the appropriate vendor-specific tools and protocols.
-    
+
     Parameters
     ----------
     device_type : str
@@ -300,17 +300,17 @@ def apply_bios_config(device_type: str, target_ip: str, config: Dict[str, Any]) 
         The IP address of the target device
     config : Dict[str, Any]
         The BIOS configuration settings to apply
-    
+
     Returns
     -------
     Dict[str, Any]
         Results of the configuration operation including status and any errors
-    
+
     Raises
     ------
     BiosConfigurationError
         If the configuration operation fails
-    
+
     Examples
     --------
     >>> config = {'boot_order': ['hdd', 'network']}
@@ -354,18 +354,18 @@ def apply_bios_config(device_type: str, target_ip: str, config: Dict[str, Any]) 
    ```markdown
    ## Description
    Brief description of the changes
-   
+
    ## Type of Change
    - [ ] Bug fix
    - [ ] New feature
    - [ ] Breaking change
    - [ ] Documentation update
-   
+
    ## Testing
    - [ ] Unit tests pass
    - [ ] Integration tests pass
    - [ ] Manual testing completed
-   
+
    ## Checklist
    - [ ] Code follows style guidelines
    - [ ] Self-review completed

@@ -106,7 +106,7 @@ def testfunctions(input_cmd):
             )
             print(f"Database initialized with version: {db_helper.get_database_version()}")
             db_helper.close()
-            
+
         case "response":
             # Updated: Use new MAAS client
             config = load_config()
@@ -114,44 +114,44 @@ def testfunctions(input_cmd):
             machines = maas_client.get_machines()
             print(f"Retrieved {len(machines)} servers from MAAS")
             return machines
-            
+
         case "full_update":
             # Updated: Full workflow with new package structure
             print("Starting full server update workflow...")
-            
+
             # 1. Load configuration
             config = load_config()
-            
+
             # 2. Initialize database with migrations
             db_helper = DbHelper(
                 tablename=config['database']['table_name'],
                 db_path=config['database']['path'],
                 auto_migrate=True
             )
-            
+
             # 3. Create MAAS client
             maas_client = create_maas_client(config['maas'])
-            
+
             # 4. Get server data from MAAS
             machines = maas_client.get_machines()
             if not machines:
                 print("No machines found in MAAS")
                 db_helper.close()
                 return
-            
+
             # 5. Update server information
             for machine in machines:
                 system_id = machine['system_id']
                 status_name = machine['status_name']
-                
+
                 # Check if machine exists in database
                 if not db_helper.checkifserveridexists(system_id)[0]:
                     db_helper.createrowforserver(system_id)
                     print(f"Added new machine: {system_id}")
-                
+
                 # Update machine information
                 db_helper.updateserverinfo(system_id, 'status_name', status_name)
-                
+
                 # Get IP address if available
                 ip_address = maas_client.get_machine_ip(system_id)
                 if ip_address:
@@ -159,18 +159,18 @@ def testfunctions(input_cmd):
                     is_reachable = ping_host(ip_address)
                     db_helper.updateserverinfo(system_id, 'ip_address', ip_address)
                     db_helper.updateserverinfo(system_id, 'ip_address_works', 'TRUE' if is_reachable else 'FALSE')
-            
+
             # 6. Show database contents
             db_helper.printtableinfo()
             db_helper.close()
-            
+
         case "migrate":
             # Updated: Use new migration system
             config = load_config()
             db_path = input(f"Enter database path to migrate (default: {config['database']['path']}): ").strip()
             if not db_path:
                 db_path = config['database']['path']
-            
+
             try:
                 migrator = DatabaseMigrator(db_path)
                 migrator.migrate_to_latest()
@@ -178,21 +178,21 @@ def testfunctions(input_cmd):
                 migrator.close()
             except Exception as e:
                 print(f"Migration failed: {e}")
-                
+
         case "ipmi_test":
             # New: IPMI testing with new structure
             config = load_config()
-            
+
             ipmi_manager = IpmiManager(
                 username=config['ipmi']['username'],
                 timeout=config['ipmi']['timeout']
             )
-            
+
             db_helper = DbHelper(
                 tablename=config['database']['table_name'],
                 db_path=config['database']['path']
             )
-            
+
             server_ips = db_helper.getserverswithworkingips()
             if server_ips:
                 ipmi_ips = ipmi_manager.get_ipmi_ips_from_servers(
@@ -202,9 +202,9 @@ def testfunctions(input_cmd):
                 print(f"Found IPMI IPs: {ipmi_ips}")
             else:
                 print("No servers with working IPs found")
-            
+
             db_helper.close()
-            
+
         case "config":
             # New: Show current configuration
             config = load_config()
@@ -216,7 +216,7 @@ def testfunctions(input_cmd):
                     display_value = "***" if 'password' in key.lower() else value
                     print(f"    {key}: {display_value}")
                 print()
-        
+
         case _:
             print("Available commands:")
             print("  startdb     - Initialize database with migrations")
@@ -249,7 +249,7 @@ def show_examples():
         """
     from hwautomation.maas.client import create_maas_client
     from hwautomation.utils.config import load_config
-    
+
     config = load_config()
     maas_client = create_maas_client(config['maas'])
     machines = maas_client.get_machines()
@@ -261,7 +261,7 @@ def show_examples():
         """
     from hwautomation import DbHelper
     from hwautomation.utils.config import load_config
-    
+
     config = load_config()
     db_helper = DbHelper(
         tablename=config['database']['table_name'],
@@ -275,7 +275,7 @@ def show_examples():
     print(
         """
     from hwautomation.hardware.ipmi import IpmiManager
-    
+
     ipmi = IpmiManager(username="admin", timeout=30)
     power_status = ipmi.get_power_status("192.168.1.100", "password")
     """

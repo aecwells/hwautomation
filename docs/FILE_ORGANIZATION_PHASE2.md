@@ -12,7 +12,7 @@ Removed legacy Phase 2 example scripts in favor of neutral examples:
 
 - Use `examples/bios_config_example.py` and `examples/redfish_example.py`
 
-### ✅ Tests → `tests/`  
+### ✅ Tests → `tests/`
 
 - `test_phase2_decision_logic.py` → `tests/test_phase2_decision_logic.py`
 - `test_phase2_focused.py` → `tests/test_phase2_focused.py`
@@ -31,7 +31,7 @@ Updated all import paths and file references to work from the new subdirectory l
 - Updated config file paths: `"configs/bios/"` → `"../configs/bios/"`
 - Corrected src imports: `"src/hwautomation/"` → `"../src/hwautomation/"`
 
-### Tests Directory  
+### Tests Directory
 
 - Fixed relative paths: `Path(__file__).parent` → `Path(__file__).parent.parent`
 - Updated config file paths: `"configs/bios/"` → `"../configs/bios/"`
@@ -64,7 +64,7 @@ python3 tests/test_phase2_focused.py          # ✅ PASSED
 python3 tests/test_phase2_decision_logic.py   # Available for full integration testing
 ```
 
-### ✅ Examples Verification  
+### ✅ Examples Verification
 
 ```bash
 cd /home/ubuntu/HWAutomation
@@ -86,7 +86,7 @@ HWAutomation/
 │   ├── README.md                       # NEW: Comprehensive guide
 │   ├── bios_config_example.py          # BIOS config demo
 │   └── redfish_example.py              # Redfish integration example
-├── tests/                              # ✅ ORGANIZED  
+├── tests/                              # ✅ ORGANIZED
 │   ├── README.md                       # UPDATED: Added new sections
 │   ├── test_phase2_focused.py          # MOVED: Focused BIOS logic testing
 │   └── test_phase2_decision_logic.py   # MOVED: Full BIOS decision testing
@@ -100,7 +100,7 @@ HWAutomation/
 ### 🎯 **Clear Separation of Concerns**
 
 - Examples in `examples/` - Easy to find and run
-- Tests in `tests/` - Organized with existing test suite  
+- Tests in `tests/` - Organized with existing test suite
 - Documentation in `docs/` - Centralized knowledge base
 
 ### 📁 **Improved Discoverability**

@@ -51,7 +51,7 @@ testpaths = tests
 python_files = test_*.py
 python_classes = Test*
 python_functions = test_*
-addopts = 
+addopts =
     --verbose
     --tb=short
     --cov=src/hwautomation
@@ -81,7 +81,7 @@ def create_coverage_config():
 
     coverage_config = """[run]
 source = src/hwautomation
-omit = 
+omit =
     */tests/*
     */test_*
     */__pycache__/*
@@ -262,25 +262,25 @@ from hwautomation.utils.config import load_config, ConfigError
 
 class TestConfigLoader:
     """Test configuration loading functionality."""
-    
+
     def test_load_valid_config(self, sample_config, config_file):
         """Test loading a valid configuration file."""
         config = load_config(str(config_file))
         assert config == sample_config
-    
+
     def test_load_missing_file(self):
         """Test loading a non-existent configuration file."""
         with pytest.raises(ConfigError):
             load_config("non_existent_file.yaml")
-    
+
     def test_load_invalid_yaml(self, temp_dir):
         """Test loading an invalid YAML file."""
         invalid_config = temp_dir / "invalid.yaml"
         invalid_config.write_text("invalid: yaml: content:")
-        
+
         with pytest.raises(ConfigError):
             load_config(str(invalid_config))
-    
+
     @patch('builtins.open', mock_open(read_data="key: value"))
     def test_load_config_with_mock(self):
         """Test config loading with mocked file operations."""
@@ -306,25 +306,25 @@ from hwautomation.database.helper import DbHelper
 
 class TestDbHelper:
     """Test database helper functionality."""
-    
+
     def test_init_with_memory_db(self):
         """Test initialization with in-memory database."""
         helper = DbHelper(db_path=':memory:', tablename='test_table')
         assert helper.db_path == ':memory:'
         assert helper.tablename == 'test_table'
-    
+
     @patch('sqlite3.connect')
     def test_get_connection(self, mock_connect):
         """Test database connection creation."""
         mock_conn = Mock()
         mock_connect.return_value = mock_conn
-        
+
         helper = DbHelper(db_path='test.db', tablename='test_table')
         conn = helper.get_connection()
-        
+
         mock_connect.assert_called_once_with('test.db')
         assert conn == mock_conn
-    
+
     @patch('sqlite3.connect')
     def test_execute_query(self, mock_connect):
         """Test query execution."""
@@ -333,10 +333,10 @@ class TestDbHelper:
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [('test', 'data')]
         mock_connect.return_value = mock_conn
-        
+
         helper = DbHelper(db_path='test.db', tablename='test_table')
         result = helper.get_data()
-        
+
         assert result == [('test', 'data')]
         mock_cursor.execute.assert_called()
 '''
@@ -356,16 +356,16 @@ from hwautomation.orchestration.workflow_manager import WorkflowManager
 @pytest.mark.integration
 class TestWorkflowIntegration:
     """Integration tests for workflow functionality."""
-    
+
     def test_workflow_with_mocked_services(self, mock_maas_client, mock_db_helper, sample_config):
         """Test workflow execution with mocked external services."""
         # This would be a real integration test but with mocked external services
         manager = WorkflowManager(config=sample_config)
-        
+
         # Test the workflow logic without hitting real services
         # This is faster than full integration but tests component interaction
         pass
-    
+
     @pytest.mark.slow
     @pytest.mark.network
     def test_full_workflow_integration(self):
@@ -451,7 +451,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "--verbose",
-    "--tb=short", 
+    "--tb=short",
     "--cov=src/hwautomation",
     "--cov-report=html:htmlcov",
     "--cov-report=term-missing",
@@ -524,21 +524,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Run unit tests
       run: |
         pytest tests/unit/ --cov=src/hwautomation --cov-report=xml
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:

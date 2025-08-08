@@ -7,7 +7,7 @@ preserve_settings:
   - mac_address_lan2
   - mac_address_ipmi
   - mac_address_*  # Wildcard for any MAC address setting
-  
+
   # Hardware identifiers - System specific
   - system_serial_number
   - baseboard_serial_number
@@ -16,7 +16,7 @@ preserve_settings:
   - manufacturer
   - uuid
   - asset_tag
-  
+
   # Hardware-detected settings - Auto-detected by BIOS
   - memory_size_*
   - cpu_signature
@@ -25,36 +25,36 @@ preserve_settings:
   - dimm_*_size
   - dimm_*_speed
   - dimm_*_manufacturer
-  
+
   # Boot device hardware paths - Preserve existing boot order
   - boot_device_path_*
   - uefi_boot_entry_*
   - boot_option_*
   - hard_disk_drive_bbs_priorities
-  
+
   # Hardware-specific timing - Auto-calculated by BIOS
   - memory_timing_*
   - cpu_timing_*
   - dram_timing_*
-  
+
   # Security keys and certificates - Unique per system
   - tpm_key_*
   - secure_boot_key_*
   - license_key_*
   - intel_txt_*
-  
+
   # Firmware version info - Should not be changed by config
   - bios_version
   - firmware_version_*
   - microcode_version
   - me_firmware_version
   - bmc_firmware_version
-  
+
   # Hardware revision info - Read-only
   - cpu_stepping
   - chipset_revision
   - board_revision
-  
+
   # Thermal and power calibration - Hardware specific
   - thermal_calibration_*
   - power_calibration_*

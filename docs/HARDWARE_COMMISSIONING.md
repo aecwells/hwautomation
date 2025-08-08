@@ -58,7 +58,7 @@ class IPMIInfo:
     mac_address: str
     gateway: str
     netmask: str
-    
+
 @dataclass
 class HardwareDiscovery:
     system_info: SystemInfo
@@ -135,7 +135,7 @@ function trackCommissioningProgress(systemId, workflowId) {
             .then(response => response.json())
             .then(data => updateProgressDisplay(systemId, data));
     };
-    
+
     const interval = setInterval(pollStatus, 3000);
     commissioningWorkflows.set(systemId, { workflowId, interval });
 }
@@ -222,7 +222,7 @@ discovery:
   command_timeout: 60
   max_concurrent_discoveries: 10
   retry_count: 3
-  
+
 network_scanning:
   port_timeout: 5
   concurrent_scans: 50

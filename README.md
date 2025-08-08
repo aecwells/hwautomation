@@ -110,7 +110,7 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 hwautomation/
 ├── docker/
 │   └── Dockerfile.web         # 🐳 Multi-stage container builds
-├── docker-compose.yml         # 🏗️ Production service orchestration  
+├── docker-compose.yml         # 🏗️ Production service orchestration
 ├── docker-compose.override.yml # 🛠️ Development overrides
 ├── src/hwautomation/          # 📦 Main package source code
 │   ├── web/                   # 🌐 Flask web application with blueprint architecture
@@ -158,7 +158,7 @@ docker compose up -d app
 
 # Manual control
 docker compose build app    # Build container
-docker compose ps          # Check status  
+docker compose ps          # Check status
 docker compose logs app    # View logs
 docker compose down        # Stop services
 ```
@@ -182,7 +182,7 @@ curl http://localhost:5000/health
   "status": "healthy",
   "services": {
     "database": "healthy",
-    "maas": "healthy", 
+    "maas": "healthy",
     "bios_manager": "healthy",
     "firmware_manager": "healthy",
     "workflow_manager": "healthy",
@@ -313,10 +313,10 @@ print(f"Found {len(machines)} machines")
 for machine in machines:
     if not db_helper.checkifserveridexists(machine['system_id'])[0]:
         db_helper.createrowforserver(machine['system_id'])
-    
+
     db_helper.updateserverinfo(
-        machine['system_id'], 
-        'status_name', 
+        machine['system_id'],
+        'status_name',
         machine['status_name']
     )
 
@@ -364,7 +364,7 @@ firmware_info = await firmware_manager.check_firmware_versions(
 workflow = create_firmware_provisioning_workflow()
 context = workflow.create_provisioning_context(
     server_id="server_001",
-    device_type="a1.c5.large", 
+    device_type="a1.c5.large",
     target_ip="192.168.1.100",
     credentials={"username": "admin", "password": "password"},
     firmware_policy="recommended"
@@ -519,7 +519,7 @@ firmware_manager = FirmwareManager()
 
 # Check firmware versions across all components
 firmware_info = await firmware_manager.check_firmware_versions(
-    device_type='a1.c5.large', target_ip='192.168.1.100', 
+    device_type='a1.c5.large', target_ip='192.168.1.100',
     username='admin', password='password'
 )
 
@@ -666,9 +666,9 @@ pytest --cov=hwautomation
    - Keep route modules focused and under 300 lines for maintainability
    - Use proper dependency injection via Flask app context
 
-2. **Code Quality**: 
+2. **Code Quality**:
    - Follow the existing code structure and patterns
-   - Add comprehensive tests for new functionality  
+   - Add comprehensive tests for new functionality
    - Update documentation for any changes
    - Use black for code formatting: `black src/`
 

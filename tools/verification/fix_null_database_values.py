@@ -42,7 +42,7 @@ def fix_null_values():
         cursor.execute(
             """
             SELECT server_id, device_type, workflow_id, commissioning_status, status_name
-            FROM servers 
+            FROM servers
             WHERE device_type IS NULL OR workflow_id IS NULL OR commissioning_status IS NULL
             ORDER BY created_at DESC
         """

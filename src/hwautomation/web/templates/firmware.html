@@ -8,34 +8,34 @@
         border-left: 4px solid #007bff;
         transition: all 0.3s ease;
     }
-    
+
     .firmware-card:hover {
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         transform: translateY(-2px);
     }
-    
+
     .update-available {
         border-left-color: #ffc107;
     }
-    
+
     .up-to-date {
         border-left-color: #28a745;
     }
-    
+
     .status-unknown {
         border-left-color: #6c757d;
     }
-    
+
     .firmware-status-badge {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
     }
-    
+
     .progress-ring {
         width: 60px;
         height: 60px;
     }
-    
+
     .progress-ring circle {
         fill: transparent;
         stroke: #007bff;
@@ -46,7 +46,7 @@
         transform-origin: 50% 50%;
         transition: stroke-dashoffset 0.3s ease;
     }
-    
+
     .metric-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -55,13 +55,13 @@
         text-align: center;
         margin-bottom: 1rem;
     }
-    
+
     .metric-number {
         font-size: 2.5rem;
         font-weight: bold;
         margin-bottom: 0.5rem;
     }
-    
+
     .metric-label {
         font-size: 0.9rem;
         opacity: 0.9;
@@ -132,7 +132,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Total Firmware Files:</strong> {{ inventory.firmware_repository.total_files }}</p>
-                            <p><strong>Supported Vendors:</strong> 
+                            <p><strong>Supported Vendors:</strong>
                                 {% for vendor in inventory.firmware_repository.vendors %}
                                     <span class="badge bg-secondary me-1">{{ vendor.upper() }}</span>
                                 {% endfor %}
@@ -162,10 +162,10 @@
                     <div class="btn-group" role="group">
                         <input type="radio" class="btn-check" name="statusFilter" id="all" value="all" checked>
                         <label class="btn btn-outline-secondary btn-sm" for="all">All</label>
-                        
+
                         <input type="radio" class="btn-check" name="statusFilter" id="updates" value="updates">
                         <label class="btn btn-outline-warning btn-sm" for="updates">Updates Available</label>
-                        
+
                         <input type="radio" class="btn-check" name="statusFilter" id="current" value="current">
                         <label class="btn btn-outline-success btn-sm" for="current">Up to Date</label>
                     </div>
@@ -174,7 +174,7 @@
                     {% if inventory.servers %}
                     <div class="row" id="serverGrid">
                         {% for server in inventory.servers %}
-                        <div class="col-lg-4 col-md-6 mb-3 server-card" 
+                        <div class="col-lg-4 col-md-6 mb-3 server-card"
                              data-status="{{ 'updates' if server.updates_available else ('current' if server.firmware_status == 'detected' else 'unknown') }}">
                             <div class="card firmware-card {{ 'update-available' if server.updates_available else ('up-to-date' if server.firmware_status == 'detected' else 'status-unknown') }}">
                                 <div class="card-body">
@@ -188,11 +188,11 @@
                                             <span class="badge bg-secondary firmware-status-badge">Unknown</span>
                                         {% endif %}
                                     </div>
-                                    
+
                                     <p class="text-muted small mb-2">
                                         ID: {{ server.id }} | Type: {{ server.device_type or 'Unknown' }}
                                     </p>
-                                    
+
                                     <div class="row text-center">
                                         <div class="col-6">
                                             <small class="text-muted">BIOS</small>
@@ -203,7 +203,7 @@
                                             <div class="fw-bold">{{ server.bmc_version }}</div>
                                         </div>
                                     </div>
-                                    
+
                                     {% if server.updates_available and server.available_updates %}
                                     <div class="mt-2">
                                         <small class="text-muted">Available Updates:</small>
@@ -215,7 +215,7 @@
                                         {% endfor %}
                                     </div>
                                     {% endif %}
-                                    
+
                                     <div class="mt-3 d-flex justify-content-between">
                                         {% if server.updates_available %}
                                         <button class="btn btn-sm btn-warning" onclick="scheduleServerUpdate('{{ server.id }}')">
@@ -226,7 +226,7 @@
                                             <i class="fas fa-info-circle"></i> Details
                                         </button>
                                     </div>
-                                    
+
                                     {% if server.last_checked %}
                                     <small class="text-muted d-block mt-2">
                                         Last checked: {{ moment(server.last_checked).fromNow() }}
@@ -375,7 +375,7 @@ function refreshInventory() {
     const originalText = refreshBtn.innerHTML;
     refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
     refreshBtn.disabled = true;
-    
+
     // Reload the page to get fresh data
     setTimeout(() => {
         window.location.reload();
@@ -385,7 +385,7 @@ function refreshInventory() {
 function filterServers() {
     const selectedFilter = document.querySelector('input[name="statusFilter"]:checked').value;
     const serverCards = document.querySelectorAll('.server-card');
-    
+
     serverCards.forEach(card => {
         const status = card.getAttribute('data-status');
         if (selectedFilter === 'all' || status === selectedFilter) {
@@ -403,11 +403,11 @@ function scheduleServerUpdate(serverId) {
 
 function showScheduleModal(preSelectedServerId = null) {
     const modal = new bootstrap.Modal(document.getElementById('scheduleUpdateModal'));
-    
+
     // Populate server selection
     const serverSelection = document.getElementById('serverSelection');
     serverSelection.innerHTML = '';
-    
+
     // Add servers with available updates from template data
     {% if inventory.servers %}
     const serversData = [
@@ -433,7 +433,7 @@ function showScheduleModal(preSelectedServerId = null) {
     {% else %}
     const serversData = [];
     {% endif %}
-    
+
     serversData.forEach(server => {
         if (server.updates_available) {
             const isSelected = preSelectedServerId === server.id;
@@ -449,17 +449,17 @@ function showScheduleModal(preSelectedServerId = null) {
             `;
         }
     });
-    
+
     modal.show();
 }
 
 function showDetailedInventory() {
     const modal = new bootstrap.Modal(document.getElementById('detailedInventoryModal'));
-    
+
     // Populate inventory table
     const tableBody = document.getElementById('inventoryTableBody');
     tableBody.innerHTML = '';
-    
+
     {% if inventory.servers %}
     const inventoryData = [
         {% for server in inventory.servers %}
@@ -478,7 +478,7 @@ function showDetailedInventory() {
     {% else %}
     const inventoryData = [];
     {% endif %}
-    
+
     inventoryData.forEach(server => {
         let statusBadge;
         if (server.updates_available) {
@@ -488,13 +488,13 @@ function showDetailedInventory() {
         } else {
             statusBadge = '<span class="badge bg-secondary">Unknown</span>';
         }
-        
-        const lastChecked = server.last_checked ? 
+
+        const lastChecked = server.last_checked ?
             moment(server.last_checked).fromNow() : 'Never';
-        
-        const updateButton = server.updates_available ? 
+
+        const updateButton = server.updates_available ?
             `<button class="btn btn-outline-warning" onclick="scheduleServerUpdate('${server.id}')">Update</button>` : '';
-        
+
         tableBody.innerHTML += `
             <tr>
                 <td>${server.id}</td>
@@ -513,7 +513,7 @@ function showDetailedInventory() {
             </tr>
         `;
     });
-    
+
     modal.show();
 }
 
@@ -523,12 +523,12 @@ function submitScheduleUpdate() {
     const scheduleTime = document.getElementById('scheduleTime').value;
     const updateBios = document.getElementById('updateBios').checked;
     const updateBmc = document.getElementById('updateBmc').checked;
-    
+
     if (selectedServers.length === 0) {
         alert('Please select at least one server to update');
         return;
     }
-    
+
     const updateData = {
         servers: selectedServers,
         schedule_type: scheduleType,
@@ -538,11 +538,11 @@ function submitScheduleUpdate() {
             bmc: updateBmc
         }
     };
-    
+
     // Simulate scheduling (replace with actual API call)
     console.log('Scheduling update:', updateData);
     alert(`Update scheduled for ${selectedServers.length} server(s)`);
-    
+
     // Close modal
     bootstrap.Modal.getInstance(document.getElementById('scheduleUpdateModal')).hide();
 }
@@ -550,7 +550,7 @@ function submitScheduleUpdate() {
 function filterInventory() {
     const filter = document.getElementById('inventoryFilter').value.toLowerCase();
     const rows = document.querySelectorAll('#inventoryTable tbody tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(filter) ? '' : 'none';
@@ -571,16 +571,16 @@ function viewDetails(serverId) {
     // Load server details in modal
     const modal = new bootstrap.Modal(document.getElementById('serverDetailsModal'));
     const content = document.getElementById('serverDetailsContent');
-    
+
     content.innerHTML = `
         <div class="text-center">
             <i class="fas fa-spinner fa-spin fa-2x"></i>
             <p class="mt-2">Loading server details...</p>
         </div>
     `;
-    
+
     modal.show();
-    
+
     // Simulate loading server details
     setTimeout(() => {
         content.innerHTML = `
@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[name="statusFilter"]').forEach(radio => {
         radio.addEventListener('change', filterServers);
     });
-    
+
     // Schedule type change handler
     const scheduleTypeSelect = document.getElementById('scheduleType');
     if (scheduleTypeSelect) {
@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeGroup.style.display = this.value === 'scheduled' ? 'block' : 'none';
         });
     }
-    
+
     // Auto-refresh every 30 seconds
     setInterval(() => {
         // Only refresh if no modals are open

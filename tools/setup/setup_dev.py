@@ -229,14 +229,14 @@ def run_linting():
     """Run code quality checks."""
     tools_dir = Path(__file__).parent.parent / "tools" / "quality"
     script_path = tools_dir / "code_quality.py"
-    return subprocess.run([sys.executable, str(script_path), "--all"], 
+    return subprocess.run([sys.executable, str(script_path), "--all"],
                          cwd=Path(__file__).parent.parent).returncode
 
 def run_format():
     """Run code formatting."""
     tools_dir = Path(__file__).parent.parent / "tools" / "quality"
     script_path = tools_dir / "code_quality.py"
-    return subprocess.run([sys.executable, str(script_path), "--format", "--fix"], 
+    return subprocess.run([sys.executable, str(script_path), "--format", "--fix"],
                          cwd=Path(__file__).parent.parent).returncode
 
 def main():
@@ -244,9 +244,9 @@ def main():
     if len(sys.argv) != 2:
         print("Usage: python dev.py [test|lint|format]")
         return 1
-    
+
     command = sys.argv[1]
-    
+
     if command == "test":
         return run_tests()
     elif command == "lint":

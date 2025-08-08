@@ -5,7 +5,7 @@ This directory contains tests for the HWAutomation project.
 ## Structure
 
 - `test_database.py` - Database operations tests
-- `test_hardware.py` - Hardware management tests  
+- `test_hardware.py` - Hardware management tests
 - `test_bios_config.py` - BIOS configuration tests
 - `test_utils.py` - Utility function tests
 

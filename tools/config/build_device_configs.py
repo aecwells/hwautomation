@@ -171,12 +171,12 @@ def generate_xml_template(server_id, config):
         <Setting name="Intel Hyper-Threading Technology" selectedOption="{'Enabled' if cpu_configs.get('hyperthreading') else 'Disabled'}" />
         <Setting name="Intel Turbo Boost Technology" selectedOption="{'Enabled' if cpu_configs.get('turbo_boost') else 'Disabled'}" />
         <Setting name="Power Management" selectedOption="{cpu_configs.get('power_profile', 'balanced').title()}" />
-        
+
         <!-- Memory Configuration -->
         <Setting name="Memory RAS Configuration">
             <Setting name="Memory Correctable Error" selectedOption="{'Enabled' if memory_configs.get('ecc_enabled') else 'Disabled'}" />
         </Setting>
-        
+
         <!-- Boot Configuration -->
         <Setting name="Boot mode select" selectedOption="{'UEFI' if boot_configs.get('boot_mode') == 'uefi' else 'Legacy'}" />
         <Setting name="PXE Boot" selectedOption="{'Enabled' if boot_configs.get('pxe_boot') else 'Disabled'}" />
@@ -185,7 +185,7 @@ def generate_xml_template(server_id, config):
 
     # Add security configurations if available
     if security_configs:
-        xml_content += """        
+        xml_content += """
         <!-- Security Configuration -->"""
         if security_configs.get("sgx_enabled"):
             xml_content += """
@@ -198,7 +198,7 @@ def generate_xml_template(server_id, config):
     cores = specs.get("cpu_cores", 0)
     if cores >= 16:
         xml_content += """
-        
+
         <!-- High-Performance Optimizations -->
         <Setting name="C-State" selectedOption="Disabled" />
         <Setting name="Package C State" selectedOption="C0/C1 state" />
@@ -206,7 +206,7 @@ def generate_xml_template(server_id, config):
 
     xml_content += """
     </Menu>
-    
+
     <!-- IPMI Configuration -->
     <Menu name="IPMI">
         <Setting name="BMC Network Configuration" selectedOption="Static" />

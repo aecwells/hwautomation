@@ -17,19 +17,19 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initializeApp() {
     console.log('Initializing HWAutomation GUI...');
-    
+
     // Initialize Socket.IO connection
     initializeSocket();
-    
+
     // Initialize tooltips
     initializeTooltips();
-    
+
     // Initialize event listeners
     initializeEventListeners();
-    
+
     // Check connection status
     checkConnectionStatus();
-    
+
     console.log('HWAutomation GUI initialized successfully');
 }
 
@@ -38,25 +38,25 @@ function initializeApp() {
  */
 function initializeSocket() {
     socket = io();
-    
+
     socket.on('connect', function() {
         console.log('Connected to server');
         updateConnectionStatus(true);
     });
-    
+
     socket.on('disconnect', function() {
         console.log('Disconnected from server');
         updateConnectionStatus(false);
     });
-    
+
     socket.on('config_progress', function(data) {
         handleProgressUpdate(data);
     });
-    
+
     socket.on('connection_test', function(data) {
         handleConnectionTest(data);
     });
-    
+
     socket.on('error', function(error) {
         console.error('Socket error:', error);
         showNotification('Connection error: ' + error, 'error');
@@ -83,14 +83,14 @@ function initializeEventListeners() {
             e.preventDefault();
         }
     });
-    
+
     // Handle escape key to close modals
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeActiveModals();
         }
     });
-    
+
     // Handle window beforeunload
     window.addEventListener('beforeunload', function(e) {
         if (currentOperation) {
@@ -109,11 +109,11 @@ function updateConnectionStatus(connected) {
     if (statusElement) {
         if (connected) {
             statusElement.className = 'bi bi-circle-fill text-success';
-            statusElement.parentElement.innerHTML = 
+            statusElement.parentElement.innerHTML =
                 '<i class="bi bi-circle-fill text-success" id="connection-status"></i> Connected';
         } else {
             statusElement.className = 'bi bi-circle-fill text-danger';
-            statusElement.parentElement.innerHTML = 
+            statusElement.parentElement.innerHTML =
                 '<i class="bi bi-circle-fill text-danger" id="connection-status"></i> Disconnected';
         }
     }
@@ -137,18 +137,18 @@ function checkConnectionStatus() {
  */
 function handleProgressUpdate(data) {
     console.log('Progress update:', data);
-    
+
     const progressCard = document.getElementById('progressCard');
     const progressMessage = document.getElementById('progressMessage');
     const progressBar = document.getElementById('progressBar');
-    
+
     if (!progressCard || !progressMessage || !progressBar) {
         return;
     }
-    
+
     progressCard.style.display = 'block';
     progressMessage.textContent = data.message;
-    
+
     // Update progress bar based on stage
     const stages = {
         'connecting': 20,
@@ -160,10 +160,10 @@ function handleProgressUpdate(data) {
         'complete': 100,
         'error': 100
     };
-    
+
     const progress = stages[data.stage] || 50;
     progressBar.style.width = progress + '%';
-    
+
     // Update progress bar color based on stage
     progressBar.className = 'progress-bar progress-bar-striped';
     if (data.stage === 'error') {
@@ -185,7 +185,7 @@ function handleProgressUpdate(data) {
  */
 function handleConnectionTest(data) {
     handleProgressUpdate(data);
-    
+
     if (data.stage === 'complete' || data.stage === 'error') {
         setTimeout(() => {
             hideProgress();
@@ -202,25 +202,25 @@ function showProgress(message) {
     const progressMessage = document.getElementById('progressMessage');
     const progressBar = document.getElementById('progressBar');
     const resultsCard = document.getElementById('resultsCard');
-    
+
     if (progressCard) {
         progressCard.style.display = 'block';
         progressCard.className = 'card border-info';
     }
-    
+
     if (resultsCard) {
         resultsCard.style.display = 'none';
     }
-    
+
     if (progressMessage) {
         progressMessage.textContent = message;
     }
-    
+
     if (progressBar) {
         progressBar.style.width = '25%';
         progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-info';
     }
-    
+
     // Scroll to progress card
     if (progressCard) {
         progressCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -244,15 +244,15 @@ function hideProgress() {
 function showResults(type, message, data) {
     const resultsCard = document.getElementById('resultsCard');
     const resultsContent = document.getElementById('resultsContent');
-    
+
     if (!resultsCard || !resultsContent) {
         return;
     }
-    
+
     let html = `<div class="alert alert-${type === 'success' ? 'success' : 'danger'} fade-in">
         <strong><i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}</strong>
     </div>`;
-    
+
     // Add changes made
     if (data.changes_made && data.changes_made.length > 0) {
         html += '<div class="mt-3"><h6><i class="bi bi-list-check"></i> Changes Made:</h6><ul class="list-group">';
@@ -263,7 +263,7 @@ function showResults(type, message, data) {
         });
         html += '</ul></div>';
     }
-    
+
     // Add validation errors
     if (data.validation_errors && data.validation_errors.length > 0) {
         html += '<div class="mt-3"><h6><i class="bi bi-exclamation-triangle text-danger"></i> Validation Errors:</h6><ul class="list-group">';
@@ -274,7 +274,7 @@ function showResults(type, message, data) {
         });
         html += '</ul></div>';
     }
-    
+
     // Add XML content
     if (data.xml) {
         html += `<div class="mt-3">
@@ -287,7 +287,7 @@ function showResults(type, message, data) {
             <pre id="xml-content-${Date.now()}" class="bg-light p-3" style="max-height: 300px; overflow-y: auto;">${escapeHtml(data.xml)}</pre>
         </div>`;
     }
-    
+
     // Add error details
     if (data.error) {
         html += `<div class="mt-3">
@@ -295,7 +295,7 @@ function showResults(type, message, data) {
             <div class="alert alert-danger">${escapeHtml(data.error)}</div>
         </div>`;
     }
-    
+
     // Add additional info
     if (data.target_ip) {
         html += `<div class="mt-3">
@@ -306,11 +306,11 @@ function showResults(type, message, data) {
             </small>
         </div>`;
     }
-    
+
     resultsContent.innerHTML = html;
     resultsCard.style.display = 'block';
     resultsCard.classList.add('fade-in');
-    
+
     // Scroll to results
     resultsCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -332,7 +332,7 @@ function showNotification(message, type = 'info', duration = 5000) {
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     `;
-    
+
     // Add to toast container
     let container = document.getElementById('toast-container');
     if (!container) {
@@ -342,16 +342,16 @@ function showNotification(message, type = 'info', duration = 5000) {
         container.style.zIndex = '1200';
         document.body.appendChild(container);
     }
-    
+
     container.appendChild(toast);
-    
+
     // Show toast
     const bsToast = new bootstrap.Toast(toast, {
         autohide: true,
         delay: duration
     });
     bsToast.show();
-    
+
     // Remove from DOM after hiding
     toast.addEventListener('hidden.bs.toast', function() {
         toast.remove();
@@ -367,15 +367,15 @@ function copyToClipboard(elementId) {
         showNotification('Element not found', 'error');
         return;
     }
-    
+
     const text = element.textContent || element.value;
-    
+
     navigator.clipboard.writeText(text).then(function() {
         showNotification('Copied to clipboard!', 'success', 2000);
     }).catch(function(err) {
         console.error('Could not copy text: ', err);
         showNotification('Failed to copy to clipboard', 'error');
-        
+
         // Fallback for older browsers
         const textArea = document.createElement('textarea');
         textArea.value = text;
@@ -404,7 +404,7 @@ function downloadAsFile(content, filename, contentType = 'text/plain') {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    
+
     showNotification(`Downloaded ${filename}`, 'success', 2000);
 }
 
@@ -455,14 +455,14 @@ function isValidIP(ip) {
 function validateForm(formElement) {
     const requiredFields = formElement.querySelectorAll('[required]');
     let isValid = true;
-    
+
     requiredFields.forEach(field => {
         if (!field.value.trim()) {
             field.classList.add('is-invalid');
             isValid = false;
         } else {
             field.classList.remove('is-invalid');
-            
+
             // Additional validation for IP addresses
             if (field.type === 'text' && field.id.toLowerCase().includes('ip')) {
                 if (!isValidIP(field.value.trim())) {
@@ -472,7 +472,7 @@ function validateForm(formElement) {
             }
         }
     });
-    
+
     return isValid;
 }
 
@@ -506,7 +506,7 @@ document.addEventListener('DOMContentLoaded', initializeAutoResize);
 function initializeThemeSupport() {
     // Initialize theme-aware elements on page load
     updateThemeAwareElements();
-    
+
     // Listen for theme changes
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -516,7 +516,7 @@ function initializeThemeSupport() {
             }
         });
     });
-    
+
     observer.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ['data-bs-theme']
@@ -525,7 +525,7 @@ function initializeThemeSupport() {
 
 function updateThemeAwareElements() {
     const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-    
+
     // Update spinners
     const spinners = document.querySelectorAll('.spinner-border');
     spinners.forEach(spinner => {
@@ -533,7 +533,7 @@ function updateThemeAwareElements() {
             spinner.className = isDark ? 'spinner-border text-light' : 'spinner-border text-primary';
         }
     });
-    
+
     // Update status indicators
     const statusElements = document.querySelectorAll('[data-theme-aware="true"]');
     statusElements.forEach(element => {
@@ -543,7 +543,7 @@ function updateThemeAwareElements() {
             element.className = isDark ? darkClass : lightClass;
         }
     });
-    
+
     // Update table striping
     const tables = document.querySelectorAll('.table-striped');
     tables.forEach(table => {
@@ -561,12 +561,12 @@ function handleThemeChange() {
         }
     });
     document.dispatchEvent(themeChangeEvent);
-    
+
     // Update any charts or visualizations
     if (typeof updateChartsTheme === 'function') {
         updateChartsTheme();
     }
-    
+
     // Update any code syntax highlighting
     if (typeof updateSyntaxHighlighting === 'function') {
         updateSyntaxHighlighting();
@@ -587,24 +587,24 @@ function applyThemeToElement(element, theme) {
 function createThemeAwareElement(tagName, options = {}) {
     const element = document.createElement(tagName);
     const currentTheme = document.documentElement.getAttribute('data-bs-theme');
-    
+
     // Apply base classes
     if (options.classes) {
         element.className = options.classes;
     }
-    
+
     // Apply theme-aware styling
     applyThemeToElement(element, currentTheme);
-    
+
     // Set content if provided
     if (options.content) {
         element.textContent = options.content;
     }
-    
+
     if (options.html) {
         element.innerHTML = options.html;
     }
-    
+
     return element;
 }
 

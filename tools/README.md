@@ -8,7 +8,7 @@ This directory contains development, testing, and command-line tools for the HWA
 Command-line interfaces for production use:
 - `bios_manager.py` - BIOS Configuration Management CLI
 - `orchestrator.py` - Server Orchestration CLI
-- `hardware_discovery.py` - Hardware Discovery CLI  
+- `hardware_discovery.py` - Hardware Discovery CLI
 - `db_manager.py` - Database Management CLI
 - `realtime_monitor.py` - Real-time Workflow Monitor
 - `workflow_monitor.py` - Workflow Debug Monitor
@@ -20,7 +20,7 @@ Various test scripts for project validation:
 - `run_tests.bat` - Windows test runner
 - `test_bios_system.bat` - Windows BIOS test script
 
-### `debug/` - Debug Scripts  
+### `debug/` - Debug Scripts
 Debugging and troubleshooting utilities:
 - `debug_*.py` - Debug scripts for various components
 

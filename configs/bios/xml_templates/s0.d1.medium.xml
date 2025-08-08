@@ -7,20 +7,20 @@
         <Setting name="Intel Hyper-Threading Technology" selectedOption="Enabled" />
         <Setting name="Intel Turbo Boost Technology" selectedOption="Enabled" />
         <Setting name="Power Management" selectedOption="Balanced" />
-        
+
         <!-- Memory Configuration -->
         <Setting name="Memory RAS Configuration">
             <Setting name="Memory Correctable Error" selectedOption="Enabled" />
         </Setting>
-        
+
         <!-- Boot Configuration -->
         <Setting name="Boot mode select" selectedOption="UEFI" />
         <Setting name="PXE Boot" selectedOption="Enabled" />
         <Setting name="Secure Boot" selectedOption="Disabled" />
-        
+
         <!-- Security Configuration -->
     </Menu>
-    
+
     <!-- IPMI Configuration -->
     <Menu name="IPMI">
         <Setting name="BMC Network Configuration" selectedOption="Static" />

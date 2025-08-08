@@ -10,7 +10,7 @@ let selectedDevice = null;
 $(document).ready(function() {
     loadDeviceStatusSummary();
     loadDevices();
-    
+
     // Event handlers
     $('#device-filter-form').on('submit', handleFilterSubmit);
     $('#clear-filters').on('click', clearFilters);
@@ -43,11 +43,11 @@ function loadDeviceStatusSummary() {
  */
 function loadDevices() {
     showLoading(true);
-    
+
     // Build query parameters from form
     const params = new URLSearchParams();
     const form = $('#device-filter-form')[0];
-    
+
     if (form.elements['hostname-search'].value) {
         params.append('hostname_pattern', form.elements['hostname-search'].value);
     }
@@ -63,9 +63,9 @@ function loadDevices() {
     if (form.elements['architecture'].value) {
         params.append('architecture', form.elements['architecture'].value);
     }
-    
+
     const url = '/api/devices/available' + (params.toString() ? '?' + params.toString() : '');
-    
+
     $.get(url)
         .done(function(data) {
             currentDevices = data.machines || [];
@@ -89,14 +89,14 @@ function loadDevices() {
 function renderDeviceList(devices) {
     const container = $('#device-list');
     container.empty();
-    
+
     if (devices.length === 0) {
         $('#no-devices').show();
         return;
     }
-    
+
     $('#no-devices').hide();
-    
+
     devices.forEach(function(device) {
         const deviceCard = createDeviceCard(device);
         container.append(deviceCard);
@@ -110,7 +110,7 @@ function createDeviceCard(device) {
     const statusClass = getStatusClass(device.status);
     const storageDisplay = device.storage_display || 'Unknown';
     const memoryDisplay = device.memory_display || 'Unknown';
-    
+
     return $(`
         <div class="card mb-3 device-card" data-system-id="${device.system_id}">
             <div class="card-body">
@@ -132,14 +132,14 @@ function createDeviceCard(device) {
                             <strong>Memory:</strong> ${memoryDisplay}<br>
                             <strong>Storage:</strong> ${storageDisplay}
                         </p>
-                        ${device.ip_addresses && device.ip_addresses.length > 0 ? 
+                        ${device.ip_addresses && device.ip_addresses.length > 0 ?
                             `<p class="card-text"><strong>IPs:</strong> ${device.ip_addresses.join(', ')}</p>` : ''}
                     </div>
                     <div class="col-md-2 text-right">
                         <button type="button" class="btn btn-info btn-sm mb-2" onclick="showDeviceDetails('${device.system_id}')">
                             Details
                         </button>
-                        ${device.status === 'Ready' || device.status === 'New' || device.status.includes('Failed') ? 
+                        ${device.status === 'Ready' || device.status === 'New' || device.status.includes('Failed') ?
                             `<button type="button" class="btn btn-success btn-sm" onclick="startCommissioning('${device.system_id}')">
                                 Commission
                             </button>` : ''}
@@ -177,18 +177,18 @@ function showDeviceDetails(systemId) {
         showAlert('Device not found', 'error');
         return;
     }
-    
+
     // Load detailed information
     $('#device-details-content').html('<div class="text-center"><div class="spinner-border" role="status"></div></div>');
     $('#commission-device').hide();
     $('#deviceDetailsModal').modal('show');
-    
+
     $.get(`/api/devices/${systemId}/details`)
         .done(function(details) {
             renderDeviceDetails(details);
-            
+
             // Show commission button if device is available
-            if (selectedDevice.status === 'Ready' || selectedDevice.status === 'New' || 
+            if (selectedDevice.status === 'Ready' || selectedDevice.status === 'New' ||
                 selectedDevice.status.includes('Failed')) {
                 $('#commission-device').show().off('click').on('click', function() {
                     $('#deviceDetailsModal').modal('hide');
@@ -212,7 +212,7 @@ function renderDeviceDetails(details) {
     const basicInfo = details.basic_info || {};
     const hardware = details.hardware || {};
     const network = details.network || {};
-    
+
     let html = `
         <div class="row">
             <div class="col-md-6">
@@ -238,7 +238,7 @@ function renderDeviceDetails(details) {
             </div>
         </div>
     `;
-    
+
     // Storage devices
     if (hardware.storage_devices && hardware.storage_devices.length > 0) {
         html += `
@@ -251,7 +251,7 @@ function renderDeviceDetails(details) {
                         </thead>
                         <tbody>
         `;
-        
+
         hardware.storage_devices.forEach(function(device) {
             html += `
                 <tr>
@@ -262,10 +262,10 @@ function renderDeviceDetails(details) {
                 </tr>
             `;
         });
-        
+
         html += '</tbody></table></div></div>';
     }
-    
+
     // Network interfaces
     if (hardware.network_interfaces && hardware.network_interfaces.length > 0) {
         html += `
@@ -278,7 +278,7 @@ function renderDeviceDetails(details) {
                         </thead>
                         <tbody>
         `;
-        
+
         hardware.network_interfaces.forEach(function(iface) {
             const ipAddresses = iface.ip_addresses.map(ip => `${ip.ip} (${ip.type})`).join(', ') || 'None';
             html += `
@@ -291,10 +291,10 @@ function renderDeviceDetails(details) {
                 </tr>
             `;
         });
-        
+
         html += '</tbody></table></div></div>';
     }
-    
+
     // Tags
     if (details.tags && details.tags.length > 0) {
         html += `
@@ -308,7 +308,7 @@ function renderDeviceDetails(details) {
         });
         html += '</p></div></div>';
     }
-    
+
     $('#device-details-content').html(html);
 }
 
@@ -321,7 +321,7 @@ function startCommissioning(systemId) {
         showAlert('Device not found', 'error');
         return;
     }
-    
+
     // Reset form
     $('#commission-form')[0].reset();
     $('#commission-system-id').val(systemId);
@@ -329,7 +329,7 @@ function startCommissioning(systemId) {
     $('#commission-status').hide();
     $('#commission-form').show();
     $('#start-commission').show();
-    
+
     // Get validation and suggested device type
     $.get(`/api/devices/${systemId}/validate`)
         .done(function(data) {
@@ -337,9 +337,9 @@ function startCommissioning(systemId) {
                 showAlert(`Device cannot be commissioned: ${data.reason}`, 'error');
                 return;
             }
-            
+
             $('#suggested-device-type').text(data.suggested_device_type || 'Unknown');
-            
+
             // Pre-select suggested device type
             if (data.suggested_device_type) {
                 $('#commission-device-type').val(data.suggested_device_type);
@@ -349,7 +349,7 @@ function startCommissioning(systemId) {
             console.error('Failed to validate device:', xhr.responseJSON);
             $('#suggested-device-type').text('Unknown');
         });
-    
+
     $('#commissionModal').modal('show');
 }
 
@@ -374,27 +374,27 @@ function clearFilters() {
  */
 function handleCommissionSubmit(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(e.target);
     const data = {
         server_id: formData.get('system_id'),
         device_type: formData.get('device_type')
     };
-    
+
     if (formData.get('target_ipmi_ip')) {
         data.target_ipmi_ip = formData.get('target_ipmi_ip');
     }
-    
+
     if (formData.get('rack_location')) {
         data.rack_location = formData.get('rack_location');
     }
-    
+
     // Show progress
     $('#commission-form').hide();
     $('#start-commission').hide();
     $('#commission-status').show();
     updateCommissionProgress(0, 'Starting commissioning...');
-    
+
     // Start commissioning
     $.ajax({
         url: '/api/orchestration/provision',
@@ -472,10 +472,10 @@ function showAlert(message, type = 'info') {
             </button>
         </div>
     `);
-    
+
     // Insert at top of page
     $('.container-fluid').prepend(alert);
-    
+
     // Auto-dismiss after 5 seconds
     setTimeout(function() {
         alert.alert('close');

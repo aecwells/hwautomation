@@ -201,13 +201,13 @@ def main():
 Examples:
   # Discover hardware information from a single host
   %(prog)s discover 192.168.1.100
-  
+
   # Use specific SSH key and username
   %(prog)s discover 192.168.1.100 -u admin -k ~/.ssh/id_rsa
-  
+
   # Output in YAML format with verbose logging
   %(prog)s discover 192.168.1.100 -f yaml -v
-  
+
   # Scan network range for IPMI addresses
   %(prog)s scan 192.168.1.0/24
         """,

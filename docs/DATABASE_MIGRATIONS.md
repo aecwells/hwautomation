@@ -192,7 +192,7 @@ def _migration_006_your_feature(self, cursor):
     """Migration 006: Description of your new feature"""
     # Add new columns
     cursor.execute("ALTER TABLE servers ADD COLUMN new_field TEXT")
-    
+
     # Create new tables
     cursor.execute("""
         CREATE TABLE new_table (

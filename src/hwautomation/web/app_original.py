@@ -897,7 +897,7 @@ def create_app():
         try:
             # Mock log content
             log_content = """[2024-01-01 12:00:00] [INFO] web: HWAutomation web interface started
-[2024-01-01 12:00:01] [INFO] database: Database connection established  
+[2024-01-01 12:00:01] [INFO] database: Database connection established
 [2024-01-01 12:00:02] [WARNING] maas: MaaS connection timeout, retrying...
 """
 

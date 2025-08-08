@@ -9,7 +9,7 @@ PyYAML>=6.0
 paramiko>=2.7.0
 python-dotenv>=1.0.0
 
-# GUI dependencies  
+# GUI dependencies
 Flask==2.3.3
 flask-socketio==5.3.6
 python-socketio==5.8.0

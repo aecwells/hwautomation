@@ -5,7 +5,7 @@
 repos:
   # Code formatting with black
   - repo: https://github.com/psf/black
-    rev: 24.1.1
+    rev: 25.1.0
     hooks:
       - id: black
         name: Code formatting (black)
@@ -15,7 +15,7 @@ repos:
 
   # Import sorting with isort
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 6.0.1
     hooks:
       - id: isort
         name: Import sorting (isort)
@@ -24,7 +24,7 @@ repos:
 
   # Code linting with flake8
   - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
+    rev: 7.3.0
     hooks:
       - id: flake8
         name: Code linting (flake8)
@@ -33,7 +33,7 @@ repos:
 
   # Type checking with mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.17.1
     hooks:
       - id: mypy
         name: Type checking (mypy)
@@ -43,7 +43,7 @@ repos:
 
   # Security scanning with bandit
   - repo: https://github.com/pycqa/bandit
-    rev: 1.7.5
+    rev: 1.8.6
     hooks:
       - id: bandit
         name: Security scanning (bandit)
@@ -53,7 +53,7 @@ repos:
 
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       # Check file formatting
       - id: trailing-whitespace
@@ -74,7 +74,7 @@ repos:
       - id: check-xml
         name: Validate XML syntax
         description: Check XML files for syntax errors
-      
+
       # Check for common issues
       - id: check-added-large-files
         name: Check for large files
@@ -125,7 +125,7 @@ repos:
 
   # Spell checking for documentation
   - repo: https://github.com/crate-ci/typos
-    rev: v1.16.23
+    rev: v1
     hooks:
       - id: typos
         name: Spell checking (typos)
@@ -144,7 +144,7 @@ repos:
 
   # Jupyter notebook cleaning
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.1
+    rev: 1.9.1
     hooks:
       - id: nbqa-black
         name: Format Jupyter notebooks (black)
@@ -156,7 +156,7 @@ repos:
 
   # Shell script linting
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.9.0.6
+    rev: v0.10.0.1
     hooks:
       - id: shellcheck
         name: Shell script linting (shellcheck)
@@ -164,7 +164,7 @@ repos:
 
 # Global pre-commit configuration
 default_language_version:
-  python: python3.9
+  python: python3
 
 # Global exclude patterns
 exclude: |

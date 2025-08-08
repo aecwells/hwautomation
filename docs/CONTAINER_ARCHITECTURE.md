@@ -19,7 +19,7 @@ The application uses a multi-stage Docker build with the following targets:
 
 #### Web Application (`src/hwautomation/web/app.py`)
 - **Purpose**: Production-ready Flask web server with application factory pattern
-- **Features**: 
+- **Features**:
   - Environment-based configuration
   - Comprehensive health monitoring
   - SQLite database with automatic migrations
@@ -48,7 +48,7 @@ The web application includes comprehensive health checks:
   "status": "healthy",
   "services": {
     "database": "healthy",
-    "maas": "healthy", 
+    "maas": "healthy",
     "bios_manager": "healthy",
     "workflow_manager": "healthy",
     "bios_device_types": 87,
@@ -70,7 +70,7 @@ The application uses standard Docker Compose commands:
 # Start the application
 docker compose up -d app
 
-# Build container  
+# Build container
 docker compose build app
 ./docker-make ps
 
@@ -191,7 +191,7 @@ docker stats
 - Production-ready out of the box
 - Scalable service architecture
 
-### GUI-First Approach  
+### GUI-First Approach
 - Web interface as primary entry point
 - Enhanced user experience
 - Modern dashboard features

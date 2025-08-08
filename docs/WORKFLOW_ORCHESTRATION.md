@@ -14,7 +14,7 @@ The complete 7-step automated server deployment process:
 
 ```
 🔧 1. Commission Server via MaaS     → Power on, run enlistment, gather hardware details
-🌐 2. Retrieve Server IP Address     → Query MaaS API for temporary IP assignment  
+🌐 2. Retrieve Server IP Address     → Query MaaS API for temporary IP assignment
 🛠️ 3. Pull BIOS Config via SSH       → SSH into server and export current BIOS settings
 ✏️ 4. Modify BIOS Configuration      → Apply device-specific templates and settings
 🔄 5. Push Updated BIOS Config       → Upload and apply new BIOS configuration

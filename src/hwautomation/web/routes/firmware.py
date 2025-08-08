@@ -66,8 +66,8 @@ class FirmwareWebManager:
             try:
                 cursor = self.db_helper.sql_db_worker.execute(
                     """
-                    SELECT server_id, server_id as hostname, status_name, device_type, ipmi_address 
-                    FROM servers 
+                    SELECT server_id, server_id as hostname, status_name, device_type, ipmi_address
+                    FROM servers
                     WHERE status_name != 'Deleted'
                     ORDER BY server_id
                 """

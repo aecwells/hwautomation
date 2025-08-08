@@ -13,17 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Bootstrap modals
     deviceDetailsModal = new bootstrap.Modal(document.getElementById('deviceDetailsModal'));
     commissionModal = new bootstrap.Modal(document.getElementById('commissionModal'));
-    
+
     // Load initial data
     loadDeviceStatusSummary();
     loadDevices();
-    
+
     // Event handlers
     document.getElementById('device-filter-form').addEventListener('submit', handleFilterSubmit);
     document.getElementById('clear-filters').addEventListener('click', clearFilters);
     document.getElementById('refresh-devices').addEventListener('click', loadDevices);
     document.getElementById('commission-form').addEventListener('submit', handleCommissionSubmit);
-    
+
     // Modal event handlers
     document.getElementById('deviceDetailsModal').addEventListener('hidden.bs.modal', function() {
         selectedDevice = null;
@@ -53,34 +53,34 @@ function loadDeviceStatusSummary() {
  */
 function loadDevices() {
     showLoading(true);
-    
+
     // Build query parameters from form
     const params = new URLSearchParams();
     const form = document.getElementById('device-filter-form');
     const formData = new FormData(form);
-    
+
     // Add form data to URLSearchParams
     for (let [key, value] of formData.entries()) {
         if (value.trim()) {
             params.append(key, value);
         }
     }
-    
+
     // Add individual filter inputs
     const hostnameSearch = document.getElementById('hostname-search').value;
     const statusFilter = document.getElementById('status-filter').value;
     const minCpu = document.getElementById('min-cpu').value;
     const minMemory = document.getElementById('min-memory').value;
     const architecture = document.getElementById('architecture').value;
-    
+
     if (hostnameSearch) params.append('hostname', hostnameSearch);
     if (statusFilter) params.append('status', statusFilter);
     if (minCpu) params.append('min_cpu', minCpu);
     if (minMemory) params.append('min_memory', minMemory);
     if (architecture) params.append('architecture', architecture);
-    
+
     const url = `/api/devices/available?${params.toString()}`;
-    
+
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -102,14 +102,14 @@ function loadDevices() {
 function displayDevices(devices) {
     const container = document.getElementById('device-list');
     container.innerHTML = '';
-    
+
     if (devices.length === 0) {
         document.getElementById('no-devices').style.display = 'block';
         return;
     }
-    
+
     document.getElementById('no-devices').style.display = 'none';
-    
+
     devices.forEach(device => {
         const deviceCard = createDeviceCard(device);
         container.appendChild(deviceCard);
@@ -122,12 +122,12 @@ function displayDevices(devices) {
 function createDeviceCard(device) {
     const cardDiv = document.createElement('div');
     cardDiv.className = 'col-md-6 col-lg-4 mb-3';
-    
+
     const statusClass = getStatusClass(device.status);
-    const ipAddressDisplay = device.ip_addresses && device.ip_addresses.length > 0 
-        ? device.ip_addresses[0] 
+    const ipAddressDisplay = device.ip_addresses && device.ip_addresses.length > 0
+        ? device.ip_addresses[0]
         : 'Not assigned';
-    
+
     cardDiv.innerHTML = `
         <div class="card device-card" data-system-id="${device.system_id}">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -186,7 +186,7 @@ function createDeviceCard(device) {
             </div>
         </div>
     `;
-    
+
     return cardDiv;
 }
 
@@ -210,19 +210,19 @@ function getStatusClass(status) {
 function showDeviceDetails(systemId) {
     selectedDevice = currentDevices.find(d => d.system_id === systemId);
     if (!selectedDevice) return;
-    
+
     // Show loading in modal
     document.getElementById('device-details-content').innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
     document.getElementById('commission-device').style.display = 'none';
     deviceDetailsModal.show();
-    
+
     // Load detailed information
     fetch(`/api/devices/${systemId}/details`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 document.getElementById('commission-device').style.display = 'inline-block';
-                
+
                 // Remove any existing event listeners and add new one
                 const commissionBtn = document.getElementById('commission-device');
                 commissionBtn.replaceWith(commissionBtn.cloneNode(true));
@@ -230,7 +230,7 @@ function showDeviceDetails(systemId) {
                     deviceDetailsModal.hide();
                     commissionDevice(systemId);
                 });
-                
+
                 // Display detailed information
                 document.getElementById('device-details-content').innerHTML = `
                     <div class="row">
@@ -298,11 +298,11 @@ function showDeviceDetails(systemId) {
 function commissionDevice(systemId) {
     selectedDevice = currentDevices.find(d => d.system_id === systemId);
     if (!selectedDevice) return;
-    
+
     // Populate commission form
     document.getElementById('commission-system-id').value = systemId;
     document.getElementById('commission-device-info').textContent = `${selectedDevice.hostname} (${systemId})`;
-    
+
     // Load validation and suggestions
     fetch(`/api/devices/${systemId}/validate`)
         .then(response => response.json())
@@ -310,12 +310,12 @@ function commissionDevice(systemId) {
             if (data.success) {
                 const suggestion = data.suggestions.device_type || 'Based on specifications';
                 document.getElementById('suggested-device-type').textContent = suggestion;
-                
+
                 // Auto-select suggested device type if available
                 if (data.suggestions.device_type) {
                     const deviceTypeSelect = document.getElementById('commission-device-type');
                     const suggestion = data.suggestions.device_type.toLowerCase();
-                    
+
                     if (suggestion.includes('small')) {
                         deviceTypeSelect.value = 's2.c2.small';
                     } else if (suggestion.includes('large')) {
@@ -330,7 +330,7 @@ function commissionDevice(systemId) {
             console.error('Failed to validate device:', error);
             document.getElementById('suggested-device-type').textContent = 'Unable to determine';
         });
-    
+
     // Show modal
     commissionModal.show();
 }
@@ -356,14 +356,14 @@ function clearFilters() {
  */
 function handleCommissionSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const commissionData = Object.fromEntries(formData.entries());
-    
+
     // Show progress
     document.getElementById('commission-status').style.display = 'block';
     document.getElementById('start-commission').disabled = true;
-    
+
     // Start commissioning
     fetch('/api/devices/commission', {
         method: 'POST',
@@ -422,11 +422,11 @@ function showAlert(message, type = 'info') {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-    
+
     // Insert at top of container
     const container = document.querySelector('.container-fluid');
     container.insertBefore(alertDiv, container.firstChild);
-    
+
     // Auto-remove after 5 seconds
     setTimeout(() => {
         if (alertDiv.parentNode) {

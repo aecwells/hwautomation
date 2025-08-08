@@ -544,14 +544,14 @@ from hwautomation.hardware.bios_monitoring import WebSocketProgressCallback
 
 async def setup_websocket_monitoring(websocket_handler):
     """Set up WebSocket monitoring for real-time updates"""
-    
+
     # Create WebSocket callback
     ws_callback = WebSocketProgressCallback(websocket_handler)
-    
+
     # Register with monitor
     monitor = get_monitor()
     monitor.add_progress_callback(ws_callback)
-    
+
     # Client connections are managed automatically
     return ws_callback
 
@@ -559,11 +559,11 @@ async def setup_websocket_monitoring(websocket_handler):
 @app.websocket("/ws/bios-monitoring")
 async def websocket_endpoint(websocket):
     await websocket.accept()
-    
+
     # Add client to monitoring
     ws_callback = await setup_websocket_monitoring()
     ws_callback.add_client(websocket)
-    
+
     try:
         while True:
             await websocket.receive_text()  # Keep connection alive

@@ -199,7 +199,7 @@ class DatabaseMigrator:
         # Create trigger to update updated_at
         cursor.execute(
             """
-            CREATE TRIGGER IF NOT EXISTS update_servers_timestamp 
+            CREATE TRIGGER IF NOT EXISTS update_servers_timestamp
             AFTER UPDATE ON servers
             BEGIN
                 UPDATE servers SET updated_at = CURRENT_TIMESTAMP WHERE server_id = NEW.server_id;
@@ -304,7 +304,7 @@ class DatabaseMigrator:
         # Create index on workflow_id for better performance
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_servers_workflow_id 
+            CREATE INDEX IF NOT EXISTS idx_servers_workflow_id
             ON servers(workflow_id)
         """
         )
@@ -312,7 +312,7 @@ class DatabaseMigrator:
         # Create index on device_type for filtering
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_servers_device_type 
+            CREATE INDEX IF NOT EXISTS idx_servers_device_type
             ON servers(device_type)
         """
         )
@@ -340,14 +340,14 @@ class DatabaseMigrator:
         # Create index on workflow history for performance
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_workflow_history_server_id 
+            CREATE INDEX IF NOT EXISTS idx_workflow_history_server_id
             ON workflow_history(server_id)
         """
         )
 
         cursor.execute(
             """
-            CREATE INDEX IF NOT EXISTS idx_workflow_history_workflow_id 
+            CREATE INDEX IF NOT EXISTS idx_workflow_history_workflow_id
             ON workflow_history(workflow_id)
         """
         )

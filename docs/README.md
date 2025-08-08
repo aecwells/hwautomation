@@ -79,7 +79,7 @@ High-level status of implemented features and upcoming work
 ## Quick Links
 
 - [Main README](../README.md) - Project overview and quick start
-- [Examples](../examples/) - Usage examples  
+- [Examples](../examples/) - Usage examples
 - [Tests](../tests/) - Test suite
 - [Tools](../tools/) - Development tools
 

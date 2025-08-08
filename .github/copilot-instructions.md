@@ -141,7 +141,7 @@ if gateway:
 ### Required Environment Variables
 - `MAAS_URL`: MaaS server URL
 - `MAAS_CONSUMER_KEY`: OAuth consumer key
-- `MAAS_TOKEN_KEY`: OAuth token key  
+- `MAAS_TOKEN_KEY`: OAuth token key
 - `MAAS_TOKEN_SECRET`: OAuth token secret
 - `DATABASE_PATH`: SQLite database file path
 

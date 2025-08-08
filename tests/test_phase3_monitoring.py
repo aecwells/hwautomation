@@ -279,13 +279,13 @@ from hwautomation.hardware.bios_monitoring import get_monitor, WebSocketProgress
 
 async def configure_server_with_monitoring(device_type, target_ip, websocket_handler=None):
     """Configure server with real-time monitoring"""
-    
+
     # Set up monitoring
     monitor = get_monitor()
     if websocket_handler:
         ws_callback = WebSocketProgressCallback(websocket_handler)
         monitor.add_progress_callback(ws_callback)
-    
+
     # Execute Phase 3 configuration
     manager = BiosConfigManager()
     result = await manager.apply_bios_config_phase3(
@@ -297,7 +297,7 @@ async def configure_server_with_monitoring(device_type, target_ip, websocket_han
         prefer_performance=True,
         enable_monitoring=True
     )
-    
+
     return result
         '''
 

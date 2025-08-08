@@ -26,7 +26,7 @@ device_types:
     redfish_capable: true
     preferred_bios_method: hybrid  # Changed to hybrid for Phase 2
     fallback_bios_method: vendor_tool
-    
+
     # Enhanced per-setting method mapping
     bios_setting_methods:
       # Settings that work well via Redfish (fast, reliable)
@@ -44,7 +44,7 @@ device_types:
         ProcessorC1E: "CPU C1E power state"
         ProcessorC3Report: "CPU C3 power state reporting"
         ProcessorC6Report: "CPU C6 power state reporting"
-      
+
       # Settings that could work via Redfish but vendor tools are more reliable
       redfish_fallback:
         IntelHyperThreadingTech: "Hyper-Threading enable/disable"
@@ -53,7 +53,7 @@ device_types:
         DemandScrub: "Memory demand scrubbing"
         SOLEnabled: "Serial Over LAN"
         KCSInterface: "KCS interface enable/disable"
-      
+
       # Settings that require vendor tools (complex configurations)
       vendor_only:
         CPUMicrocodeUpdate: "CPU microcode updates"
@@ -64,7 +64,7 @@ device_types:
         HardwareMonitoring: "Advanced hardware monitoring"
         FanControlAdvanced: "Advanced fan control curves"
         OverclockingSettings: "CPU/Memory overclocking"
-    
+
     # Performance hints for method selection
     method_performance:
       redfish_batch_size: 10  # Max settings to batch in single Redfish call
@@ -72,7 +72,7 @@ device_types:
       redfish_timeout: 30  # Timeout for Redfish operations
       prefer_redfish_for_read: true  # Use Redfish for reading when possible
       prefer_vendor_for_complex: true  # Use vendor tools for complex settings
-    
+
     # Compatibility matrix
     redfish_compatibility:
       version_min: "1.6.0"  # Minimum Redfish version required

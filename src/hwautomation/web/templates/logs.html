@@ -127,7 +127,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
-                        <input type="text" class="form-control" id="searchQuery" 
+                        <input type="text" class="form-control" id="searchQuery"
                                placeholder="Search log entries... (regex supported)">
                     </div>
                     <div class="col-md-2">
@@ -179,16 +179,16 @@ async function loadLogs() {
     try {
         refreshLogs.disabled = true;
         refreshLogs.innerHTML = '<i class="bi bi-hourglass-split"></i> Loading...';
-        
+
         const params = new URLSearchParams({
             level: logLevel.value,
             component: logComponent.value,
             lines: logLines.value
         });
-        
+
         const response = await fetch(`/api/logs?${params}`);
         const data = await response.json();
-        
+
         if (response.ok) {
             displayLogs(data.logs);
             logCount.textContent = `${data.logs.length} entries`;
@@ -198,7 +198,7 @@ async function loadLogs() {
     } catch (error) {
         logViewer.innerHTML = `<div class="log-entry log-error">[ERROR] Failed to load logs: ${error.message}</div>`;
     }
-    
+
     refreshLogs.disabled = false;
     refreshLogs.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh';
 }
@@ -209,16 +209,16 @@ function displayLogs(logs) {
         logViewer.innerHTML = '<div class="log-entry log-info">[INFO] No log entries found</div>';
         return;
     }
-    
+
     let html = '';
     logs.forEach(log => {
         const levelClass = `log-${log.level.toLowerCase()}`;
         const timestamp = new Date(log.timestamp).toLocaleString();
         html += `<div class="log-entry ${levelClass}">[${timestamp}] [${log.level}] ${log.component}: ${log.message}</div>`;
     });
-    
+
     logViewer.innerHTML = html;
-    
+
     if (isFollowing) {
         logViewer.scrollTop = logViewer.scrollHeight;
     }
@@ -230,7 +230,7 @@ async function performSearch() {
         searchResults.style.display = 'none';
         return;
     }
-    
+
     try {
         const params = new URLSearchParams({
             query: searchQuery.value,
@@ -238,10 +238,10 @@ async function performSearch() {
             level: logLevel.value,
             component: logComponent.value
         });
-        
+
         const response = await fetch(`/api/logs/search?${params}`);
         const data = await response.json();
-        
+
         if (response.ok) {
             let html = '';
             data.results.forEach(log => {
@@ -249,7 +249,7 @@ async function performSearch() {
                 const timestamp = new Date(log.timestamp).toLocaleString();
                 html += `<div class="log-entry ${levelClass}">[${timestamp}] [${log.level}] ${log.component}: ${log.message}</div>`;
             });
-            
+
             searchOutput.innerHTML = html || '<div class="log-entry log-info">[INFO] No matches found</div>';
             searchResults.style.display = 'block';
         } else {
@@ -267,11 +267,11 @@ async function clearSystemLogs() {
     if (!confirm('Are you sure you want to clear all system logs? This action cannot be undone.')) {
         return;
     }
-    
+
     try {
         const response = await fetch('/api/logs/clear', { method: 'POST' });
         const data = await response.json();
-        
+
         if (response.ok) {
             logViewer.innerHTML = '<div class="log-entry log-info">[INFO] System logs cleared</div>';
             logCount.textContent = '0 entries';
@@ -291,7 +291,7 @@ function downloadSystemLogs() {
         lines: logLines.value,
         format: 'text'
     });
-    
+
     window.open(`/api/logs/download?${params}`, '_blank');
 }
 
@@ -300,7 +300,7 @@ function setupAutoRefresh() {
     if (autoRefreshInterval) {
         clearInterval(autoRefreshInterval);
     }
-    
+
     if (autoRefresh.checked) {
         autoRefreshInterval = setInterval(loadLogs, 10000);
     }

@@ -120,11 +120,11 @@
         async function loadTableData() {
             const table = document.getElementById('tableSelector').value;
             currentTable = table;
-            
+
             try {
                 const response = await fetch('/api/database/tables');
                 const data = await response.json();
-                
+
                 if (response.ok && data.success) {
                     const tableData = data.tables[table];
                     if (tableData) {
@@ -150,7 +150,7 @@
         function displayData(data) {
             const container = document.getElementById('dataContainer');
             const viewMode = document.getElementById('viewMode').value;
-            
+
             if (data.length === 0) {
                 container.innerHTML = `
                     <div class="text-center p-4">
@@ -171,7 +171,7 @@
         // Display table view
         function displayTableView(data, container) {
             if (data.length === 0) return;
-            
+
             const headers = Object.keys(data[0]);
             let html = `
                 <div class="table-responsive">
@@ -183,19 +183,19 @@
                         </thead>
                         <tbody>
             `;
-            
+
             data.forEach(row => {
                 html += '<tr>';
                 headers.forEach(header => {
                     const value = row[header];
-                    const displayValue = value === null ? '<span class="text-muted">null</span>' : 
+                    const displayValue = value === null ? '<span class="text-muted">null</span>' :
                                       typeof value === 'boolean' ? (value ? '✓' : '✗') :
                                       value;
                     html += `<td>${displayValue}</td>`;
                 });
                 html += '</tr>';
             });
-            
+
             html += '</tbody></table></div>';
             container.innerHTML = html;
         }
@@ -203,7 +203,7 @@
         // Display card view
         function displayCardView(data, container) {
             let html = '<div class="row">';
-            
+
             data.forEach((row, index) => {
                 html += `
                     <div class="col-md-6 col-lg-4 mb-3">
@@ -211,9 +211,9 @@
                             <div class="card-body">
                                 <h6 class="card-title">Record ${index + 1}</h6>
                 `;
-                
+
                 Object.entries(row).forEach(([key, value]) => {
-                    const displayValue = value === null ? '<span class="text-muted">null</span>' : 
+                    const displayValue = value === null ? '<span class="text-muted">null</span>' :
                                       typeof value === 'boolean' ? (value ? '✓' : '✗') :
                                       value;
                     html += `
@@ -223,14 +223,14 @@
                         </div>
                     `;
                 });
-                
+
                 html += `
                             </div>
                         </div>
                     </div>
                 `;
             });
-            
+
             html += '</div>';
             container.innerHTML = html;
         }
@@ -259,8 +259,8 @@
         document.getElementById('viewMode').addEventListener('change', () => displayData(currentData));
         document.getElementById('searchInput').addEventListener('input', function() {
             const term = this.value.toLowerCase();
-            const filtered = currentData.filter(row => 
-                Object.values(row).some(val => 
+            const filtered = currentData.filter(row =>
+                Object.values(row).some(val =>
                     String(val).toLowerCase().includes(term)
                 )
             );
@@ -270,12 +270,12 @@
         // Export functionality
         document.getElementById('exportBtn').addEventListener('click', function() {
             if (currentData.length === 0) return;
-            
+
             const csv = [
                 Object.keys(currentData[0]).join(','),
                 ...currentData.map(row => Object.values(row).join(','))
             ].join('\n');
-            
+
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -288,7 +288,7 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadTableData();
-            
+
             // Initialize theme icon
             const currentTheme = document.documentElement.getAttribute('data-bs-theme');
             updateThemeIcon(currentTheme);

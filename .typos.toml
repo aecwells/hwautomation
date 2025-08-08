@@ -1,0 +1,11 @@
+[default]
+# Configuration for typos spell checker
+
+# Words to ignore as legitimate technical terms
+[default.extend-words]
+HPE = "HPE"  # Hewlett Packard Enterprise - legitimate company name
+hpe = "hpe"  # Hewlett Packard Enterprise - legitimate company name
+
+# Additional technical terms and acronyms that are valid
+[type.py.extend-words]
+async = "async"  # Python async keyword

@@ -18,13 +18,13 @@ The system supports multiple device types with specific configurations:
 
 #### Current Device Types
 - **a1.c5.large**: High-performance compute nodes
-- **d1.c1.small**: Basic storage nodes  
+- **d1.c1.small**: Basic storage nodes
 - **d1.c2.medium**: Medium storage nodes
 - **d1.c2.large**: Large storage nodes
 
 #### Legacy Device Types (Template Compatibility)
 - **s2_c2_small**: Small compute nodes - dual core, 8GB RAM
-- **s2_c2_medium**: Medium compute nodes - quad core, 16GB RAM  
+- **s2_c2_medium**: Medium compute nodes - quad core, 16GB RAM
 - **s2_c2_large**: Large compute nodes - 8+ core, 32GB+ RAM
 
 ### Configuration Architecture
@@ -36,7 +36,7 @@ The system supports multiple device types with specific configurations:
 - Basic Redfish/vendor tool integration
 - Configuration template system
 
-**Phase 2: Enhanced Decision Logic** ✅ COMPLETED  
+**Phase 2: Enhanced Decision Logic** ✅ COMPLETED
 - Intelligent per-setting method selection
 - Smart fallback strategies
 - Comprehensive error handling
@@ -123,7 +123,7 @@ The 6-step firmware-first workflow ensures optimal system state:
 ```python
 class FirmwareManager:
     def analyze_firmware_status(self, device_type: str, target_ip: str) -> FirmwareAnalysis
-    def update_firmware(self, device_type: str, target_ip: str, 
+    def update_firmware(self, device_type: str, target_ip: str,
                        firmware_files: List[str]) -> FirmwareUpdateResult
     def validate_firmware_integrity(self, firmware_path: str) -> bool
     def get_rollback_options(self, device_type: str, target_ip: str) -> List[RollbackOption]
