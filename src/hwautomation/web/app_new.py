@@ -53,18 +53,16 @@ def create_app():
     database_path = config.get('database', {}).get('path', 'hw_automation.db')
     db_helper = DbHelper(database_path)
     
-    # Workflow Manager (pass config, not db_helper)
-    workflow_manager = WorkflowManager(config)
+    # Workflow Manager
+    workflow_manager = WorkflowManager(db_helper=db_helper)
     
-    # MaaS Client (if configured) - WorkflowManager already initializes MaaS client
+    # MaaS Client (if configured)
     maas_client = None
     try:
         maas_config = config.get('maas', {})
         if maas_config:
             maas_client = create_maas_client(maas_config)
-            # WorkflowManager already has its own MaaS client, but we can set it for compatibility
-            if hasattr(workflow_manager, 'maas_client'):
-                workflow_manager.maas_client = maas_client
+            workflow_manager.maas_client = maas_client
     except Exception as e:
         logger.warning(f"MaaS client initialization failed: {e}")
 
