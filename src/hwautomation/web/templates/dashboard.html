@@ -34,7 +34,7 @@
                     <div class="card-body">
                         <i class="bi bi-hdd-rack text-primary fs-1"></i>
                         <h5 class="card-title">Available Devices</h5>
-                        <h3 class="text-primary">{{ stats.available_machines }}</h3>
+                        <h3 class="text-primary" id="header-device-count">{{ stats.available_machines }}</h3>
                         <small class="text-muted">Ready for commissioning</small>
                     </div>
                 </div>
@@ -244,6 +244,7 @@
         const workflowsList = document.getElementById('workflows-list');
         const activityLog = document.getElementById('activity-log');
         const deviceCount = document.getElementById('device-count');
+        const headerDeviceCount = document.getElementById('header-device-count');
         const activeWorkflows = document.getElementById('active-workflows');
         const refreshWorkflowsBtn = document.getElementById('refresh-workflows-btn');
         const clearLogBtn = document.getElementById('clear-log-btn');
@@ -352,6 +353,7 @@
                 if (response.ok) {
                     displayDevices(data.devices);
                     deviceCount.textContent = `${data.available_count} devices`;
+                    headerDeviceCount.textContent = data.available_count;
                     addLog(`Discovered ${data.available_count} available devices (${data.total_discovered} total)`, 'info');
                 } else {
                     addLog(`Discovery failed: ${data.error}`, 'error');
@@ -392,7 +394,7 @@
 
             if (filteredDevices.length === 0) {
                 devicesList.innerHTML = `<div class="text-center text-muted"><i class="bi bi-inbox fs-1"></i><p>No devices found with status "${selectedFilter}".</p></div>`;
-                deviceCount.textContent = '0 devices';
+                // Keep the total device count, just show no filtered results
                 return;
             }
 
@@ -413,8 +415,9 @@
             });
             devicesList.innerHTML = html;
 
-            // Update device count
-            deviceCount.textContent = `${filteredDevices.length} devices`;
+            // Keep the total device count in the badge (don't change when filtering)
+            // The deviceCount badge should always show total available devices
+            // Individual filtering results are visible in the list itself
 
             // Update device selection controls
             updateBatchButton();
