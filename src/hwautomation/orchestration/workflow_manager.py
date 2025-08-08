@@ -7,7 +7,8 @@ MaaS operations, BIOS configuration, and IPMI setup workflows.
 
 import logging
 import time
-from dataclasses import dataclass
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
@@ -83,17 +84,20 @@ class WorkflowContext:
     maas_client: Any
     db_helper: Any
     gateway: Optional[str] = None
+    subnet_mask: Optional[str] = None
 
     # Runtime context data
     workflow_id: Optional[str] = None
     server_ip: Optional[str] = None
     ssh_connectivity_verified: bool = False
     hardware_discovery_result: Optional[Dict[str, Any]] = None
-    original_bios_config: Optional[Dict[str, Any]] = None
-    modified_bios_config: Optional[Dict[str, Any]] = None
+    hardware_info: Optional[Dict[str, Any]] = None
+    server_data: Optional[Dict[str, Any]] = None
+    original_bios_config: Optional[ET.Element] = None
+    modified_bios_config: Optional[ET.Element] = None
     bios_config_path: Optional[str] = None
     discovered_ipmi_ip: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     # Sub-task progress reporting
     sub_task_callback: Optional[Callable] = None
@@ -101,6 +105,10 @@ class WorkflowContext:
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
+        if self.server_data is None:
+            self.server_data = {}
+        if self.hardware_info is None:
+            self.hardware_info = {}
 
     def report_sub_task(self, sub_task_description: str):
         """Report a sub-task being executed"""
@@ -120,6 +128,10 @@ class WorkflowManager:
         self.config = config
         self.workflows: Dict[str, "Workflow"] = {}
         self.logger = logging.getLogger(__name__)
+        
+        # Type annotations for fields that will be set
+        self.firmware_manager: Optional[Any] = None  # FirmwareManager
+        self.firmware_workflow: Optional[FirmwareProvisioningWorkflow] = None
 
         # Initialize database helper
         db_config = config.get("database", {})
@@ -267,6 +279,9 @@ class WorkflowManager:
             workflow_context.report_sub_task("Starting firmware-first provisioning...")
 
             # Execute the firmware provisioning workflow
+            if not self.firmware_workflow:
+                raise WorkflowError("Firmware workflow not available")
+                
             result = await self.firmware_workflow.execute_firmware_first_provisioning(
                 provisioning_context
             )

@@ -5,13 +5,17 @@ Implements the complete server provisioning workflow from commissioning
 through BIOS configuration to IPMI setup and finalization.
 """
 
+import asyncio
 import json
 import logging
+import socket
+import subprocess
 import time
+import traceback
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from .exceptions import (
     BiosConfigurationError,
@@ -207,7 +211,13 @@ class ServerProvisioningWorkflow:
                 "Firmware management not available - using regular provisioning workflow"
             )
             return self.create_provisioning_workflow(
-                server_id, device_type, target_ipmi_ip, rack_location, subnet_mask, gateway, **kwargs
+                server_id,
+                device_type,
+                target_ipmi_ip,
+                rack_location,
+                subnet_mask,
+                gateway,
+                **kwargs,
             )
 
         workflow_id = f"fw_provision_{server_id}_{int(time.time())}"
@@ -295,6 +305,9 @@ class ServerProvisioningWorkflow:
             context.report_sub_task("Preparing firmware-first provisioning...")
 
             # Get server IP from context
+            if not context.server_data:
+                raise WorkflowError("Server data not available for firmware provisioning")
+            
             server_ip = context.server_data.get("ip_address")
             if not server_ip:
                 raise WorkflowError(
@@ -326,6 +339,10 @@ class ServerProvisioningWorkflow:
             # Execute firmware provisioning (async call wrapped)
             import asyncio
 
+            # Check if firmware workflow is available
+            if not self.manager.firmware_workflow:
+                raise WorkflowError("Firmware workflow not available")
+
             if hasattr(asyncio, "run"):
                 result = asyncio.run(
                     self.manager.firmware_workflow.execute_firmware_first_provisioning(
@@ -355,11 +372,12 @@ class ServerProvisioningWorkflow:
                 logger.info(f"  - Execution time: {result.execution_time:.2f}s")
 
                 # Store results in context
-                context.server_data["firmware_result"] = {
-                    "firmware_updates_applied": result.firmware_updates_applied,
-                    "bios_settings_applied": result.bios_settings_applied,
-                    "execution_time": result.execution_time,
-                    "phases_completed": [
+                if context.server_data is not None:
+                    context.server_data["firmware_result"] = {
+                        "firmware_updates_applied": result.firmware_updates_applied,
+                        "bios_settings_applied": result.bios_settings_applied,
+                        "execution_time": result.execution_time,
+                        "phases_completed": [
                         phase.value for phase in result.phases_completed
                     ],
                 }
@@ -417,6 +435,9 @@ class ServerProvisioningWorkflow:
             context.report_sub_task("Finalizing firmware-first provisioned server...")
 
             # Get firmware results from context
+            if not context.server_data:
+                raise WorkflowError("Server data not available for finalization")
+            
             firmware_result = context.server_data.get("firmware_result", {})
 
             # Update server information
@@ -755,10 +776,10 @@ class ServerProvisioningWorkflow:
             # First, do a quick port check
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(timeout)
-            result = sock.connect_ex((ip_address, 22))
+            port_result = sock.connect_ex((ip_address, 22))
             sock.close()
 
-            if result != 0:
+            if port_result != 0:
                 logger.info(f"SSH port 22 not reachable on {ip_address}")
                 return False
 
@@ -808,6 +829,9 @@ class ServerProvisioningWorkflow:
             context.report_sub_task("Connecting to server for discovery")
             ssh_config = self.manager.config.get("ssh", {})
             username = ssh_config.get("username", "ubuntu")
+
+            if not context.server_ip:
+                raise WorkflowError("Server IP address not available for hardware discovery")
 
             context.report_sub_task("Running hardware discovery scan")
             hardware_result = self.manager.discovery_manager.discover_hardware(
@@ -926,8 +950,6 @@ class ServerProvisioningWorkflow:
         """Test IPMI connectivity to verify the discovered address"""
         try:
             # Simple ping test to IPMI address
-            import subprocess
-
             result = subprocess.run(
                 ["ping", "-c", "3", "-W", "5", ipmi_ip],
                 capture_output=True,
@@ -946,32 +968,14 @@ class ServerProvisioningWorkflow:
             logger.warning(f"IPMI connectivity test failed: {e}")
             return False
 
-            # Log any discovery errors
-            if hardware_info.discovery_errors:
-                logger.warning(f"Discovery errors: {hardware_info.discovery_errors}")
-
-            return {
-                "hardware_info": hardware_info.to_dict(),
-                "ipmi_ip": hardware_info.ipmi_info.ip_address,
-                "system_manufacturer": hardware_info.system_info.manufacturer,
-                "system_model": hardware_info.system_info.product_name,
-                "serial_number": hardware_info.system_info.serial_number,
-                "network_interfaces": [
-                    iface.name for iface in hardware_info.network_interfaces
-                ],
-            }
-
-        except Exception as e:
-            logger.error(f"Hardware discovery failed: {e}")
-            # Don't fail the workflow for discovery errors, but log them
-            context.hardware_info = None
-            return {"hardware_info": None, "discovery_error": str(e)}
-
     def _pull_bios_config(self, context: WorkflowContext) -> Dict[str, Any]:
         """Step 4: Pull BIOS config via SSH"""
         logger.info(f"Pulling BIOS configuration from {context.server_ip}")
 
         try:
+            if not context.server_ip:
+                raise WorkflowError("Server IP address not available for BIOS configuration")
+
             # Establish SSH connection
             context.report_sub_task("Connecting to server via SSH")
             ssh_client = self.manager.ssh_manager.connect(
@@ -1171,7 +1175,17 @@ class ServerProvisioningWorkflow:
         # Parse the configuration
         context.report_sub_task("Parsing BIOS configuration file")
         try:
-            bios_config = self.manager.bios_manager.parse_bios_config(local_config_path)
+            # Get server IP for pulling current BIOS config
+            if not context.server_data:
+                raise WorkflowError("Server data not available for BIOS config parsing")
+            
+            server_ip = context.server_data.get("ip_address")
+            if not server_ip:
+                raise WorkflowError("Server IP not available for BIOS config parsing")
+                
+            bios_config = self.manager.bios_manager.pull_current_bios_config(
+                server_ip, ssh_client.username, ssh_client.password
+            )
             context.original_bios_config = bios_config
         except Exception as e:
             logger.warning(f"Failed to parse BIOS config: {e}")
@@ -1206,7 +1220,7 @@ class ServerProvisioningWorkflow:
         tree.write(local_config_path, encoding="utf-8", xml_declaration=True)
 
         context.bios_config_path = local_config_path
-        context.original_bios_config = {"vendor": vendor, "supported": False}
+        context.original_bios_config = root
 
         logger.info(f"Dummy BIOS configuration created for {vendor} server")
         return {
@@ -1358,10 +1372,10 @@ class ServerProvisioningWorkflow:
 
         try:
             # Check if this is a supported vendor
-            if hasattr(context, "original_bios_config") and isinstance(
-                context.original_bios_config, dict
-            ):
-                if context.original_bios_config.get("supported") == False:
+            if hasattr(context, "original_bios_config") and context.original_bios_config is not None:
+                # Check if this is a dummy config by looking for the Note element
+                note_element = context.original_bios_config.find("Note")
+                if note_element is not None and note_element.text and "not yet implemented" in note_element.text:
                     vendor = context.original_bios_config.get("vendor", "Unknown")
                     logger.info(
                         f"Skipping BIOS modification for {vendor} server - not yet supported"
@@ -1371,7 +1385,8 @@ class ServerProvisioningWorkflow:
                     modified_config_path = f"/tmp/modified_bios_{context.server_id}.xml"
                     import shutil
 
-                    shutil.copy(context.bios_config_path, modified_config_path)
+                    if context.bios_config_path:
+                        shutil.copy(context.bios_config_path, modified_config_path)
                     context.modified_bios_config = context.original_bios_config
 
                     return {
@@ -1382,32 +1397,22 @@ class ServerProvisioningWorkflow:
                         "vendor_supported": False,
                     }
 
-            # Load device-specific template
-            template = self.manager.bios_manager.get_device_template(
-                context.device_type
-            )
-
             # Apply modifications for supported servers (primarily Supermicro)
-            modified_config = self.manager.bios_manager.apply_template_to_config(
+            # Use the apply_template_to_config method with just device_type
+            if context.original_bios_config is None:
+                raise WorkflowError("Original BIOS configuration not available for modification")
+                
+            modified_config, changes_made = self.manager.bios_manager.apply_template_to_config(
                 context.original_bios_config,
-                template,
-                {
-                    "ipmi_ip": context.target_ipmi_ip,
-                    "rack_location": context.rack_location,
-                    "server_id": context.server_id,
-                },
+                context.device_type
             )
 
             context.modified_bios_config = modified_config
 
-            # Save modified config
-            modified_config_path = f"/tmp/modified_bios_{context.server_id}.xml"
-            self.manager.bios_manager.save_config(modified_config, modified_config_path)
-
             logger.info("BIOS configuration modified successfully")
             return {
-                "modified_config_path": modified_config_path,
-                "changes_applied": template.get("applied_changes", []),
+                "modified_config_path": f"/tmp/modified_bios_{context.server_id}.xml",
+                "changes_applied": changes_made,
                 "vendor_supported": True,
             }
 
@@ -1417,13 +1422,21 @@ class ServerProvisioningWorkflow:
 
     def _push_bios_config(self, context: WorkflowContext) -> Dict[str, Any]:
         """Step 6: Push updated BIOS config"""
-        logger.info(f"Pushing modified BIOS configuration to {context.server_ip}")
+        # Get server IP from context
+        if not context.server_data:
+            raise WorkflowError("Server data not available for BIOS config push")
+        
+        server_ip = context.server_data.get("ip_address")
+        if not server_ip:
+            raise WorkflowError("Server IP not available for BIOS config push")
+            
+        logger.info(f"Pushing modified BIOS configuration to {server_ip}")
 
         try:
             # Connect to server
             from ..utils.network import SSHClient
 
-            ssh_client = SSHClient(context.server_ip, username="ubuntu")
+            ssh_client = SSHClient(server_ip, username="ubuntu")
 
             # Detect server vendor
             vendor = self._detect_server_vendor(ssh_client)
@@ -1451,6 +1464,9 @@ class ServerProvisioningWorkflow:
     def _push_bios_config_supermicro(self, context: WorkflowContext) -> Dict[str, Any]:
         """Push BIOS configuration for Supermicro servers"""
         try:
+            if not context.server_ip:
+                raise WorkflowError("Server IP address not available for BIOS configuration")
+
             # Reconnect via SSH
             ssh_client = self.manager.ssh_manager.connect(
                 host=context.server_ip, username="ubuntu", timeout=60
@@ -1516,15 +1532,22 @@ class ServerProvisioningWorkflow:
             # Wait for server to be accessible after reboot
             time.sleep(30)
 
+            if not context.server_ip:
+                raise WorkflowError("Server IP address not available for IPMI configuration")
+
             # Configure IPMI via SSH
             ssh_client = self.manager.ssh_manager.connect(
                 host=context.server_ip, username="ubuntu", timeout=60
             )
 
             # Set IPMI IP address with dynamic network configuration
-            subnet_mask = getattr(context, "subnet_mask", "255.255.255.0")  # Default if not provided
-            gateway_ip = getattr(context, "gateway", "192.168.100.1")  # Default if not provided
-            
+            subnet_mask = getattr(
+                context, "subnet_mask", "255.255.255.0"
+            )  # Default if not provided
+            gateway_ip = getattr(
+                context, "gateway", "192.168.100.1"
+            )  # Default if not provided
+
             ipmi_commands = [
                 f"ipmitool lan set 1 ipsrc static",
                 f"ipmitool lan set 1 ipaddr {context.target_ipmi_ip}",
@@ -1750,7 +1773,7 @@ class ServerProvisioningWorkflow:
         device_type: str,
         target_ipmi_ip: Optional[str] = None,
         rack_location: Optional[str] = None,
-        progress_callback: Optional[callable] = None,
+        progress_callback: Optional[Callable] = None,
     ) -> Dict[str, Any]:
         """
         High-level method to provision a server

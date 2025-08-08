@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Orchestration routes for HWAutomation Web Interface
 

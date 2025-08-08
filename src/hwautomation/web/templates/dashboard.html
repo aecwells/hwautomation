@@ -246,7 +246,7 @@
         function validateIPAddress(value) {
             const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
             if (!ipPattern.test(value)) return false;
-            
+
             const octets = value.split('.');
             return octets.every(octet => {
                 const num = parseInt(octet);
@@ -257,7 +257,7 @@
         // Real-time IPMI validation
         ipmiBaseRange.addEventListener('input', function() {
             const value = this.value.trim();
-            
+
             if (!value) {
                 this.classList.remove('is-valid', 'is-invalid');
                 return;
@@ -275,7 +275,7 @@
         // Real-time subnet mask validation
         subnetMask.addEventListener('input', function() {
             const value = this.value.trim();
-            
+
             if (!value) {
                 this.classList.remove('is-valid', 'is-invalid');
                 return;
@@ -286,10 +286,10 @@
                 // Check if it's a valid subnet mask pattern
                 const octets = value.split('.').map(o => parseInt(o));
                 const binaryMask = octets.map(o => o.toString(2).padStart(8, '0')).join('');
-                
+
                 // Valid subnet mask should have consecutive 1s followed by consecutive 0s
                 const isValidMask = /^1*0*$/.test(binaryMask) && binaryMask.includes('1');
-                
+
                 if (isValidMask) {
                     this.classList.remove('is-invalid');
                     this.classList.add('is-valid');
@@ -306,7 +306,7 @@
         // Real-time gateway validation
         gatewayIp.addEventListener('input', function() {
             const value = this.value.trim();
-            
+
             if (!value) {
                 this.classList.remove('is-valid', 'is-invalid');
                 return;
@@ -506,7 +506,7 @@
                 const octets = subnet.split('.').map(o => parseInt(o));
                 const binaryMask = octets.map(o => o.toString(2).padStart(8, '0')).join('');
                 const isValidMask = /^1*0*$/.test(binaryMask) && binaryMask.includes('1');
-                
+
                 if (!isValidMask) {
                     alert('Please enter a valid subnet mask (e.g., 255.255.255.0, 255.255.0.0, etc.)');
                     subnetMask.focus();
