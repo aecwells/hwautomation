@@ -675,6 +675,35 @@
             activityLog.innerHTML = '<div class="text-success">[INFO] Log cleared</div>';
         });
 
+        // Activity polling for real-time updates
+        let lastActivityTimestamp = null;
+
+        async function fetchLatestActivities() {
+            try {
+                let url = '/api/logs/activities/latest?limit=10';
+                if (lastActivityTimestamp) {
+                    url += `&since=${lastActivityTimestamp}`;
+                }
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok && data.activities) {
+                    data.activities.forEach(activity => {
+                        const level = activity.level === 'ERROR' ? 'error' :
+                                    activity.level === 'WARNING' ? 'warn' : 'info';
+                        addLog(activity.message, level);
+                        lastActivityTimestamp = activity.timestamp;
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch activities:', error);
+            }
+        }
+
+        // Poll for new activities every 5 seconds
+        setInterval(fetchLatestActivities, 5000);
+
         // Socket.IO event handlers
         socket.on('connect', function() {
             addLog('Connected to real-time updates', 'info');

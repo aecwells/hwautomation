@@ -1,12 +1,11 @@
-"""
-MaaS routes for HWAutomation Web Interface.
+"""MaaS routes for HWAutomation Web Interface.
 
 Handles MaaS integration, device discovery, and batch commissioning operations.
-."""
+"""
 
 from flask import Blueprint, current_app, jsonify, request
 
-from hwautomation.logging import get_logger
+from hwautomation.logging import get_logger, log_activity
 
 logger = get_logger(__name__)
 
@@ -18,12 +17,22 @@ maas_bp = Blueprint("maas", __name__, url_prefix="/api/maas")
 def api_maas_discover():
     """Discover devices from MaaS API."""
     try:
+        log_activity(
+            "maas",
+            "discover_start",
+            "Starting device discovery from MaaS API",
+            level="INFO",
+        )
+
         config = getattr(current_app, "_hwautomation_config", {})
         create_maas_client = getattr(
             current_app, "_hwautomation_create_maas_client", None
         )
 
         if not create_maas_client:
+            log_activity(
+                "maas", "discover_error", "MaaS client not available", level="ERROR"
+            )
             return jsonify({"error": "MaaS client not available"}), 500
 
         maas_config = config.get("maas", {})
@@ -36,6 +45,9 @@ def api_maas_discover():
             and maas_config.get("token_key")
             and maas_config.get("token_secret")
         ):
+            log_activity(
+                "maas", "discover_error", "MaaS not properly configured", level="ERROR"
+            )
             return jsonify({"error": "MaaS not properly configured"}), 400
 
         maas_client = create_maas_client(maas_config)
@@ -61,6 +73,18 @@ def api_maas_discover():
             if machine.get("status_name") == "Ready":  # Use status_name
                 ready_devices.append(device_info)
 
+        log_activity(
+            "maas",
+            "discover_complete",
+            f"Device discovery completed: {len(ready_devices)} ready, {len(machines)} total",
+            level="INFO",
+            details={
+                "ready_count": len(ready_devices),
+                "total_count": len(machines),
+                "discovered_devices": [d["hostname"] for d in all_devices],
+            },
+        )
+
         return jsonify(
             {
                 "devices": all_devices,  # Return all devices for filtering
@@ -71,6 +95,9 @@ def api_maas_discover():
 
     except Exception as e:
         logger.error(f"MaaS discovery failed: {e}")
+        log_activity(
+            "maas", "discover_error", f"MaaS discovery failed: {str(e)}", level="ERROR"
+        )
         return jsonify({"error": str(e)}), 500
 
 

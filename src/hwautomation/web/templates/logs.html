@@ -27,9 +27,11 @@
 
 <!-- Log Controls -->
 <div class="log-controls">
-    <h4><i class="bi bi-funnel"></i> Log Filters & Controls</h4>
+    <h4><i class="bi bi-funnel"></i> Log Filters & Search</h4>
+
+    <!-- First row: Level, Component, Lines, Search -->
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="logLevel" class="form-label">Log Level</label>
             <select class="form-select" id="logLevel">
                 <option value="">All Levels</option>
@@ -40,19 +42,26 @@
                 <option value="CRITICAL">Critical</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="logComponent" class="form-label">Component</label>
             <select class="form-select" id="logComponent">
                 <option value="">All Components</option>
                 <option value="web">Web Interface</option>
+                <option value="app">Application</option>
+                <option value="config">Configuration</option>
+                <option value="activity">Activity Logger</option>
                 <option value="database">Database</option>
                 <option value="bios">BIOS Management</option>
                 <option value="workflow">Workflow</option>
                 <option value="maas">MaaS</option>
                 <option value="firmware">Firmware</option>
+                <option value="hardware">Hardware</option>
+                <option value="orchestration">Orchestration</option>
+                <option value="utils">Utilities</option>
+                <option value="logging">Logging</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="logLines" class="form-label">Lines to Show</label>
             <select class="form-select" id="logLines">
                 <option value="100">Last 100 lines</option>
@@ -61,20 +70,35 @@
                 <option value="all">All lines</option>
             </select>
         </div>
-        <div class="col-md-3">
-            <label class="form-label">&nbsp;</label>
-            <div>
-                <button class="btn btn-primary" id="refreshLogs">
-                    <i class="bi bi-arrow-clockwise"></i> Refresh
+        <div class="col-md-4">
+            <label for="searchQuery" class="form-label">Search Logs</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="searchQuery"
+                       placeholder="Search log entries... (regex supported)">
+                <button class="btn btn-outline-primary" id="searchLogs" type="button">
+                    <i class="bi bi-search"></i>
                 </button>
-                <button class="btn btn-outline-secondary" id="clearLogs">
-                    <i class="bi bi-trash"></i> Clear
+                <button class="btn btn-outline-secondary" id="clearSearch" type="button" title="Clear search">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-flex gap-1">
+                <button class="btn btn-primary flex-fill" id="refreshLogs">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+                <button class="btn btn-outline-secondary flex-fill" id="clearLogs">
+                    <i class="bi bi-trash"></i>
                 </button>
             </div>
         </div>
     </div>
+
+    <!-- Second row: Options and controls -->
     <div class="row mt-3">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
                 <label class="form-check-label" for="autoRefresh">
@@ -82,7 +106,23 @@
                 </label>
             </div>
         </div>
-        <div class="col-md-6 text-end">
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="regexSearch">
+                <label class="form-check-label" for="regexSearch">
+                    Use regex search
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="searchMode">
+                <label class="form-check-label" for="searchMode">
+                    Search mode (show results only)
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3 text-end">
             <button class="btn btn-outline-success btn-sm" id="downloadLogs">
                 <i class="bi bi-download"></i> Download Logs
             </button>
@@ -96,10 +136,11 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
-                    <i class="bi bi-terminal"></i> Log Output
+                    <i class="bi bi-terminal"></i> <span id="logTitle">Log Output</span>
                 </h5>
                 <div class="d-flex align-items-center">
                     <span class="badge bg-secondary me-2" id="logCount">0 entries</span>
+                    <span class="badge bg-info me-2" id="searchStatus" style="display: none;">Search Mode</span>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="followLogs" checked>
                         <label class="form-check-label" for="followLogs">Follow</label>
@@ -115,47 +156,13 @@
     </div>
 </div>
 
-<!-- Log Search -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-search"></i> Search Logs
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <input type="text" class="form-control" id="searchQuery"
-                               placeholder="Search log entries... (regex supported)">
-                    </div>
-                    <div class="col-md-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="regexSearch">
-                            <label class="form-check-label" for="regexSearch">Regex</label>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-outline-primary w-100" id="searchLogs">
-                            <i class="bi bi-search"></i> Search
-                        </button>
-                    </div>
-                </div>
-                <div id="searchResults" class="mt-3" style="display: none;">
-                    <h6>Search Results:</h6>
-                    <div id="searchOutput" class="log-viewer" style="height: 200px;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 let autoRefreshInterval;
 let isFollowing = true;
+let isSearchMode = false;
 
 // UI Elements
 const logViewer = document.getElementById('log-viewer');
@@ -171,36 +178,49 @@ const downloadLogs = document.getElementById('downloadLogs');
 const searchQuery = document.getElementById('searchQuery');
 const regexSearch = document.getElementById('regexSearch');
 const searchLogs = document.getElementById('searchLogs');
-const searchResults = document.getElementById('searchResults');
-const searchOutput = document.getElementById('searchOutput');
+const clearSearch = document.getElementById('clearSearch');
+const searchMode = document.getElementById('searchMode');
+const logTitle = document.getElementById('logTitle');
+const searchStatus = document.getElementById('searchStatus');
 
 // Load logs function
 async function loadLogs() {
     try {
         refreshLogs.disabled = true;
-        refreshLogs.innerHTML = '<i class="bi bi-hourglass-split"></i> Loading...';
+        refreshLogs.innerHTML = '<i class="bi bi-hourglass-split"></i>';
 
-        const params = new URLSearchParams({
-            level: logLevel.value,
-            component: logComponent.value,
-            lines: logLines.value
-        });
-
-        const response = await fetch(`/api/logs?${params}`);
-        const data = await response.json();
-
-        if (response.ok) {
-            displayLogs(data.logs);
-            logCount.textContent = `${data.logs.length} entries`;
+        // Check if we should perform search or regular log loading
+        if (isSearchMode && searchQuery.value.trim()) {
+            await performSearch();
         } else {
-            logViewer.innerHTML = `<div class="log-entry log-error">[ERROR] Failed to load logs: ${data.error}</div>`;
+            await loadRegularLogs();
         }
     } catch (error) {
         logViewer.innerHTML = `<div class="log-entry log-error">[ERROR] Failed to load logs: ${error.message}</div>`;
     }
 
     refreshLogs.disabled = false;
-    refreshLogs.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refresh';
+    refreshLogs.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+}
+
+// Load regular logs
+async function loadRegularLogs() {
+    const params = new URLSearchParams({
+        level: logLevel.value,
+        component: logComponent.value,
+        lines: logLines.value
+    });
+
+    const response = await fetch(`/api/logs?${params}`);
+    const data = await response.json();
+
+    if (response.ok) {
+        displayLogs(data.logs);
+        logCount.textContent = `${data.logs.length} entries`;
+        updateUIMode(false);
+    } else {
+        logViewer.innerHTML = `<div class="log-entry log-error">[ERROR] Failed to load logs: ${data.error}</div>`;
+    }
 }
 
 // Display logs function
@@ -213,7 +233,20 @@ function displayLogs(logs) {
     let html = '';
     logs.forEach(log => {
         const levelClass = `log-${log.level.toLowerCase()}`;
-        const timestamp = new Date(log.timestamp).toLocaleString();
+        // Handle different timestamp formats
+        let timestamp;
+        try {
+            if (log.timestamp.includes('T')) {
+                // ISO format
+                timestamp = new Date(log.timestamp).toLocaleString();
+            } else {
+                // Already formatted string
+                timestamp = log.timestamp;
+            }
+        } catch (e) {
+            timestamp = log.timestamp;
+        }
+
         html += `<div class="log-entry ${levelClass}">[${timestamp}] [${log.level}] ${log.component}: ${log.message}</div>`;
     });
 
@@ -227,7 +260,7 @@ function displayLogs(logs) {
 // Search logs function
 async function performSearch() {
     if (!searchQuery.value.trim()) {
-        searchResults.style.display = 'none';
+        await loadRegularLogs();
         return;
     }
 
@@ -243,23 +276,40 @@ async function performSearch() {
         const data = await response.json();
 
         if (response.ok) {
-            let html = '';
-            data.results.forEach(log => {
-                const levelClass = `log-${log.level.toLowerCase()}`;
-                const timestamp = new Date(log.timestamp).toLocaleString();
-                html += `<div class="log-entry ${levelClass}">[${timestamp}] [${log.level}] ${log.component}: ${log.message}</div>`;
-            });
-
-            searchOutput.innerHTML = html || '<div class="log-entry log-info">[INFO] No matches found</div>';
-            searchResults.style.display = 'block';
+            displayLogs(data.results);
+            logCount.textContent = `${data.results.length} search results`;
+            updateUIMode(true);
         } else {
-            searchOutput.innerHTML = `<div class="log-entry log-error">[ERROR] Search failed: ${data.error}</div>`;
-            searchResults.style.display = 'block';
+            logViewer.innerHTML = `<div class="log-entry log-error">[ERROR] Search failed: ${data.error}</div>`;
         }
     } catch (error) {
-        searchOutput.innerHTML = `<div class="log-entry log-error">[ERROR] Search failed: ${error.message}</div>`;
-        searchResults.style.display = 'block';
+        logViewer.innerHTML = `<div class="log-entry log-error">[ERROR] Search failed: ${error.message}</div>`;
     }
+}
+
+// Update UI mode (search vs normal)
+function updateUIMode(searchActive) {
+    if (searchActive) {
+        logTitle.textContent = 'Search Results';
+        searchStatus.style.display = 'inline';
+        followLogs.checked = false;
+        isFollowing = false;
+    } else {
+        logTitle.textContent = 'Log Output';
+        searchStatus.style.display = 'none';
+        if (!isSearchMode) {
+            followLogs.checked = true;
+            isFollowing = true;
+        }
+    }
+}
+
+// Clear search
+function clearSearchFunction() {
+    searchQuery.value = '';
+    searchMode.checked = false;
+    isSearchMode = false;
+    loadRegularLogs();
 }
 
 // Clear logs function
@@ -311,12 +361,30 @@ refreshLogs.addEventListener('click', loadLogs);
 clearLogs.addEventListener('click', clearSystemLogs);
 downloadLogs.addEventListener('click', downloadSystemLogs);
 searchLogs.addEventListener('click', performSearch);
+clearSearch.addEventListener('click', clearSearchFunction);
 
 logLevel.addEventListener('change', loadLogs);
 logComponent.addEventListener('change', loadLogs);
-logLines.addEventListener('change', loadLogs);
+logLines.addEventListener('change', () => {
+    if (!isSearchMode) loadLogs();
+});
 
 autoRefresh.addEventListener('change', setupAutoRefresh);
+
+searchMode.addEventListener('change', function() {
+    isSearchMode = this.checked;
+    if (isSearchMode) {
+        // When entering search mode, perform search if query exists
+        if (searchQuery.value.trim()) {
+            performSearch();
+        } else {
+            updateUIMode(false);
+        }
+    } else {
+        // When exiting search mode, load regular logs
+        loadRegularLogs();
+    }
+});
 
 followLogs.addEventListener('change', function() {
     isFollowing = this.checked;
@@ -325,10 +393,23 @@ followLogs.addEventListener('change', function() {
     }
 });
 
-// Search on Enter key
+// Search on Enter key or input change
 searchQuery.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         performSearch();
+    }
+});
+
+// Auto-search when typing (debounced)
+let searchTimeout;
+searchQuery.addEventListener('input', function() {
+    if (isSearchMode && this.value.trim()) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch();
+        }, 500); // Debounce 500ms
+    } else if (!this.value.trim()) {
+        clearSearchFunction();
     }
 });
 

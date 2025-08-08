@@ -1,12 +1,21 @@
-"""
-HWAutomation Unified Logging Package
+"""Unified logging package for HWAutomation.
 
-This package provides centralized logging configuration and utilities
-for the entire HWAutomation system.
+This package provides comprehensive logging functionality including
+basic Python logging, activity tracking for dashboard integration,
+and log file management utilities.
+
+Key components:
+- get_logger: Get configured logger instances
+- log_activity: Track user and system activities
+- get_dashboard_activities: Retrieve recent activities for dashboard
 """
 
+from .activity import (
+    get_activity_logger,
+    get_dashboard_activities,
+    log_activity,
+)
 from .config import (
-    CorrelationContext,
     get_correlation_id,
     get_logger,
     set_correlation_id,
@@ -20,5 +29,7 @@ __all__ = [
     "set_correlation_id",
     "get_correlation_id",
     "with_correlation",
-    "CorrelationContext",
+    "log_activity",
+    "get_activity_logger",
+    "get_dashboard_activities",
 ]
