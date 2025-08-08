@@ -6,7 +6,7 @@ Handles schema changes and data upgrades between versions.
 import json
 import os
 from datetime import datetime
-from typing import Callable, Dict, List
+from typing import Any, Callable, Dict, List
 
 import sqlite3
 
@@ -369,9 +369,9 @@ class DatabaseMigrator:
         print(f"Database backed up to: {backup_path}")
         return backup_path
 
-    def export_schema_info(self) -> Dict:
+    def export_schema_info(self) -> Dict[str, Any]:
         """Export current schema information for debugging"""
-        schema_info = {
+        schema_info: Dict[str, Any] = {
             "current_version": self.get_current_version(),
             "applied_migrations": self.get_applied_migrations(),
             "tables": {},

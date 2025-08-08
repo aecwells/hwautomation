@@ -105,7 +105,7 @@ class HardwareDiscoveryManager:
         Returns:
             Complete hardware discovery results
         """
-        errors = []
+        errors: List[str] = []
 
         try:
             # Connect to the system

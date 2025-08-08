@@ -57,7 +57,7 @@ def load_config_file(config_path: str) -> Dict[str, Any]:
 
 def load_config_from_env() -> Dict[str, Any]:
     """Load configuration from environment variables"""
-    config = {}
+    config: Dict[str, Any] = {}
 
     # MAAS configuration
     if os.getenv("MAAS_HOST"):
@@ -75,9 +75,11 @@ def load_config_from_env() -> Dict[str, Any]:
     if os.getenv("DB_PATH"):
         config.setdefault("database", {})["path"] = os.getenv("DB_PATH")
     if os.getenv("DB_AUTO_MIGRATE"):
-        config.setdefault("database", {})["auto_migrate"] = (
-            os.getenv("DB_AUTO_MIGRATE").lower() == "true"
-        )
+        auto_migrate_val = os.getenv("DB_AUTO_MIGRATE")
+        if auto_migrate_val:
+            config.setdefault("database", {})["auto_migrate"] = (
+                auto_migrate_val.lower() == "true"
+            )
 
     # IPMI configuration
     if os.getenv("IPMI_USERNAME"):
@@ -89,14 +91,16 @@ def load_config_from_env() -> Dict[str, Any]:
     if os.getenv("SSH_USERNAME"):
         config.setdefault("ssh", {})["username"] = os.getenv("SSH_USERNAME")
     if os.getenv("SSH_TIMEOUT"):
-        config.setdefault("ssh", {})["timeout"] = int(os.getenv("SSH_TIMEOUT"))
+        ssh_timeout = os.getenv("SSH_TIMEOUT")
+        if ssh_timeout:
+            config.setdefault("ssh", {})["timeout"] = int(ssh_timeout)
 
     return config
 
 
 def apply_default_config(config: Dict[str, Any]) -> Dict[str, Any]:
     """Apply default configuration values"""
-    defaults = {
+    defaults: Dict[str, Dict[str, Any]] = {
         "maas": {
             "host": "http://192.168.100.253:5240/MAAS",
             "consumer_key": "QphVRmRubLwrXFefVL",
