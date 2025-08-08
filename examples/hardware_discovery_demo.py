@@ -11,22 +11,23 @@ from pathlib import Path
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / 'src'))
+sys.path.insert(0, str(project_root / "src"))
 
 from hwautomation.hardware.discovery import (
+    HardwareDiscovery,
     HardwareDiscoveryManager,
-    SystemInfo,
     IPMIInfo,
     NetworkInterface,
-    HardwareDiscovery
+    SystemInfo,
 )
-from hwautomation.utils.network import SSHManager
 from hwautomation.utils.config import load_config
+from hwautomation.utils.network import SSHManager
+
 
 def demo_local_hardware_info():
     """Demonstrate parsing system information from local commands"""
     print("=== Hardware Discovery Demo ===\n")
-    
+
     # Create mock dmidecode output
     mock_dmidecode_system = """
 # dmidecode 3.5
@@ -44,7 +45,7 @@ System Information
 	SKU Number: Not Specified
 	Family: Not Specified
     """
-    
+
     mock_ip_addr = """
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
@@ -57,7 +58,7 @@ System Information
     inet 192.168.100.6/24 brd 192.168.100.255 scope global eth0
        valid_lft forever preferred_lft forever
     """
-    
+
     mock_ipmi_lan = """
 Set in Progress         : Set Complete
 Auth Type Support       : NONE MD2 MD5 PASSWORD 
@@ -89,12 +90,12 @@ Cipher Suite Priv Max   : aaaaXXaaaXXaaXX
                         :     O=OEM
 Bad Password Threshold  : Not Available
     """
-    
+
     # Create a discovery manager instance
-    ssh_config = {'timeout': 60}
+    ssh_config = {"timeout": 60}
     ssh_manager = SSHManager(ssh_config)
     discovery_manager = HardwareDiscoveryManager(ssh_manager)
-    
+
     # Demonstrate parsing functions
     print("1. Parsing System Information:")
     system_info = discovery_manager._parse_dmidecode_system(mock_dmidecode_system)
@@ -102,7 +103,7 @@ Bad Password Threshold  : Not Available
     print(f"   Product: {system_info.product_name}")
     print(f"   Serial Number: {system_info.serial_number}")
     print(f"   UUID: {system_info.uuid}")
-    
+
     print("\n2. Parsing Network Interfaces:")
     interfaces = discovery_manager._parse_ip_addr(mock_ip_addr)
     for interface in interfaces:
@@ -113,7 +114,7 @@ Bad Password Threshold  : Not Available
             print(f"     IP: {interface.ip_address}")
             print(f"     Netmask: {interface.netmask}")
         print()
-    
+
     print("3. Parsing IPMI Configuration:")
     ipmi_info = discovery_manager._parse_ipmi_lan_config(mock_ipmi_lan)
     print(f"   IPMI IP: {ipmi_info.ip_address}")
@@ -121,7 +122,7 @@ Bad Password Threshold  : Not Available
     print(f"   IPMI Gateway: {ipmi_info.gateway}")
     print(f"   IPMI Netmask: {ipmi_info.netmask}")
     print(f"   IPMI Channel: {ipmi_info.channel}")
-    
+
     print("\n4. Creating Mock Hardware Discovery Result:")
     hardware_discovery = HardwareDiscovery(
         hostname="demo-server",
@@ -129,77 +130,89 @@ Bad Password Threshold  : Not Available
         ipmi_info=ipmi_info,
         network_interfaces=interfaces,
         discovered_at="2025-07-31T15:21:00.000000",
-        discovery_errors=[]
+        discovery_errors=[],
     )
-    
+
     print(f"✅ Discovery completed for {hardware_discovery.hostname}")
-    print(f"   System: {hardware_discovery.system_info.manufacturer} {hardware_discovery.system_info.product_name}")
+    print(
+        f"   System: {hardware_discovery.system_info.manufacturer} {hardware_discovery.system_info.product_name}"
+    )
     print(f"   IPMI: {hardware_discovery.ipmi_info.ip_address}")
     print(f"   Interfaces: {len(hardware_discovery.network_interfaces)} found")
-    
+
     # Show the JSON representation
     print("\n5. JSON Representation:")
     import json
+
     print(json.dumps(hardware_discovery.to_dict(), indent=2))
+
 
 def demo_network_utilities():
     """Demonstrate network utility functions"""
     print("\n=== Network Utilities Demo ===\n")
-    
-    from hwautomation.utils.network import test_port_connectivity, resolve_hostname
-    
+
+    from hwautomation.utils.network import resolve_hostname, test_port_connectivity
+
     # Test port connectivity
     print("1. Testing Port Connectivity:")
-    print(f"   Google DNS (8.8.8.8:53): {'✅ Open' if test_port_connectivity('8.8.8.8', 53, 2) else '❌ Closed'}")
-    print(f"   Local SSH (127.0.0.1:22): {'✅ Open' if test_port_connectivity('127.0.0.1', 22, 2) else '❌ Closed'}")
-    print(f"   Invalid port (127.0.0.1:9999): {'✅ Open' if test_port_connectivity('127.0.0.1', 9999, 2) else '❌ Closed'}")
-    
+    print(
+        f"   Google DNS (8.8.8.8:53): {'✅ Open' if test_port_connectivity('8.8.8.8', 53, 2) else '❌ Closed'}"
+    )
+    print(
+        f"   Local SSH (127.0.0.1:22): {'✅ Open' if test_port_connectivity('127.0.0.1', 22, 2) else '❌ Closed'}"
+    )
+    print(
+        f"   Invalid port (127.0.0.1:9999): {'✅ Open' if test_port_connectivity('127.0.0.1', 9999, 2) else '❌ Closed'}"
+    )
+
     # Test hostname resolution
     print("\n2. Hostname Resolution:")
-    google_ip = resolve_hostname('google.com')
-    localhost_ip = resolve_hostname('localhost')
-    invalid_ip = resolve_hostname('invalid-hostname-that-does-not-exist.com')
-    
+    google_ip = resolve_hostname("google.com")
+    localhost_ip = resolve_hostname("localhost")
+    invalid_ip = resolve_hostname("invalid-hostname-that-does-not-exist.com")
+
     print(f"   google.com -> {google_ip if google_ip else 'Failed to resolve'}")
     print(f"   localhost -> {localhost_ip if localhost_ip else 'Failed to resolve'}")
     print(f"   invalid-hostname -> {invalid_ip if invalid_ip else 'Failed to resolve'}")
 
+
 def demo_configuration_integration():
     """Demonstrate configuration integration"""
     print("\n=== Configuration Integration Demo ===\n")
-    
+
     try:
         # Load configuration
-        config_path = project_root / 'config.yaml'
+        config_path = project_root / "config.yaml"
         config = load_config(str(config_path))
-        
+
         print("1. Configuration loaded successfully:")
         print(f"   Config sections: {list(config.keys())}")
-        
-        if 'ssh' in config:
+
+        if "ssh" in config:
             print(f"   SSH config: {config['ssh']}")
-        
-        if 'maas' in config:
-            maas_config = config['maas']
+
+        if "maas" in config:
+            maas_config = config["maas"]
             print(f"   MaaS host: {maas_config.get('host', 'Not configured')}")
-        
+
         # Show how hardware discovery would be integrated
         print("\n2. Hardware Discovery Integration:")
-        ssh_config = config.get('ssh', {})
+        ssh_config = config.get("ssh", {})
         ssh_manager = SSHManager(ssh_config)
         discovery_manager = HardwareDiscoveryManager(ssh_manager)
-        
+
         print("   ✅ SSH Manager initialized")
         print("   ✅ Hardware Discovery Manager initialized")
         print("   ✅ Ready for remote hardware discovery")
-        
+
     except Exception as e:
         print(f"   ❌ Configuration error: {e}")
+
 
 def demo_use_cases():
     """Show practical use cases"""
     print("\n=== Practical Use Cases ===\n")
-    
+
     use_cases = [
         {
             "title": "Server Commissioning Workflow",
@@ -209,8 +222,8 @@ def demo_use_cases():
                 "2. SSH to server using ubuntu user with key-based auth",
                 "3. Run hardware discovery to find IPMI address",
                 "4. Configure IPMI with discovered address",
-                "5. Update server tags in MaaS with hardware info"
-            ]
+                "5. Update server tags in MaaS with hardware info",
+            ],
         },
         {
             "title": "Network Infrastructure Audit",
@@ -220,38 +233,39 @@ def demo_use_cases():
                 "2. SSH to each accessible host",
                 "3. Gather system information and IPMI config",
                 "4. Build comprehensive hardware inventory",
-                "5. Export results to database or CSV"
-            ]
+                "5. Export results to database or CSV",
+            ],
         },
         {
-            "title": "BIOS Configuration Management", 
+            "title": "BIOS Configuration Management",
             "description": "Collect system info for BIOS template selection",
             "steps": [
                 "1. Discover system manufacturer and model",
                 "2. Select appropriate BIOS configuration template",
                 "3. Apply settings based on hardware capabilities",
                 "4. Verify configuration via system information",
-                "5. Log changes and maintain audit trail"
-            ]
-        }
+                "5. Log changes and maintain audit trail",
+            ],
+        },
     ]
-    
+
     for i, use_case in enumerate(use_cases, 1):
         print(f"{i}. {use_case['title']}")
         print(f"   {use_case['description']}")
-        for step in use_case['steps']:
+        for step in use_case["steps"]:
             print(f"   {step}")
         print()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("HWAutomation Hardware Discovery System")
     print("=" * 50)
-    
+
     demo_local_hardware_info()
     demo_network_utilities()
     demo_configuration_integration()
     demo_use_cases()
-    
+
     print("\n" + "=" * 50)
     print("Demo completed! The hardware discovery system is ready to use.")
     print("\nNext steps:")

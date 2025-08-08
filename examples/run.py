@@ -13,7 +13,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 EXCLUDE = {
     "run.py",
     "_common.py",
@@ -43,7 +42,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run HWAutomation examples")
     parser.add_argument("example", nargs="?", help="Example name (without .py)")
     parser.add_argument("--list", action="store_true", help="List available examples")
-    parser.add_argument("--", dest="dashdash", nargs=argparse.REMAINDER, help="Args after -- are passed to the example")
+    parser.add_argument(
+        "--",
+        dest="dashdash",
+        nargs=argparse.REMAINDER,
+        help="Args after -- are passed to the example",
+    )
     args = parser.parse_args(argv)
 
     items = discover()
@@ -61,7 +65,11 @@ def main(argv: list[str] | None = None) -> int:
     cmd = [sys.executable, str(items[args.example])]
     if args.dashdash:
         # Drop the leading '--'
-        cmd.extend(args.dashdash[1:] if args.dashdash and args.dashdash[0] == "--" else args.dashdash)
+        cmd.extend(
+            args.dashdash[1:]
+            if args.dashdash and args.dashdash[0] == "--"
+            else args.dashdash
+        )
     return subprocess.call(cmd)
 
 

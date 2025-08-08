@@ -13,37 +13,39 @@ This tool sets up a comprehensive unit testing infrastructure with:
 
 import os
 import shutil
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
+
 
 def install_testing_dependencies():
     """Install testing dependencies."""
     print("📦 Installing testing dependencies...")
-    
+
     dependencies = [
         "pytest>=7.0.0",
-        "pytest-cov>=4.0.0", 
+        "pytest-cov>=4.0.0",
         "pytest-mock>=3.10.0",
         "coverage>=7.0.0",
         "pytest-xdist>=3.0.0",  # For parallel test execution
-        "pytest-html>=3.1.0",   # For HTML test reports
+        "pytest-html>=3.1.0",  # For HTML test reports
     ]
-    
+
     try:
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "install", "--upgrade"
-        ] + dependencies)
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "--upgrade"] + dependencies
+        )
         print("✅ Testing dependencies installed successfully!")
         return True
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to install dependencies: {e}")
         return False
 
+
 def create_pytest_config():
     """Create pytest configuration."""
     print("⚙️  Creating pytest configuration...")
-    
+
     pytest_ini_content = """[tool:pytest]
 testpaths = tests
 python_files = test_*.py
@@ -66,16 +68,17 @@ markers =
     network: Tests requiring network access
     database: Tests requiring database access
 """
-    
+
     with open("pytest.ini", "w") as f:
         f.write(pytest_ini_content)
-    
+
     print("✅ pytest.ini created!")
 
+
 def create_coverage_config():
-    """Create coverage configuration.""" 
+    """Create coverage configuration."""
     print("⚙️  Creating coverage configuration...")
-    
+
     coverage_config = """[run]
 source = src/hwautomation
 omit = 
@@ -103,50 +106,48 @@ exclude_lines =
 [html]
 directory = htmlcov
 """
-    
+
     with open(".coveragerc", "w") as f:
         f.write(coverage_config)
-    
+
     print("✅ .coveragerc created!")
+
 
 def backup_old_tests():
     """Backup old test files."""
     print("💾 Backing up old test files...")
-    
+
     backup_dir = Path("tests_backup")
     backup_dir.mkdir(exist_ok=True)
-    
+
     tests_dir = Path("tests")
     if tests_dir.exists():
         for file_path in tests_dir.iterdir():
             if file_path.is_file() and file_path.name.startswith("test_"):
                 shutil.copy2(file_path, backup_dir / file_path.name)
-        
+
         print(f"✅ Old tests backed up to {backup_dir}/")
+
 
 def create_modern_test_structure():
     """Create modern test structure."""
     print("🏗️  Creating modern test structure...")
-    
+
     # Create new test structure
-    test_dirs = [
-        "tests/unit",
-        "tests/integration", 
-        "tests/fixtures",
-        "tests/mocks"
-    ]
-    
+    test_dirs = ["tests/unit", "tests/integration", "tests/fixtures", "tests/mocks"]
+
     for dir_path in test_dirs:
         Path(dir_path).mkdir(parents=True, exist_ok=True)
         # Create __init__.py files
         (Path(dir_path) / "__init__.py").touch()
-    
+
     print("✅ Test directory structure created!")
+
 
 def create_conftest():
     """Create modern conftest.py."""
     print("⚙️  Creating modern conftest.py...")
-    
+
     conftest_content = '''"""
 Pytest configuration and shared fixtures.
 """
@@ -237,16 +238,17 @@ def mock_db_helper():
         mock.return_value = helper
         yield helper
 '''
-    
+
     with open("tests/conftest.py", "w") as f:
         f.write(conftest_content)
-    
+
     print("✅ Modern conftest.py created!")
+
 
 def create_sample_unit_tests():
     """Create sample unit tests."""
     print("🧪 Creating sample unit tests...")
-    
+
     # Unit test for config loading
     config_test = '''"""
 Unit tests for configuration management.
@@ -287,10 +289,10 @@ class TestConfigLoader:
             config = load_config('mock_file.yaml')
             assert config == {'key': 'value'}
 '''
-    
+
     with open("tests/unit/test_config.py", "w") as f:
         f.write(config_test)
-    
+
     # Unit test for database helper
     db_test = '''"""
 Unit tests for database helper functionality.
@@ -338,10 +340,10 @@ class TestDbHelper:
         assert result == [('test', 'data')]
         mock_cursor.execute.assert_called()
 '''
-    
+
     with open("tests/unit/test_database.py", "w") as f:
         f.write(db_test)
-    
+
     # Integration test example
     integration_test = '''"""
 Integration tests for workflow management.
@@ -372,17 +374,18 @@ class TestWorkflowIntegration:
         # Only run when external services are available
         pytest.skip("Requires external services")
 '''
-    
+
     with open("tests/integration/test_workflow.py", "w") as f:
         f.write(integration_test)
-    
+
     print("✅ Sample unit tests created!")
+
 
 def create_test_makefile():
     """Create Makefile for easy test execution."""
     print("⚙️  Creating test Makefile...")
-    
-    makefile_content = '''# Testing shortcuts
+
+    makefile_content = """# Testing shortcuts
 .PHONY: test test-unit test-integration test-cov test-html clean-test
 
 # Run all tests
@@ -422,24 +425,25 @@ clean-test:
 # Install test dependencies
 install-test:
 	pip install -e .[dev]
-'''
-    
+"""
+
     with open("Makefile", "w") as f:
         f.write(makefile_content)
-    
+
     print("✅ Test Makefile created!")
+
 
 def update_pyproject_toml():
     """Update pyproject.toml with testing configuration."""
     print("⚙️  Updating pyproject.toml...")
-    
+
     # Read current pyproject.toml
     with open("pyproject.toml", "r") as f:
         content = f.read()
-    
+
     # Add testing configuration if not present
     if "[tool.pytest.ini_options]" not in content:
-        pytest_config = '''
+        pytest_config = """
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
@@ -487,22 +491,23 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod"
 ]
-'''
+"""
         content += pytest_config
-        
+
         with open("pyproject.toml", "w") as f:
             f.write(content)
-    
+
     print("✅ pyproject.toml updated!")
+
 
 def create_github_actions_workflow():
     """Create GitHub Actions workflow for testing."""
     print("⚙️  Creating GitHub Actions workflow...")
-    
+
     workflow_dir = Path(".github/workflows")
     workflow_dir.mkdir(parents=True, exist_ok=True)
-    
-    workflow_content = '''name: Tests
+
+    workflow_content = """name: Tests
 
 on:
   push:
@@ -541,22 +546,23 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
-'''
-    
+"""
+
     with open(workflow_dir / "test.yml", "w") as f:
         f.write(workflow_content)
-    
+
     print("✅ GitHub Actions workflow created!")
+
 
 def main():
     """Main setup function."""
     print("🚀 Setting up modern unit testing infrastructure...\n")
-    
+
     if not install_testing_dependencies():
         return False
-    
+
     backup_old_tests()
-    create_pytest_config() 
+    create_pytest_config()
     create_coverage_config()
     create_modern_test_structure()
     create_conftest()
@@ -564,14 +570,14 @@ def main():
     create_test_makefile()
     update_pyproject_toml()
     create_github_actions_workflow()
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("✅ Modern testing infrastructure setup complete!")
-    print("="*60)
+    print("=" * 60)
     print("\n📋 Next Steps:")
     print("1. Install development dependencies: pip install -e .[dev]")
     print("2. Run unit tests: make test-unit")
-    print("3. Generate coverage report: make test-html") 
+    print("3. Generate coverage report: make test-html")
     print("4. View coverage: open htmlcov/index.html")
     print("5. Replace old tests with proper unit tests")
     print("\n🎯 Testing Commands:")
@@ -580,8 +586,9 @@ def main():
     print("• pytest -m 'not slow'     - Skip slow tests")
     print("• pytest --cov              - Run with coverage")
     print("• make test-html            - Generate HTML coverage report")
-    
+
     return True
+
 
 if __name__ == "__main__":
     main()

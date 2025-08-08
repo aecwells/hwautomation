@@ -1,26 +1,30 @@
 #!/usr/bin/env python3
 
 import sys
-sys.path.insert(0, '/home/ubuntu/HWAutomation/src')
 
-from hwautomation.utils.config import load_config
+sys.path.insert(0, "/home/ubuntu/HWAutomation/src")
+
 from hwautomation.orchestration.workflow_manager import WorkflowManager
+from hwautomation.utils.config import load_config
+
 
 def test_workflow_manager():
     try:
         print("Loading configuration...")
-        config = load_config('/home/ubuntu/HWAutomation/config.yaml')
-        
+        config = load_config("/home/ubuntu/HWAutomation/config.yaml")
+
         print("Creating workflow manager...")
         workflow_manager = WorkflowManager(config)
-        
+
         print("Workflow manager created successfully!")
         print(f"Workflow manager type: {type(workflow_manager)}")
-        
+
     except Exception as e:
         print(f"Error creating workflow manager: {e}")
         import traceback
+
         traceback.print_exc()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_workflow_manager()

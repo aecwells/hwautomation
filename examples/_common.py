@@ -29,11 +29,17 @@ def default_logger(level: int | str = logging.INFO) -> logging.Logger:
 
 def common_arg_parser(description: str | None = None) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description or "HWAutomation example")
-    parser.add_argument("--device-type", default=os.getenv("DEVICE_TYPE", "a1.c5.large"))
+    parser.add_argument(
+        "--device-type", default=os.getenv("DEVICE_TYPE", "a1.c5.large")
+    )
     parser.add_argument("--target-ip", default=os.getenv("TARGET_IP"))
     parser.add_argument("--username", default=os.getenv("IPMI_USER", "admin"))
     parser.add_argument("--password", default=os.getenv("IPMI_PASS", "password"))
-    parser.add_argument("--dry-run", action="store_true", default=True, help="Do not make changes")
-    parser.add_argument("--no-dry-run", dest="dry_run", action="store_false", help="Allow changes")
+    parser.add_argument(
+        "--dry-run", action="store_true", default=True, help="Do not make changes"
+    )
+    parser.add_argument(
+        "--no-dry-run", dest="dry_run", action="store_false", help="Allow changes"
+    )
     parser.add_argument("-v", "--verbose", action="count", default=0)
     return parser

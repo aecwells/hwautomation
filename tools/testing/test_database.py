@@ -3,15 +3,15 @@
 Test cases for database functionality.
 """
 
-import sys
-import unittest
-import tempfile
 import os
+import sys
+import tempfile
+import unittest
 from pathlib import Path
 
 # Add src to path
 project_root = Path(__file__).parent.parent
-src_path = project_root / 'src'
+src_path = project_root / "src"
 sys.path.insert(0, str(src_path))
 
 from hwautomation.database.helper import DbHelper
@@ -20,18 +20,16 @@ from hwautomation.database.migrations import DatabaseMigrator
 
 class TestDbHelper(unittest.TestCase):
     """Test cases for DbHelper class."""
-    
+
     def setUp(self):
         """Set up test fixtures with temporary database."""
-        self.temp_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False)
+        self.temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
         self.temp_db.close()
         self.db_path = self.temp_db.name
         self.db_helper = DbHelper(
-            tablename='test_servers',
-            db_path=self.db_path,
-            auto_migrate=True
+            tablename="test_servers", db_path=self.db_path, auto_migrate=True
         )
-    
+
     def tearDown(self):
         """Clean up test fixtures."""
         self.db_helper.close()
@@ -39,13 +37,13 @@ class TestDbHelper(unittest.TestCase):
             os.unlink(self.db_path)
         except FileNotFoundError:
             pass
-    
+
     def test_initialization(self):
         """Test that DbHelper initializes correctly."""
         self.assertIsNotNone(self.db_helper)
-        self.assertEqual(self.db_helper.tablename, 'test_servers')
+        self.assertEqual(self.db_helper.tablename, "test_servers")
         self.assertEqual(self.db_helper.db_path, self.db_path)
-    
+
     def test_table_creation(self):
         """Test that tables are created properly."""
         # Table should be created during initialization
@@ -55,19 +53,19 @@ class TestDbHelper(unittest.TestCase):
             f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
         ).fetchone()
         self.assertIsNotNone(result)
-    
+
     def test_server_operations(self):
         """Test basic server operations."""
-        server_id = 'test_server_001'
-        
+        server_id = "test_server_001"
+
         # Test server creation
         self.db_helper.createrowforserver(server_id)
         exists_list = self.db_helper.checkifserveridexists(server_id)
         self.assertTrue(exists_list[0])
-        
+
         # Test server info update
-        self.db_helper.updateserverinfo(server_id, 'status_name', 'Ready')
-        
+        self.db_helper.updateserverinfo(server_id, "status_name", "Ready")
+
         # Test server retrieval
         server_info = self.db_helper.get_server_by_id(server_id)
         self.assertIsNotNone(server_info)
@@ -75,26 +73,26 @@ class TestDbHelper(unittest.TestCase):
 
 class TestDatabaseMigrator(unittest.TestCase):
     """Test cases for DatabaseMigrator class."""
-    
+
     def setUp(self):
         """Set up test fixtures."""
-        self.temp_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False)
+        self.temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
         self.temp_db.close()
         self.db_path = self.temp_db.name
-    
+
     def tearDown(self):
         """Clean up test fixtures."""
         try:
             os.unlink(self.db_path)
         except FileNotFoundError:
             pass
-    
+
     def test_migrator_initialization(self):
         """Test that DatabaseMigrator initializes correctly."""
         migrator = DatabaseMigrator(self.db_path)
         self.assertIsNotNone(migrator)
         migrator.close()
-    
+
     def test_migration_to_latest(self):
         """Test migration to latest version."""
         migrator = DatabaseMigrator(self.db_path)
@@ -108,5 +106,5 @@ class TestDatabaseMigrator(unittest.TestCase):
             migrator.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

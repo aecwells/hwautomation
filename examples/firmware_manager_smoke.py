@@ -8,9 +8,9 @@ Run from repo root:
 """
 
 import asyncio
+import logging
 import os
 import sys
-import logging
 
 # Add the src directory to the path for imports (relative to repo root)
 CURRENT_DIR = os.path.dirname(__file__)

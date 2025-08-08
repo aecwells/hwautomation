@@ -7,17 +7,18 @@ This will show you what changes need to be made to existing files.
 import sys
 from pathlib import Path
 
+
 def show_migration_guide():
     """Show how to migrate from old to new structure"""
-    
+
     print("Migration Guide: Old Files → New Package Structure")
     print("=" * 60)
-    
+
     print("\n1. OLD IMPORT PATTERN (from flat files):")
     print("   from hwautolib import *")
     print("   from dbhelper import DbHelper")
     print("   from db_migrations import migrate_existing_database")
-    
+
     print("\n2. NEW IMPORT PATTERN (from package):")
     print("   # Add src to path (for development)")
     print("   import sys")
@@ -32,7 +33,7 @@ def show_migration_guide():
     print("   from hwautomation.hardware.ipmi import IpmiManager")
     print("   from hwautomation.hardware.redfish_manager import RedfishManager")
     print("   from hwautomation.utils.config import load_config")
-    
+
     print("\n3. FUNCTION MAPPING:")
     function_mapping = [
         ("Old Function", "New Location"),
@@ -45,20 +46,20 @@ def show_migration_guide():
         ("All IPMI functions", "IpmiManager class methods"),
         ("All RedFish functions", "RedfishManager class methods"),
     ]
-    
+
     for old, new in function_mapping:
         print(f"   {old:<30} → {new}")
-    
+
     print("\n4. CONFIGURATION CHANGES:")
     print("   Old: Hardcoded values in scripts")
     print("   New: config.yaml file with load_config()")
     print("   - Copy config.yaml.example to config.yaml")
     print("   - Update values for your environment")
-    
+
     print("\n5. DATABASE MIGRATION:")
     print("   Old databases will be automatically migrated when using:")
     print("   DbHelper(auto_migrate=True)")
-    
+
     print("\n6. FILES TO UPDATE:")
     files_to_update = [
         ("main.py", "Update imports and function calls"),
@@ -66,13 +67,14 @@ def show_migration_guide():
         ("test-library.py", "Update imports"),
         ("Any custom scripts", "Update imports and function calls"),
     ]
-    
+
     for filename, action in files_to_update:
         print(f"   {filename:<20} - {action}")
 
+
 def create_updated_main():
     """Create an updated version of main.py"""
-    
+
     updated_main_content = '''#!/usr/bin/env python3
 """
 Updated main.py using the new package structure.
@@ -232,27 +234,31 @@ if __name__ == "__main__":
         print("Usage: python main.py <command>")
         testfunctions("help")
 '''
-    
+
     return updated_main_content
+
 
 def show_examples():
     """Show example usage patterns"""
-    
+
     print("\n7. EXAMPLE USAGE PATTERNS:")
     print("=" * 40)
-    
+
     print("\nA. Simple MAAS Integration:")
-    print("""
+    print(
+        """
     from hwautomation.maas.client import create_maas_client
     from hwautomation.utils.config import load_config
     
     config = load_config()
     maas_client = create_maas_client(config['maas'])
     machines = maas_client.get_machines()
-    """)
-    
+    """
+    )
+
     print("\nB. Database with Auto-Migration:")
-    print("""
+    print(
+        """
     from hwautomation import DbHelper
     from hwautomation.utils.config import load_config
     
@@ -262,30 +268,34 @@ def show_examples():
         db_path=config['database']['path'],
         auto_migrate=True  # Automatically migrate old databases
     )
-    """)
-    
+    """
+    )
+
     print("\nC. IPMI Operations:")
-    print("""
+    print(
+        """
     from hwautomation.hardware.ipmi import IpmiManager
     
     ipmi = IpmiManager(username="admin", timeout=30)
     power_status = ipmi.get_power_status("192.168.1.100", "password")
-    """)
+    """
+    )
+
 
 if __name__ == "__main__":
     show_migration_guide()
     show_examples()
-    
+
     print("\n" + "=" * 60)
     print("NEXT STEPS:")
     print("1. Run: python validate_package.py")
     print("2. Install dependencies: pip install requests requests-oauthlib pyyaml")
     print("3. Create config.yaml from config.yaml.example")
     print("4. Test with: python examples/basic_usage.py")
-    
+
     # Offer to create updated main.py
     create_updated = input("\nCreate updated main.py? (y/N): ").strip().lower()
-    if create_updated == 'y':
+    if create_updated == "y":
         updated_content = create_updated_main()
         with open("main_updated.py", "w") as f:
             f.write(updated_content)

@@ -3,20 +3,21 @@
 Test cases for utility functions.
 """
 
-import sys
-import unittest
-import tempfile
 import os
+import sys
+import tempfile
+import unittest
 from pathlib import Path
 
 # Add src to path
 project_root = Path(__file__).parent.parent
-src_path = project_root / 'src'
+src_path = project_root / "src"
 sys.path.insert(0, str(src_path))
 
 try:
     from hwautomation.utils.config import load_config
     from hwautomation.utils.network import test_ssh_connection
+
     UTILS_AVAILABLE = True
 except ImportError:
     UTILS_AVAILABLE = False
@@ -25,7 +26,7 @@ except ImportError:
 @unittest.skipUnless(UTILS_AVAILABLE, "Utils modules not available")
 class TestConfigUtils(unittest.TestCase):
     """Test cases for configuration utilities."""
-    
+
     def test_config_loading(self):
         """Test configuration loading."""
         # Create a temporary config file
@@ -40,17 +41,17 @@ database:
   path: "test.db"
   table_name: "test_servers"
 """
-        
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             f.write(config_content)
             config_path = f.name
-        
+
         try:
             config = load_config(config_path)
             self.assertIsNotNone(config)
-            self.assertIn('maas', config)
-            self.assertIn('database', config)
-            self.assertEqual(config['maas']['host'], "http://test-server:5240/MAAS")
+            self.assertIn("maas", config)
+            self.assertIn("database", config)
+            self.assertEqual(config["maas"]["host"], "http://test-server:5240/MAAS")
         finally:
             os.unlink(config_path)
 
@@ -58,14 +59,14 @@ database:
 @unittest.skipUnless(UTILS_AVAILABLE, "Utils modules not available")
 class TestNetworkUtils(unittest.TestCase):
     """Test cases for network utilities."""
-    
+
     def test_ssh_connection_test(self):
         """Test SSH connection testing (mock)."""
         # This would normally test actual SSH connections
         # For now, just test that the function exists and can be called
         try:
             # This should fail but not crash
-            result = test_ssh_connection('127.0.0.1', 'test_user', timeout=1)
+            result = test_ssh_connection("127.0.0.1", "test_user", timeout=1)
             # We expect this to fail for localhost without SSH
             self.assertFalse(result)
         except Exception:
@@ -75,15 +76,16 @@ class TestNetworkUtils(unittest.TestCase):
 
 class TestUtilsPackage(unittest.TestCase):
     """Test the utils package structure."""
-    
+
     def test_utils_imports(self):
         """Test that utils package imports work."""
         try:
             from hwautomation.utils import config, network
+
             self.assertTrue(True, "Utils imports successful")
         except ImportError as e:
             self.skipTest(f"Utils modules not fully implemented: {e}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
