@@ -27,11 +27,33 @@ class DbHelper:
             tablename: Name of the main table (for backward compatibility, defaults to servers)
             auto_migrate: Whether to automatically apply migrations
         ."""
+        # Validate tablename to prevent SQL injection
+        if not tablename.isidentifier():
+            raise ValueError(f"Invalid table name: {tablename}. Must be a valid SQL identifier.")
+        
         self.tablename = tablename
         self.db_path = db_path
         # Enable thread-safe SQLite connections for orchestration workflows
         self.sql_database = sqlite3.connect(db_path, check_same_thread=False)
         self.sql_db_worker = self.sql_database
+
+    def _validate_identifier(self, identifier: str, name: str = "identifier") -> str:
+        """
+        Validate SQL identifier (table/column name) to prevent injection.
+        
+        Args:
+            identifier: The identifier to validate
+            name: Description of the identifier for error messages
+            
+        Returns:
+            The validated identifier
+            
+        Raises:
+            ValueError: If identifier is invalid
+        """
+        if not identifier.isidentifier():
+            raise ValueError(f"Invalid {name}: {identifier}. Must be a valid SQL identifier.")
+        return identifier
 
         # Apply migrations if requested
         if auto_migrate:
@@ -80,7 +102,8 @@ class DbHelper:
         # This method exists for backward compatibility
         try:
             # Check if table exists with current schema
-            self.sql_db_worker.execute(
+            # Table name is validated in constructor, safe from injection
+            self.sql_db_worker.execute(  # nosec B608
                 f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.tablename}'"
             )
             if not self.sql_db_worker.fetchone():
@@ -101,8 +124,10 @@ class DbHelper:
     def updateserverinfo(self, serverid: str, column: str, colval: str):
         """Update server information."""
         table_name = self._get_table_name()
+        # Validate column name to prevent SQL injection
+        validated_column = self._validate_identifier(column, "column name")
         self.sql_db_worker.execute(
-            f"UPDATE {table_name} SET {column} = ? WHERE server_id = ?",
+            f"UPDATE {table_name} SET {validated_column} = ? WHERE server_id = ?",
             (colval, serverid),
         )
         self.sql_db_worker.commit()

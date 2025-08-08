@@ -196,6 +196,7 @@ class SSHClient:
         password: str = None,
         key_file: str = None,
         timeout: int = 60,
+        verify_host_key: bool = True,
     ):
         """
         Initialize SSH client
@@ -206,12 +207,14 @@ class SSHClient:
             password: SSH password (if not using keys)
             key_file: Path to SSH private key file
             timeout: Connection timeout in seconds
+            verify_host_key: Whether to verify SSH host keys for security (default: True)
         ."""
         self.host = host
         self.username = username
         self.password = password
         self.key_file = key_file
         self.timeout = timeout
+        self.verify_host_key = verify_host_key
         self.client = None
         self.sftp = None
 
@@ -219,7 +222,17 @@ class SSHClient:
         """Establish SSH connection."""
         try:
             self.client = paramiko.SSHClient()
-            self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            # Set host key policy based on verification preference
+            if self.verify_host_key:
+                # Load system host keys and known_hosts
+                self.client.load_system_host_keys()
+                self.client.load_host_keys(str(Path.home() / ".ssh" / "known_hosts"))
+                # Reject unknown hosts for security
+                self.client.set_missing_host_key_policy(paramiko.RejectPolicy())
+            else:
+                # Auto-add unknown hosts (less secure, but needed for dynamic infrastructure)
+                self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
             connect_kwargs = {
                 "hostname": self.host,

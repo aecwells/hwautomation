@@ -716,7 +716,7 @@ class RedfishManager:
                     files=files,
                     data=data,
                     auth=self.auth,
-                    verify=False,
+                    verify=self.verify_ssl,
                     timeout=1800,  # 30 minute timeout for firmware upload
                 )
 
@@ -767,7 +767,7 @@ class RedfishManager:
                     data=firmware_file,
                     headers=headers,
                     auth=self.auth,
-                    verify=False,
+                    verify=self.verify_ssl,
                     timeout=1800,  # 30 minute timeout
                 )
 
