@@ -43,6 +43,9 @@ A comprehensive Python package for hardware automation, server management, and i
 - **📊 Type Checking**: MyPy type checking configured for gradual adoption
 - **🧪 Multi-Version Testing**: Python 3.9-3.12 compatibility testing
 - **📈 Test Coverage**: Automated coverage reporting with realistic baselines
+- **🪝 Pre-commit Hooks**: Comprehensive quality gates with 15+ automated checks
+- **⚡ Async Testing**: Full pytest-asyncio support for async/await test patterns
+- **🔧 Performance Testing**: Dedicated performance test suite with controlled execution
 
 ## 🚀 Quick Start (Container-First)
 
@@ -645,16 +648,64 @@ See the `examples/` directory for complete working examples:
 
 ## Testing
 
+### 🧪 Comprehensive Testing Suite
+
+The project includes a robust testing infrastructure with multiple testing approaches:
+
 ```bash
-# Install development dependencies
-pip install -e ".[dev]"
+# Quick setup - install all development dependencies
+make install-test
 
-# Run tests
-pytest
+# Basic testing
+make test              # Run all tests
+make test-unit         # Fast unit tests only
+make test-integration  # Integration tests
+make test-cov         # Tests with coverage report
+make test-html        # Generate HTML coverage report
 
-# Run with coverage
-pytest --cov=hwautomation
+# Advanced testing
+make test-async       # Async tests with pytest-asyncio
+make test-performance # Performance tests (set RUN_PERFORMANCE_TESTS=1)
+make test-parallel    # Run tests in parallel for speed
+make test-security    # Security scanning with bandit
+
+# Code quality
+make test-quality     # Run all quality checks (black, isort, flake8, mypy, bandit)
+make setup-precommit  # Install pre-commit hooks
+make precommit-all    # Run pre-commit on all files
 ```
+
+### 🪝 Pre-commit Hooks
+
+Automated code quality enforcement on every commit:
+
+```bash
+# Setup once
+make setup-precommit
+
+# Hooks automatically run on git commit and include:
+# ✅ Code formatting (black)      ✅ Import sorting (isort)
+# ✅ Linting (flake8)           ✅ Type checking (mypy)
+# ✅ Security scanning (bandit)  ✅ Docstring style (pydocstyle)
+# ✅ Spell checking (typos)      ✅ File validation
+# ✅ Shell script linting       ✅ YAML/JSON/TOML validation
+```
+
+### 🐳 Docker Testing
+
+```bash
+# Test inside containers
+make test-docker       # All tests in Docker
+make test-docker-unit  # Unit tests in Docker
+make test-docker-cov   # Coverage tests in Docker
+```
+
+### 📊 Test Coverage & Reporting
+
+- **Coverage Targets**: Realistic baselines with room for improvement
+- **HTML Reports**: Detailed coverage analysis in `htmlcov/index.html`
+- **CI Integration**: Automated coverage reporting in GitHub Actions
+- **Multi-format Output**: Terminal, HTML, and XML coverage reports
 
 ## Contributing
 
@@ -665,13 +716,30 @@ pytest --cov=hwautomation
    - Keep route modules focused and under 300 lines for maintainability
    - Use proper dependency injection via Flask app context
 
-2. **Code Quality**:
-   - Follow the existing code structure and patterns
-   - Add comprehensive tests for new functionality
-   - Update documentation for any changes
-   - Use black for code formatting: `black src/`
+2. **Code Quality & Testing**:
+   - **Pre-commit Hooks**: Automatically enforced on every commit (`make setup-precommit`)
+   - **Testing Requirements**: Add tests for new functionality with pytest
+   - **Async Support**: Use `@pytest.mark.asyncio` for async test functions
+   - **Performance Tests**: Gate performance tests behind `RUN_PERFORMANCE_TESTS=1`
+   - **Security**: All code automatically scanned with bandit for security issues
 
-3. **Web Interface Development**:
+3. **Development Workflow**:
+   ```bash
+   # Initial setup
+   make dev-setup          # Setup complete development environment
+   make setup-precommit    # Install quality gates
+
+   # Daily development
+   make test-unit          # Fast feedback during development
+   make test-quality       # Check code quality before commit
+   git commit              # Pre-commit hooks run automatically
+
+   # Before PR
+   make test               # Full test suite
+   make test-cov           # Verify coverage
+   ```
+
+4. **Web Interface Development**:
    - Status indicators should follow the established color scheme (green/red/orange)
    - Maintain responsive design principles
    - Test changes across different screen sizes

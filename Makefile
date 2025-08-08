@@ -68,6 +68,27 @@ test-html:    ## Generate HTML coverage report
 test-parallel: ## Run tests in parallel
 	pytest -n auto
 
+# Run async tests specifically
+test-async:   ## Run async tests with pytest-asyncio
+	pytest -m asyncio
+
+# Run performance tests
+test-performance: ## Run performance tests (requires RUN_PERFORMANCE_TESTS=1)
+	RUN_PERFORMANCE_TESTS=1 pytest -m "performance"
+
+# Run security scanning
+test-security: ## Run security scanning with bandit
+	bandit -r src/ -f json -o bandit-report.json || true
+	@echo "Security report generated in bandit-report.json"
+
+# Run all quality checks (like pre-commit)
+test-quality: ## Run all code quality checks
+	black --check src/ tests/
+	isort --check-only src/ tests/
+	flake8 src/ tests/
+	mypy src/
+	bandit -r src/
+
 # Clean test artifacts
 clean-test:   ## Clean test artifacts and cache
 	rm -rf .pytest_cache/
@@ -80,6 +101,15 @@ clean-test:   ## Clean test artifacts and cache
 # Install test dependencies
 install-test: ## Install development dependencies
 	pip install -e .[dev]
+
+# Setup pre-commit hooks
+setup-precommit: ## Install and setup pre-commit hooks
+	pre-commit install
+	pre-commit autoupdate
+
+# Run pre-commit on all files
+precommit-all: ## Run pre-commit hooks on all files
+	pre-commit run --all-files
 
 ## [Docker Compose]
 up:           ## Start containers in background
