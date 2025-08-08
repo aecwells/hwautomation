@@ -95,6 +95,7 @@ jobs:
     
     - name: Run unit tests
       run: |
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         pytest tests/unit/ --cov=src/hwautomation --cov-report=xml --cov-report=term --junitxml=junit.xml
     
     - name: Upload coverage to Codecov
@@ -159,6 +160,7 @@ jobs:
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_hwautomation
       run: |
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         pytest tests/ -m "integration" --tb=short --maxfail=5
     
     - name: Upload integration test results
@@ -193,6 +195,7 @@ jobs:
     
     - name: Run performance tests
       run: |
+        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
         pytest tests/ -m "performance" --tb=short
     
     - name: Generate performance report

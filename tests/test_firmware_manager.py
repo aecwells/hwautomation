@@ -4,13 +4,17 @@ Unit tests for Firmware Manager - Phase 4 Implementation
 
 import asyncio
 import os
+import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.hwautomation.hardware.firmware_manager import (
+# Add the src directory to the Python path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from hwautomation.hardware.firmware_manager import (
     FirmwareInfo,
     FirmwareManager,
     FirmwareRepository,
