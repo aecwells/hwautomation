@@ -11,13 +11,13 @@ This directory contains tests for the HWAutomation project.
 
 ### BIOS Configuration Tests ⭐
 
-- **`test_phase2_focused.py`** - Comprehensive Phase 2 decision logic testing
-- **`test_phase2_decision_logic.py`** - Detailed Phase 2 integration testing
+- **`test_phase2_focused.py`** - Comprehensive BIOS decision logic testing
+- **`test_phase2_decision_logic.py`** - Detailed BIOS integration testing
 
 ### Real-time Monitoring Tests 🚀
 
-- **`test_phase3_standalone.py`** - Complete Phase 3 monitoring demonstration
-- **`test_phase3_monitoring.py`** - Phase 3 monitoring system integration tests
+- **`test_phase3_standalone.py`** - Complete monitoring demonstration
+- **`test_phase3_monitoring.py`** - Monitoring system integration tests
 
 ### Firmware Update Tests 🔧
 
