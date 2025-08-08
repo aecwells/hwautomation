@@ -6,10 +6,7 @@
 ![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 ![Code Quality](https://img.shields.io/badge/code%20quality-black%20%7C%20isort%20%7C%20flake8%20%7C%20mypy-brightgreen)
 ![Security](https://img.shields.io/badge/security-bandit%20scanned-green)
-![License](https://img.shields.io/github/license/aecwells/hwautomation)
-![Latest Release](https://img.shields.io/github/v/release/aecwells/hwautomation?include_prereleases)
-![GitHub Issues](https://img.shields.io/github/issues/aecwells/hwautomation)
-![GitHub Stars](https://img.shields.io/github/stars/aecwells/hwautomation)
+
 
 A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with production-ready web GUI, complete CLI capabilities, and enterprise-grade firmware management.
 
