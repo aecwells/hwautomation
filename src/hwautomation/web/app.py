@@ -74,6 +74,61 @@ def create_app():
     except Exception as e:
         logger.warning(f"MaaS client initialization failed: {e}")
 
+    # Global context processor for status indicators
+    def get_global_stats():
+        """Get global stats for status indicators."""
+        stats = {
+            "available_machines": 0,
+            "device_types": 0,
+            "database_servers": 0,
+            "ready_servers": 0,
+            "maas_status": "disconnected",
+        }
+
+        # Get server count from database if available
+        if db_helper:
+            try:
+                cursor = db_helper.sql_db_worker.cursor()
+                cursor.execute("SELECT COUNT(*) FROM servers")
+                stats["database_servers"] = cursor.fetchone()[0]
+
+                # Count ready servers
+                cursor.execute(
+                    "SELECT COUNT(*) FROM servers WHERE status_name = 'Ready'"
+                )
+                stats["ready_servers"] = cursor.fetchone()[0]
+                cursor.close()
+            except Exception as e:
+                logger.warning(f"Could not get database stats: {e}")
+
+        # Get MaaS machines count if configured
+        maas_config = config.get("maas", {})
+        if not maas_config.get("host") or not maas_config.get("consumer_key"):
+            # MaaS not configured
+            stats["maas_status"] = "not_configured"
+        else:
+            try:
+                maas_client_instance = create_maas_client(maas_config)
+                machines = maas_client_instance.get_machines()
+                stats["available_machines"] = len(
+                    [m for m in machines if m.get("status") == "Ready"]
+                )
+                stats["maas_status"] = "connected"
+            except Exception as e:
+                logger.warning(f"Could not get MaaS stats: {e}")
+                stats["maas_status"] = "disconnected"
+
+        # Get available device types
+        device_types = ["a1.c5.large", "d1.c1.small", "d1.c2.medium", "d1.c2.large"]
+        stats["device_types"] = len(device_types)
+
+        return stats
+
+    @app.context_processor
+    def inject_global_stats():
+        """Inject global stats into all templates."""
+        return {"global_stats": get_global_stats()}
+
     # Import and register blueprints
     from hwautomation.web.routes import (
         core_bp,
