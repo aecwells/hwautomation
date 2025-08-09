@@ -351,7 +351,7 @@ class TestBaseParser:
         result = parser.safe_parse("any input")
         assert result == {}  # Should return empty dict on error
 
-    @patch("src.hwautomation.hardware.discovery.base.get_logger")
+    @patch("hwautomation.hardware.discovery.base.get_logger")
     def test_safe_parse_logs_warning(self, mock_get_logger):
         """Test that safe_parse logs warnings on parsing errors."""
         mock_logger = Mock()
