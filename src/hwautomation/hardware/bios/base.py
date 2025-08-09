@@ -17,7 +17,7 @@ logger = get_logger(__name__)
 
 class ConfigMethod(Enum):
     """BIOS configuration methods."""
-    
+
     REDFISH_STANDARD = "redfish_standard"
     REDFISH_OEM = "redfish_oem"
     VENDOR_TOOLS = "vendor_tools"
@@ -27,7 +27,7 @@ class ConfigMethod(Enum):
 
 class OperationStatus(Enum):
     """Status of BIOS operations."""
-    
+
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
@@ -39,13 +39,13 @@ class OperationStatus(Enum):
 @dataclass
 class BiosConfigResult:
     """Result of a BIOS configuration operation."""
-    
+
     success: bool
     method_used: ConfigMethod
     settings_applied: Dict[str, str]
     settings_failed: Dict[str, str]
     backup_file: Optional[str] = None
-    validation_errors: List[str] = None
+    validation_errors: Optional[List[str]] = None
     execution_time: Optional[float] = None
     reboot_required: bool = True
 
@@ -58,7 +58,7 @@ class BiosConfigResult:
 @dataclass
 class DeviceConfig:
     """Configuration for a specific device type."""
-    
+
     device_type: str
     manufacturer: str
     model: str
@@ -76,7 +76,7 @@ class DeviceConfig:
 @dataclass
 class MethodSelectionResult:
     """Result of BIOS method selection analysis."""
-    
+
     recommended_method: ConfigMethod
     available_methods: List[ConfigMethod]
     redfish_capabilities: Dict[str, bool]
@@ -88,13 +88,15 @@ class MethodSelectionResult:
 
 class BaseBiosManager(ABC):
     """Abstract base class for BIOS configuration managers."""
-    
+
     def __init__(self):
         """Initialize base manager."""
         self.logger = get_logger(f"{__name__}.{self.__class__.__name__}")
 
     @abstractmethod
-    def pull_current_config(self, target_ip: str, username: str, password: str) -> ET.Element:
+    def pull_current_config(
+        self, target_ip: str, username: str, password: str
+    ) -> ET.Element:
         """Pull current BIOS configuration from target system."""
         pass
 
@@ -109,14 +111,16 @@ class BaseBiosManager(ABC):
         pass
 
     @abstractmethod
-    def push_config(self, config: ET.Element, target_ip: str, username: str, password: str) -> bool:
+    def push_config(
+        self, config: ET.Element, target_ip: str, username: str, password: str
+    ) -> bool:
         """Push modified configuration to target system."""
         pass
 
 
 class BaseDeviceHandler(ABC):
     """Abstract base class for device-specific BIOS handlers."""
-    
+
     def __init__(self, device_config: DeviceConfig):
         """Initialize device handler."""
         self.device_config = device_config
@@ -144,7 +148,7 @@ class BaseDeviceHandler(ABC):
 
 class BaseConfigLoader(ABC):
     """Abstract base class for configuration loaders."""
-    
+
     def __init__(self, config_dir: str):
         """Initialize configuration loader."""
         self.config_dir = config_dir
@@ -168,7 +172,7 @@ class BaseConfigLoader(ABC):
 
 class BaseConfigParser(ABC):
     """Abstract base class for configuration parsers."""
-    
+
     def __init__(self):
         """Initialize parser."""
         self.logger = get_logger(f"{__name__}.{self.__class__.__name__}")
@@ -194,18 +198,18 @@ class BaseConfigParser(ABC):
 
 class BaseOperationHandler(ABC):
     """Abstract base class for BIOS operation handlers."""
-    
+
     def __init__(self):
         """Initialize operation handler."""
         self.logger = get_logger(f"{__name__}.{self.__class__.__name__}")
 
     @abstractmethod
-    def execute(self, **kwargs) -> BiosConfigResult:
+    def execute(self, **kwargs: Any) -> BiosConfigResult:
         """Execute the BIOS operation."""
         pass
 
     @abstractmethod
-    def validate_inputs(self, **kwargs) -> List[str]:
+    def validate_inputs(self, **kwargs: Any) -> List[str]:
         """Validate input parameters for the operation."""
         pass
 
@@ -214,12 +218,12 @@ class BaseOperationHandler(ABC):
         """Check if this operation supports rollback."""
         pass
 
-    def rollback(self, **kwargs) -> BiosConfigResult:
+    def rollback(self, **kwargs: Any) -> BiosConfigResult:
         """Rollback the operation (default: not supported)."""
         return BiosConfigResult(
             success=False,
             method_used=ConfigMethod.MANUAL,
             settings_applied={},
             settings_failed={"rollback": "Operation does not support rollback"},
-            validation_errors=["Rollback not supported for this operation"]
+            validation_errors=["Rollback not supported for this operation"],
         )

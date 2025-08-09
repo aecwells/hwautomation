@@ -3,8 +3,25 @@ Unified Logging Configuration for HWAutomation.
 
 This module provides centralized logging configuration with support for:
 - Environment-specific configurations
-- Structured logging for production
-- Performance-optimized logging
+- Structured logging         if use_file_logging:
+            handlers.update({
+                "file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": "DEBUG",
+                    "formatter": "detailed",
+                    "filename": "logs/hwautomation.log",
+                    "maxBytes": 5242880,  # 5MB
+                    "backupCount": 3,
+                },
+                "error_file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": "ERROR",
+                    "formatter": "detailed",
+                    "filename": "logs/errors.log",
+                    "maxBytes": 5242880,
+                    "backupCount": 5,
+                },
+            })rformance-optimized logging
 - Correlation tracking for debugging
 """
 
@@ -184,26 +201,24 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
         }
 
         if use_file_logging:
-            handlers.update(
-                {
-                    "file": {
-                        "class": "logging.handlers.RotatingFileHandler",
-                        "level": "INFO",
-                        "formatter": "detailed",
-                        "filename": "logs/hwautomation.log",
-                        "maxBytes": "10485760",  # 10MB
-                        "backupCount": "5",
-                    },
-                    "error_file": {
-                        "class": "logging.handlers.RotatingFileHandler",
-                        "level": "ERROR",
-                        "formatter": "detailed",
-                        "filename": "logs/errors.log",
-                        "maxBytes": "10485760",
-                        "backupCount": "10",
-                    },
-                }
-            )
+            handlers.update({
+                "file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": "INFO",
+                    "formatter": "detailed",
+                    "filename": "logs/hwautomation.log",
+                    "maxBytes": 10485760,  # 10MB
+                    "backupCount": 5,
+                },
+                "error_file": {
+                    "class": "logging.handlers.RotatingFileHandler",
+                    "level": "ERROR",
+                    "formatter": "detailed",
+                    "filename": "logs/errors.log",
+                    "maxBytes": 10485760,
+                    "backupCount": 10,
+                },
+            })
 
         handler_list = ["console"]
         if use_file_logging:
@@ -248,16 +263,16 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
                         "level": "DEBUG",
                         "formatter": "detailed",
                         "filename": "logs/hwautomation.log",
-                        "maxBytes": "5242880",  # 5MB
-                        "backupCount": "3",
+                        "maxBytes": 5242880,  # 5MB
+                        "backupCount": 3,
                     },
                     "error_file": {
                         "class": "logging.handlers.RotatingFileHandler",
                         "level": "ERROR",
                         "formatter": "detailed",
                         "filename": "logs/errors.log",
-                        "maxBytes": "5242880",
-                        "backupCount": "5",
+                        "maxBytes": 5242880,
+                        "backupCount": 5,
                     },
                 }
             )
