@@ -36,8 +36,7 @@ class DeviceHandlerFactory:
     ) -> None:
         """Register a device handler for a specific manufacturer.
 
-        Args
-        ----
+        Args:
             manufacturer: Manufacturer name
             handler_class: Handler class to register
         """
@@ -49,13 +48,11 @@ class DeviceHandlerFactory:
     ) -> Optional[BaseDeviceHandler]:
         """Get appropriate device handler for the given device type.
 
-        Args
-        ----
+        Args:
             device_type: Target device type
             device_config: Device configuration
 
-        Returns
-        -------
+        Returns:
             Device handler instance or None if not found
         """
         manufacturer = device_config.manufacturer
@@ -90,8 +87,7 @@ class DeviceHandlerFactory:
     def get_supported_manufacturers(self) -> List[str]:
         """Get list of supported manufacturers.
 
-        Returns
-        -------
+        Returns:
             List of manufacturer names
         """
         return list(self._handlers.keys())
@@ -99,12 +95,10 @@ class DeviceHandlerFactory:
     def get_handler_info(self, manufacturer: str) -> Optional[Dict[str, str]]:
         """Get information about a specific handler.
 
-        Args
-        ----
+        Args:
             manufacturer: Manufacturer name
 
-        Returns
-        -------
+        Returns:
             Dictionary with handler information
         """
         if manufacturer not in self._handlers:
@@ -120,13 +114,10 @@ class DeviceHandlerFactory:
     def list_all_handlers(self) -> Dict[str, Dict[str, str]]:
         """List information about all registered handlers.
 
-        Returns
-        -------
+        Returns:
             Dictionary mapping manufacturers to handler info
         """
-        result = {}
-        for manufacturer in self._handlers.keys():
-            handler_info = self.get_handler_info(manufacturer)
-            if handler_info is not None:
-                result[manufacturer] = handler_info
-        return result
+        return {
+            manufacturer: self.get_handler_info(manufacturer)
+            for manufacturer in self._handlers.keys()
+        }

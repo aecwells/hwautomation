@@ -40,6 +40,16 @@ repos:
         description: Static type checking for Python
         additional_dependencies: [types-requests, types-PyYAML]
         args: [--ignore-missing-imports, --follow-imports=silent]
+        exclude: |
+          (?x)^(
+              node_modules/.*|
+              build/.*|
+              dist/.*|
+              \.venv/.*|
+              venv/.*|
+              hwautomation-env/.*|
+              __pycache__/.*
+          )$
 
   # Security scanning with bandit
   - repo: https://github.com/pycqa/bandit
@@ -130,16 +140,20 @@ repos:
       - id: typos
         name: Spell checking (typos)
         description: Check for common typos
-        args: [--format=brief]
-        types: [text]
+        args: [--format=brief, --config=/home/ubuntu/HWAutomation/.typos.toml]
         exclude: |
           (?x)^(
+              .*node_modules/.*|
               .*\.lock$|
               .*\.min\.js$|
               .*\.min\.css$|
-              .*/node_modules/.*|
               .*/\.git/.*|
-              .*/__pycache__/.*
+              .*/__pycache__/.*|
+              .*\.db$|
+              .*\.backup$|
+              htmlcov/.*|
+              coverage\.xml|
+              junit\.xml
           )$
 
   # Jupyter notebook cleaning

@@ -19,10 +19,8 @@ class DellDeviceHandler(BaseDeviceHandler):
     def __init__(self, device_config: DeviceConfig):
         """Initialize Dell device handler.
 
-        Args
-        ----
-        device_config : Dict[str, Any]
-            Dell device configuration
+        Args:
+            device_config: Dell device configuration
         """
         super().__init__(device_config)
         self.dell_specific_settings = {
@@ -36,12 +34,10 @@ class DellDeviceHandler(BaseDeviceHandler):
     def can_handle(self, device_type: str) -> bool:
         """Check if this handler can manage the given device type.
 
-        Args
-        ----
+        Args:
             device_type: Device type to check
 
-        Returns
-        -------
+        Returns:
             True if this handler can manage the device type
         """
         # Dell devices typically use 'a1' prefix in our naming scheme
@@ -53,8 +49,7 @@ class DellDeviceHandler(BaseDeviceHandler):
     def get_supported_methods(self) -> List[ConfigMethod]:
         """Get list of supported configuration methods for Dell devices.
 
-        Returns
-        -------
+        Returns:
             List of supported configuration methods
         """
         methods = []
@@ -80,12 +75,10 @@ class DellDeviceHandler(BaseDeviceHandler):
     def apply_device_specific_settings(self, config: ET.Element) -> ET.Element:
         """Apply Dell-specific BIOS settings.
 
-        Args
-        ----
+        Args:
             config: Current configuration XML
 
-        Returns
-        -------
+        Returns:
             Modified configuration XML with Dell-specific settings
         """
         self.logger.info("Applying Dell-specific BIOS settings")
@@ -112,8 +105,7 @@ class DellDeviceHandler(BaseDeviceHandler):
     def _set_bios_attribute(self, config: ET.Element, name: str, value: str) -> None:
         """Set a BIOS attribute in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name
             value: Attribute value
@@ -133,13 +125,11 @@ class DellDeviceHandler(BaseDeviceHandler):
     def _find_attribute(self, config: ET.Element, name: str) -> Optional[ET.Element]:
         """Find an attribute by name in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name to find
 
-        Returns
-        -------
+        Returns:
             Attribute element or None if not found
         """
         for attribute in config.findall(".//Attribute"):
@@ -150,8 +140,7 @@ class DellDeviceHandler(BaseDeviceHandler):
     def _create_attribute(self, config: ET.Element, name: str, value: str) -> None:
         """Create a new attribute in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name
             value: Attribute value
@@ -176,8 +165,7 @@ class DellDeviceHandler(BaseDeviceHandler):
     def _apply_device_type_settings(self, config: ET.Element) -> None:
         """Apply device-type specific settings for Dell devices.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
         """
         device_type = self.device_config.device_type
@@ -201,13 +189,12 @@ class DellDeviceHandler(BaseDeviceHandler):
     def _apply_special_handling(self, config: ET.Element) -> None:
         """Apply special handling configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
         """
         special_handling = self.device_config.special_handling
 
-        if special_handling and "custom_settings" in special_handling:
+        if "custom_settings" in special_handling:
             custom_settings = special_handling["custom_settings"]
             for setting_name, setting_value in custom_settings.items():
                 self._set_bios_attribute(config, setting_name, setting_value)
@@ -218,8 +205,7 @@ class DellDeviceHandler(BaseDeviceHandler):
     def get_priority(self) -> int:
         """Get priority for Dell device handler selection.
 
-        Returns
-        -------
+        Returns:
             Priority value (lower = higher priority)
         """
         return 10  # High priority for Dell devices
@@ -227,8 +213,7 @@ class DellDeviceHandler(BaseDeviceHandler):
     def get_redfish_settings_map(self) -> dict:
         """Get mapping of BIOS settings to Redfish attribute names.
 
-        Returns
-        -------
+        Returns:
             Dictionary mapping BIOS setting names to Redfish paths
         """
         return {
@@ -242,12 +227,10 @@ class DellDeviceHandler(BaseDeviceHandler):
     def validate_dell_specific_settings(self, config: ET.Element) -> List[str]:
         """Validate Dell-specific BIOS settings.
 
-        Args
-        ----
+        Args:
             config: Configuration to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []

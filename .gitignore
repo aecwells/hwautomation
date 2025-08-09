@@ -260,3 +260,8 @@ dev-*.sh
 local-*.sh
 debug-*.sh
 check-*.sh
+
+# Application logs and databases
+logs/
+*.log
+*.db

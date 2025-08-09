@@ -23,17 +23,23 @@ class PullOperationHandler(BaseOperationHandler):
     def execute(self, **kwargs) -> BiosConfigResult:
         """Execute pull operation to get current BIOS configuration.
 
-        Args
-        ----
-            **kwargs: Parameters including target_ip, username, password
+        Args:
+            **kwargs: Operation parameters including:
+                - target_ip: Target system IP address
+                - username: Authentication username
+                - password: Authentication password
 
-        Returns
-        -------
+        Returns:
             BiosConfigResult containing current BIOS configuration
         """
-        target_ip = kwargs.get("target_ip")
-        username = kwargs.get("username")
-        password = kwargs.get("password")
+        # Extract required parameters
+        target_ip = kwargs.get("target_ip", "")
+        username = kwargs.get("username", "")
+        password = kwargs.get("password", "")
+
+        assert target_ip, "target_ip parameter is required"
+        assert username, "username parameter is required"
+        assert password, "password parameter is required"
 
         self.logger.info(f"Pulling BIOS configuration from {target_ip}")
 
@@ -49,26 +55,24 @@ class PullOperationHandler(BaseOperationHandler):
             method_used=ConfigMethod.REDFISH_STANDARD,
             settings_applied={},
             settings_failed={},
-            backup_file=None,
             validation_errors=[],
         )
 
     def validate_inputs(self, **kwargs) -> List[str]:
         """Validate input parameters for the pull operation.
 
-        Args
-        ----
+        Args:
             **kwargs: Parameters including target_ip, username, password
+            **kwargs: Additional parameters
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
 
-        target_ip = kwargs.get("target_ip")
-        username = kwargs.get("username")
-        password = kwargs.get("password")
+        target_ip = kwargs.get("target_ip", "")
+        username = kwargs.get("username", "")
+        password = kwargs.get("password", "")
 
         if not target_ip:
             errors.append("Target IP address is required")
@@ -88,8 +92,7 @@ class PullOperationHandler(BaseOperationHandler):
     def can_rollback(self) -> bool:
         """Check if pull operation supports rollback.
 
-        Returns
-        -------
+        Returns:
             False - pull operations don't support rollback
         """
         return False
@@ -97,8 +100,7 @@ class PullOperationHandler(BaseOperationHandler):
     def _create_mock_config(self) -> ET.Element:
         """Create a mock BIOS configuration for testing.
 
-        Returns
-        -------
+        Returns:
             Mock XML configuration
         """
         root = ET.Element("SystemConfiguration")
@@ -130,12 +132,10 @@ class PullOperationHandler(BaseOperationHandler):
     def _is_valid_ip(self, ip: str) -> bool:
         """Validate IP address format.
 
-        Args
-        ----
+        Args:
             ip: IP address to validate
 
-        Returns
-        -------
+        Returns:
             True if valid IP format
         """
         try:
@@ -157,14 +157,12 @@ class PullOperationHandler(BaseOperationHandler):
     ) -> Optional[ET.Element]:
         """Pull BIOS configuration via Redfish API.
 
-        Args
-        ----
+        Args:
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             XML configuration or None if failed
         """
         self.logger.info(f"Attempting Redfish pull from {target_ip}")
@@ -190,15 +188,13 @@ class PullOperationHandler(BaseOperationHandler):
     ) -> Optional[ET.Element]:
         """Pull BIOS configuration via vendor-specific tools.
 
-        Args
-        ----
+        Args:
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
             vendor: Vendor name (Dell, HPE, Supermicro)
 
-        Returns
-        -------
+        Returns:
             XML configuration or None if failed
         """
         self.logger.info(f"Attempting {vendor} vendor tool pull from {target_ip}")
@@ -223,14 +219,12 @@ class PullOperationHandler(BaseOperationHandler):
     ) -> ET.Element:
         """Pull configuration using Dell RACADM.
 
-        Args
-        ----
+        Args:
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             XML configuration
         """
         # In real implementation, would use RACADM:
@@ -245,14 +239,12 @@ class PullOperationHandler(BaseOperationHandler):
     ) -> ET.Element:
         """Pull configuration using HPE tools.
 
-        Args
-        ----
+        Args:
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             XML configuration
         """
         # In real implementation, would use HPQLOCFG or REST API:
@@ -267,14 +259,12 @@ class PullOperationHandler(BaseOperationHandler):
     ) -> ET.Element:
         """Pull configuration using Supermicro tools.
 
-        Args
-        ----
+        Args:
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             XML configuration
         """
         # In real implementation, would use SUM:

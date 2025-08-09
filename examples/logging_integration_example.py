@@ -106,7 +106,7 @@ def discover_hardware():
 
 
 # Example: CLI tool with logging
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 """
 HWAutomation CLI with unified logging
 """

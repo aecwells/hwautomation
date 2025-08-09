@@ -34,8 +34,7 @@ class ParserFactory:
     ) -> None:
         """Register a parser for a specific configuration format.
 
-        Args
-        ----
+        Args:
             format_name: Name of the configuration format
             parser_class: Parser class to register
         """
@@ -47,12 +46,10 @@ class ParserFactory:
     def get_parser(self, format_name: str) -> Optional[BaseConfigParser]:
         """Get parser for the specified configuration format.
 
-        Args
-        ----
+        Args:
             format_name: Configuration format name
 
-        Returns
-        -------
+        Returns:
             Parser instance or None if not found
         """
         format_key = format_name.lower()
@@ -79,8 +76,7 @@ class ParserFactory:
     def get_supported_formats(self) -> list:
         """Get list of supported configuration formats.
 
-        Returns
-        -------
+        Returns:
             List of format names
         """
         return list(self._parsers.keys())
@@ -88,12 +84,10 @@ class ParserFactory:
     def detect_format(self, data: str) -> Optional[str]:
         """Detect configuration format from data content.
 
-        Args
-        ----
+        Args:
             data: Configuration data string
 
-        Returns
-        -------
+        Returns:
             Detected format name or None if unknown
         """
         data_stripped = data.strip()
@@ -113,12 +107,10 @@ class ParserFactory:
     def parse_auto(self, data: str) -> Optional[object]:
         """Automatically detect format and parse configuration data.
 
-        Args
-        ----
+        Args:
             data: Configuration data string
 
-        Returns
-        -------
+        Returns:
             Parsed configuration object or None if failed
         """
         format_name = self.detect_format(data)

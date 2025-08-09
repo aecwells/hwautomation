@@ -18,8 +18,7 @@ class ConfigurationValidator:
     def __init__(self, config_dir: str):
         """Initialize configuration validator.
 
-        Args
-        ----
+        Args:
             config_dir: Directory containing BIOS configuration files
         """
         self.config_dir = config_dir
@@ -28,12 +27,10 @@ class ConfigurationValidator:
     def validate_bios_xml(self, config: ET.Element) -> List[str]:
         """Validate BIOS configuration XML structure.
 
-        Args
-        ----
+        Args:
             config: XML configuration to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -70,13 +67,11 @@ class ConfigurationValidator:
     ) -> List[str]:
         """Validate device configuration.
 
-        Args
-        ----
+        Args:
             device_type: Device type being validated
             config: Device configuration to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -123,13 +118,11 @@ class ConfigurationValidator:
     ) -> List[str]:
         """Validate template rules for a device type.
 
-        Args
-        ----
+        Args:
             device_type: Device type being validated
             rules: Template rules to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -177,13 +170,11 @@ class ConfigurationValidator:
     ) -> List[str]:
         """Validate preserve settings for a device type.
 
-        Args
-        ----
+        Args:
             device_type: Device type being validated
             settings: List of settings to preserve
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -207,14 +198,12 @@ class ConfigurationValidator:
     ) -> List[str]:
         """Validate if a setting is compatible with a device type.
 
-        Args
-        ----
+        Args:
             setting_name: Name of the BIOS setting
             value: Value to set
             device_type: Target device type
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -230,12 +219,10 @@ class ConfigurationValidator:
     def _validate_component(self, component: ET.Element) -> List[str]:
         """Validate a single component element.
 
-        Args
-        ----
+        Args:
             component: Component element to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -252,7 +239,7 @@ class ConfigurationValidator:
 
         # Validate each attribute
         for attribute in attributes:
-            attr_errors = self._validate_attribute(attribute, fqdd or "unknown")
+            attr_errors = self._validate_attribute(attribute, fqdd)
             errors.extend(attr_errors)
 
         return errors
@@ -262,13 +249,11 @@ class ConfigurationValidator:
     ) -> List[str]:
         """Validate a single attribute element.
 
-        Args
-        ----
+        Args:
             attribute: Attribute element to validate
             component_fqdd: FQDD of parent component
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -290,13 +275,11 @@ class ConfigurationValidator:
     def _validate_dell_setting(self, setting_name: str, value: str) -> List[str]:
         """Validate Dell-specific BIOS setting.
 
-        Args
-        ----
+        Args:
             setting_name: Name of the setting
             value: Value to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -321,13 +304,11 @@ class ConfigurationValidator:
     def _validate_hpe_setting(self, setting_name: str, value: str) -> List[str]:
         """Validate HPE-specific BIOS setting.
 
-        Args
-        ----
+        Args:
             setting_name: Name of the setting
             value: Value to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -352,12 +333,10 @@ class ConfigurationValidator:
     def cross_validate_settings(self, config: ET.Element) -> List[str]:
         """Perform cross-validation between related settings.
 
-        Args
-        ----
+        Args:
             config: Configuration to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []

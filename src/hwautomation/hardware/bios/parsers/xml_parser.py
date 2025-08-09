@@ -23,12 +23,10 @@ class XmlConfigParser(BaseConfigParser):
     def parse(self, data: str) -> ET.Element:
         """Parse XML configuration data into XML Element.
 
-        Args
-        ----
+        Args:
             data: XML configuration string
 
-        Returns
-        -------
+        Returns:
             XML Element tree
         """
         try:
@@ -47,12 +45,10 @@ class XmlConfigParser(BaseConfigParser):
     def serialize(self, config: ET.Element) -> str:
         """Serialize XML Element to string format.
 
-        Args
-        ----
+        Args:
             config: XML Element to serialize
 
-        Returns
-        -------
+        Returns:
             XML string representation
         """
         try:
@@ -72,12 +68,10 @@ class XmlConfigParser(BaseConfigParser):
     def validate_xml_structure(self, config: ET.Element) -> list:
         """Validate XML structure for BIOS configuration.
 
-        Args
-        ----
+        Args:
             config: XML Element to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -115,12 +109,10 @@ class XmlConfigParser(BaseConfigParser):
     def _validate_component(self, component: ET.Element) -> list:
         """Validate a single component element.
 
-        Args
-        ----
+        Args:
             component: Component element to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors for this component
         """
         errors = []
@@ -149,12 +141,10 @@ class XmlConfigParser(BaseConfigParser):
     def extract_bios_settings(self, config: ET.Element) -> dict:
         """Extract BIOS settings from XML configuration.
 
-        Args
-        ----
+        Args:
             config: XML configuration
 
-        Returns
-        -------
+        Returns:
             Dictionary of BIOS setting name -> value pairs
         """
         settings = {}
@@ -178,14 +168,12 @@ class XmlConfigParser(BaseConfigParser):
     ) -> bool:
         """Update a BIOS setting in the XML configuration.
 
-        Args
-        ----
+        Args:
             config: XML configuration to update
             setting_name: Name of the setting to update
             setting_value: New value for the setting
 
-        Returns
-        -------
+        Returns:
             True if setting was updated, False otherwise
         """
         try:
@@ -215,15 +203,13 @@ class XmlConfigParser(BaseConfigParser):
     ) -> bool:
         """Create a new BIOS setting in the XML configuration.
 
-        Args
-        ----
+        Args:
             config: XML configuration
             component_fqdd: FQDD of the component to add setting to
             setting_name: Name of the new setting
             setting_value: Value for the new setting
 
-        Returns
-        -------
+        Returns:
             True if setting was created, False otherwise
         """
         try:
@@ -258,13 +244,11 @@ class XmlConfigParser(BaseConfigParser):
     ) -> ET.Element:
         """Merge two XML configurations, with overlay taking precedence.
 
-        Args
-        ----
+        Args:
             base_config: Base configuration
             overlay_config: Configuration to overlay on base
 
-        Returns
-        -------
+        Returns:
             Merged configuration
         """
         try:

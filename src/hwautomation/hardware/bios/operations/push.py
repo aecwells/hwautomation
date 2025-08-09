@@ -23,27 +23,37 @@ class PushOperationHandler(BaseOperationHandler):
     def execute(self, **kwargs) -> BiosConfigResult:
         """Execute push operation to apply BIOS configuration.
 
-        Args
-        ----
-            **kwargs: Parameters including config, target_ip, username, password
-            username: Authentication username
-            password: Authentication password
-            **kwargs: Additional operation parameters
+        Args:
+            **kwargs: Operation parameters including:
+                - config: Modified configuration XML to apply
+                - target_ip: Target system IP address
+                - username: Authentication username
+                - password: Authentication password
 
-        Returns
-        -------
+        Returns:
             BiosConfigResult with operation status
         """
+        # Extract required parameters
         config = kwargs.get("config")
-        target_ip = kwargs.get("target_ip")
-        username = kwargs.get("username")
-        password = kwargs.get("password")
+        target_ip = kwargs.get("target_ip", "")
+        username = kwargs.get("username", "")
+        password = kwargs.get("password", "")
 
+        assert config is not None, "config parameter is required"
+        assert target_ip, "target_ip parameter is required"
+        assert username, "username parameter is required"
+        assert password, "password parameter is required"
         self.logger.info(f"Pushing BIOS configuration to {target_ip}")
 
         try:
             # Validate inputs
-            validation_errors = self.validate_inputs(**kwargs)
+            validation_errors = self.validate_inputs(
+                config=config,
+                target_ip=target_ip,
+                username=username,
+                password=password,
+                **kwargs,
+            )
 
             if validation_errors:
                 return BiosConfigResult(
@@ -52,21 +62,6 @@ class PushOperationHandler(BaseOperationHandler):
                     settings_applied={},
                     settings_failed={},
                     validation_errors=validation_errors,
-                )
-
-            # Verify parameters are not None
-            if (
-                config is None
-                or target_ip is None
-                or username is None
-                or password is None
-            ):
-                return BiosConfigResult(
-                    success=False,
-                    method_used=ConfigMethod.PUSH,
-                    settings_applied={},
-                    settings_failed={},
-                    validation_errors=["Required parameters are missing"],
                 )
 
             # For now, simulate successful push
@@ -108,46 +103,39 @@ class PushOperationHandler(BaseOperationHandler):
     def validate_inputs(self, **kwargs) -> List[str]:
         """Validate input parameters for the push operation.
 
-        Args
-        ----
+        Args:
             **kwargs: Parameters including config, target_ip, username, password
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
 
         config = kwargs.get("config")
-        target_ip = kwargs.get("target_ip")
-        username = kwargs.get("username")
-        password = kwargs.get("password")
+        target_ip = kwargs.get("target_ip", "")
+        username = kwargs.get("username", "")
+        password = kwargs.get("password", "")
 
         if config is None:
-            errors.append("Configuration XML is required")
+            errors.append("Missing required parameter: config")
+        elif not isinstance(config, ET.Element):
+            errors.append("config must be an XML Element")
 
         if not target_ip:
-            errors.append("Target IP address is required")
+            errors.append("Missing required parameter: target_ip")
+        elif not self._is_valid_ip(target_ip):
+            errors.append("target_ip must be a valid IP address")
 
         if not username:
-            errors.append("Username is required")
+            errors.append("Missing required parameter: username")
 
         if not password:
-            errors.append("Password is required")
+            errors.append("Missing required parameter: password")
 
-        # Basic IP format validation
-        if target_ip and not self._is_valid_ip(target_ip):
-            errors.append(f"Invalid IP address format: {target_ip}")
-
-        # Basic XML validation
+        # Additional validation for XML structure
         if config is not None:
             try:
-                # Check if it's a valid XML element with expected structure
-                if config.tag != "SystemConfiguration":
-                    errors.append(
-                        "Configuration must have SystemConfiguration root element"
-                    )
-
+                # Check if config has expected structure
                 components = config.findall(".//Component")
                 if not components:
                     errors.append("Configuration must contain at least one Component")
@@ -160,8 +148,7 @@ class PushOperationHandler(BaseOperationHandler):
     def can_rollback(self) -> bool:
         """Check if push operation supports rollback.
 
-        Returns
-        -------
+        Returns:
             True - push operations can be rolled back with previous config
         """
         return True
@@ -169,48 +156,37 @@ class PushOperationHandler(BaseOperationHandler):
     def rollback(self, **kwargs) -> BiosConfigResult:
         """Rollback to previous BIOS configuration.
 
-        Args
-        ----
+        Args:
             **kwargs: Parameters including backup_config, target_ip, username, password
-            username: Authentication username
-            password: Authentication password
-            **kwargs: Additional parameters
 
-        Returns
-        -------
+        Returns:
             BiosConfigResult with rollback status
         """
+        # Extract parameters
         backup_config = kwargs.get("backup_config")
-        target_ip = kwargs.get("target_ip")
-        username = kwargs.get("username")
-        password = kwargs.get("password")
+        target_ip = kwargs.get("target_ip", "")
+
+        assert backup_config is not None, "backup_config parameter is required"
+        assert target_ip, "target_ip parameter is required"
 
         self.logger.info(f"Rolling back BIOS configuration on {target_ip}")
 
         # Rollback is essentially another push operation with the backup config
-        rollback_kwargs = {
-            "config": backup_config,
-            "target_ip": target_ip,
-            "username": username,
-            "password": password,
-            **kwargs,
-        }
-        return self.execute(**rollback_kwargs)
+        kwargs["config"] = backup_config
+        return self.execute(**kwargs)
 
     def _simulate_push(
         self, config: ET.Element, target_ip: str, username: str, password: str
     ) -> bool:
         """Simulate pushing configuration (for testing).
 
-        Args
-        ----
+        Args:
             config: Configuration to push
             target_ip: Target IP
             username: Username
             password: Password
 
-        Returns
-        -------
+        Returns:
             True if simulated push succeeds
         """
         # In a real implementation, this would actually push the configuration
@@ -221,12 +197,10 @@ class PushOperationHandler(BaseOperationHandler):
     def _extract_applied_settings(self, config: ET.Element) -> Dict[str, str]:
         """Extract settings that were applied from the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
 
-        Returns
-        -------
+        Returns:
             Dictionary of applied settings
         """
         settings = {}
@@ -245,12 +219,10 @@ class PushOperationHandler(BaseOperationHandler):
     def _is_valid_ip(self, ip: str) -> bool:
         """Validate IP address format.
 
-        Args
-        ----
+        Args:
             ip: IP address to validate
 
-        Returns
-        -------
+        Returns:
             True if valid IP format
         """
         try:
@@ -272,15 +244,13 @@ class PushOperationHandler(BaseOperationHandler):
     ) -> bool:
         """Push BIOS configuration via Redfish API.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             True if successful
         """
         self.logger.info(f"Pushing configuration via Redfish to {target_ip}")
@@ -311,16 +281,14 @@ class PushOperationHandler(BaseOperationHandler):
     ) -> bool:
         """Push BIOS configuration via vendor-specific tools.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
             vendor: Vendor name (Dell, HPE, Supermicro)
 
-        Returns
-        -------
+        Returns:
             True if successful
         """
         self.logger.info(
@@ -349,15 +317,13 @@ class PushOperationHandler(BaseOperationHandler):
     ) -> bool:
         """Push configuration using Dell RACADM.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             True if successful
         """
         # In real implementation, would use RACADM:
@@ -371,15 +337,13 @@ class PushOperationHandler(BaseOperationHandler):
     ) -> bool:
         """Push configuration using HPE tools.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             True if successful
         """
         # In real implementation, would use HPQLOCFG or REST API:
@@ -393,15 +357,13 @@ class PushOperationHandler(BaseOperationHandler):
     ) -> bool:
         """Push configuration using Supermicro tools.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             target_ip: Target system IP
             username: Authentication username
             password: Authentication password
 
-        Returns
-        -------
+        Returns:
             True if successful
         """
         # In real implementation, would use SUM:

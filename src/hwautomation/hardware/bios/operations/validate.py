@@ -23,21 +23,24 @@ class ValidationOperationHandler(BaseOperationHandler):
     def execute(self, **kwargs) -> BiosConfigResult:
         """Execute validation operation on BIOS configuration.
 
-        Args
-        ----
-            **kwargs: Parameters including config, device_type, device_mappings, template_rules
-            device_mappings: Device mapping configuration
-            template_rules: Template rules configuration
-            **kwargs: Additional operation parameters
+        Args:
+            **kwargs: Operation parameters including:
+                - config: Configuration XML to validate
+                - device_type: Target device type
+                - device_mappings: Device mapping configuration
+                - template_rules: Template rules configuration
 
-        Returns
-        -------
-            BiosConfigResult with validation status
+        Returns:
+            BiosConfigResult containing validation results
         """
+        # Extract required parameters
         config = kwargs.get("config")
-        device_type = kwargs.get("device_type")
+        device_type = kwargs.get("device_type", "")
         device_mappings = kwargs.get("device_mappings", {})
         template_rules = kwargs.get("template_rules", {})
+
+        assert config is not None, "config parameter is required"
+        assert device_type, "device_type parameter is required"
 
         self.logger.info(
             f"Validating BIOS configuration for device type: {device_type}"
@@ -47,35 +50,31 @@ class ValidationOperationHandler(BaseOperationHandler):
 
         try:
             # Structural validation
-            if config is not None:
-                errors.extend(self._validate_xml_structure(config))
+            errors.extend(self._validate_xml_structure(config))
 
-                # Device compatibility validation
-                if device_type is not None:
-                    errors.extend(
-                        self._validate_device_compatibility(
-                            config, device_type, device_mappings
-                        )
-                    )
+            # Device compatibility validation
+            errors.extend(
+                self._validate_device_compatibility(
+                    config, device_type, device_mappings
+                )
+            )
 
-                    # Template rules validation
-                    errors.extend(
-                        self._validate_template_rules(
-                            config, device_type, template_rules
-                        )
-                    )
+            # Template rules validation
+            errors.extend(
+                self._validate_template_rules(config, device_type, template_rules)
+            )
 
-                    # Value range validation
-                    errors.extend(self._validate_setting_values(config, device_type))
+            # Cross-validation between settings
+            errors.extend(self._validate_setting_dependencies(config))
 
-                # Cross-validation between settings
-                errors.extend(self._validate_setting_dependencies(config))
+            # Value range validation
+            errors.extend(self._validate_setting_values(config, device_type))
 
             if errors:
                 self.logger.warning(f"Found {len(errors)} validation errors")
                 return BiosConfigResult(
                     success=False,
-                    method_used=ConfigMethod.VALIDATE,
+                    method_used=ConfigMethod.REDFISH_STANDARD,
                     settings_applied={},
                     settings_failed={},
                     validation_errors=errors,
@@ -84,7 +83,7 @@ class ValidationOperationHandler(BaseOperationHandler):
                 self.logger.info("Configuration validation passed")
                 return BiosConfigResult(
                     success=True,
-                    method_used=ConfigMethod.VALIDATE,
+                    method_used=ConfigMethod.REDFISH_STANDARD,
                     settings_applied={},
                     settings_failed={},
                     validation_errors=[],
@@ -94,7 +93,7 @@ class ValidationOperationHandler(BaseOperationHandler):
             self.logger.error(f"Error during validation: {e}")
             return BiosConfigResult(
                 success=False,
-                method_used=ConfigMethod.VALIDATE,
+                method_used=ConfigMethod.REDFISH_STANDARD,
                 settings_applied={},
                 settings_failed={},
                 validation_errors=[f"Validation error: {e}"],
@@ -103,16 +102,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def validate_inputs(self, **kwargs) -> List[str]:
         """Validate input parameters for the validation operation.
 
-        Args
-        ----
-            config: Configuration XML
-        Args
+        Args:
+            **kwargs: Parameters including config, device_type
 
-        ----
-            **kwargs: Parameters including config (ET.Element) and device_type (str)
-
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -121,18 +114,21 @@ class ValidationOperationHandler(BaseOperationHandler):
         device_type = kwargs.get("device_type")
 
         if config is None:
-            errors.append("Configuration XML is required")
+            errors.append("Missing required parameter: config")
+        elif not isinstance(config, ET.Element):
+            errors.append("config must be an XML Element")
 
         if not device_type:
-            errors.append("Device type is required")
+            errors.append("Missing required parameter: device_type")
+        elif not isinstance(device_type, str):
+            errors.append("device_type must be a string")
 
         return errors
 
     def can_rollback(self) -> bool:
         """Check if validation operation supports rollback.
 
-        Returns
-        -------
+        Returns:
             False - validation operations don't support rollback
         """
         return False
@@ -140,12 +136,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _validate_xml_structure(self, config: ET.Element) -> List[str]:
         """Validate XML structure of the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
 
-        Returns
-        -------
+        Returns:
             List of structural validation errors
         """
         errors = []
@@ -175,12 +169,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _validate_component_structure(self, component: ET.Element) -> List[str]:
         """Validate structure of a single component.
 
-        Args
-        ----
+        Args:
             component: Component element
 
-        Returns
-        -------
+        Returns:
             List of component validation errors
         """
         errors = []
@@ -211,14 +203,12 @@ class ValidationOperationHandler(BaseOperationHandler):
     ) -> List[str]:
         """Validate configuration compatibility with device type.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             device_type: Target device type
             device_mappings: Device mapping configuration
 
-        Returns
-        -------
+        Returns:
             List of compatibility validation errors
         """
         errors = []
@@ -243,12 +233,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _validate_dell_compatibility(self, config: ET.Element) -> List[str]:
         """Validate Dell-specific compatibility.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
 
-        Returns
-        -------
+        Returns:
             List of Dell compatibility errors
         """
         errors = []
@@ -264,12 +252,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _validate_hpe_compatibility(self, config: ET.Element) -> List[str]:
         """Validate HPE-specific compatibility.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
 
-        Returns
-        -------
+        Returns:
             List of HPE compatibility errors
         """
         errors = []
@@ -285,12 +271,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _validate_supermicro_compatibility(self, config: ET.Element) -> List[str]:
         """Validate Supermicro-specific compatibility.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
 
-        Returns
-        -------
+        Returns:
             List of Supermicro compatibility errors
         """
         errors = []
@@ -308,14 +292,12 @@ class ValidationOperationHandler(BaseOperationHandler):
     ) -> List[str]:
         """Validate configuration against template rules.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             device_type: Target device type
             template_rules: Template rules configuration
 
-        Returns
-        -------
+        Returns:
             List of template rule validation errors
         """
         errors: List[str] = []
@@ -347,12 +329,10 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _validate_setting_dependencies(self, config: ET.Element) -> List[str]:
         """Validate dependencies between BIOS settings.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
 
-        Returns
-        -------
+        Returns:
             List of dependency validation errors
         """
         errors = []
@@ -397,13 +377,11 @@ class ValidationOperationHandler(BaseOperationHandler):
     ) -> List[str]:
         """Validate individual setting values.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             device_type: Target device type
 
-        Returns
-        -------
+        Returns:
             List of value validation errors
         """
         errors = []
@@ -440,13 +418,11 @@ class ValidationOperationHandler(BaseOperationHandler):
     def _find_attribute(self, config: ET.Element, name: str) -> Optional[ET.Element]:
         """Find an attribute by name in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name to find
 
-        Returns
-        -------
+        Returns:
             Attribute element or None if not found
         """
         for attribute in config.findall(".//Attribute"):

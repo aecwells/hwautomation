@@ -23,9 +23,6 @@ class ConfigMethod(Enum):
     VENDOR_TOOLS = "vendor_tools"
     HYBRID = "hybrid"
     MANUAL = "manual"
-    VALIDATE = "validate"
-    PUSH = "push"
-    PULL = "pull"
 
 
 class OperationStatus(Enum):
@@ -99,7 +96,7 @@ class BaseBiosManager(ABC):
     @abstractmethod
     def pull_current_config(
         self, target_ip: str, username: str, password: str
-    ) -> BiosConfigResult:
+    ) -> ET.Element:
         """Pull current BIOS configuration from target system."""
         pass
 
@@ -109,14 +106,14 @@ class BaseBiosManager(ABC):
         pass
 
     @abstractmethod
-    def validate_config(self, config: ET.Element, device_type: str) -> BiosConfigResult:
+    def validate_config(self, config: ET.Element, device_type: str) -> List[str]:
         """Validate modified configuration."""
         pass
 
     @abstractmethod
     def push_config(
         self, config: ET.Element, target_ip: str, username: str, password: str
-    ) -> BiosConfigResult:
+    ) -> bool:
         """Push modified configuration to target system."""
         pass
 
@@ -207,12 +204,12 @@ class BaseOperationHandler(ABC):
         self.logger = get_logger(f"{__name__}.{self.__class__.__name__}")
 
     @abstractmethod
-    def execute(self, **kwargs) -> BiosConfigResult:
+    def execute(self, **kwargs: Any) -> BiosConfigResult:
         """Execute the BIOS operation."""
         pass
 
     @abstractmethod
-    def validate_inputs(self, **kwargs) -> List[str]:
+    def validate_inputs(self, **kwargs: Any) -> List[str]:
         """Validate input parameters for the operation."""
         pass
 
@@ -221,7 +218,7 @@ class BaseOperationHandler(ABC):
         """Check if this operation supports rollback."""
         pass
 
-    def rollback(self, **kwargs) -> BiosConfigResult:
+    def rollback(self, **kwargs: Any) -> BiosConfigResult:
         """Rollback the operation (default: not supported)."""
         return BiosConfigResult(
             success=False,

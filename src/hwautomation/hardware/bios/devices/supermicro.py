@@ -5,7 +5,7 @@ vendor-specific settings and tools integration.
 """
 
 import xml.etree.ElementTree as ET
-from typing import List, Optional
+from typing import List
 
 from ....logging import get_logger
 from ..base import BaseDeviceHandler, ConfigMethod, DeviceConfig
@@ -19,8 +19,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def __init__(self, device_config: DeviceConfig):
         """Initialize Supermicro device handler.
 
-        Args
-        ----
+        Args:
             device_config: Supermicro device configuration
         """
         super().__init__(device_config)
@@ -35,12 +34,10 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def can_handle(self, device_type: str) -> bool:
         """Check if this handler can manage the given device type.
 
-        Args
-        ----
+        Args:
             device_type: Device type to check
 
-        Returns
-        -------
+        Returns:
             True if this handler can manage the device type
         """
         # Supermicro devices or explicit manufacturer match
@@ -52,8 +49,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def get_supported_methods(self) -> List[ConfigMethod]:
         """Get list of supported configuration methods for Supermicro devices.
 
-        Returns
-        -------
+        Returns:
             List of supported configuration methods
         """
         methods = []
@@ -74,12 +70,10 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def apply_device_specific_settings(self, config: ET.Element) -> ET.Element:
         """Apply Supermicro-specific BIOS settings.
 
-        Args
-        ----
+        Args:
             config: Current configuration XML
 
-        Returns
-        -------
+        Returns:
             Modified configuration XML with Supermicro-specific settings
         """
         self.logger.info("Applying Supermicro-specific BIOS settings")
@@ -109,8 +103,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def _set_bios_attribute(self, config: ET.Element, name: str, value: str) -> None:
         """Set a BIOS attribute in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name
             value: Attribute value
@@ -127,16 +120,14 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
             self._create_attribute(config, name, value)
             self.logger.debug(f"Created Supermicro attribute {name} = {value}")
 
-    def _find_attribute(self, config: ET.Element, name: str) -> Optional[ET.Element]:
+    def _find_attribute(self, config: ET.Element, name: str) -> ET.Element:
         """Find an attribute by name in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name to find
 
-        Returns
-        -------
+        Returns:
             Attribute element or None if not found
         """
         for attribute in config.findall(".//Attribute"):
@@ -147,8 +138,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def _create_attribute(self, config: ET.Element, name: str, value: str) -> None:
         """Create a new attribute in the configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
             name: Attribute name
             value: Attribute value
@@ -174,8 +164,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def _apply_device_type_settings(self, config: ET.Element) -> None:
         """Apply device-type specific settings for Supermicro devices.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
         """
         device_type = self.device_config.device_type
@@ -198,13 +187,12 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def _apply_special_handling(self, config: ET.Element) -> None:
         """Apply special handling configuration.
 
-        Args
-        ----
+        Args:
             config: Configuration XML
         """
         special_handling = self.device_config.special_handling
 
-        if special_handling and "custom_settings" in special_handling:
+        if "custom_settings" in special_handling:
             custom_settings = special_handling["custom_settings"]
             for setting_name, setting_value in custom_settings.items():
                 self._set_bios_attribute(config, setting_name, setting_value)
@@ -215,8 +203,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def get_priority(self) -> int:
         """Get priority for Supermicro device handler selection.
 
-        Returns
-        -------
+        Returns:
             Priority value (lower = higher priority)
         """
         return 30  # Medium priority for Supermicro devices
@@ -224,8 +211,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def get_redfish_settings_map(self) -> dict:
         """Get mapping of BIOS settings to Redfish attribute names for Supermicro.
 
-        Returns
-        -------
+        Returns:
             Dictionary mapping BIOS setting names to Redfish paths
         """
         return {
@@ -239,12 +225,10 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def validate_supermicro_specific_settings(self, config: ET.Element) -> List[str]:
         """Validate Supermicro-specific BIOS settings.
 
-        Args
-        ----
+        Args:
             config: Configuration to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []
@@ -272,8 +256,7 @@ class SupermicroDeviceHandler(BaseDeviceHandler):
     def get_sum_tool_settings(self) -> dict:
         """Get SUM (Supermicro Update Manager) specific settings.
 
-        Returns
-        -------
+        Returns:
             Dictionary of SUM tool specific configuration
         """
         return {

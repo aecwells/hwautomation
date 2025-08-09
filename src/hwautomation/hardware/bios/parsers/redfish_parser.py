@@ -24,12 +24,10 @@ class RedfishConfigParser(BaseConfigParser):
     def parse(self, data: str) -> ET.Element:
         """Parse Redfish JSON configuration data into XML Element.
 
-        Args
-        ----
+        Args:
             data: Redfish JSON configuration string
 
-        Returns
-        -------
+        Returns:
             XML Element tree converted from JSON
         """
         try:
@@ -52,12 +50,10 @@ class RedfishConfigParser(BaseConfigParser):
     def serialize(self, config: ET.Element) -> str:
         """Serialize XML Element to Redfish JSON format.
 
-        Args
-        ----
+        Args:
             config: XML Element to serialize
 
-        Returns
-        -------
+        Returns:
             JSON string representation
         """
         try:
@@ -77,12 +73,10 @@ class RedfishConfigParser(BaseConfigParser):
     def _json_to_xml(self, json_data: Dict[str, Any]) -> ET.Element:
         """Convert Redfish JSON to XML format.
 
-        Args
-        ----
+        Args:
             json_data: Parsed JSON data
 
-        Returns
-        -------
+        Returns:
             XML Element tree
         """
         # Create root element
@@ -112,12 +106,10 @@ class RedfishConfigParser(BaseConfigParser):
     def _extract_bios_attributes(self, json_data: Dict[str, Any]) -> Dict[str, str]:
         """Extract BIOS attributes from Redfish JSON structure.
 
-        Args
-        ----
+        Args:
             json_data: Parsed JSON data
 
-        Returns
-        -------
+        Returns:
             Dictionary of attribute name -> value pairs
         """
         attributes = {}
@@ -155,15 +147,13 @@ class RedfishConfigParser(BaseConfigParser):
     def _xml_to_json(self, config: ET.Element) -> Dict[str, Any]:
         """Convert XML configuration to Redfish JSON format.
 
-        Args
-        ----
+        Args:
             config: XML configuration
 
-        Returns
-        -------
+        Returns:
             JSON data structure
         """
-        json_data: Dict[str, Any] = {}
+        json_data = {}
 
         # Extract root attributes
         if config.get("Model"):
@@ -172,7 +162,7 @@ class RedfishConfigParser(BaseConfigParser):
             json_data["ServiceTag"] = config.get("ServiceTag")
 
         # Extract BIOS attributes
-        attributes: Dict[str, Any] = {}
+        attributes = {}
         for attribute in config.findall(".//Attribute"):
             name = attribute.get("Name")
             value = attribute.text
@@ -198,12 +188,10 @@ class RedfishConfigParser(BaseConfigParser):
     def parse_redfish_response(self, response_data: str) -> Dict[str, Any]:
         """Parse a Redfish API response.
 
-        Args
-        ----
+        Args:
             response_data: JSON response from Redfish API
 
-        Returns
-        -------
+        Returns:
             Parsed response data
         """
         try:
@@ -217,12 +205,10 @@ class RedfishConfigParser(BaseConfigParser):
     def create_redfish_patch_payload(self, settings: Dict[str, str]) -> str:
         """Create a Redfish PATCH payload for BIOS settings.
 
-        Args
-        ----
+        Args:
             settings: Dictionary of setting name -> value pairs
 
-        Returns
-        -------
+        Returns:
             JSON string for PATCH request
         """
         try:
@@ -241,12 +227,10 @@ class RedfishConfigParser(BaseConfigParser):
     def extract_redfish_urls(self, system_info: Dict[str, Any]) -> Dict[str, str]:
         """Extract relevant Redfish URLs from system information.
 
-        Args
-        ----
+        Args:
             system_info: System information from Redfish
 
-        Returns
-        -------
+        Returns:
             Dictionary of URL names -> URLs
         """
         urls = {}
@@ -277,12 +261,10 @@ class RedfishConfigParser(BaseConfigParser):
     def validate_redfish_structure(self, data: Dict[str, Any]) -> list:
         """Validate Redfish data structure.
 
-        Args
-        ----
+        Args:
             data: Redfish data to validate
 
-        Returns
-        -------
+        Returns:
             List of validation errors
         """
         errors = []

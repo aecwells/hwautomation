@@ -247,12 +247,14 @@ strict_equality = false
 show_error_codes = true
 show_column_numbers = true
 show_error_context = true
-
-# Exclude paths
 exclude = [
-    "hwautomation-env/",
+    "node_modules/",
     "build/",
     "dist/",
+    ".venv/",
+    "venv/",
+    "hwautomation-env/",
+    "__pycache__/"
 ]
 
 # Per-module options

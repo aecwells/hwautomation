@@ -6,222 +6,225 @@
  */
 
 class NotificationService {
-    constructor() {
-        this.notifications = [];
-        this.container = null;
-        this.maxNotifications = 5;
-        this.defaultDuration = 5000; // 5 seconds
-        this.isInitialized = false;
+  constructor() {
+    this.notifications = [];
+    this.container = null;
+    this.maxNotifications = 5;
+    this.defaultDuration = 5000; // 5 seconds
+    this.isInitialized = false;
+  }
+
+  /**
+   * Initialize notification service
+   */
+  async initialize() {
+    if (this.isInitialized) {
+      return;
     }
 
-    /**
-     * Initialize notification service
-     */
-    async initialize() {
-        if (this.isInitialized) {
-            return;
-        }
+    this.createContainer();
+    this.setupStyles();
+    this.isInitialized = true;
+  }
 
-        this.createContainer();
-        this.setupStyles();
-        this.isInitialized = true;
+  /**
+   * Show success notification
+   */
+  success(message, options = {}) {
+    return this.show(message, "success", options);
+  }
+
+  /**
+   * Show error notification
+   */
+  error(message, options = {}) {
+    return this.show(message, "error", { duration: 0, ...options }); // Errors don't auto-dismiss
+  }
+
+  /**
+   * Show warning notification
+   */
+  warning(message, options = {}) {
+    return this.show(message, "warning", options);
+  }
+
+  /**
+   * Show info notification
+   */
+  info(message, options = {}) {
+    return this.show(message, "info", options);
+  }
+
+  /**
+   * Show notification
+   */
+  show(message, type = "info", options = {}) {
+    const notification = {
+      id: this.generateId(),
+      message,
+      type,
+      timestamp: new Date(),
+      duration:
+        options.duration !== undefined
+          ? options.duration
+          : this.defaultDuration,
+      persistent: options.persistent || false,
+      dismissible: options.dismissible !== false,
+    };
+
+    this.notifications.push(notification);
+    this.renderNotification(notification);
+
+    // Auto-dismiss if duration is set
+    if (notification.duration > 0) {
+      setTimeout(() => {
+        this.dismiss(notification.id);
+      }, notification.duration);
     }
 
-    /**
-     * Show success notification
-     */
-    success(message, options = {}) {
-        return this.show(message, 'success', options);
+    // Limit number of notifications
+    if (this.notifications.length > this.maxNotifications) {
+      const oldest = this.notifications.shift();
+      this.removeFromDOM(oldest.id);
     }
 
-    /**
-     * Show error notification
-     */
-    error(message, options = {}) {
-        return this.show(message, 'error', { duration: 0, ...options }); // Errors don't auto-dismiss
+    return notification.id;
+  }
+
+  /**
+   * Dismiss notification by ID
+   */
+  dismiss(id) {
+    const index = this.notifications.findIndex((n) => n.id === id);
+    if (index !== -1) {
+      this.notifications.splice(index, 1);
+      this.removeFromDOM(id);
     }
+  }
 
-    /**
-     * Show warning notification
-     */
-    warning(message, options = {}) {
-        return this.show(message, 'warning', options);
+  /**
+   * Clear all notifications
+   */
+  clear() {
+    this.notifications = [];
+    if (this.container) {
+      this.container.innerHTML = "";
     }
+  }
 
-    /**
-     * Show info notification
-     */
-    info(message, options = {}) {
-        return this.show(message, 'info', options);
-    }
+  /**
+   * Get all notifications
+   */
+  getAll() {
+    return [...this.notifications];
+  }
 
-    /**
-     * Show notification
-     */
-    show(message, type = 'info', options = {}) {
-        const notification = {
-            id: this.generateId(),
-            message,
-            type,
-            timestamp: new Date(),
-            duration: options.duration !== undefined ? options.duration : this.defaultDuration,
-            persistent: options.persistent || false,
-            dismissible: options.dismissible !== false
-        };
+  /**
+   * Create notification container
+   */
+  createContainer() {
+    this.container = document.createElement("div");
+    this.container.id = "notification-container";
+    this.container.className = "notification-container";
+    document.body.appendChild(this.container);
+  }
 
-        this.notifications.push(notification);
-        this.renderNotification(notification);
+  /**
+   * Render notification in DOM
+   */
+  renderNotification(notification) {
+    const element = document.createElement("div");
+    element.id = `notification-${notification.id}`;
+    element.className = `notification notification-${notification.type}`;
 
-        // Auto-dismiss if duration is set
-        if (notification.duration > 0) {
-            setTimeout(() => {
-                this.dismiss(notification.id);
-            }, notification.duration);
-        }
+    const iconClass = this.getIconClass(notification.type);
 
-        // Limit number of notifications
-        if (this.notifications.length > this.maxNotifications) {
-            const oldest = this.notifications.shift();
-            this.removeFromDOM(oldest.id);
-        }
-
-        return notification.id;
-    }
-
-    /**
-     * Dismiss notification by ID
-     */
-    dismiss(id) {
-        const index = this.notifications.findIndex(n => n.id === id);
-        if (index !== -1) {
-            this.notifications.splice(index, 1);
-            this.removeFromDOM(id);
-        }
-    }
-
-    /**
-     * Clear all notifications
-     */
-    clear() {
-        this.notifications = [];
-        if (this.container) {
-            this.container.innerHTML = '';
-        }
-    }
-
-    /**
-     * Get all notifications
-     */
-    getAll() {
-        return [...this.notifications];
-    }
-
-    /**
-     * Create notification container
-     */
-    createContainer() {
-        this.container = document.createElement('div');
-        this.container.id = 'notification-container';
-        this.container.className = 'notification-container';
-        document.body.appendChild(this.container);
-    }
-
-    /**
-     * Render notification in DOM
-     */
-    renderNotification(notification) {
-        const element = document.createElement('div');
-        element.id = `notification-${notification.id}`;
-        element.className = `notification notification-${notification.type}`;
-
-        const iconClass = this.getIconClass(notification.type);
-
-        element.innerHTML = `
+    element.innerHTML = `
             <div class="notification-content">
                 <i class="${iconClass}" aria-hidden="true"></i>
                 <span class="notification-message">${this.escapeHtml(notification.message)}</span>
-                ${notification.dismissible ? '<button class="notification-close" aria-label="Close">&times;</button>' : ''}
+                ${notification.dismissible ? '<button class="notification-close" aria-label="Close">&times;</button>' : ""}
             </div>
         `;
 
-        // Add click handlers
-        if (notification.dismissible) {
-            const closeBtn = element.querySelector('.notification-close');
-            closeBtn.addEventListener('click', () => {
-                this.dismiss(notification.id);
-            });
+    // Add click handlers
+    if (notification.dismissible) {
+      const closeBtn = element.querySelector(".notification-close");
+      closeBtn.addEventListener("click", () => {
+        this.dismiss(notification.id);
+      });
+    }
+
+    // Add to container with animation
+    this.container.appendChild(element);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+      element.classList.add("notification-show");
+    });
+  }
+
+  /**
+   * Remove notification from DOM
+   */
+  removeFromDOM(id) {
+    const element = document.getElementById(`notification-${id}`);
+    if (element) {
+      element.classList.add("notification-hide");
+      setTimeout(() => {
+        if (element.parentNode) {
+          element.parentNode.removeChild(element);
         }
+      }, 300); // Match CSS transition duration
+    }
+  }
 
-        // Add to container with animation
-        this.container.appendChild(element);
+  /**
+   * Get icon class for notification type
+   */
+  getIconClass(type) {
+    const icons = {
+      success: "fas fa-check-circle",
+      error: "fas fa-exclamation-circle",
+      warning: "fas fa-exclamation-triangle",
+      info: "fas fa-info-circle",
+    };
+    return icons[type] || icons.info;
+  }
 
-        // Trigger animation
-        requestAnimationFrame(() => {
-            element.classList.add('notification-show');
-        });
+  /**
+   * Escape HTML to prevent XSS
+   */
+  escapeHtml(text) {
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+
+  /**
+   * Generate unique ID
+   */
+  generateId() {
+    return `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Setup notification styles
+   */
+  setupStyles() {
+    const styleId = "notification-service-styles";
+    if (document.getElementById(styleId)) {
+      return; // Styles already added
     }
 
-    /**
-     * Remove notification from DOM
-     */
-    removeFromDOM(id) {
-        const element = document.getElementById(`notification-${id}`);
-        if (element) {
-            element.classList.add('notification-hide');
-            setTimeout(() => {
-                if (element.parentNode) {
-                    element.parentNode.removeChild(element);
-                }
-            }, 300); // Match CSS transition duration
-        }
-    }
-
-    /**
-     * Get icon class for notification type
-     */
-    getIconClass(type) {
-        const icons = {
-            success: 'fas fa-check-circle',
-            error: 'fas fa-exclamation-circle',
-            warning: 'fas fa-exclamation-triangle',
-            info: 'fas fa-info-circle'
-        };
-        return icons[type] || icons.info;
-    }
-
-    /**
-     * Escape HTML to prevent XSS
-     */
-    escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return text.replace(/[&<>"']/g, m => map[m]);
-    }
-
-    /**
-     * Generate unique ID
-     */
-    generateId() {
-        return `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    /**
-     * Setup notification styles
-     */
-    setupStyles() {
-        const styleId = 'notification-service-styles';
-        if (document.getElementById(styleId)) {
-            return; // Styles already added
-        }
-
-        const style = document.createElement('style');
-        style.id = styleId;
-        style.textContent = `
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = `
             .notification-container {
                 position: fixed;
                 top: 20px;
@@ -330,8 +333,8 @@ class NotificationService {
             }
         `;
 
-        document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+  }
 }
 
 export { NotificationService };
