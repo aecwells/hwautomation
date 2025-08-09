@@ -16,14 +16,32 @@ export default defineConfig({
     // Rollup options
     rollupOptions: {
       input: {
-        // Main application JS
-        app: resolve(__dirname, 'src/hwautomation/web/assets/js/app.js'),
+        // Core modular frontend
+        app: resolve(__dirname, 'src/hwautomation/web/frontend/js/core/app.js'),
+        'module-loader': resolve(__dirname, 'src/hwautomation/web/frontend/js/core/module-loader.js'),
+
+        // Services
+        'services/api': resolve(__dirname, 'src/hwautomation/web/frontend/js/services/api.js'),
+        'services/state': resolve(__dirname, 'src/hwautomation/web/frontend/js/services/state.js'),
+        'services/notifications': resolve(__dirname, 'src/hwautomation/web/frontend/js/services/notifications.js'),
+
+        // Components
+        'components/theme-manager': resolve(__dirname, 'src/hwautomation/web/frontend/js/components/theme-manager.js'),
+        'components/connection-status': resolve(__dirname, 'src/hwautomation/web/frontend/js/components/connection-status.js'),
+        'components/device-selection': resolve(__dirname, 'src/hwautomation/web/frontend/js/components/device-selection.js'),
+
+        // Utils
+        'utils/dom': resolve(__dirname, 'src/hwautomation/web/frontend/js/utils/dom.js'),
+        'utils/format': resolve(__dirname, 'src/hwautomation/web/frontend/js/utils/format.js'),
+
+        // Main application CSS
+        main: resolve(__dirname, 'src/hwautomation/web/frontend/css/main.css'),
+
+        // Legacy support (fallback to existing assets)
+        legacy_app: resolve(__dirname, 'src/hwautomation/web/assets/js/app.js'),
         dashboard: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/dashboard.js'),
         firmware: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/firmware.js'),
         database: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/database.js'),
-
-        // Main application CSS
-        main: resolve(__dirname, 'src/hwautomation/web/assets/scss/main.scss'),
         dashboard_styles: resolve(__dirname, 'src/hwautomation/web/assets/scss/pages/dashboard.scss'),
         firmware_styles: resolve(__dirname, 'src/hwautomation/web/assets/scss/pages/firmware.scss'),
       },

@@ -1,0 +1,398 @@
+/* Device Selection Component Styles */
+
+/* Device grid layout */
+.devices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+/* Device cards */
+.device-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    background-color: var(--bg-surface);
+    transition: all var(--transition-base);
+    overflow: hidden;
+}
+
+.device-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    border-color: var(--primary-color);
+}
+
+.device-card .card-header {
+    background-color: var(--bg-surface-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+}
+
+.device-card .card-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.device-card .card-body {
+    padding: var(--spacing-md);
+}
+
+.device-card .card-footer {
+    background-color: var(--bg-surface-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+}
+
+/* Device info layout */
+.device-info .row {
+    margin-bottom: var(--spacing-sm);
+}
+
+.device-info .row:last-child {
+    margin-bottom: 0;
+}
+
+.device-info strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Device status badges */
+.device-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.device-status i {
+    font-size: 0.75rem;
+}
+
+/* Status-specific styles */
+.status-ready {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.status-commissioning {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.status-failed {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.status-deploying {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.status-deployed {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Device selection table */
+.device-table {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.device-table th {
+    background-color: var(--bg-surface-secondary);
+    border-color: var(--border-color);
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: var(--spacing-md);
+}
+
+.device-table td {
+    border-color: var(--border-color);
+    padding: var(--spacing-md);
+    vertical-align: middle;
+}
+
+.device-table tbody tr:hover {
+    background-color: var(--bg-surface-secondary);
+}
+
+/* Device checkboxes */
+.device-checkbox {
+    transform: scale(1.2);
+    margin: 0;
+}
+
+.device-checkbox:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Device actions */
+.device-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    justify-content: center;
+}
+
+.device-actions .btn {
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* View toggle buttons */
+.view-toggle {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.view-toggle .btn {
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.view-toggle .btn:hover {
+    background-color: var(--bg-surface-secondary);
+    color: var(--text-primary);
+}
+
+.view-toggle .btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.view-toggle .btn:first-child {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+}
+
+.view-toggle .btn:last-child {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+}
+
+/* Device filters */
+.device-filters {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.device-filters .form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.device-filters .form-control,
+.device-filters .form-select {
+    border-color: var(--border-color);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.device-filters .form-control:focus,
+.device-filters .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Filter controls */
+.filter-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-controls .btn {
+    border-radius: var(--border-radius);
+}
+
+/* Device loading states */
+.device-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    color: var(--text-muted);
+}
+
+.device-loading i {
+    font-size: 2rem;
+    margin-right: var(--spacing-md);
+}
+
+/* Device selection modals */
+.device-modal .modal-content {
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-surface);
+}
+
+.device-modal .modal-header {
+    background-color: var(--bg-surface-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.device-modal .modal-footer {
+    background-color: var(--bg-surface-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+.device-modal .modal-title {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Device details layout */
+.device-details {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.device-detail-group {
+    background-color: var(--bg-surface-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+}
+
+.device-detail-group h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+.device-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-xs) 0;
+}
+
+.device-detail-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.device-detail-label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.device-detail-value {
+    color: var(--text-primary);
+    text-align: right;
+}
+
+/* Commission form styles */
+.commission-form .form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.commission-form .form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.commission-form .form-text {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+/* Device type selection */
+.device-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.device-type-card {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    background-color: var(--bg-surface);
+}
+
+.device-type-card:hover {
+    border-color: var(--primary-color);
+    background-color: var(--bg-surface-secondary);
+}
+
+.device-type-card.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.device-type-card .card-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.device-type-card .card-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .devices-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .device-card .card-body .row {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    .device-card .card-body .row > div {
+        padding: 0;
+    }
+
+    .device-actions {
+        flex-direction: column;
+    }
+
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .view-toggle {
+        width: 100%;
+    }
+}
+
+/* Print styles for device selection */
+@media print {
+    .device-card,
+    .device-table {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .device-filters,
+    .device-actions,
+    .view-toggle {
+        display: none;
+    }
+}

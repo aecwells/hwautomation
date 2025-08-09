@@ -8,9 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "watch": "vite build --watch",
-    "lint": "eslint src/hwautomation/web/assets/js --ext .js,.ts",
-    "lint:fix": "eslint src/hwautomation/web/assets/js --ext .js,.ts --fix",
-    "format": "prettier --write \"src/hwautomation/web/assets/**/*.{js,ts,scss,css}\"",
+    "lint": "eslint src/hwautomation/web/frontend/js --ext .js,.ts",
+    "lint:fix": "eslint src/hwautomation/web/frontend/js --ext .js,.ts --fix",
+    "format": "prettier --write \"src/hwautomation/web/frontend/**/*.{js,ts,scss,css}\"",
+    "format:check": "prettier --check \"src/hwautomation/web/frontend/**/*.{js,ts,scss,css}\"",
     "clean": "rimraf src/hwautomation/web/static/dist"
   },
   "devDependencies": {
