@@ -36,7 +36,17 @@ jobs:
         python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
         cache: 'pip'
 
+    - name: Check for frontend dependencies
+      id: check-frontend
+      run: |
+        if [ -f "package.json" ]; then
+          echo "frontend=true" >> $GITHUB_OUTPUT
+        else
+          echo "frontend=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Set up Node.js
+      if: steps.check-frontend.outputs.frontend == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -49,6 +59,7 @@ jobs:
         pip install black==24.4.2  # Pin black version for consistency
 
     - name: Install frontend dependencies
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm ci
 
@@ -70,10 +81,12 @@ jobs:
       continue-on-error: true
 
     - name: Lint frontend code
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm run lint
 
     - name: Check frontend formatting
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm run format -- --check
 
@@ -98,21 +111,36 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Check for frontend dependencies
+      id: check-frontend
+      run: |
+        if [ -f "package.json" ]; then
+          echo "frontend=true" >> $GITHUB_OUTPUT
+          echo "Frontend dependencies found"
+        else
+          echo "frontend=false" >> $GITHUB_OUTPUT
+          echo "No frontend dependencies found, skipping frontend build"
+        fi
+
     - name: Set up Node.js
+      if: steps.check-frontend.outputs.frontend == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
 
     - name: Install frontend dependencies
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm ci
 
     - name: Build frontend assets
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm run build
 
     - name: Upload frontend build artifacts
+      if: steps.check-frontend.outputs.frontend == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: frontend-assets
