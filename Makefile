@@ -42,6 +42,28 @@ help:
 		/^[a-zA-Z_-]+:.*##/ {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
+## [Frontend Build]
+frontend-install: ## Install frontend dependencies
+	npm install
+
+frontend-build:   ## Build frontend assets
+	npm run build
+
+frontend-dev:     ## Start frontend development server
+	npm run dev
+
+frontend-watch:   ## Watch frontend files for changes
+	npm run watch
+
+frontend-clean:   ## Clean frontend build artifacts
+	npm run clean
+
+frontend-lint:    ## Lint frontend code
+	npm run lint
+
+frontend-format:  ## Format frontend code
+	npm run format
+
 ## [Testing - Local]
 # Run all tests
 test:         ## Run all tests locally
@@ -112,6 +134,10 @@ precommit-all: ## Run pre-commit hooks on all files
 	pre-commit run --all-files
 
 ## [Docker Compose]
+build:        ## Build the Docker images (includes frontend)
+	npm run build
+	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
+
 up:           ## Start containers in background
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) up -d
 
@@ -122,7 +148,8 @@ restart:      ## Restart containers
 	$(MAKE) down
 	$(MAKE) up
 
-build:        ## Build the Docker images
+build:        ## Build the Docker images (includes frontend)
+	npm run build
 	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
 
 pull:         ## Pull the latest images
@@ -180,10 +207,12 @@ ci-clean:     ## CI cleanup task
 ## [Development]
 dev-setup:    ## Setup development environment
 	cp .env.example .env || echo "Create .env file manually"
+	npm install
 	pip install -e .[dev]
 	$(MAKE) build
 
 dev-reset:    ## Reset development environment
 	$(MAKE) ci-clean
 	$(MAKE) clean-test
+	$(MAKE) frontend-clean
 	$(MAKE) dev-setup
