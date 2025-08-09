@@ -9,10 +9,16 @@ from typing import Any, Dict, List, Optional, Type
 
 from ...logging import get_logger
 from ...utils.network import SSHClient, SSHManager
-from .base import HardwareDiscovery, IPMIInfo, NetworkInterface, SystemInfo, BaseVendorDiscovery
+from .base import (
+    HardwareDiscovery,
+    IPMIInfo,
+    NetworkInterface,
+    SystemInfo,
+)
 from .parsers import DmidecodeParser, IpmiParser, NetworkParser
 from .utils import SSHCommandRunner, ToolInstaller
 from .vendors import DellDiscovery, HPEDiscovery, SupermicroDiscovery
+from .vendors.base import BaseVendorHandler
 
 logger = get_logger(__name__)
 
@@ -43,7 +49,7 @@ class HardwareDiscoveryManager:
         self.network_parser = NetworkParser()
 
         # Initialize vendor handlers
-        self.vendor_handlers: List[Type[BaseVendorDiscovery]] = [
+        self.vendor_handlers: List[Type[BaseVendorHandler]] = [
             SupermicroDiscovery,
             HPEDiscovery,
             DellDiscovery,

@@ -1,7 +1,7 @@
 """HPE-specific hardware discovery implementation."""
 
 import re
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 from ..base import SystemInfo
 from .base import BaseVendorHandler
@@ -111,6 +111,6 @@ class HPEDiscovery(BaseVendorHandler):
 
         if controllers:
             controller_info["storage_controllers"] = controllers
-            controller_info["controller_count"] = len(controllers)
+            controller_info["controller_count"] = len(controllers)  # type: ignore[assignment]
 
         return controller_info
