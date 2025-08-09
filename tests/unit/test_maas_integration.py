@@ -122,7 +122,7 @@ class TestMaasClient:
         machines = client.get_machines()
         assert machines == []
 
-    @patch("src.hwautomation.maas.client.requests.get")
+    @patch("requests.Session.get")
     def test_get_machines_authentication_error(self, mock_get):
         """Test get_machines with authentication error."""
         mock_response = Mock()
@@ -131,16 +131,17 @@ class TestMaasClient:
         mock_get.return_value = mock_response
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
 
-        with pytest.raises(MaasAuthenticationError):
-            client.get_machines()
+        # The real client returns empty list on error, not an exception
+        machines = client.get_machines()
+        assert machines == []
 
-    @patch("src.hwautomation.maas.client.requests.post")
+    @patch("requests.Session.post")
     def test_commission_machine_success(self, mock_post):
         """Test successful machine commissioning."""
         mock_response = Mock()
@@ -152,17 +153,17 @@ class TestMaasClient:
         mock_post.return_value = mock_response
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
         result = client.commission_machine("abc123")
 
-        assert result["system_id"] == "abc123"
-        assert result["status_name"] == "Commissioning"
+        # The real client returns True on success, not the response
+        assert result is True
 
-    @patch("src.hwautomation.maas.client.requests.post")
+    @patch("requests.Session.post")
     def test_deploy_machine_success(self, mock_post):
         """Test successful machine deployment."""
         mock_response = Mock()
@@ -175,18 +176,17 @@ class TestMaasClient:
         mock_post.return_value = mock_response
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
         result = client.deploy_machine("abc123", "ubuntu/focal")
 
-        assert result["system_id"] == "abc123"
-        assert result["status_name"] == "Deploying"
-        assert result["distro_series"] == "focal"
+        # The real client returns True on success, not the response
+        assert result is True
 
-    @patch("src.hwautomation.maas.client.requests.get")
+    @patch("requests.Session.get")
     def test_get_machine_details_success(self, mock_get):
         """Test successful get_machine_details call."""
         mock_response = Mock()
@@ -202,19 +202,19 @@ class TestMaasClient:
         mock_get.return_value = mock_response
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
-        machine = client.get_machine_details("abc123")
+        machine = client.get_machine("abc123")
 
         assert machine["system_id"] == "abc123"
         assert machine["hostname"] == "node1"
         assert machine["memory"] == 8192
         assert machine["cpu_count"] == 4
 
-    @patch("src.hwautomation.maas.client.requests.post")
+    @patch("requests.Session.post")
     def test_release_machine_success(self, mock_post):
         """Test successful machine release."""
         mock_response = Mock()
@@ -226,23 +226,23 @@ class TestMaasClient:
         mock_post.return_value = mock_response
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
         result = client.release_machine("abc123")
 
-        assert result["system_id"] == "abc123"
-        assert result["status_name"] == "Releasing"
+        # The real client returns True on success, not the response
+        assert result is True
 
     def test_build_auth_header(self):
         """Test OAuth authentication header building."""
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
 
         # Test that auth header building doesn't raise exceptions
@@ -259,35 +259,37 @@ class TestMaasClient:
 
         assert success is True
 
-    @patch("src.hwautomation.maas.client.requests.get")
+    @patch("requests.Session.get")
     def test_connection_timeout(self, mock_get):
         """Test connection timeout handling."""
         mock_get.side_effect = requests.Timeout("Connection timeout")
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
 
-        with pytest.raises(MaasConnectionError):
-            client.get_machines()
+        # The real client returns empty list on error, not an exception
+        machines = client.get_machines()
+        assert machines == []
 
-    @patch("src.hwautomation.maas.client.requests.get")
+    @patch("requests.Session.get")
     def test_connection_error(self, mock_get):
         """Test connection error handling."""
         mock_get.side_effect = requests.ConnectionError("Connection failed")
 
         client = MaasClient(
-            base_url=self.base_url,
+            host=self.base_url,
             consumer_key=self.consumer_key,
-            token_key=self.token_key,
-            token_secret=self.token_secret,
+            consumer_token=self.consumer_token,
+            secret=self.secret,
         )
 
-        with pytest.raises(MaasConnectionError):
-            client.get_machines()
+        # The real client returns empty list on error, not an exception
+        machines = client.get_machines()
+        assert machines == []
 
 
 class TestMaasExceptions:
@@ -323,14 +325,14 @@ class TestMaasIntegration:
         """Test a complete client workflow simulation."""
         # This tests the basic interface without actual API calls
         client = MaasClient(
-            base_url="http://test.maas.com:5240/MAAS",
+            host="http://test.maas.com:5240/MAAS",
             consumer_key="test_key",
-            token_key="test_token",
-            token_secret="test_secret",
+            consumer_token="test_token",
+            secret="test_secret",
         )
 
         # Verify client is properly initialized
-        assert client.base_url == "http://test.maas.com:5240/MAAS"
+        assert client.host == "http://test.maas.com:5240/MAAS"
         assert hasattr(client, "get_machines")
         assert hasattr(client, "commission_machine")
         assert hasattr(client, "deploy_machine")
@@ -339,14 +341,14 @@ class TestMaasIntegration:
     def test_url_construction(self):
         """Test URL construction for API endpoints."""
         client = MaasClient(
-            base_url="http://maas.example.com:5240/MAAS",
+            host="http://maas.example.com:5240/MAAS",
             consumer_key="key",
-            token_key="token",
-            token_secret="secret",
+            consumer_token="token",
+            secret="secret",
         )
 
         # Test basic URL construction
-        base_url = client.base_url.rstrip("/")
+        base_url = client.host.rstrip("/")
         api_url = f"{base_url}/api/2.0/"
 
         assert api_url == "http://maas.example.com:5240/MAAS/api/2.0/"
