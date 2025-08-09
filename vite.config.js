@@ -36,14 +36,6 @@ export default defineConfig({
 
         // Main application CSS
         main: resolve(__dirname, 'src/hwautomation/web/frontend/css/main.css'),
-
-        // Legacy support (fallback to existing assets)
-        legacy_app: resolve(__dirname, 'src/hwautomation/web/assets/js/app.js'),
-        dashboard: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/dashboard.js'),
-        firmware: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/firmware.js'),
-        database: resolve(__dirname, 'src/hwautomation/web/assets/js/pages/database.js'),
-        dashboard_styles: resolve(__dirname, 'src/hwautomation/web/assets/scss/pages/dashboard.scss'),
-        firmware_styles: resolve(__dirname, 'src/hwautomation/web/assets/scss/pages/firmware.scss'),
       },
       output: {
         // Naming pattern for built files
@@ -74,20 +66,13 @@ export default defineConfig({
 
     // Minification
     minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: false, // Keep console.log in development
-        drop_debugger: true
-      }
-    }
   },
 
   // CSS configuration
   css: {
     preprocessorOptions: {
       scss: {
-        // Additional SCSS options
-        additionalData: `@import "src/hwautomation/web/assets/scss/variables.scss";`
+        // Additional SCSS options can be added here
       }
     },
     postcss: {
@@ -130,10 +115,10 @@ export default defineConfig({
   // Resolve configuration
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src/hwautomation/web/assets'),
-      '@js': resolve(__dirname, 'src/hwautomation/web/assets/js'),
-      '@scss': resolve(__dirname, 'src/hwautomation/web/assets/scss'),
-      '@components': resolve(__dirname, 'src/hwautomation/web/assets/js/components')
+      '@': resolve(__dirname, 'src/hwautomation/web/frontend'),
+      '@js': resolve(__dirname, 'src/hwautomation/web/frontend/js'),
+      '@css': resolve(__dirname, 'src/hwautomation/web/frontend/css'),
+      '@components': resolve(__dirname, 'src/hwautomation/web/frontend/js/components')
     }
   },
 
