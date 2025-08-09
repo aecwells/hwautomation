@@ -161,29 +161,30 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
     Returns:
         Default logging configuration
     """
-    # Create logs directory if it doesn't exist
+    # Create logs directory if it doesn't exist and we have permissions
     logs_dir = Path("logs")
-    logs_dir.mkdir(exist_ok=True)
+    use_file_logging = True
+    try:
+        logs_dir.mkdir(exist_ok=True)
+        # Test write permissions
+        test_file = logs_dir / "test_permissions.tmp"
+        test_file.touch()
+        test_file.unlink()
+    except (PermissionError, OSError):
+        use_file_logging = False
 
     if environment == "production":
-        return {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "standard": {
-                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                },
-                "detailed": {
-                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s",
-                },
-            },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "level": "WARNING",
-                    "formatter": "standard",
-                    "stream": "ext://sys.stdout",
-                },
+        handlers = {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "WARNING",
+                "formatter": "standard",
+                "stream": "ext://sys.stdout",
+            }
+        }
+        
+        if use_file_logging:
+            handlers.update({
                 "file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "level": "INFO",
@@ -200,35 +201,45 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
                     "maxBytes": 10485760,
                     "backupCount": 10,
                 },
+            })
+        
+        handler_list = ["console"]
+        if use_file_logging:
+            handler_list.extend(["file", "error_file"])
+            
+        return {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "standard": {
+                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                },
+                "detailed": {
+                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s",
+                },
             },
+            "handlers": handlers,
             "loggers": {
                 "hwautomation": {
                     "level": "INFO",
-                    "handlers": ["console", "file", "error_file"],
+                    "handlers": handler_list,
                     "propagate": False,
                 },
             },
             "root": {"level": "WARNING", "handlers": ["console"]},
         }
     else:  # development/staging
-        return {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "standard": {
-                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-                },
-                "detailed": {
-                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
-                },
-            },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "level": "DEBUG",
-                    "formatter": "detailed",
-                    "stream": "ext://sys.stdout",
-                },
+        handlers = {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "detailed",
+                "stream": "ext://sys.stdout",
+            }
+        }
+        
+        if use_file_logging:
+            handlers.update({
                 "file": {
                     "class": "logging.handlers.RotatingFileHandler",
                     "level": "DEBUG",
@@ -245,11 +256,28 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
                     "maxBytes": 5242880,
                     "backupCount": 5,
                 },
+            })
+        
+        handler_list = ["console"]
+        if use_file_logging:
+            handler_list.extend(["file", "error_file"])
+            
+        return {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "standard": {
+                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                },
+                "detailed": {
+                    "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+                },
             },
+            "handlers": handlers,
             "loggers": {
                 "hwautomation": {
                     "level": "DEBUG",
-                    "handlers": ["console", "file", "error_file"],
+                    "handlers": handler_list,
                     "propagate": False,
                 }
             },
