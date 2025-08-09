@@ -142,9 +142,31 @@ class ModuleLoader {
    */
   async doLoadModule(modulePath) {
     try {
-      // Construct full path
-      const basePath = "/static/js/frontend/js/";
-      const fullPath = basePath + modulePath;
+      // Try to load from built assets first
+      let fullPath;
+      
+      // Check if we have a manifest with built assets
+      try {
+        const manifestResponse = await fetch('/static/dist/manifest.json');
+        if (manifestResponse.ok) {
+          const manifest = await manifestResponse.json();
+          
+          // Convert module path to manifest key format
+          const manifestKey = `src/hwautomation/web/frontend/js/${modulePath}`;
+          
+          if (manifest[manifestKey]) {
+            fullPath = `/static/dist/${manifest[manifestKey].file}`;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load manifest, falling back to development paths');
+      }
+      
+      // Fallback to development path if not in manifest
+      if (!fullPath) {
+        const basePath = "/static/js/frontend/js/";
+        fullPath = basePath + modulePath;
+      }
 
       console.log(`Loading module: ${fullPath}`);
 

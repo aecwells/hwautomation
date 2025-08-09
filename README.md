@@ -6,7 +6,6 @@
 ![Code Quality](https://img.shields.io/badge/code%20quality-black%20%7C%20isort%20%7C%20flake8%20%7C%20mypy-brightgreen)
 ![Security](https://img.shields.io/badge/security-bandit%20scanned-green)
 
-
 A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with production-ready web GUI, complete CLI capabilities, and enterprise-grade firmware management.
 
 ## 🎯 Key Capabilities
@@ -23,6 +22,7 @@ A comprehensive Python package for hardware automation, server management, and i
 ## 🎉 Recent Enhancements (August 2025)
 
 ### **Web Interface Modernization & Modular Architecture**
+
 - **📐 Blueprint Architecture**: Refactored monolithic 853-line Flask app into modular blueprint structure
 - **🔧 Improved Maintainability**: 6 focused route modules (56-302 lines each) for easier development and testing
 - **📊 Enhanced Status Indicators**: Smart MaaS connection status with visual indicators (Connected/Disconnected/Not Configured)
@@ -30,24 +30,28 @@ A comprehensive Python package for hardware automation, server management, and i
 - **⚡ Zero Breaking Changes**: All existing URLs and APIs preserved during refactoring
 
 ### **Hardware System Modularization**
+
 - **🏗️ Modular Hardware Discovery**: Complete restructuring of 859-line discovery system into focused modules
 - **⚙️ BIOS Configuration Modules**: Separated BIOS management into config, devices, operations, and parsers
 - **🔍 Vendor-Specific Logic**: Dedicated vendor modules for Supermicro, Dell, HPE with extensible architecture
 - **📦 Clean Module Structure**: Better separation of concerns and easier testing/maintenance
 
 ### **Frontend Build System Integration**
+
 - **⚡ Vite Build System**: Modern JavaScript bundling with hot module replacement
 - **🎨 Component Architecture**: Modular frontend components with SCSS styling
 - **📱 Enhanced Responsive Design**: Mobile-first CSS with theme support
 - **🗜️ Asset Optimization**: Automatic minification, hashing, and build optimization
 
 ### **Developer Experience Improvements**
+
 - **🏗️ Team-Friendly Architecture**: Single-responsibility modules enable parallel development
 - **🧪 Easier Testing**: Modular structure simplifies unit testing and debugging
 - **📈 Scalable Foundation**: Clean architecture ready for new features and team expansion
 - **🛠️ Modern Tooling**: Pre-commit hooks, automated quality checks, and comprehensive CI/CD
 
 ### **Code Quality & CI/CD Enhancements**
+
 - **🚀 Comprehensive CI/CD Pipeline**: Multi-stage GitHub Actions workflow with quality gates
 - **🎨 Code Formatting**: Automated Black formatting applied to entire codebase (59+ files)
 - **📦 Import Organization**: isort import sorting for consistent code structure
@@ -265,6 +269,7 @@ npm run preview
 ```
 
 **Build System Features:**
+
 - ⚡ **Vite-powered**: Lightning-fast HMR (Hot Module Replacement)
 - 📦 **Modular JavaScript**: ES6 modules with dynamic imports
 - 🎨 **SCSS Support**: Advanced CSS with variables and mixins
@@ -273,6 +278,7 @@ npm run preview
 - 📱 **Responsive Design**: Mobile-first CSS architecture
 
 **Frontend Architecture:**
+
 ```text
 src/hwautomation/web/frontend/
 ├── js/
@@ -299,6 +305,7 @@ src/hwautomation/web/frontend/
 ```
 
 **Built Assets:**
+
 - Output directory: `src/hwautomation/web/static/dist/`
 - Automatic asset hashing for cache busting
 - Manifest file for Flask template integration
@@ -380,19 +387,23 @@ python -c 'import hwautomation; print("HWAutomation package imported successfull
 ### Requirements
 
 **Python Environment:**
+
 - Python 3.8+
 - Virtual environment recommended (required on Ubuntu/Debian)
 
 **Node.js Environment (for frontend development):**
+
 - Node.js 14+
 - npm 6+
 
 **External dependencies:**
+
 - `ipmitool` (for IPMI operations)
 - SSH access to target servers
 - MAAS server access with API credentials
 
 **Optional for development:**
+
 - Docker and Docker Compose (for containerized deployment)
 - Git (for version control)
 
@@ -591,26 +602,32 @@ hw-web         # Start Flask backend (port 5000)
 **API Endpoints (Blueprint Architecture):**
 
 **Core Routes:**
+
 - `GET /` - Modern dashboard with enhanced status indicators
 - `GET /health` - System health check endpoint
 
 **Orchestration Routes:**
+
 - `POST /api/orchestration/provision` - Standard server provisioning workflow
 - `POST /api/orchestration/provision-firmware-first` - Firmware-first provisioning workflow
 - `GET /api/orchestration/workflows/{id}/status` - Real-time workflow status with sub-task details
 - `POST /api/orchestration/workflow/{id}/cancel` - Cancel running workflows with graceful cleanup
 
 **Database Routes:**
+
 - `GET /api/database/info` - Database statistics and information
 - `GET /api/database/export` - Export database data
 
 **MaaS Routes:**
+
 - `GET /api/maas/discover` - Discover available MaaS machines
 
 **Logs Routes:**
+
 - `GET /api/logs/` - System logs with filtering capabilities
 
 **Firmware Routes:**
+
 - `GET /api/firmware/status` - Firmware management status
 
 ### 7. Command Line Usage
@@ -1040,6 +1057,7 @@ make test-docker-cov   # Coverage tests in Docker
    - **Frontend Quality**: Use `npm run lint` for JavaScript/CSS quality checks
 
 4. **Development Workflow**:
+
    ```bash
    # Initial setup
    make dev-setup          # Setup complete development environment
