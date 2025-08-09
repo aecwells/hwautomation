@@ -1,6 +1,6 @@
 """Hardware management package."""
 
-from .bios_config import BiosConfigManager
+from .bios import BiosConfigManager
 from .discovery import (
     HardwareDiscovery,
     HardwareDiscoveryManager,

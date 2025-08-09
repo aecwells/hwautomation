@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional
 from hwautomation.logging import get_logger
 
 from ..orchestration.exceptions import WorkflowError
-from .bios_config import BiosConfigManager
+from .bios import BiosConfigManager
 from .bios_monitoring import BiosConfigMonitor
 from .firmware_manager import (
     FirmwareInfo,

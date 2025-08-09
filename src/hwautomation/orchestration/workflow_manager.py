@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 from ..database.helper import DbHelper
-from ..hardware.bios_config import BiosConfigManager
+from ..hardware.bios import BiosConfigManager
 from ..hardware.discovery import HardwareDiscoveryManager
 
 # Lazy import to avoid circular dependency - imported inside methods where needed

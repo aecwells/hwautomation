@@ -36,7 +36,7 @@ def create_app():
 
     # Import dependencies
     from hwautomation.database.helper import DbHelper
-    from hwautomation.hardware.bios_config import BiosConfigManager
+    from hwautomation.hardware.bios import BiosConfigManager
     from hwautomation.maas.client import create_maas_client
     from hwautomation.orchestration.device_selection import DeviceSelectionService
     from hwautomation.orchestration.server_provisioning import (

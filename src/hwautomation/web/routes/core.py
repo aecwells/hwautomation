@@ -8,7 +8,7 @@ from datetime import datetime
 
 from flask import Blueprint, jsonify, render_template, request
 
-from hwautomation.hardware.bios_config import BiosConfigManager
+from hwautomation.hardware.bios import BiosConfigManager
 from hwautomation.logging import get_logger
 
 logger = get_logger(__name__)

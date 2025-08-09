@@ -457,3 +457,70 @@ class BiosConfigManager(BaseBiosManager):
             "supported_methods": [m.value for m in supported_methods],
             "special_handling": device_config.special_handling,
         }
+
+    async def apply_bios_config_phase3(
+        self,
+        device_type: str,
+        target_ip: str,
+        username: str = "ADMIN",
+        password: Optional[str] = None,
+        dry_run: bool = False,
+        prefer_performance: bool = True,
+        enable_monitoring: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Real-time monitored BIOS configuration with advanced error recovery.
+        
+        This is a bridge method that delegates to the advanced monitoring functionality.
+        TODO: Migrate the full phase3 implementation to the modular system.
+        
+        Args:
+            device_type: Device type template to apply
+            target_ip: Target system IP address
+            username: BMC username
+            password: BMC password
+            dry_run: If True, only show what would be changed
+            prefer_performance: If True, optimize for speed over reliability
+            enable_monitoring: If True, enable real-time progress monitoring
+
+        Returns:
+            Dictionary with operation results including monitoring data
+        """
+        # For now, delegate to the regular apply_bios_config_smart method
+        # TODO: Implement full phase3 monitoring capabilities in modular system
+        logger.warning(
+            "apply_bios_config_phase3 called - using fallback to apply_bios_config_smart. "
+            "Full phase3 monitoring implementation needed in modular system."
+        )
+        
+        result = self.apply_bios_config_smart(
+            device_type=device_type,
+            target_ip=target_ip,
+            username=username,
+            password=password,
+            dry_run=dry_run
+        )
+        
+        # Convert BiosConfigResult to phase3 format
+        return {
+            "success": result.success,
+            "target_ip": target_ip,
+            "device_type": device_type,
+            "operation_id": None,
+            "monitoring_enabled": enable_monitoring,
+            "method_analysis": {"method": result.method_used.value if result.method_used else "unknown"},
+            "execution_phases": [{"phase": "configuration", "success": result.success}],
+            "real_time_progress": [],
+            "error_recovery_actions": [],
+            "validation_results": {"success": result.success},
+            "performance_metrics": {},
+            "dry_run": dry_run,
+            "settings_applied": result.settings_applied,
+            "settings_failed": result.settings_failed,
+            "validation_errors": result.validation_errors or [],
+        }
+
+    def get_device_types(self) -> List[str]:
+        """Get list of available device types."""
+        device_mappings = self.config_loader.load_device_mappings()
+        return list(device_mappings.get("device_types", {}).keys())
