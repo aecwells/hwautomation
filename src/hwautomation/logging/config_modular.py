@@ -169,8 +169,8 @@ class LoggingConfigManager:
     def create_filters(
         self, profile_config: Dict[str, Any]
     ) -> Dict[str, logging.Filter]:
-        """Create filters based on profile configuration."""
-        filters = {}
+        """Create and configure logging filters based on profile."""
+        filters: Dict[str, logging.Filter] = {}
 
         if "correlation" in profile_config.get("filters", []):
             filters["correlation"] = CorrelationFilter()
@@ -199,7 +199,7 @@ class LoggingConfigManager:
         self, profile_config: Dict[str, Any]
     ) -> Dict[str, logging.Handler]:
         """Create handlers based on profile configuration."""
-        handlers = {}
+        handlers: Dict[str, logging.Handler] = {}
         formatters = self.create_formatters()
         filters = self.create_filters(profile_config)
 
@@ -211,7 +211,7 @@ class LoggingConfigManager:
         formatter_mapping = profile_config.get("formatters", {})
 
         if "console" in handler_configs:
-            handler = logging.StreamHandler()
+            handler: logging.Handler = logging.StreamHandler()
             handler.setFormatter(
                 formatters.get(formatter_mapping.get("console", "structured"))
             )
@@ -364,7 +364,7 @@ def setup_logging(
         force_reload: Force reload even if already configured
         **profile_overrides: Profile configuration overrides
     """
-    global _logger_registry, _current_config
+    global _current_config
 
     with _config_lock:
         # Don't reconfigure unless forced
@@ -378,7 +378,9 @@ def setup_logging(
 
         # Apply the profile
         try:
-            config = _config_manager.apply_profile(profile, **profile_overrides)
+            config = _config_manager.apply_profile(
+                profile or "development", **profile_overrides
+            )
             _current_config = config
 
             # Configure Python logging with our handlers
@@ -459,14 +461,18 @@ def set_correlation_id(correlation_id: str) -> None:
 
     # Also set on correlation filter if available
     if "correlation" in _config_manager.filters:
-        _config_manager.filters["correlation"].set_correlation_id(correlation_id)
+        filter_obj = _config_manager.filters["correlation"]
+        if hasattr(filter_obj, "set_correlation_id"):
+            filter_obj.set_correlation_id(correlation_id)  # type: ignore
 
 
 def get_correlation_id() -> Optional[str]:
     """Get correlation ID for current thread."""
     correlation_id = getattr(_thread_local, "correlation_id", None)
     if not correlation_id and "correlation" in _config_manager.filters:
-        correlation_id = _config_manager.filters["correlation"].get_correlation_id()
+        filter_obj = _config_manager.filters["correlation"]
+        if hasattr(filter_obj, "get_correlation_id"):
+            correlation_id = filter_obj.get_correlation_id()  # type: ignore
     return correlation_id
 
 
@@ -476,7 +482,9 @@ def clear_correlation_id() -> None:
         delattr(_thread_local, "correlation_id")
 
     if "correlation" in _config_manager.filters:
-        _config_manager.filters["correlation"].clear_correlation_id()
+        filter_obj = _config_manager.filters["correlation"]
+        if hasattr(filter_obj, "clear_correlation_id"):
+            filter_obj.clear_correlation_id()  # type: ignore
 
 
 @contextmanager
@@ -501,7 +509,14 @@ def add_websocket_manager(manager):
 
 def get_metrics_handler() -> Optional[MetricsHandler]:
     """Get the metrics handler if configured."""
-    return _config_manager.handlers.get("metrics")
+    handler = _config_manager.handlers.get("metrics")
+    if (
+        handler
+        and hasattr(handler, "__class__")
+        and "MetricsHandler" in str(handler.__class__)
+    ):
+        return handler  # type: ignore
+    return None
 
 
 def reconfigure_logging(profile: str, **profile_overrides) -> None:

@@ -1,78 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="0" skipped="0" tests="3" time="1.243" timestamp="2025-08-09T01:31:40.085146+00:00" hostname="maas-client"><testcase classname="" name="tests.unit.test_config" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="1.041" timestamp="2025-08-09T01:43:53.622509+00:00" hostname="maas-client"><testcase classname="" name="tests.integration.test_workflow" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
     handler = self.configure_handler(handlers[name])
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         EMPTY_DICT = {}
-        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x75b1e7c36ab0&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4eb7c50&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
         deferred   = []
         disable_existing = False
         filters    = {}
-        formatters = {'standard': &lt;logging.Formatter object at 0x75b1e7c36ab0&gt;, 'detailed': &lt;logging.Formatter object at 0x75b1e8dd0830&gt;}
-        handler    = &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;
-        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'filename': 'logs/hwautomati...es': 5242880, 'backupCount': 3}, 'error_file': &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4eb7c50&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e50490d0&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
         incremental = False
-        name       = 'file'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e7ad2480&gt;
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4f46f30&gt;
 /usr/lib/python3.12/logging/config.py:848: in configure_handler
     result = factory(**kwargs)
              ^^^^^^^^^^^^^^^^^
         cname      = 'logging.handlers.RotatingFileHandler'
-        config     = {'filename': 'logs/hwautomation.log', 'maxBytes': 5242880, 'backupCount': 3}
-        config_copy = {'backupCount': 3, 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/hwautomation.log', 'formatter': 'detailed', ...}
+        config     = {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}
+        config_copy = {'backupCount': '5', 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/errors.log', 'formatter': 'detailed', ...}
         factory    = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
         filters    = None
-        formatter  = &lt;logging.Formatter object at 0x75b1e8dd0830&gt;
+        formatter  = &lt;logging.Formatter object at 0x7f41e50490d0&gt;
         klass      = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
-        kwargs     = {'backupCount': 3, 'filename': 'logs/hwautomation.log', 'maxBytes': 5242880}
-        level      = 'DEBUG'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e7ad2480&gt;
-/usr/lib/python3.12/logging/handlers.py:155: in __init__
-    BaseRotatingHandler.__init__(self, filename, mode, encoding=encoding,
-        backupCount = 3
+        kwargs     = {'backupCount': '5', 'filename': 'logs/errors.log', 'maxBytes': '5242880'}
+        level      = 'ERROR'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4f46f30&gt;
+/usr/lib/python3.12/logging/handlers.py:151: in __init__
+    if maxBytes &gt; 0:
+       ^^^^^^^^^^^^
+E   TypeError: '&gt;' not supported between instances of 'str' and 'int'
+        backupCount = '5'
         delay      = False
-        encoding   = 'locale'
+        encoding   = None
         errors     = None
-        filename   = 'logs/hwautomation.log'
-        maxBytes   = 5242880
+        filename   = 'logs/errors.log'
+        maxBytes   = '5242880'
         mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7e46c00&gt;
-/usr/lib/python3.12/logging/handlers.py:58: in __init__
-    logging.FileHandler.__init__(self, filename, mode=mode,
-        delay      = False
-        encoding   = 'locale'
-        errors     = None
-        filename   = 'logs/hwautomation.log'
-        mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7e46c00&gt;
-/usr/lib/python3.12/logging/__init__.py:1231: in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-        delay      = False
-        encoding   = 'locale'
-        errors     = None
-        filename   = 'logs/hwautomation.log'
-        mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7e46c00&gt;
-/usr/lib/python3.12/logging/__init__.py:1263: in _open
-    return open_func(self.baseFilename, self.mode,
-E   PermissionError: [Errno 13] Permission denied: '/home/ubuntu/HWAutomation/logs/hwautomation.log'
-        open_func  = &lt;built-in function open&gt;
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7e46c00&gt;
+        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x7f41e4f46de0&gt;
 
 The above exception was the direct cause of the following exception:
-tests/unit/test_config.py:10: in &lt;module&gt;
-    from hwautomation.utils.config import load_config
+tests/integration/test_workflow.py:7: in &lt;module&gt;
+    from hwautomation.orchestration.workflow_manager import WorkflowManager
         __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/ubuntu/HWAutomation/tests/unit/__pycache__/test_config.cpython-312.pyc'
-        __doc__    = '\nUnit tests for configuration management.\n'
-        __file__   = '/home/ubuntu/HWAutomation/tests/unit/test_config.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x75b1e8db5850&gt;
-        __name__   = 'unit.test_config'
-        __package__ = 'unit'
-        __spec__   = ModuleSpec(name='unit.test_config', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x75b1e8db5850&gt;, origin='/home/ubuntu/HWAutomation/tests/unit/test_config.py')
-        mock_open  = &lt;function mock_open at 0x75b1e8259940&gt;
-        patch      = &lt;function patch at 0x75b1e8252a20&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/tests/integration/__pycache__/test_workflow.cpython-312.pyc'
+        __doc__    = '\nIntegration tests for workflow management.\n'
+        __file__   = '/home/ubuntu/HWAutomation/tests/integration/test_workflow.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;
+        __name__   = 'integration.test_workflow'
+        __package__ = 'integration'
+        __spec__   = ModuleSpec(name='integration.test_workflow', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;, origin='/home/ubuntu/HWAutomation/tests/integration/test_workflow.py')
         pytest     = &lt;module 'pytest' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/pytest/__init__.py'&gt;
-        yaml       = &lt;module 'yaml' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/yaml/__init__.py'&gt;
 src/hwautomation/__init__.py:14: in &lt;module&gt;
     from .hardware.bios_config import BiosConfigManager
         DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
@@ -82,11 +59,11 @@ src/hwautomation/__init__.py:14: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
         __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7a21850&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4eb6f30&gt;
         __name__   = 'hwautomation'
         __package__ = 'hwautomation'
         __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7a21850&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
+        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4eb6f30&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
         __version__ = '1.0.0'
         database   = &lt;module 'hwautomation.database' from '/home/ubuntu/HWAutomation/src/hwautomation/database/__init__.py'&gt;
         logging    = &lt;module 'hwautomation.logging' from '/home/ubuntu/HWAutomation/src/hwautomation/logging/__init__.py'&gt;
@@ -96,11 +73,11 @@ src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
         __doc__    = 'Hardware management package.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7a22ea0&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f005c0&gt;
         __name__   = 'hwautomation.hardware'
         __package__ = 'hwautomation.hardware'
         __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7a22ea0&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
+        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f005c0&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
 src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
     from .bios_decision_logic import (
         Any        = typing.Any
@@ -114,14 +91,14 @@ src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_config.cpython-312.pyc'
         __doc__    = '\nBIOS Configuration Manager for Hardware Automation\n\nThis module provides functionality for managing BIOS configur...h the updated configuration back\n\nThis preserves MAC addresses, boot order, and other hardware-specific settings.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7a22ff0&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f00710&gt;
         __name__   = 'hwautomation.hardware.bios_config'
         __package__ = 'hwautomation.hardware'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7a22ff0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
-        cast       = &lt;function cast at 0x75b1e9794ae0&gt;
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f00710&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
+        cast       = &lt;function cast at 0x7f41e6bf1300&gt;
         copy       = &lt;module 'copy' from '/usr/lib/python3.12/copy.py'&gt;
         datetime   = &lt;class 'datetime.datetime'&gt;
-        get_logger = &lt;function get_logger at 0x75b1e7adff60&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         os         = &lt;module 'os' (frozen)&gt;
         time       = &lt;module 'time' (built-in)&gt;
@@ -140,18 +117,18 @@ src/hwautomation/hardware/bios_decision_logic.py:16: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_decision_logic.cpython-312.pyc'
         __doc__    = '\nEnhanced BIOS Configuration Decision Logic\n\nImplements intelligent per-setting method selection for BIOS configur...en Redfish and vendor tools based on setting characteristics,\ndevice capabilities, and performance considerations.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7ad1d00&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f46060&gt;
         __name__   = 'hwautomation.hardware.bios_decision_logic'
         __package__ = 'hwautomation.hardware'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7ad1d00&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
-        dataclass  = &lt;function dataclass at 0x75b1e96b4d60&gt;
-        get_logger = &lt;function get_logger at 0x75b1e7adff60&gt;
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f46060&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
+        dataclass  = &lt;function dataclass at 0x7f41e6b0d4e0&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
-src/hwautomation/logging/config.py:340: in get_logger
+src/hwautomation/logging/config.py:344: in get_logger
     setup_logging()
         correlation_id = None
         name       = 'hwautomation.hardware.bios_decision_logic'
-src/hwautomation/logging/config.py:315: in setup_logging
+src/hwautomation/logging/config.py:319: in setup_logging
     logging.config.dictConfig(config)
         config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
         config_path = None
@@ -162,93 +139,76 @@ src/hwautomation/logging/config.py:315: in setup_logging
         config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
 /usr/lib/python3.12/logging/config.py:588: in configure
     raise ValueError('Unable to configure handler '
-E   ValueError: Unable to configure handler 'file'
+E   ValueError: Unable to configure handler 'error_file'
         EMPTY_DICT = {}
-        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x75b1e7c36ab0&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4eb7c50&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
         deferred   = []
         disable_existing = False
         filters    = {}
-        formatters = {'standard': &lt;logging.Formatter object at 0x75b1e7c36ab0&gt;, 'detailed': &lt;logging.Formatter object at 0x75b1e8dd0830&gt;}
-        handler    = &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;
-        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'filename': 'logs/hwautomati...es': 5242880, 'backupCount': 3}, 'error_file': &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4eb7c50&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e50490d0&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
         incremental = False
-        name       = 'file'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e7ad2480&gt;</error></testcase><testcase classname="" name="tests.unit.test_env_config" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4f46f30&gt;</error></testcase><testcase classname="" name="tests.test_firmware_manager" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
     handler = self.configure_handler(handlers[name])
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         EMPTY_DICT = {}
-        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x75b1e7ad23f0&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4eb6c00&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
         deferred   = []
         disable_existing = False
         filters    = {}
-        formatters = {'standard': &lt;logging.Formatter object at 0x75b1e7ad23f0&gt;, 'detailed': &lt;logging.Formatter object at 0x75b1e7ad22a0&gt;}
-        handler    = &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;
-        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'filename': 'logs/hwautomati...es': 5242880, 'backupCount': 3}, 'error_file': &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4eb6c00&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4eb7a40&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
         incremental = False
-        name       = 'file'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e79dd220&gt;
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4eb6840&gt;
 /usr/lib/python3.12/logging/config.py:848: in configure_handler
     result = factory(**kwargs)
              ^^^^^^^^^^^^^^^^^
         cname      = 'logging.handlers.RotatingFileHandler'
-        config     = {'filename': 'logs/hwautomation.log', 'maxBytes': 5242880, 'backupCount': 3}
-        config_copy = {'backupCount': 3, 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/hwautomation.log', 'formatter': 'detailed', ...}
+        config     = {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}
+        config_copy = {'backupCount': '5', 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/errors.log', 'formatter': 'detailed', ...}
         factory    = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
         filters    = None
-        formatter  = &lt;logging.Formatter object at 0x75b1e7ad22a0&gt;
+        formatter  = &lt;logging.Formatter object at 0x7f41e4eb7a40&gt;
         klass      = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
-        kwargs     = {'backupCount': 3, 'filename': 'logs/hwautomation.log', 'maxBytes': 5242880}
-        level      = 'DEBUG'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e79dd220&gt;
-/usr/lib/python3.12/logging/handlers.py:155: in __init__
-    BaseRotatingHandler.__init__(self, filename, mode, encoding=encoding,
-        backupCount = 3
+        kwargs     = {'backupCount': '5', 'filename': 'logs/errors.log', 'maxBytes': '5242880'}
+        level      = 'ERROR'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4eb6840&gt;
+/usr/lib/python3.12/logging/handlers.py:151: in __init__
+    if maxBytes &gt; 0:
+       ^^^^^^^^^^^^
+E   TypeError: '&gt;' not supported between instances of 'str' and 'int'
+        backupCount = '5'
         delay      = False
-        encoding   = 'locale'
+        encoding   = None
         errors     = None
-        filename   = 'logs/hwautomation.log'
-        maxBytes   = 5242880
+        filename   = 'logs/errors.log'
+        maxBytes   = '5242880'
         mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e79dd280&gt;
-/usr/lib/python3.12/logging/handlers.py:58: in __init__
-    logging.FileHandler.__init__(self, filename, mode=mode,
-        delay      = False
-        encoding   = 'locale'
-        errors     = None
-        filename   = 'logs/hwautomation.log'
-        mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e79dd280&gt;
-/usr/lib/python3.12/logging/__init__.py:1231: in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-        delay      = False
-        encoding   = 'locale'
-        errors     = None
-        filename   = 'logs/hwautomation.log'
-        mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e79dd280&gt;
-/usr/lib/python3.12/logging/__init__.py:1263: in _open
-    return open_func(self.baseFilename, self.mode,
-E   PermissionError: [Errno 13] Permission denied: '/home/ubuntu/HWAutomation/logs/hwautomation.log'
-        open_func  = &lt;built-in function open&gt;
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e79dd280&gt;
+        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x7f41e4eb7530&gt;
 
 The above exception was the direct cause of the following exception:
-tests/unit/test_env_config.py:12: in &lt;module&gt;
-    from hwautomation.utils.env_config import Config, ConfigError, load_config
+tests/test_firmware_manager.py:17: in &lt;module&gt;
+    from hwautomation.hardware.firmware_manager import (
+        AsyncMock  = &lt;class 'unittest.mock.AsyncMock'&gt;
+        Mock       = &lt;class 'unittest.mock.Mock'&gt;
         Path       = &lt;class 'pathlib.Path'&gt;
         __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/ubuntu/HWAutomation/tests/unit/__pycache__/test_env_config.cpython-312.pyc'
-        __doc__    = '\nUnit tests for environment-based configuration system.\n'
-        __file__   = '/home/ubuntu/HWAutomation/tests/unit/test_env_config.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x75b1e8db5850&gt;
-        __name__   = 'unit.test_env_config'
-        __package__ = 'unit'
-        __spec__   = ModuleSpec(name='unit.test_env_config', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x75b1e8db5850&gt;, origin='/home/ubuntu/HWAutomation/tests/unit/test_env_config.py')
-        mock_open  = &lt;function mock_open at 0x75b1e8259940&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/tests/__pycache__/test_firmware_manager.cpython-312.pyc'
+        __doc__    = '\nUnit tests for Firmware Manager - Phase 4 Implementation\n'
+        __file__   = '/home/ubuntu/HWAutomation/tests/test_firmware_manager.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;
+        __name__   = 'test_firmware_manager'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_firmware_manager', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;, origin='/home/ubuntu/HWAutomation/tests/test_firmware_manager.py')
+        asyncio    = &lt;module 'asyncio' from '/usr/lib/python3.12/asyncio/__init__.py'&gt;
         os         = &lt;module 'os' (frozen)&gt;
-        patch      = &lt;function patch at 0x75b1e8252a20&gt;
+        patch      = &lt;function patch at 0x7f41e5681080&gt;
         pytest     = &lt;module 'pytest' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/pytest/__init__.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
         tempfile   = &lt;module 'tempfile' from '/usr/lib/python3.12/tempfile.py'&gt;
 src/hwautomation/__init__.py:14: in &lt;module&gt;
     from .hardware.bios_config import BiosConfigManager
@@ -259,11 +219,11 @@ src/hwautomation/__init__.py:14: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
         __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dc680&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f00710&gt;
         __name__   = 'hwautomation'
         __package__ = 'hwautomation'
         __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dc680&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
+        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f00710&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
         __version__ = '1.0.0'
 src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
     from .bios_config import BiosConfigManager
@@ -271,11 +231,11 @@ src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
         __doc__    = 'Hardware management package.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dc0e0&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f01100&gt;
         __name__   = 'hwautomation.hardware'
         __package__ = 'hwautomation.hardware'
         __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dc0e0&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
+        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f01100&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
 src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
     from .bios_decision_logic import (
         Any        = typing.Any
@@ -289,14 +249,14 @@ src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_config.cpython-312.pyc'
         __doc__    = '\nBIOS Configuration Manager for Hardware Automation\n\nThis module provides functionality for managing BIOS configur...h the updated configuration back\n\nThis preserves MAC addresses, boot order, and other hardware-specific settings.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dc200&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f009e0&gt;
         __name__   = 'hwautomation.hardware.bios_config'
         __package__ = 'hwautomation.hardware'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dc200&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
-        cast       = &lt;function cast at 0x75b1e9794ae0&gt;
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f009e0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
+        cast       = &lt;function cast at 0x7f41e6bf1300&gt;
         copy       = &lt;module 'copy' from '/usr/lib/python3.12/copy.py'&gt;
         datetime   = &lt;class 'datetime.datetime'&gt;
-        get_logger = &lt;function get_logger at 0x75b1e7adff60&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         os         = &lt;module 'os' (frozen)&gt;
         time       = &lt;module 'time' (built-in)&gt;
@@ -315,18 +275,18 @@ src/hwautomation/hardware/bios_decision_logic.py:16: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_decision_logic.cpython-312.pyc'
         __doc__    = '\nEnhanced BIOS Configuration Decision Logic\n\nImplements intelligent per-setting method selection for BIOS configur...en Redfish and vendor tools based on setting characteristics,\ndevice capabilities, and performance considerations.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dcec0&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4eb7aa0&gt;
         __name__   = 'hwautomation.hardware.bios_decision_logic'
         __package__ = 'hwautomation.hardware'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e79dcec0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
-        dataclass  = &lt;function dataclass at 0x75b1e96b4d60&gt;
-        get_logger = &lt;function get_logger at 0x75b1e7adff60&gt;
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4eb7aa0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
+        dataclass  = &lt;function dataclass at 0x7f41e6b0d4e0&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
-src/hwautomation/logging/config.py:340: in get_logger
+src/hwautomation/logging/config.py:344: in get_logger
     setup_logging()
         correlation_id = None
         name       = 'hwautomation.hardware.bios_decision_logic'
-src/hwautomation/logging/config.py:315: in setup_logging
+src/hwautomation/logging/config.py:319: in setup_logging
     logging.config.dictConfig(config)
         config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
         config_path = None
@@ -337,95 +297,232 @@ src/hwautomation/logging/config.py:315: in setup_logging
         config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
 /usr/lib/python3.12/logging/config.py:588: in configure
     raise ValueError('Unable to configure handler '
-E   ValueError: Unable to configure handler 'file'
+E   ValueError: Unable to configure handler 'error_file'
         EMPTY_DICT = {}
-        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x75b1e7ad23f0&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4eb6c00&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
         deferred   = []
         disable_existing = False
         filters    = {}
-        formatters = {'standard': &lt;logging.Formatter object at 0x75b1e7ad23f0&gt;, 'detailed': &lt;logging.Formatter object at 0x75b1e7ad22a0&gt;}
-        handler    = &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;
-        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'filename': 'logs/hwautomati...es': 5242880, 'backupCount': 3}, 'error_file': &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4eb6c00&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4eb7a40&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
         incremental = False
-        name       = 'file'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e79dd220&gt;</error></testcase><testcase classname="" name="tests.unit.test_redfish_manager" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4eb6840&gt;</error></testcase><testcase classname="" name="tests.test_firmware_web_interface" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
     handler = self.configure_handler(handlers[name])
               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         EMPTY_DICT = {}
-        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x75b1e79dd400&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4f8c830&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
         deferred   = []
         disable_existing = False
         filters    = {}
-        formatters = {'standard': &lt;logging.Formatter object at 0x75b1e79dd400&gt;, 'detailed': &lt;logging.Formatter object at 0x75b1e79dd340&gt;}
-        handler    = &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;
-        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'filename': 'logs/hwautomati...es': 5242880, 'backupCount': 3}, 'error_file': &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4f8c830&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4f8c8c0&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
         incremental = False
-        name       = 'file'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e7675f70&gt;
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4f8c170&gt;
 /usr/lib/python3.12/logging/config.py:848: in configure_handler
     result = factory(**kwargs)
              ^^^^^^^^^^^^^^^^^
         cname      = 'logging.handlers.RotatingFileHandler'
-        config     = {'filename': 'logs/hwautomation.log', 'maxBytes': 5242880, 'backupCount': 3}
-        config_copy = {'backupCount': 3, 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/hwautomation.log', 'formatter': 'detailed', ...}
+        config     = {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}
+        config_copy = {'backupCount': '5', 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/errors.log', 'formatter': 'detailed', ...}
         factory    = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
         filters    = None
-        formatter  = &lt;logging.Formatter object at 0x75b1e79dd340&gt;
+        formatter  = &lt;logging.Formatter object at 0x7f41e4f8c8c0&gt;
         klass      = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
-        kwargs     = {'backupCount': 3, 'filename': 'logs/hwautomation.log', 'maxBytes': 5242880}
-        level      = 'DEBUG'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e7675f70&gt;
-/usr/lib/python3.12/logging/handlers.py:155: in __init__
-    BaseRotatingHandler.__init__(self, filename, mode, encoding=encoding,
-        backupCount = 3
+        kwargs     = {'backupCount': '5', 'filename': 'logs/errors.log', 'maxBytes': '5242880'}
+        level      = 'ERROR'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4f8c170&gt;
+/usr/lib/python3.12/logging/handlers.py:151: in __init__
+    if maxBytes &gt; 0:
+       ^^^^^^^^^^^^
+E   TypeError: '&gt;' not supported between instances of 'str' and 'int'
+        backupCount = '5'
         delay      = False
-        encoding   = 'locale'
+        encoding   = None
         errors     = None
-        filename   = 'logs/hwautomation.log'
-        maxBytes   = 5242880
+        filename   = 'logs/errors.log'
+        maxBytes   = '5242880'
         mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7676030&gt;
-/usr/lib/python3.12/logging/handlers.py:58: in __init__
-    logging.FileHandler.__init__(self, filename, mode=mode,
-        delay      = False
-        encoding   = 'locale'
-        errors     = None
-        filename   = 'logs/hwautomation.log'
-        mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7676030&gt;
-/usr/lib/python3.12/logging/__init__.py:1231: in __init__
-    StreamHandler.__init__(self, self._open())
-                                 ^^^^^^^^^^^^
-        delay      = False
-        encoding   = 'locale'
-        errors     = None
-        filename   = 'logs/hwautomation.log'
-        mode       = 'a'
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7676030&gt;
-/usr/lib/python3.12/logging/__init__.py:1263: in _open
-    return open_func(self.baseFilename, self.mode,
-E   PermissionError: [Errno 13] Permission denied: '/home/ubuntu/HWAutomation/logs/hwautomation.log'
-        open_func  = &lt;built-in function open&gt;
-        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x75b1e7676030&gt;
+        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x7f41e4f8cfb0&gt;
 
 The above exception was the direct cause of the following exception:
-tests/unit/test_redfish_manager.py:18: in &lt;module&gt;
-    from hwautomation.hardware.bios_config import BiosConfigManager
+tests/test_firmware_web_interface.py:25: in &lt;module&gt;
+    from hwautomation.hardware.firmware_manager import FirmwareManager
+        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
         MagicMock  = &lt;class 'unittest.mock.MagicMock'&gt;
         Mock       = &lt;class 'unittest.mock.Mock'&gt;
         Path       = &lt;class 'pathlib.Path'&gt;
         __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/ubuntu/HWAutomation/tests/unit/__pycache__/test_redfish_manager.cpython-312.pyc'
-        __doc__    = '\nUnit tests for Redfish Manager (Phase 1)\n\nTests basic Redfish functionality including connection, capability discovery,\nand integration with BiosConfigManager.\n'
-        __file__   = '/home/ubuntu/HWAutomation/tests/unit/test_redfish_manager.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x75b1e8db5850&gt;
-        __name__   = 'unit.test_redfish_manager'
-        __package__ = 'unit'
-        __spec__   = ModuleSpec(name='unit.test_redfish_manager', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x75b1e8db5850&gt;, origin='/home/ubuntu/HWAutomation/tests/unit/test_redfish_manager.py')
-        mock       = &lt;module 'unittest.mock' from '/usr/lib/python3.12/unittest/mock.py'&gt;
-        patch      = &lt;function patch at 0x75b1e8252a20&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/tests/__pycache__/test_firmware_web_interface.cpython-312.pyc'
+        __doc__    = '\nUnit tests for firmware web interface components.\n'
+        __file__   = '/home/ubuntu/HWAutomation/tests/test_firmware_web_interface.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;
+        __name__   = 'test_firmware_web_interface'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_firmware_web_interface', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;, origin='/home/ubuntu/HWAutomation/tests/test_firmware_web_interface.py')
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
+        patch      = &lt;function patch at 0x7f41e5681080&gt;
         pytest     = &lt;module 'pytest' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/pytest/__init__.py'&gt;
-        requests   = &lt;module 'requests' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/requests/__init__.py'&gt;
+        pytestmark = [MarkDecorator(mark=Mark(name='web', args=(), kwargs={})), MarkDecorator(mark=Mark(name='integration', args=(), kwargs={}))]
+        shutil     = &lt;module 'shutil' from '/usr/lib/python3.12/shutil.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        tempfile   = &lt;module 'tempfile' from '/usr/lib/python3.12/tempfile.py'&gt;
+        timedelta  = &lt;class 'datetime.timedelta'&gt;
+src/hwautomation/__init__.py:14: in &lt;module&gt;
+    from .hardware.bios_config import BiosConfigManager
+        DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
+        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
+        __author__ = 'Hardware Automation Team'
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8d280&gt;
+        __name__   = 'hwautomation'
+        __package__ = 'hwautomation'
+        __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation']
+        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8d280&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
+        __version__ = '1.0.0'
+src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
+    from .bios_config import BiosConfigManager
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = 'Hardware management package.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8f2f0&gt;
+        __name__   = 'hwautomation.hardware'
+        __package__ = 'hwautomation.hardware'
+        __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation/hardware']
+        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8f2f0&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
+src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
+    from .bios_decision_logic import (
+        Any        = typing.Any
+        Dict       = typing.Dict
+        ET         = &lt;module 'xml.etree.ElementTree' from '/usr/lib/python3.12/xml/etree/ElementTree.py'&gt;
+        List       = typing.List
+        Optional   = typing.Optional
+        Path       = &lt;class 'pathlib.Path'&gt;
+        Tuple      = typing.Tuple
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_config.cpython-312.pyc'
+        __doc__    = '\nBIOS Configuration Manager for Hardware Automation\n\nThis module provides functionality for managing BIOS configur...h the updated configuration back\n\nThis preserves MAC addresses, boot order, and other hardware-specific settings.\n.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8e0f0&gt;
+        __name__   = 'hwautomation.hardware.bios_config'
+        __package__ = 'hwautomation.hardware'
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8e0f0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
+        cast       = &lt;function cast at 0x7f41e6bf1300&gt;
+        copy       = &lt;module 'copy' from '/usr/lib/python3.12/copy.py'&gt;
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        time       = &lt;module 'time' (built-in)&gt;
+        yaml       = &lt;module 'yaml' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/yaml/__init__.py'&gt;
+src/hwautomation/hardware/bios_decision_logic.py:16: in &lt;module&gt;
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+        Any        = typing.Any
+        Dict       = typing.Dict
+        Enum       = &lt;enum 'Enum'&gt;
+        List       = typing.List
+        Optional   = typing.Optional
+        Set        = typing.Set
+        Tuple      = typing.Tuple
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_decision_logic.cpython-312.pyc'
+        __doc__    = '\nEnhanced BIOS Configuration Decision Logic\n\nImplements intelligent per-setting method selection for BIOS configur...en Redfish and vendor tools based on setting characteristics,\ndevice capabilities, and performance considerations.\n.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8cce0&gt;
+        __name__   = 'hwautomation.hardware.bios_decision_logic'
+        __package__ = 'hwautomation.hardware'
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4f8cce0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
+        dataclass  = &lt;function dataclass at 0x7f41e6b0d4e0&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+src/hwautomation/logging/config.py:344: in get_logger
+    setup_logging()
+        correlation_id = None
+        name       = 'hwautomation.hardware.bios_decision_logic'
+src/hwautomation/logging/config.py:319: in setup_logging
+    logging.config.dictConfig(config)
+        config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
+        config_path = None
+        environment = 'development'
+        force_reload = False
+/usr/lib/python3.12/logging/config.py:914: in dictConfig
+    dictConfigClass(config).configure()
+        config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
+/usr/lib/python3.12/logging/config.py:588: in configure
+    raise ValueError('Unable to configure handler '
+E   ValueError: Unable to configure handler 'error_file'
+        EMPTY_DICT = {}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4f8c830&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        deferred   = []
+        disable_existing = False
+        filters    = {}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4f8c830&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4f8c8c0&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
+        incremental = False
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4f8c170&gt;</error></testcase><testcase classname="" name="tests.test_phase2_decision_logic" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
+    handler = self.configure_handler(handlers[name])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        EMPTY_DICT = {}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4de57c0&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        deferred   = []
+        disable_existing = False
+        filters    = {}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4de57c0&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4de7d70&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
+        incremental = False
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4de6750&gt;
+/usr/lib/python3.12/logging/config.py:848: in configure_handler
+    result = factory(**kwargs)
+             ^^^^^^^^^^^^^^^^^
+        cname      = 'logging.handlers.RotatingFileHandler'
+        config     = {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}
+        config_copy = {'backupCount': '5', 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/errors.log', 'formatter': 'detailed', ...}
+        factory    = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
+        filters    = None
+        formatter  = &lt;logging.Formatter object at 0x7f41e4de7d70&gt;
+        klass      = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
+        kwargs     = {'backupCount': '5', 'filename': 'logs/errors.log', 'maxBytes': '5242880'}
+        level      = 'ERROR'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4de6750&gt;
+/usr/lib/python3.12/logging/handlers.py:151: in __init__
+    if maxBytes &gt; 0:
+       ^^^^^^^^^^^^
+E   TypeError: '&gt;' not supported between instances of 'str' and 'int'
+        backupCount = '5'
+        delay      = False
+        encoding   = None
+        errors     = None
+        filename   = 'logs/errors.log'
+        maxBytes   = '5242880'
+        mode       = 'a'
+        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x7f41e4de4980&gt;
+
+The above exception was the direct cause of the following exception:
+tests/test_phase2_decision_logic.py:15: in &lt;module&gt;
+    from hwautomation.hardware.bios_config import BiosConfigManager
+        Path       = &lt;class 'pathlib.Path'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/tests/__pycache__/test_phase2_decision_logic.cpython-312.pyc'
+        __doc__    = '\nTest Phase 2 Enhanced BIOS Configuration Decision Logic\n\nThis test demonstrates the new per-setting method selection capabilities\nthat intelligently choose between Redfish and vendor tools for each BIOS setting.\n'
+        __file__   = '/home/ubuntu/HWAutomation/tests/test_phase2_decision_logic.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;
+        __name__   = 'test_phase2_decision_logic'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_phase2_decision_logic', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;, origin='/home/ubuntu/HWAutomation/tests/test_phase2_decision_logic.py')
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         sys        = &lt;module 'sys' (built-in)&gt;
 src/hwautomation/__init__.py:14: in &lt;module&gt;
     from .hardware.bios_config import BiosConfigManager
@@ -436,11 +533,11 @@ src/hwautomation/__init__.py:14: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
         __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e76e1580&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4fa6fc0&gt;
         __name__   = 'hwautomation'
         __package__ = 'hwautomation'
         __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e76e1580&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
+        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4fa6fc0&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
         __version__ = '1.0.0'
 src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
     from .bios_config import BiosConfigManager
@@ -448,11 +545,11 @@ src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
         __doc__    = 'Hardware management package.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7675040&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4fa7b30&gt;
         __name__   = 'hwautomation.hardware'
         __package__ = 'hwautomation.hardware'
         __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7675040&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
+        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4fa7b30&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
 src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
     from .bios_decision_logic import (
         Any        = typing.Any
@@ -466,14 +563,14 @@ src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_config.cpython-312.pyc'
         __doc__    = '\nBIOS Configuration Manager for Hardware Automation\n\nThis module provides functionality for managing BIOS configur...h the updated configuration back\n\nThis preserves MAC addresses, boot order, and other hardware-specific settings.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7675010&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4fa73e0&gt;
         __name__   = 'hwautomation.hardware.bios_config'
         __package__ = 'hwautomation.hardware'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7675010&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
-        cast       = &lt;function cast at 0x75b1e9794ae0&gt;
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4fa73e0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
+        cast       = &lt;function cast at 0x7f41e6bf1300&gt;
         copy       = &lt;module 'copy' from '/usr/lib/python3.12/copy.py'&gt;
         datetime   = &lt;class 'datetime.datetime'&gt;
-        get_logger = &lt;function get_logger at 0x75b1e7adff60&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         os         = &lt;module 'os' (frozen)&gt;
         time       = &lt;module 'time' (built-in)&gt;
@@ -492,18 +589,18 @@ src/hwautomation/hardware/bios_decision_logic.py:16: in &lt;module&gt;
         __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_decision_logic.cpython-312.pyc'
         __doc__    = '\nEnhanced BIOS Configuration Decision Logic\n\nImplements intelligent per-setting method selection for BIOS configur...en Redfish and vendor tools based on setting characteristics,\ndevice capabilities, and performance considerations.\n.'
         __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7675cd0&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de43e0&gt;
         __name__   = 'hwautomation.hardware.bios_decision_logic'
         __package__ = 'hwautomation.hardware'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x75b1e7675cd0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
-        dataclass  = &lt;function dataclass at 0x75b1e96b4d60&gt;
-        get_logger = &lt;function get_logger at 0x75b1e7adff60&gt;
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de43e0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
+        dataclass  = &lt;function dataclass at 0x7f41e6b0d4e0&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
-src/hwautomation/logging/config.py:340: in get_logger
+src/hwautomation/logging/config.py:344: in get_logger
     setup_logging()
         correlation_id = None
         name       = 'hwautomation.hardware.bios_decision_logic'
-src/hwautomation/logging/config.py:315: in setup_logging
+src/hwautomation/logging/config.py:319: in setup_logging
     logging.config.dictConfig(config)
         config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
         config_path = None
@@ -514,15 +611,169 @@ src/hwautomation/logging/config.py:315: in setup_logging
         config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
 /usr/lib/python3.12/logging/config.py:588: in configure
     raise ValueError('Unable to configure handler '
-E   ValueError: Unable to configure handler 'file'
+E   ValueError: Unable to configure handler 'error_file'
         EMPTY_DICT = {}
-        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x75b1e79dd400&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4de57c0&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
         deferred   = []
         disable_existing = False
         filters    = {}
-        formatters = {'standard': &lt;logging.Formatter object at 0x75b1e79dd400&gt;, 'detailed': &lt;logging.Formatter object at 0x75b1e79dd340&gt;}
-        handler    = &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;
-        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'filename': 'logs/hwautomati...es': 5242880, 'backupCount': 3}, 'error_file': &lt;RotatingFileHandler /home/ubuntu/HWAutomation/logs/errors.log (ERROR)&gt;}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4de57c0&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4de7d70&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
         incremental = False
-        name       = 'file'
-        self       = &lt;logging.config.DictConfigurator object at 0x75b1e7675f70&gt;</error></testcase></testsuite></testsuites>
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4de6750&gt;</error></testcase><testcase classname="" name="tests.test_phase2_focused" time="0.000"><error message="collection failure">/usr/lib/python3.12/logging/config.py:581: in configure
+    handler = self.configure_handler(handlers[name])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        EMPTY_DICT = {}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4de4620&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        deferred   = []
+        disable_existing = False
+        filters    = {}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4de4620&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4de4500&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
+        incremental = False
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4de46b0&gt;
+/usr/lib/python3.12/logging/config.py:848: in configure_handler
+    result = factory(**kwargs)
+             ^^^^^^^^^^^^^^^^^
+        cname      = 'logging.handlers.RotatingFileHandler'
+        config     = {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}
+        config_copy = {'backupCount': '5', 'class': 'logging.handlers.RotatingFileHandler', 'filename': 'logs/errors.log', 'formatter': 'detailed', ...}
+        factory    = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
+        filters    = None
+        formatter  = &lt;logging.Formatter object at 0x7f41e4de4500&gt;
+        klass      = &lt;class 'logging.handlers.RotatingFileHandler'&gt;
+        kwargs     = {'backupCount': '5', 'filename': 'logs/errors.log', 'maxBytes': '5242880'}
+        level      = 'ERROR'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4de46b0&gt;
+/usr/lib/python3.12/logging/handlers.py:151: in __init__
+    if maxBytes &gt; 0:
+       ^^^^^^^^^^^^
+E   TypeError: '&gt;' not supported between instances of 'str' and 'int'
+        backupCount = '5'
+        delay      = False
+        encoding   = None
+        errors     = None
+        filename   = 'logs/errors.log'
+        maxBytes   = '5242880'
+        mode       = 'a'
+        self       = &lt;[AttributeError("'RotatingFileHandler' object has no attribute 'level'") raised in repr()] RotatingFileHandler object at 0x7f41e4de5190&gt;
+
+The above exception was the direct cause of the following exception:
+tests/test_phase2_focused.py:24: in &lt;module&gt;
+    from hwautomation.hardware.bios_decision_logic import (
+        Path       = &lt;class 'pathlib.Path'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/tests/__pycache__/test_phase2_focused.cpython-312.pyc'
+        __doc__    = '\nFocused Phase 2 Decision Logic Test\n\nThis test demonstrates the enhanced per-setting method selection without\nrequiring full hwautomation module imports.\n'
+        __file__   = '/home/ubuntu/HWAutomation/tests/test_phase2_focused.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;
+        __name__   = 'test_phase2_focused'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_phase2_focused', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f41e627c860&gt;, origin='/home/ubuntu/HWAutomation/tests/test_phase2_focused.py')
+        logger     = &lt;Logger test_phase2_focused (INFO)&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        yaml       = &lt;module 'yaml' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/yaml/__init__.py'&gt;
+src/hwautomation/__init__.py:14: in &lt;module&gt;
+    from .hardware.bios_config import BiosConfigManager
+        DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
+        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
+        __author__ = 'Hardware Automation Team'
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de6ae0&gt;
+        __name__   = 'hwautomation'
+        __package__ = 'hwautomation'
+        __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation']
+        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de6ae0&gt;, origin=.../HWAutomation/src/hwautomation/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation'])
+        __version__ = '1.0.0'
+src/hwautomation/hardware/__init__.py:3: in &lt;module&gt;
+    from .bios_config import BiosConfigManager
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = 'Hardware management package.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de44a0&gt;
+        __name__   = 'hwautomation.hardware'
+        __package__ = 'hwautomation.hardware'
+        __path__   = ['/home/ubuntu/HWAutomation/src/hwautomation/hardware']
+        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de44a0&gt;...hwautomation/hardware/__init__.py', submodule_search_locations=['/home/ubuntu/HWAutomation/src/hwautomation/hardware'])
+src/hwautomation/hardware/bios_config.py:28: in &lt;module&gt;
+    from .bios_decision_logic import (
+        Any        = typing.Any
+        Dict       = typing.Dict
+        ET         = &lt;module 'xml.etree.ElementTree' from '/usr/lib/python3.12/xml/etree/ElementTree.py'&gt;
+        List       = typing.List
+        Optional   = typing.Optional
+        Path       = &lt;class 'pathlib.Path'&gt;
+        Tuple      = typing.Tuple
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_config.cpython-312.pyc'
+        __doc__    = '\nBIOS Configuration Manager for Hardware Automation\n\nThis module provides functionality for managing BIOS configur...h the updated configuration back\n\nThis preserves MAC addresses, boot order, and other hardware-specific settings.\n.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de6480&gt;
+        __name__   = 'hwautomation.hardware.bios_config'
+        __package__ = 'hwautomation.hardware'
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_config', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de6480&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_config.py')
+        cast       = &lt;function cast at 0x7f41e6bf1300&gt;
+        copy       = &lt;module 'copy' from '/usr/lib/python3.12/copy.py'&gt;
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        time       = &lt;module 'time' (built-in)&gt;
+        yaml       = &lt;module 'yaml' from '/home/ubuntu/HWAutomation/hwautomation-env/lib/python3.12/site-packages/yaml/__init__.py'&gt;
+src/hwautomation/hardware/bios_decision_logic.py:16: in &lt;module&gt;
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+        Any        = typing.Any
+        Dict       = typing.Dict
+        Enum       = &lt;enum 'Enum'&gt;
+        List       = typing.List
+        Optional   = typing.Optional
+        Set        = typing.Set
+        Tuple      = typing.Tuple
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/__pycache__/bios_decision_logic.cpython-312.pyc'
+        __doc__    = '\nEnhanced BIOS Configuration Decision Logic\n\nImplements intelligent per-setting method selection for BIOS configur...en Redfish and vendor tools based on setting characteristics,\ndevice capabilities, and performance considerations.\n.'
+        __file__   = '/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de54c0&gt;
+        __name__   = 'hwautomation.hardware.bios_decision_logic'
+        __package__ = 'hwautomation.hardware'
+        __spec__   = ModuleSpec(name='hwautomation.hardware.bios_decision_logic', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f41e4de54c0&gt;, origin='/home/ubuntu/HWAutomation/src/hwautomation/hardware/bios_decision_logic.py')
+        dataclass  = &lt;function dataclass at 0x7f41e6b0d4e0&gt;
+        get_logger = &lt;function get_logger at 0x7f41e4dc67a0&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+src/hwautomation/logging/config.py:344: in get_logger
+    setup_logging()
+        correlation_id = None
+        name       = 'hwautomation.hardware.bios_decision_logic'
+src/hwautomation/logging/config.py:319: in setup_logging
+    logging.config.dictConfig(config)
+        config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
+        config_path = None
+        environment = 'development'
+        force_reload = False
+/usr/lib/python3.12/logging/config.py:914: in dictConfig
+    dictConfigClass(config).configure()
+        config     = {'disable_existing_loggers': False, 'formatters': {'detailed': {'format': '%(asctime)s - %(name)s - %(levelname)s - %(...loggers': {'hwautomation': {'handlers': ['console', 'file', 'error_file'], 'level': 'DEBUG', 'propagate': False}}, ...}
+/usr/lib/python3.12/logging/config.py:588: in configure
+    raise ValueError('Unable to configure handler '
+E   ValueError: Unable to configure handler 'error_file'
+        EMPTY_DICT = {}
+        config     = {'version': 1, 'formatters': {'standard': &lt;logging.Formatter object at 0x7f41e4de4620&gt;, 'detailed': &lt;logging.Formatter...nsole', 'file', 'error_file'], 'propagate': False}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'filters': {}}
+        deferred   = []
+        disable_existing = False
+        filters    = {}
+        formatters = {'standard': &lt;logging.Formatter object at 0x7f41e4de4620&gt;, 'detailed': &lt;logging.Formatter object at 0x7f41e4de4500&gt;}
+        handler    = &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;
+        handlers   = {'console': &lt;StreamHandler &lt;_io.FileIO name=6 mode='rb+' closefd=True&gt; (DEBUG)&gt;, 'file': {'class': 'logging.handlers.R...242880', 'backupCount': '3'}, 'error_file': {'filename': 'logs/errors.log', 'maxBytes': '5242880', 'backupCount': '5'}}
+        incremental = False
+        name       = 'error_file'
+        self       = &lt;logging.config.DictConfigurator object at 0x7f41e4de46b0&gt;</error></testcase></testsuite></testsuites>

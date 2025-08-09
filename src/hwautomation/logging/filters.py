@@ -275,12 +275,15 @@ class EnvironmentFilter(logging.Filter):
         )
 
         # Check minimum level
-        if record.levelno < rules["min_level"]:
+        min_level = rules["min_level"]
+        if isinstance(min_level, int) and record.levelno < min_level:
             # Allow debug from specific modules in staging
+            debug_modules = rules.get("debug_modules", [])
             if (
                 self.environment == "staging"
                 and record.levelno >= logging.DEBUG
-                and self._is_debug_module(record.name, rules["debug_modules"])
+                and isinstance(debug_modules, list)
+                and self._is_debug_module(record.name, debug_modules)
             ):
                 pass  # Allow this debug message
             else:

@@ -182,31 +182,33 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
                 "stream": "ext://sys.stdout",
             }
         }
-        
+
         if use_file_logging:
-            handlers.update({
-                "file": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "INFO",
-                    "formatter": "detailed",
-                    "filename": "logs/hwautomation.log",
-                    "maxBytes": 10485760,  # 10MB
-                    "backupCount": 5,
-                },
-                "error_file": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "ERROR",
-                    "formatter": "detailed",
-                    "filename": "logs/errors.log",
-                    "maxBytes": 10485760,
-                    "backupCount": 10,
-                },
-            })
-        
+            handlers.update(
+                {
+                    "file": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "level": "INFO",
+                        "formatter": "detailed",
+                        "filename": "logs/hwautomation.log",
+                        "maxBytes": "10485760",  # 10MB
+                        "backupCount": "5",
+                    },
+                    "error_file": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "level": "ERROR",
+                        "formatter": "detailed",
+                        "filename": "logs/errors.log",
+                        "maxBytes": "10485760",
+                        "backupCount": "10",
+                    },
+                }
+            )
+
         handler_list = ["console"]
         if use_file_logging:
             handler_list.extend(["file", "error_file"])
-            
+
         return {
             "version": 1,
             "disable_existing_loggers": False,
@@ -237,31 +239,33 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
                 "stream": "ext://sys.stdout",
             }
         }
-        
+
         if use_file_logging:
-            handlers.update({
-                "file": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "DEBUG",
-                    "formatter": "detailed",
-                    "filename": "logs/hwautomation.log",
-                    "maxBytes": 5242880,  # 5MB
-                    "backupCount": 3,
-                },
-                "error_file": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "ERROR",
-                    "formatter": "detailed",
-                    "filename": "logs/errors.log",
-                    "maxBytes": 5242880,
-                    "backupCount": 5,
-                },
-            })
-        
+            handlers.update(
+                {
+                    "file": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "level": "DEBUG",
+                        "formatter": "detailed",
+                        "filename": "logs/hwautomation.log",
+                        "maxBytes": "5242880",  # 5MB
+                        "backupCount": "3",
+                    },
+                    "error_file": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "level": "ERROR",
+                        "formatter": "detailed",
+                        "filename": "logs/errors.log",
+                        "maxBytes": "5242880",
+                        "backupCount": "5",
+                    },
+                }
+            )
+
         handler_list = ["console"]
         if use_file_logging:
             handler_list.extend(["file", "error_file"])
-            
+
         return {
             "version": 1,
             "disable_existing_loggers": False,
