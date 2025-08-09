@@ -15,7 +15,7 @@ import tempfile
 # Add the src directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from hwautomation.hardware.firmware_manager import (
+from hwautomation.hardware.firmware import (
     FirmwareInfo,
     FirmwareManager,
     FirmwareType,

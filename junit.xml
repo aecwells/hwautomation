@@ -1,7 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="2.372" timestamp="2025-08-09T14:51:59.565730-07:00" hostname="ethereal"><testcase classname="" name="tests.test_firmware_web_interface" time="0.000"><error message="collection failure">tests/test_firmware_web_interface.py:27: in &lt;module&gt;
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="1.711" timestamp="2025-08-09T16:16:26.299452-07:00" hostname="ethereal"><testcase classname="" name="tests.test_firmware_manager" time="0.000"><error message="collection failure">.venv/lib/python3.12/site-packages/_pytest/python.py:498: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:177: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:357: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.12/ast.py:52: in parse
+    return compile(source, filename, mode, flags,
+E     File "/home/cwells/projects/hwautomation/tests/test_firmware_manager.py", line 27
+E       )
+E       ^
+E   SyntaxError: unmatched ')'</error></testcase><testcase classname="" name="tests.test_firmware_web_interface" time="0.000"><error message="collection failure">tests/test_firmware_web_interface.py:27: in &lt;module&gt;
     from hwautomation.web.routes.firmware import (
         DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
-        FirmwareManager = &lt;class 'hwautomation.hardware.firmware_manager.FirmwareManager'&gt;
+        FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
         MagicMock  = &lt;class 'unittest.mock.MagicMock'&gt;
         Mock       = &lt;class 'unittest.mock.Mock'&gt;
         Path       = &lt;class 'pathlib.Path'&gt;
@@ -10,13 +36,13 @@
         __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_firmware_web_interface.cpython-312.pyc'
         __doc__    = '\nUnit tests for firmware web interface components.\n'
         __file__   = '/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f8d257d6d20&gt;
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f482731f3e0&gt;
         __name__   = 'test_firmware_web_interface'
         __package__ = ''
-        __spec__   = ModuleSpec(name='test_firmware_web_interface', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f8d257d6d20&gt;, origin='/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py')
+        __spec__   = ModuleSpec(name='test_firmware_web_interface', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f482731f3e0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py')
         datetime   = &lt;class 'datetime.datetime'&gt;
         json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
-        patch      = &lt;function patch at 0x7f8d24a0a340&gt;
+        patch      = &lt;function patch at 0x7f482655a340&gt;
         pytest     = &lt;module 'pytest' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/pytest/__init__.py'&gt;
         pytestmark = [MarkDecorator(mark=Mark(name='web', args=(), kwargs={})), MarkDecorator(mark=Mark(name='integration', args=(), kwargs={}))]
         shutil     = &lt;module 'shutil' from '/usr/lib/python3.12/shutil.py'&gt;
@@ -29,11 +55,11 @@ src/hwautomation/web/__init__.py:7: in &lt;module&gt;
         __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/web/__pycache__/__init__.cpython-312.pyc'
         __doc__    = '\nWeb module for HWAutomation.\n\nThis module contains the Flask web application and all web-related components.\n.'
         __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/web/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f8d232bd700&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f4824e95d30&gt;
         __name__   = 'hwautomation.web'
         __package__ = 'hwautomation.web'
         __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/web']
-        __spec__   = ModuleSpec(name='hwautomation.web', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f8d232bd700&gt;, ori.../hwautomation/web/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/web'])
+        __spec__   = ModuleSpec(name='hwautomation.web', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f4824e95d30&gt;, ori.../hwautomation/web/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/web'])
         core       = &lt;module 'hwautomation.web.core' from '/home/cwells/projects/hwautomation/src/hwautomation/web/core/__init__.py'&gt;
 src/hwautomation/web/app.py:266: in &lt;module&gt;
     app, socketio = create_app()
@@ -45,18 +71,18 @@ src/hwautomation/web/app.py:266: in &lt;module&gt;
         __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/web/__pycache__/app.cpython-312.pyc'
         __doc__    = '\nFlask Web Application for HWAutomation - Refactored with Blueprints.\n\nClean modular web interface with organized ...ints.\nCore workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration.\n'
         __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/web/app.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f8d2329c830&gt;
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f4824e97c50&gt;
         __name__   = 'hwautomation.web.app'
         __package__ = 'hwautomation.web'
-        __spec__   = ModuleSpec(name='hwautomation.web.app', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f8d2329c830&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/web/app.py')
-        create_app = &lt;function create_app at 0x7f8d2312de40&gt;
+        __spec__   = ModuleSpec(name='hwautomation.web.app', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f4824e97c50&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/web/app.py')
+        create_app = &lt;function create_app at 0x7f4824d21b20&gt;
         environment = 'development'
-        get_logger = &lt;function get_logger at 0x7f8d2479d6c0&gt;
+        get_logger = &lt;function get_logger at 0x7f48262ed6c0&gt;
         logger     = &lt;Logger hwautomation.web.app (DEBUG)&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         os         = &lt;module 'os' (frozen)&gt;
-        set_correlation_id = &lt;function set_correlation_id at 0x7f8d2479d760&gt;
-        setup_logging = &lt;function setup_logging at 0x7f8d2479d620&gt;
+        set_correlation_id = &lt;function set_correlation_id at 0x7f48262ed760&gt;
+        setup_logging = &lt;function setup_logging at 0x7f48262ed620&gt;
         sys        = &lt;module 'sys' (built-in)&gt;
         threading  = &lt;module 'threading' from '/usr/lib/python3.12/threading.py'&gt;
         time       = &lt;module 'time' (built-in)&gt;
@@ -69,18 +95,18 @@ src/hwautomation/web/app.py:93: in create_app
         DeviceSelectionService = &lt;class 'hwautomation.orchestration.device_selection.DeviceSelectionService'&gt;
         ServerProvisioningWorkflow = &lt;class 'hwautomation.orchestration.server_provisioning.ServerProvisioningWorkflow'&gt;
         WorkflowManager = &lt;class 'hwautomation.orchestration.workflow_manager.WorkflowManager'&gt;
-        after_request = &lt;function create_app.&lt;locals&gt;.after_request at 0x7f8d22c73ba0&gt;
+        after_request = &lt;function create_app.&lt;locals&gt;.after_request at 0x7f482459fa60&gt;
         app        = &lt;Flask 'hwautomation.web.app'&gt;
-        before_request = &lt;function create_app.&lt;locals&gt;.before_request at 0x7f8d22b25800&gt;
+        before_request = &lt;function create_app.&lt;locals&gt;.before_request at 0x7f48248dd6c0&gt;
         config     = {'database': {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}, '...admin'}, 'logging': {'backup_count': 5, 'file': '/app/logs/hwautomation.log', 'level': 'INFO', 'max_size_mb': 10}, ...}
-        create_maas_client = &lt;function create_maas_client at 0x7f8d233a8f40&gt;
+        create_maas_client = &lt;function create_maas_client at 0x7f4824f80f40&gt;
         database_path = 'hw_automation.db'
-        db_helper  = &lt;hwautomation.database.helper.DbHelper object at 0x7f8d22b17da0&gt;
-        init_assets = &lt;function init_assets at 0x7f8d22bc2480&gt;
-        load_config = &lt;function load_config at 0x7f8d2328c9a0&gt;
+        db_helper  = &lt;hwautomation.database.helper.DbHelper object at 0x7f48248cf7d0&gt;
+        init_assets = &lt;function init_assets at 0x7f48249aa340&gt;
+        load_config = &lt;function load_config at 0x7f4824e647c0&gt;
         project_root = PosixPath('/home/cwells/projects/hwautomation')
         request    = &lt;LocalProxy unbound&gt;
-        socketio   = &lt;flask_socketio.SocketIO object at 0x7f8d22c3f8c0&gt;
+        socketio   = &lt;flask_socketio.SocketIO object at 0x7f482731e840&gt;
         src_path   = PosixPath('/home/cwells/projects/hwautomation/src')
 src/hwautomation/orchestration/workflow_manager.py:155: in __init__
     self.bios_manager = BiosConfigManager(config.get("bios", {}).get("config_dir"))
@@ -88,19 +114,19 @@ src/hwautomation/orchestration/workflow_manager.py:155: in __init__
         config     = {'database': {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}, '...admin'}, 'logging': {'backup_count': 5, 'file': '/app/logs/hwautomation.log', 'level': 'INFO', 'max_size_mb': 10}, ...}
         db_config  = {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}
         maas_config = {'admin_password': 'admin123', 'admin_username': 'admin', 'api_key': 'your-api-key-here', 'consumer_key': 'your-consumer-key-here', ...}
-        self       = &lt;hwautomation.orchestration.workflow_manager.WorkflowManager object at 0x7f8d22df83e0&gt;
+        self       = &lt;hwautomation.orchestration.workflow_manager.WorkflowManager object at 0x7f4824e948f0&gt;
 src/hwautomation/hardware/bios/manager.py:51: in __init__
     self.config_loader = ConfigurationLoader(config_dir)
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         __class__  = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
         config_dir = None
-        self       = &lt;hwautomation.hardware.bios.manager.BiosConfigManager object at 0x7f8d23b23ec0&gt;
+        self       = &lt;hwautomation.hardware.bios.manager.BiosConfigManager object at 0x7f48245a8650&gt;
 src/hwautomation/hardware/bios/config/loader.py:28: in __init__
     self.device_mappings_file = os.path.join(config_dir, "device_mappings.yaml")
                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         __class__  = &lt;class 'hwautomation.hardware.bios.config.loader.ConfigurationLoader'&gt;
         config_dir = None
-        self       = &lt;hwautomation.hardware.bios.config.loader.ConfigurationLoader object at 0x7f8d22b43770&gt;
+        self       = &lt;hwautomation.hardware.bios.config.loader.ConfigurationLoader object at 0x7f48249823f0&gt;
 &lt;frozen posixpath&gt;:76: in join
     ???
 E   TypeError: expected str, bytes or os.PathLike object, not NoneType
@@ -123,14 +149,14 @@ E   NameError: name 'ProgressCallback' is not defined
         __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase3_monitoring.cpython-312.pyc'
         __doc__    = '\nPhase 3 Enhanced BIOS Configuration - Real-time Monitoring Test\n\nThis test demonstrates the Phase 3 real-time monitoring capabilities including\nWebSocket progress updates, error recovery, and comprehensive validation.\n'
         __file__   = '/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f8d257d6d20&gt;
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f482731f3e0&gt;
         __name__   = 'test_phase3_monitoring'
         __package__ = ''
-        __spec__   = ModuleSpec(name='test_phase3_monitoring', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f8d257d6d20&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py')
+        __spec__   = ModuleSpec(name='test_phase3_monitoring', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f482731f3e0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py')
         asyncio    = &lt;module 'asyncio' from '/usr/lib/python3.12/asyncio/__init__.py'&gt;
         datetime   = &lt;class 'datetime.datetime'&gt;
         json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
-        load_device_config = &lt;function load_device_config at 0x7f8d22bef6a0&gt;
+        load_device_config = &lt;function load_device_config at 0x7f48245c7920&gt;
         logger     = &lt;Logger test_phase3_monitoring (INFO)&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         sys        = &lt;module 'sys' (built-in)&gt;

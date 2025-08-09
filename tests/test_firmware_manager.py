@@ -14,15 +14,16 @@ import pytest
 # Add the src directory to the Python path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from hwautomation.hardware.firmware_manager import (
+from hwautomation.hardware.firmware import (
     FirmwareInfo,
     FirmwareManager,
     FirmwareRepository,
     FirmwareType,
     FirmwareUpdateException,
     FirmwareUpdateResult,
+    Priority,
     UpdatePolicy,
-    UpdatePriority,
+)
 )
 
 
@@ -92,13 +93,13 @@ class TestFirmwareManager:
         priority = firmware_manager._determine_update_priority(
             FirmwareType.BMC, "1.0.0", "1.1.0"
         )
-        assert priority == UpdatePriority.CRITICAL
+        assert priority == Priority.CRITICAL
 
         # BIOS updates should be high
         priority = firmware_manager._determine_update_priority(
             FirmwareType.BIOS, "1.0.0", "1.1.0"
         )
-        assert priority == UpdatePriority.HIGH
+        assert priority == Priority.HIGH
 
     def test_estimate_update_time(self, firmware_manager):
         """Test update time estimation"""
@@ -118,14 +119,14 @@ class TestFirmwareManager:
                 current_version="1.0.0",
                 latest_version="1.1.0",
                 update_required=True,
-                priority=UpdatePriority.NORMAL,
+                priority=Priority.NORMAL,
             ),
             FirmwareInfo(
                 firmware_type=FirmwareType.BMC,
                 current_version="1.0.0",
                 latest_version="1.1.0",
                 update_required=True,
-                priority=UpdatePriority.CRITICAL,
+                priority=Priority.CRITICAL,
             ),
         ]
 
@@ -133,7 +134,7 @@ class TestFirmwareManager:
 
         # Critical BMC should come before normal BIOS
         assert sorted_firmware[0].firmware_type == FirmwareType.BMC
-        assert sorted_firmware[0].priority == UpdatePriority.CRITICAL
+        assert sorted_firmware[0].priority == Priority.CRITICAL
         assert sorted_firmware[1].firmware_type == FirmwareType.BIOS
 
     @pytest.mark.asyncio
@@ -184,7 +185,7 @@ class TestFirmwareManager:
             current_version="1.0.0",
             latest_version="1.1.0",
             update_required=True,
-            priority=UpdatePriority.NORMAL,
+            priority=Priority.NORMAL,
             file_path="/nonexistent/file.bin",
         )
 
@@ -210,7 +211,7 @@ class TestFirmwareManager:
             current_version="1.0.0",
             latest_version="1.1.0",
             update_required=True,
-            priority=UpdatePriority.NORMAL,
+            priority=Priority.NORMAL,
             estimated_time=10,  # Short time for testing
         )
 
@@ -232,7 +233,7 @@ class TestFirmwareManager:
                 current_version="1.0.0",
                 latest_version="1.1.0",
                 update_required=True,
-                priority=UpdatePriority.CRITICAL,
+                priority=Priority.CRITICAL,
                 estimated_time=5,
             ),
             FirmwareInfo(
@@ -240,7 +241,7 @@ class TestFirmwareManager:
                 current_version="1.0.0",
                 latest_version="1.1.0",
                 update_required=True,
-                priority=UpdatePriority.HIGH,
+                priority=Priority.HIGH,
                 estimated_time=5,
             ),
         ]
@@ -334,13 +335,13 @@ class TestFirmwareDataStructures:
             current_version="1.0.0",
             latest_version="1.1.0",
             update_required=True,
-            priority=UpdatePriority.HIGH,
+            priority=Priority.HIGH,
             vendor="test_vendor",
         )
 
         assert firmware_info.firmware_type == FirmwareType.BIOS
         assert firmware_info.update_required == True
-        assert firmware_info.priority == UpdatePriority.HIGH
+        assert firmware_info.priority == Priority.HIGH
 
         # Test serialization
         data = firmware_info.to_dict()
@@ -455,7 +456,7 @@ class TestFirmwareManagerPerformance:
                 current_version=f"1.0.{i}",
                 latest_version=f"1.1.{i}",
                 update_required=True,
-                priority=UpdatePriority.NORMAL,  # Use NORMAL instead of RECOMMENDED
+                priority=Priority.NORMAL,  # Use NORMAL instead of RECOMMENDED
                 file_path=f"/path/to/firmware_{i}.bin",
                 checksum=f"sha256_{i}",
                 release_notes=f"Release notes {i}",

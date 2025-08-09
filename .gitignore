@@ -206,6 +206,10 @@ firmware/
 firmware/**
 !firmware/README.md
 !firmware/.gitkeep
+# Allow Python source code in src/hwautomation/hardware/firmware/
+!src/hwautomation/hardware/firmware/
+!src/hwautomation/hardware/firmware/**/*.py
+!src/hwautomation/hardware/firmware/**/__init__.py
 
 # Firmware file extensions (exclude actual firmware files)
 *.bin

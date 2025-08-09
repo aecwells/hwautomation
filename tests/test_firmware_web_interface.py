@@ -22,7 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from hwautomation.database.helper import DbHelper
-from hwautomation.hardware.firmware_manager import FirmwareManager
+from hwautomation.hardware.firmware import FirmwareManager
 from hwautomation.orchestration.workflow_manager import WorkflowManager
 from hwautomation.web.routes.firmware import (
     FirmwareWebManager,

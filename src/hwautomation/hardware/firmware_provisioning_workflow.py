@@ -17,12 +17,12 @@ from hwautomation.logging import get_logger
 from ..orchestration.exceptions import WorkflowError
 from .bios import BiosConfigManager
 from .bios_monitoring import BiosConfigMonitor
-from .firmware_manager import (
+from .firmware import (
     FirmwareInfo,
     FirmwareManager,
     FirmwareType,
     FirmwareUpdateResult,
-    UpdatePriority,
+    Priority,
 )
 
 logger = get_logger(__name__)
@@ -161,7 +161,7 @@ class FirmwareProvisioningWorkflow:
                 critical_updates = [
                     fw
                     for fw in updates_needed
-                    if fw.priority == UpdatePriority.CRITICAL
+                    if fw.priority == Priority.CRITICAL
                 ]
 
                 await self.monitor.update_progress(

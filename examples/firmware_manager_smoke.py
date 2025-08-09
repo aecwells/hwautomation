@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 async def run_smoke():
-    from hwautomation.hardware.firmware_manager import FirmwareManager
+    from hwautomation.hardware.firmware import FirmwareManager
 
     print("=" * 80)
     print("Firmware Manager - Smoke Test")

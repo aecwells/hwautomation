@@ -18,11 +18,11 @@ from ..hardware.bios import BiosConfigManager
 from ..hardware.discovery import HardwareDiscoveryManager
 
 # Lazy import to avoid circular dependency - imported inside methods where needed
-# from ..hardware.firmware_manager import FirmwareManager
-from ..hardware.firmware_provisioning_workflow import (
-    FirmwareProvisioningWorkflow,
-    ProvisioningContext,
-)
+# from ..hardware.firmware_manager import FirmwareManager  # Legacy import
+# from ..hardware.firmware_provisioning_workflow import (
+#     FirmwareProvisioningWorkflow,
+#     ProvisioningContext,
+# )
 from ..hardware.ipmi import IpmiManager
 from ..logging import get_logger
 from ..maas.client import MaasClient
@@ -132,7 +132,7 @@ class WorkflowManager:
 
         # Type annotations for fields that will be set
         self.firmware_manager: Optional[Any] = None  # FirmwareManager
-        self.firmware_workflow: Optional[FirmwareProvisioningWorkflow] = None
+        self.firmware_workflow: Optional[Any] = None  # FirmwareProvisioningWorkflow
 
         # Initialize database helper
         db_config = config.get("database", {})
@@ -160,7 +160,8 @@ class WorkflowManager:
         # Initialize firmware management
         try:
             # Lazy import to avoid circular dependency
-            from ..hardware.firmware_manager import FirmwareManager
+            from ..hardware.firmware import FirmwareManager
+            from ..hardware.firmware_provisioning_workflow import FirmwareProvisioningWorkflow
 
             self.firmware_manager = FirmwareManager()
             self.firmware_workflow = FirmwareProvisioningWorkflow()
@@ -243,7 +244,8 @@ class WorkflowManager:
         workflow_id = f"firmware_first_{server_id}_{int(time.time())}"
         workflow = self.create_workflow(workflow_id)
 
-        # Create provisioning context
+        # Create provisioning context (lazy import)
+        from ..hardware.firmware_provisioning_workflow import ProvisioningContext
         context = ProvisioningContext(
             server_id=server_id,
             device_type=device_type,
@@ -273,7 +275,7 @@ class WorkflowManager:
     async def _execute_firmware_first_provisioning(
         self,
         workflow_context: "WorkflowContext",
-        provisioning_context: ProvisioningContext,
+        provisioning_context: Any,  # ProvisioningContext
     ) -> bool:
         """Execute the firmware-first provisioning workflow."""
         try:
