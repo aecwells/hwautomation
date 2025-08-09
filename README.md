@@ -22,17 +22,30 @@ A comprehensive Python package for hardware automation, server management, and i
 
 ## 🎉 Recent Enhancements (August 2025)
 
-### **Web Interface Modernization**
+### **Web Interface Modernization & Modular Architecture**
 - **📐 Blueprint Architecture**: Refactored monolithic 853-line Flask app into modular blueprint structure
 - **🔧 Improved Maintainability**: 6 focused route modules (56-302 lines each) for easier development and testing
 - **📊 Enhanced Status Indicators**: Smart MaaS connection status with visual indicators (Connected/Disconnected/Not Configured)
 - **🎨 Better UI/UX**: Redesigned status bar positioning under logo with responsive design and proper color coding
 - **⚡ Zero Breaking Changes**: All existing URLs and APIs preserved during refactoring
 
+### **Hardware System Modularization**
+- **🏗️ Modular Hardware Discovery**: Complete restructuring of 859-line discovery system into focused modules
+- **⚙️ BIOS Configuration Modules**: Separated BIOS management into config, devices, operations, and parsers
+- **🔍 Vendor-Specific Logic**: Dedicated vendor modules for Supermicro, Dell, HPE with extensible architecture
+- **📦 Clean Module Structure**: Better separation of concerns and easier testing/maintenance
+
+### **Frontend Build System Integration**
+- **⚡ Vite Build System**: Modern JavaScript bundling with hot module replacement
+- **🎨 Component Architecture**: Modular frontend components with SCSS styling
+- **📱 Enhanced Responsive Design**: Mobile-first CSS with theme support
+- **🗜️ Asset Optimization**: Automatic minification, hashing, and build optimization
+
 ### **Developer Experience Improvements**
-- **🏗️ Team-Friendly Architecture**: Single-responsibility blueprints enable parallel development
+- **🏗️ Team-Friendly Architecture**: Single-responsibility modules enable parallel development
 - **🧪 Easier Testing**: Modular structure simplifies unit testing and debugging
 - **📈 Scalable Foundation**: Clean architecture ready for new features and team expansion
+- **🛠️ Modern Tooling**: Pre-commit hooks, automated quality checks, and comprehensive CI/CD
 
 ### **Code Quality & CI/CD Enhancements**
 - **🚀 Comprehensive CI/CD Pipeline**: Multi-stage GitHub Actions workflow with quality gates
@@ -106,7 +119,7 @@ The web GUI provides a modern dashboard for device management, workflow orchestr
 
 ## Architecture Overview
 
-### Container-First Design
+### Container-First Design with Modern Modular Structure
 
 ```text
 hwautomation/
@@ -114,31 +127,65 @@ hwautomation/
 │   └── Dockerfile.web         # 🐳 Multi-stage container builds
 ├── docker-compose.yml         # 🏗️ Production service orchestration
 ├── docker-compose.override.yml # 🛠️ Development overrides
+├── package.json               # 📦 Node.js dependencies for frontend build
+├── vite.config.js             # ⚡ Vite build configuration
 ├── src/hwautomation/          # 📦 Main package source code
 │   ├── web/                   # 🌐 Flask web application with blueprint architecture
 │   │   ├── app.py             # 🏭 Clean app factory with blueprint registration
-│   │   ├── routes/            # 📁 Modular blueprint organization (NEW)
+│   │   ├── core/              # 🔧 Web application core functionality
+│   │   ├── routes/            # 📁 Modular blueprint organization
 │   │   │   ├── core.py        # 🏠 Dashboard and health endpoints
 │   │   │   ├── database.py    # 🗄️ Database management routes
 │   │   │   ├── orchestration.py # 🔄 Workflow orchestration APIs
 │   │   │   ├── maas.py        # 🌐 MaaS integration endpoints
 │   │   │   ├── logs.py        # 📊 System logging APIs
 │   │   │   └── firmware.py    # 🔧 Firmware management routes
-│   │   └── templates/         # 🎨 Enhanced UI with status indicators
-│   ├── hardware/              # ⚙️ IPMI, Redfish, and Firmware management
+│   │   ├── frontend/          # 🎨 Modern frontend build system
+│   │   │   ├── js/            # JavaScript modules (core, services, components, utils)
+│   │   │   └── css/           # SCSS stylesheets with component organization
+│   │   ├── static/            # 📁 Static assets and build output
+│   │   │   └── dist/          # 🏗️ Built frontend assets (gitignored)
+│   │   └── templates/         # 🎨 Enhanced UI templates with status indicators
+│   ├── hardware/              # ⚙️ Modular hardware management system
+│   │   ├── bios/              # 🔧 BIOS configuration management (modularized)
+│   │   │   ├── config/        # Configuration template management
+│   │   │   ├── devices/       # Device-specific implementations
+│   │   │   ├── operations/    # BIOS operation handlers
+│   │   │   └── parsers/       # Configuration file parsers
+│   │   ├── discovery/         # 🔍 Hardware discovery system (modularized)
+│   │   │   ├── parsers/       # System information parsers
+│   │   │   ├── vendors/       # Vendor-specific discovery logic
+│   │   │   └── utils/         # Discovery utilities
 │   │   ├── firmware_manager.py           # 🔧 Multi-vendor firmware operations
 │   │   └── firmware_provisioning_workflow.py # 🚀 Firmware-first workflows
 │   ├── orchestration/         # 🔄 Workflow management and server provisioning
 │   ├── database/              # 🗄️ SQLite operations and migrations
 │   ├── maas/                  # 🌐 MAAS API client
+│   ├── logging/               # 📊 Centralized logging infrastructure
+│   ├── validation/            # ✅ Data validation utilities
 │   └── utils/                 # 🔧 Configuration and utilities
 ├── configs/
 │   ├── bios/                  # 📁 BIOS configuration templates and rules
 │   └── firmware/              # 📁 Firmware repository and update configurations
 ├── examples/                  # 📚 Usage examples including firmware demos
-├── tests/                     # 🧪 Test suite
-├── docs/                      # 📖 Documentation
-└── tools/                     # 🛠️ Development and maintenance tools
+├── tests/                     # 🧪 Comprehensive test suite
+│   ├── unit/                  # Fast unit tests
+│   ├── integration/           # Integration tests
+│   ├── fixtures/              # Test data and fixtures
+│   └── mocks/                 # Mock objects for testing
+├── docs/                      # 📖 Comprehensive documentation
+├── tools/                     # 🛠️ Development and maintenance tools
+│   ├── cli/                   # Production CLI tools
+│   ├── testing/               # Test scripts and utilities
+│   ├── debug/                 # Debug and troubleshooting scripts
+│   ├── config/                # Configuration management tools
+│   ├── migration/             # Migration and setup tools
+│   ├── verification/          # Validation and verification tools
+│   └── quality/               # Code quality tools
+└── firmware/                  # 📁 Firmware repository structure
+    ├── dell/                  # Dell firmware files
+    ├── hpe/                   # HPE firmware files
+    └── supermicro/            # Supermicro firmware files
 ```
 
 ### Service Architecture
@@ -197,6 +244,66 @@ curl http://localhost:5000/health
 }
 ```
 
+## Frontend Build System
+
+### Modern JavaScript/CSS Build Pipeline
+
+The project includes a modern frontend build system using **Vite** for optimal development experience and production builds:
+
+```bash
+# Install frontend dependencies (Node.js required)
+npm install
+
+# Development mode with hot reloading
+npm run dev
+
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+**Build System Features:**
+- ⚡ **Vite-powered**: Lightning-fast HMR (Hot Module Replacement)
+- 📦 **Modular JavaScript**: ES6 modules with dynamic imports
+- 🎨 **SCSS Support**: Advanced CSS with variables and mixins
+- 🗜️ **Asset Optimization**: Automatic minification and compression
+- 🔍 **Source Maps**: Enhanced debugging capabilities
+- 📱 **Responsive Design**: Mobile-first CSS architecture
+
+**Frontend Architecture:**
+```text
+src/hwautomation/web/frontend/
+├── js/
+│   ├── core/
+│   │   ├── app.js                 # Main application entry point
+│   │   └── module-loader.js       # Dynamic module loading system
+│   ├── services/
+│   │   ├── api.js                # HTTP client and API abstraction
+│   │   ├── state.js              # Centralized state management
+│   │   └── notifications.js      # User notification system
+│   ├── components/
+│   │   ├── theme-manager.js       # Light/dark theme switching
+│   │   ├── connection-status.js   # WebSocket/API status indicator
+│   │   └── device-selection.js    # Device listing and selection
+│   └── utils/
+│       ├── dom.js                # DOM manipulation utilities
+│       └── format.js             # Data formatting functions
+└── css/
+    ├── base.css                  # CSS variables and theme foundations
+    ├── main.css                  # Main stylesheet with imports
+    └── components/
+        ├── navbar.css            # Navigation bar styles
+        └── device-selection.css  # Device selection component styles
+```
+
+**Built Assets:**
+- Output directory: `src/hwautomation/web/static/dist/`
+- Automatic asset hashing for cache busting
+- Manifest file for Flask template integration
+- Optimized CSS and JavaScript bundles
+
 ## Installation Options
 
 ### 🚀 Container Deployment (Recommended)
@@ -207,10 +314,17 @@ Fastest way to get started with full functionality:
 # Clone and run
 git clone <your-repo-url>
 cd hwautomation
+
+# Build frontend assets (optional - container handles this)
+npm install && npm run build
+
+# Start the application
 docker compose up -d app
 
 # Access web GUI at http://localhost:5000
 ```
+
+**Note**: The container includes Node.js and automatically builds frontend assets during the build process, so the npm commands are optional for container deployment.
 
 ### 📦 Package Installation
 
@@ -223,10 +337,16 @@ cd hwautomation
 python3 -m venv hwautomation-env
 source hwautomation-env/bin/activate
 
-# Install in development mode
+# Install Python package in development mode
 pip install -e .
 
-# Or install normally
+# Install Node.js dependencies for frontend development
+npm install
+
+# Build frontend assets
+npm run build
+
+# Or install normally (without development features)
 pip install .
 ```
 
@@ -235,12 +355,16 @@ pip install .
 ```bash
 # Install required packages first
 sudo apt update
-sudo apt install -y python3.12-venv python3-full
+sudo apt install -y python3.12-venv python3-full nodejs npm
 
 # Then create and use a virtual environment
 python3 -m venv hwautomation-env
 source hwautomation-env/bin/activate
 pip install -e .
+
+# Setup frontend build system
+npm install
+npm run build
 
 # Test the installation
 python -c 'import hwautomation; print("HWAutomation package imported successfully!")'
@@ -251,14 +375,26 @@ python -c 'import hwautomation; print("HWAutomation package imported successfull
 > - When testing the import in bash, always use single quotes around the Python command to avoid bash history expansion issues with exclamation marks.
 > - If you get "bash: !': event not found" error, you're using double quotes instead of single quotes.
 > - The virtual environment approach is required on Ubuntu/Debian systems with externally-managed Python environments.
+> - Node.js 14+ and npm 6+ are required for the frontend build system.
 
 ### Requirements
 
+**Python Environment:**
 - Python 3.8+
-- External dependencies:
-  - `ipmitool` (for IPMI operations)
-  - SSH access to target servers
-  - MAAS server access with API credentials
+- Virtual environment recommended (required on Ubuntu/Debian)
+
+**Node.js Environment (for frontend development):**
+- Node.js 14+
+- npm 6+
+
+**External dependencies:**
+- `ipmitool` (for IPMI operations)
+- SSH access to target servers
+- MAAS server access with API credentials
+
+**Optional for development:**
+- Docker and Docker Compose (for containerized deployment)
+- Git (for version control)
 
 ## Quick Start
 
@@ -327,7 +463,43 @@ db_helper.printtableinfo()
 db_helper.close()
 ```
 
-### 3. BIOS Configuration Management
+### 3. Modular Hardware Management
+
+The hardware management system has been completely modularized for better maintainability and extensibility:
+
+```python
+from hwautomation.hardware.discovery import HardwareDiscoveryManager
+from hwautomation.hardware.bios.config import BiosConfigManager
+
+# Initialize modular discovery system
+discovery_manager = HardwareDiscoveryManager()
+
+# Discover hardware with vendor-specific parsing
+discovery_result = discovery_manager.discover_system(
+    target_ip='192.168.1.100',
+    username='admin',
+    password='password'
+)
+
+print(f"Detected vendor: {discovery_result.vendor}")
+print(f"Device type: {discovery_result.device_type}")
+print(f"IPMI configuration: {discovery_result.ipmi_config}")
+
+# Use modular BIOS configuration system
+bios_manager = BiosConfigManager()
+
+# Apply device-specific BIOS configuration
+result = bios_manager.apply_configuration(
+    device_type=discovery_result.device_type,
+    target_ip='192.168.1.100',
+    config_template='production',
+    dry_run=False
+)
+
+print(f"BIOS configuration applied: {result.success}")
+```
+
+### 4. BIOS Configuration Management
 
 ```python
 from hwautomation.hardware.bios_config import BiosConfigManager
@@ -348,7 +520,7 @@ print(xml_config)
 # result = bios_manager.apply_bios_config_smart('a1.c5.large', '192.168.1.100', 'ADMIN', 'password')
 ```
 
-### 4. Firmware Management
+### 5. Firmware Management
 
 ```python
 from hwautomation.hardware.firmware_manager import FirmwareManager
@@ -379,7 +551,7 @@ print(f"Firmware updates applied: {result.firmware_updates_applied}")
 print(f"BIOS settings applied: {result.bios_settings_applied}")
 ```
 
-### 5. Web GUI Usage
+### 6. Web GUI Usage
 
 Launch the modern web interface:
 
@@ -387,17 +559,31 @@ Launch the modern web interface:
 # Container deployment (recommended)
 docker compose up -d app
 
+# Local development with frontend build system
+source hwautomation-env/bin/activate
+npm run build  # Build frontend assets
+hw-web         # Start Flask application
+
+# Development mode with hot reloading
+npm run dev    # Start Vite dev server (port 3000)
+hw-web         # Start Flask backend (port 5000)
+
 # Access GUI at: <http://127.0.0.1:5000>
 ```
 
-**GUI Features:**
+**Modern GUI Features:**
 
-- 🎛️ Interactive BIOS configuration management
-- 🧰 Firmware Management Dashboard: Real-time firmware status, version tracking, and update scheduling
-- 📊 Real-time dashboard with system status and workflow progress
-- ⚡ Live progress updates via WebSocket with detailed sub-task granularity
+- 🎛️ **Interactive BIOS Configuration**: Real-time configuration management with live validation
+- 🧰 **Firmware Management Dashboard**: Real-time firmware status, version tracking, and update scheduling
+- 📊 **Enhanced Dashboard**: System status monitoring with intelligent MaaS connection indicators
+- ⚡ **Live Progress Updates**: WebSocket-powered real-time workflow progress with detailed sub-task granularity
 - 🚀 **Firmware-First Provisioning**: Complete workflow orchestration from web interface
-- 📱 Responsive design for mobile/tablet
+- 🎨 **Modern UI/UX**: Component-based architecture with theme switching and responsive design
+- 📱 **Mobile-Friendly**: Responsive design optimized for mobile/tablet devices
+- 🔍 **Advanced Filtering**: Smart search and filtering capabilities
+- 📁 **Export Capabilities**: Download configurations, logs, and reports
+- 💾 **Database Management**: Comprehensive SQLite database interface
+- 🌙 **Theme Support**: Light/dark mode switching with user preferences
 - 🔍 Advanced filtering and search
 - 📁 Download configurations and logs
 - 💾 SQLite database management interface
@@ -427,7 +613,7 @@ docker compose up -d app
 **Firmware Routes:**
 - `GET /api/firmware/status` - Firmware management status
 
-### 6. Command Line Usage
+### 7. Command Line Usage
 
 ```bash
 # Run CLI via console scripts
@@ -441,6 +627,68 @@ hw-web
 python examples/run.py --list
 ```
 
+## Development Workflow
+
+### 🛠️ Complete Development Environment Setup
+
+```bash
+# Initial setup
+git clone <your-repo-url>
+cd hwautomation
+
+# Python environment
+python3 -m venv hwautomation-env
+source hwautomation-env/bin/activate
+pip install -e .
+
+# Frontend environment
+npm install
+
+# Development tools setup
+make setup-precommit    # Install pre-commit hooks
+make install-test       # Install testing dependencies
+
+# Verify setup
+make test-unit          # Quick test verification
+npm run build           # Verify frontend builds
+```
+
+### 🔄 Daily Development Workflow
+
+```bash
+# Frontend development with hot reloading
+npm run dev             # Start Vite dev server (localhost:3000)
+# In another terminal:
+hw-web                  # Start Flask backend (localhost:5000)
+
+# Code quality checks
+make test-unit          # Fast unit tests during development
+make test-quality       # Code quality validation
+git commit              # Pre-commit hooks run automatically
+
+# Full validation before PR
+make test               # Complete test suite
+make test-cov           # Coverage verification
+npm run build           # Production build test
+```
+
+### 🏗️ Build System Commands
+
+```bash
+# Frontend development
+npm run dev             # Development server with HMR
+npm run build           # Production build
+npm run preview         # Preview production build
+npm run lint            # Frontend code linting
+
+# Python development
+make test               # Full test suite
+make test-unit          # Fast unit tests
+make test-integration   # Integration tests
+make test-cov           # Test coverage
+make dev-setup          # Complete dev environment setup
+```
+
 ## Package Structure
 
 ```bash
@@ -448,6 +696,7 @@ src/hwautomation/
 ├── __init__.py              # Main package exports
 ├── web/
 │   ├── app.py              # Clean Flask app factory with blueprint registration
+│   ├── core/               # Web application core functionality
 │   ├── routes/             # Modular blueprint architecture
 │   │   ├── core.py         # Dashboard and health endpoints
 │   │   ├── database.py     # Database management APIs
@@ -455,7 +704,28 @@ src/hwautomation/
 │   │   ├── maas.py         # MaaS integration endpoints
 │   │   ├── logs.py         # System logging APIs
 │   │   └── firmware.py     # Firmware management APIs
+│   ├── frontend/           # Modern frontend build system
+│   │   ├── js/
+│   │   │   ├── core/       # Core application logic (app.js, module-loader.js)
+│   │   │   ├── services/   # API client, state management, notifications
+│   │   │   ├── components/ # Reusable UI components (theme, status, device selection)
+│   │   │   └── utils/      # DOM utilities and formatting functions
+│   │   └── css/
+│   │       ├── base.css    # CSS variables and theme foundations
+│   │       ├── main.css    # Main stylesheet with imports
+│   │       ├── components/ # Component-specific styles
+│   │       └── themes/     # Theme variations
+│   ├── static/             # Static assets and build output
+│   │   ├── css/            # Legacy static CSS files
+│   │   ├── js/             # Legacy static JavaScript files
+│   │   └── dist/           # Built frontend assets (auto-generated)
+│   │       ├── js/         # Compiled JavaScript modules
+│   │       ├── css/        # Compiled stylesheets
+│   │       └── manifest.json # Build manifest for asset loading
 │   └── templates/          # Enhanced web UI templates with status indicators
+│       ├── base.html       # Base template with build system integration
+│       ├── dashboard.html  # Main dashboard
+│       └── firmware/       # Firmware management templates
 ├── orchestration/
 │   ├── workflow_manager.py       # Core workflow orchestration
 │   └── server_provisioning.py   # Standard and firmware-first provisioning workflows
@@ -465,14 +735,52 @@ src/hwautomation/
 ├── maas/
 │   └── client.py          # MAAS API client
 ├── hardware/
+│   ├── bios/                             # Modular BIOS management system
+│   │   ├── __init__.py                   # BIOS module exports
+│   │   ├── config/
+│   │   │   ├── manager.py                # Configuration template management
+│   │   │   └── templates.py              # Template processing logic
+│   │   ├── devices/
+│   │   │   ├── base.py                   # Base device classes
+│   │   │   ├── supermicro.py             # Supermicro-specific implementations
+│   │   │   └── vendors.py                # Multi-vendor device support
+│   │   ├── operations/
+│   │   │   ├── executor.py               # BIOS operation execution
+│   │   │   └── monitoring.py             # Real-time monitoring
+│   │   └── parsers/
+│   │       ├── xml_parser.py             # XML configuration parsing
+│   │       └── redfish_parser.py         # Redfish response parsing
+│   ├── discovery/                        # Modular hardware discovery system
+│   │   ├── __init__.py                   # Discovery module exports
+│   │   ├── manager.py                    # Main discovery orchestration
+│   │   ├── parsers/
+│   │   │   ├── dmidecode.py              # DMI decode parsing
+│   │   │   ├── ipmi.py                   # IPMI configuration parsing
+│   │   │   └── network.py                # Network interface parsing
+│   │   ├── vendors/
+│   │   │   ├── base.py                   # Base vendor discovery class
+│   │   │   ├── supermicro.py             # Supermicro-specific discovery
+│   │   │   ├── dell.py                   # Dell-specific discovery
+│   │   │   └── hpe.py                    # HPE-specific discovery
+│   │   └── utils/
+│   │       ├── ssh.py                    # SSH utilities for discovery
+│   │       └── validation.py             # Discovery data validation
 │   ├── ipmi.py                           # IPMI management
 │   ├── redfish_manager.py                # Redfish operations with firmware support
-│   ├── bios_config.py                    # BIOS configuration management
+│   ├── bios_config.py                    # Legacy BIOS configuration (being phased out)
 │   ├── firmware_manager.py               # Multi-vendor firmware management
 │   └── firmware_provisioning_workflow.py # Complete firmware-first workflow
 ├── utils/
 │   ├── config.py         # Configuration management
 │   └── network.py        # Network utilities
+├── logging/
+│   ├── __init__.py       # Logging module exports
+│   ├── config.py         # Logging configuration
+│   └── handlers.py       # Custom log handlers
+├── validation/
+│   ├── __init__.py       # Validation module exports
+│   ├── schemas.py        # Data validation schemas
+│   └── validators.py     # Custom validators
 └── cli/
     └── main.py          # Command-line interface
 ```
@@ -711,25 +1019,35 @@ make test-docker-cov   # Coverage tests in Docker
 
 ### Development Guidelines
 
-1. **Blueprint Architecture**: Follow the modular blueprint structure in `src/hwautomation/web/routes/`
-   - Each blueprint handles a single functional domain (core, database, orchestration, etc.)
-   - Keep route modules focused and under 300 lines for maintainability
-   - Use proper dependency injection via Flask app context
+1. **Modular Architecture**: Follow the established modular structure
+   - **Blueprint Architecture**: Each web route blueprint handles a single functional domain
+   - **Hardware Modules**: Use the modular hardware system (`/hardware/bios/`, `/hardware/discovery/`)
+   - **Frontend Components**: Follow the component-based frontend architecture
+   - Keep modules focused and under 300-400 lines for maintainability
 
-2. **Code Quality & Testing**:
+2. **Modern Frontend Development**:
+   - **Build System**: Use Vite for frontend development with `npm run dev`
+   - **Component Architecture**: Create reusable JavaScript components in `/frontend/js/components/`
+   - **Styling**: Use SCSS in `/frontend/css/` with component-specific organization
+   - **Asset Management**: Built assets go to `/static/dist/` (auto-generated)
+
+3. **Code Quality & Testing**:
    - **Pre-commit Hooks**: Automatically enforced on every commit (`make setup-precommit`)
    - **Testing Requirements**: Add tests for new functionality with pytest
    - **Async Support**: Use `@pytest.mark.asyncio` for async test functions
    - **Performance Tests**: Gate performance tests behind `RUN_PERFORMANCE_TESTS=1`
    - **Security**: All code automatically scanned with bandit for security issues
+   - **Frontend Quality**: Use `npm run lint` for JavaScript/CSS quality checks
 
-3. **Development Workflow**:
+4. **Development Workflow**:
    ```bash
    # Initial setup
    make dev-setup          # Setup complete development environment
    make setup-precommit    # Install quality gates
+   npm install             # Frontend dependencies
 
    # Daily development
+   npm run dev             # Frontend development server
    make test-unit          # Fast feedback during development
    make test-quality       # Check code quality before commit
    git commit              # Pre-commit hooks run automatically
@@ -737,13 +1055,21 @@ make test-docker-cov   # Coverage tests in Docker
    # Before PR
    make test               # Full test suite
    make test-cov           # Verify coverage
+   npm run build           # Verify frontend builds
    ```
 
-4. **Web Interface Development**:
+5. **Hardware Module Development**:
+   - Follow the modular structure in `/hardware/bios/` and `/hardware/discovery/`
+   - Create vendor-specific implementations in respective `/vendors/` directories
+   - Use base classes for consistent interfaces
+   - Add comprehensive parsing and validation logic
+
+6. **Web Interface Development**:
    - Status indicators should follow the established color scheme (green/red/orange)
-   - Maintain responsive design principles
-   - Test changes across different screen sizes
+   - Maintain responsive design principles and test across screen sizes
+   - Use the component system for reusable UI elements
    - Preserve backward compatibility for existing URLs
+   - Integrate with the build system for optimized assets
 
 ## License
 
