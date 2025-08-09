@@ -36,7 +36,17 @@ jobs:
         python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
         cache: 'pip'
 
+    - name: Check for frontend dependencies
+      id: check-frontend
+      run: |
+        if [ -f "package.json" ]; then
+          echo "frontend=true" >> $GITHUB_OUTPUT
+        else
+          echo "frontend=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Set up Node.js
+      if: steps.check-frontend.outputs.frontend == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -49,6 +59,7 @@ jobs:
         pip install black==24.4.2  # Pin black version for consistency
 
     - name: Install frontend dependencies
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm ci
 
