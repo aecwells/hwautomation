@@ -50,7 +50,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
 
     - name: Install Python dependencies
       run: |
@@ -127,7 +126,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
 
     - name: Install frontend dependencies
       if: steps.check-frontend.outputs.frontend == 'true'
@@ -382,11 +380,20 @@ jobs:
         python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
         cache: 'pip'
 
+    - name: Check for frontend dependencies
+      id: check-frontend
+      run: |
+        if [ -f "package.json" ]; then
+          echo "frontend=true" >> $GITHUB_OUTPUT
+        else
+          echo "frontend=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Set up Node.js
+      if: steps.check-frontend.outputs.frontend == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
 
     - name: Install build dependencies
       run: |
@@ -394,6 +401,7 @@ jobs:
         pip install build twine
 
     - name: Install frontend dependencies and build
+      if: steps.check-frontend.outputs.frontend == 'true'
       run: |
         npm ci
         npm run build
