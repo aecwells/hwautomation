@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.hwautomation.exceptions import (
+from hwautomation.exceptions import (
     BiosConfigurationError,
     CommissioningError,
     ConfigurationValidationError,

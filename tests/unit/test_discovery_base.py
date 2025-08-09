@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.hwautomation.hardware.discovery.base import (
+from hwautomation.hardware.discovery.base import (
     BaseParser,
     BaseVendorDiscovery,
     HardwareDiscovery,

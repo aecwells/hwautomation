@@ -70,7 +70,7 @@ def test_hardware_subpackages():
 def test_database_imports():
     """Test database module imports."""
     try:
-        from src.hwautomation.database import DbHelper
+        from hwautomation.database import DbHelper
 
         assert DbHelper is not None
         success = True
@@ -82,7 +82,7 @@ def test_database_imports():
 def test_logging_imports():
     """Test logging module imports."""
     try:
-        from src.hwautomation.logging import get_logger
+        from hwautomation.logging import get_logger
 
         assert get_logger is not None
         success = True
@@ -94,7 +94,7 @@ def test_logging_imports():
 def test_utils_imports():
     """Test utils module imports."""
     try:
-        from src.hwautomation.utils.env_config import Config
+        from hwautomation.utils.env_config import Config
 
         assert Config is not None
         success = True
@@ -106,7 +106,7 @@ def test_utils_imports():
 def test_exceptions_hierarchy():
     """Test exception class hierarchy."""
     try:
-        from src.hwautomation.exceptions import (
+        from hwautomation.exceptions import (
             BiosConfigurationError,
             HWAutomationError,
             WorkflowError,
@@ -144,7 +144,7 @@ def test_basic_module_constants():
 def test_discovery_base_classes():
     """Test hardware discovery base classes."""
     try:
-        from src.hwautomation.hardware.discovery.base import (
+        from hwautomation.hardware.discovery.base import (
             IPMIInfo,
             NetworkInterface,
             SystemInfo,
@@ -169,7 +169,7 @@ def test_discovery_base_classes():
 def test_config_functionality():
     """Test basic config functionality."""
     try:
-        from src.hwautomation.utils.config import load_config
+        from hwautomation.utils.config import load_config
 
         # Test that load_config function can be called
         config = load_config()
@@ -185,7 +185,7 @@ def test_config_functionality():
 def test_env_config_basic_usage():
     """Test environment config basic usage."""
     try:
-        from src.hwautomation.utils.env_config import Config
+        from hwautomation.utils.env_config import Config
 
         # Create config instance
         config = Config()
@@ -238,7 +238,7 @@ def test_hardware_package_structure():
 def test_database_helper_basic_functionality():
     """Test database helper basic functionality."""
     try:
-        from src.hwautomation.database import DbHelper
+        from hwautomation.database import DbHelper
 
         # Test that DbHelper class can be imported
         assert DbHelper is not None
@@ -255,7 +255,7 @@ def test_database_helper_basic_functionality():
 def test_logging_system_basic():
     """Test logging system basic functionality."""
     try:
-        from src.hwautomation.logging import get_logger
+        from hwautomation.logging import get_logger
 
         # Get a logger
         logger = get_logger("test.module")

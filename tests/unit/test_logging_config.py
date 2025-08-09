@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.hwautomation.logging import (
+from hwautomation.logging import (
     get_correlation_id,
     get_logger,
     set_correlation_id,

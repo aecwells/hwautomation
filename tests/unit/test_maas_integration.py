@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import requests
 
-from src.hwautomation.exceptions import HWAutomationError
-from src.hwautomation.maas.client import MaasClient
+from hwautomation.exceptions import HWAutomationError
+from hwautomation.maas.client import MaasClient
 
 
 # Mock classes for testing

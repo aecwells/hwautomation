@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.hwautomation.hardware.bios.base import (
+from hwautomation.hardware.bios.base import (
     BiosConfigResult,
     ConfigMethod,
     OperationStatus,
