@@ -261,6 +261,15 @@ local-*.sh
 debug-*.sh
 check-*.sh
 
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.backup
+.npm
+.yarn-integrity
+
 # Application logs and databases
 logs/
 *.log
