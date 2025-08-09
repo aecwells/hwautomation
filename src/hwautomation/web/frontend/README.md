@@ -7,11 +7,13 @@ Phase 3 transforms the monolithic frontend JavaScript and CSS into a modular, ma
 ## Architecture Changes
 
 ### Before (Monolithic)
+
 - **JavaScript**: 2 large files (app.js 632 lines, device-selection.js 918 lines)
 - **CSS**: Single stylesheet (style.css 1860 lines)
 - **Organization**: Mixed concerns, global state, tightly coupled code
 
 ### After (Modular)
+
 - **Core System**: Application lifecycle and service management
 - **Services**: API client, state management, notifications
 - **Components**: Reusable UI components with encapsulated logic
@@ -20,7 +22,7 @@ Phase 3 transforms the monolithic frontend JavaScript and CSS into a modular, ma
 
 ## Directory Structure
 
-```
+```bash
 src/hwautomation/web/frontend/
 ├── js/
 │   ├── core/
@@ -48,6 +50,7 @@ src/hwautomation/web/frontend/
 ## Key Features
 
 ### 1. Application Core (`core/app.js`)
+
 - **Purpose**: Main application lifecycle management
 - **Features**:
   - Service initialization and coordination
@@ -57,6 +60,7 @@ src/hwautomation/web/frontend/
   - Error handling and recovery
 
 ### 2. State Management (`services/state.js`)
+
 - **Purpose**: Centralized, reactive state management
 - **Features**:
   - Nested state with dot notation (`ui.theme`, `devices.selectedDevice`)
@@ -66,6 +70,7 @@ src/hwautomation/web/frontend/
   - State snapshots and debugging
 
 ### 3. API Service (`services/api.js`)
+
 - **Purpose**: Unified HTTP client for all API interactions
 - **Features**:
   - RESTful methods (GET, POST, PUT, DELETE, PATCH)
@@ -75,6 +80,7 @@ src/hwautomation/web/frontend/
   - JSON/text response handling
 
 ### 4. Notification System (`services/notifications.js`)
+
 - **Purpose**: User feedback and alert management
 - **Features**:
   - Toast notifications (success, error, warning, info)
@@ -84,6 +90,7 @@ src/hwautomation/web/frontend/
   - Configurable duration and persistence
 
 ### 5. Theme Management (`components/theme-manager.js`)
+
 - **Purpose**: Light/dark theme switching
 - **Features**:
   - Bootstrap theme integration (`data-bs-theme`)
@@ -93,6 +100,7 @@ src/hwautomation/web/frontend/
   - Automatic toggle button creation
 
 ### 6. Connection Status (`components/connection-status.js`)
+
 - **Purpose**: Real-time connection monitoring
 - **Features**:
   - WebSocket and API health monitoring
@@ -102,6 +110,7 @@ src/hwautomation/web/frontend/
   - Multiple indicator support
 
 ### 7. Device Selection (`components/device-selection.js`)
+
 - **Purpose**: Device listing, filtering, and management
 - **Features**:
   - Cards and table view modes
@@ -111,6 +120,7 @@ src/hwautomation/web/frontend/
   - Responsive design and accessibility
 
 ### 8. CSS Modularization
+
 - **Base Styles** (`base.css`): CSS variables, theme definitions, typography
 - **Component Styles**: Isolated styles for each component
 - **Utility Classes**: Spacing, animations, loading states
@@ -120,6 +130,7 @@ src/hwautomation/web/frontend/
 ## Integration Points
 
 ### 1. Template Integration
+
 ```html
 <!-- Include modular CSS -->
 <link rel="stylesheet" href="{{ url_for('static', filename='js/frontend/css/main.css') }}">
@@ -129,6 +140,7 @@ src/hwautomation/web/frontend/
 ```
 
 ### 2. Page-Specific Modules
+
 ```html
 <!-- Device selection page -->
 <body class="page-device-selection">
@@ -137,6 +149,7 @@ src/hwautomation/web/frontend/
 ```
 
 ### 3. Backward Compatibility
+
 - Global `window.HWAutomationApp` for legacy code
 - Global `window.deviceSelection` for existing device selection references
 - Gradual migration path from monolithic to modular
@@ -144,6 +157,7 @@ src/hwautomation/web/frontend/
 ## State Management Examples
 
 ### Setting State
+
 ```javascript
 const app = window.HWAutomationApp;
 const state = app.getService('state');
@@ -156,6 +170,7 @@ state.setState('devices.selectedDevice', deviceData);
 ```
 
 ### Subscribing to Changes
+
 ```javascript
 // Listen for theme changes
 state.subscribe('ui.theme', (newTheme) => {
@@ -171,6 +186,7 @@ state.subscribe('devices.*', (value, oldValue, key) => {
 ## API Usage Examples
 
 ### Making API Calls
+
 ```javascript
 const api = app.getService('api');
 
@@ -185,6 +201,7 @@ const result = await api.post('/api/orchestration/commission', {
 ```
 
 ### Error Handling
+
 ```javascript
 try {
   const response = await api.get('/api/endpoint');
@@ -200,6 +217,7 @@ try {
 ## Component Development
 
 ### Creating New Components
+
 ```javascript
 class MyComponent {
   constructor() {
@@ -229,6 +247,7 @@ export { MyComponent };
 ```
 
 ### Registering Components
+
 ```javascript
 // In module loader or component initialization
 const myComponent = new MyComponent();
@@ -239,16 +258,19 @@ app.registerComponent('myComponent', myComponent);
 ## Performance Optimizations
 
 ### 1. Lazy Loading
+
 - Components loaded only when needed for specific pages
 - Dynamic imports reduce initial bundle size
 - Module loader manages dependencies
 
 ### 2. State Efficiency
+
 - Selective state subscriptions prevent unnecessary updates
 - State persistence reduces redundant API calls
 - Debounced state changes prevent excessive updates
 
 ### 3. CSS Optimizations
+
 - Component-specific styles loaded with components
 - CSS custom properties for theme switching
 - Minimal base styles for fast initial render
@@ -256,16 +278,19 @@ app.registerComponent('myComponent', myComponent);
 ## Migration Strategy
 
 ### Phase 3a: Core Infrastructure (✅ Complete)
+
 - Application core and module loader
 - Service layer (API, state, notifications)
 - Base theme and styling system
 
 ### Phase 3b: Component Migration (In Progress)
+
 - Theme manager and connection status
 - Device selection component
 - Form utilities and validation
 
 ### Phase 3c: Advanced Features (Future)
+
 - Workflow visualization components
 - Real-time monitoring dashboards
 - Advanced filtering and search
@@ -273,16 +298,19 @@ app.registerComponent('myComponent', myComponent);
 ## Testing Considerations
 
 ### Unit Testing
+
 - Services have clear interfaces for mocking
 - Components can be tested in isolation
 - State management has predictable behavior
 
 ### Integration Testing
+
 - Module loader can be tested with mock modules
 - API service can use test endpoints
 - Theme switching can be automated
 
 ### Accessibility Testing
+
 - Components include ARIA attributes
 - Keyboard navigation support
 - Screen reader compatibility
@@ -290,21 +318,25 @@ app.registerComponent('myComponent', myComponent);
 ## Benefits Achieved
 
 ### 1. Maintainability
+
 - Clear separation of concerns
 - Single responsibility principle
 - Reduced code duplication
 
 ### 2. Testability
+
 - Isolated components and services
 - Mockable dependencies
 - Predictable state management
 
 ### 3. Scalability
+
 - Modular architecture supports growth
 - Lazy loading improves performance
 - Reusable components reduce development time
 
 ### 4. Developer Experience
+
 - Clear file organization
 - Consistent patterns and conventions
 - Modern JavaScript features and patterns
