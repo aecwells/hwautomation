@@ -12,7 +12,7 @@ def test_cli_module_exists():
     """Test that CLI module can be imported without errors."""
     try:
         # Just test that the package path exists
-        import src.hwautomation.cli
+        import hwautomation.cli
 
         success = True
     except ImportError:
@@ -23,9 +23,9 @@ def test_cli_module_exists():
 def test_hwautomation_package_structure():
     """Test basic package structure and imports."""
     try:
-        import src.hwautomation
+        import hwautomation
 
-        assert hasattr(src.hwautomation, "__init__")
+        assert hasattr(hwautomation, "__init__")
         success = True
     except ImportError:
         success = False
@@ -35,11 +35,11 @@ def test_hwautomation_package_structure():
 def test_main_package_imports():
     """Test that main package components can be imported."""
     components_to_test = [
-        "src.hwautomation.exceptions",
-        "src.hwautomation.database",
-        "src.hwautomation.hardware",
-        "src.hwautomation.logging",
-        "src.hwautomation.utils",
+        "hwautomation.exceptions",
+        "hwautomation.database",
+        "hwautomation.hardware",
+        "hwautomation.logging",
+        "hwautomation.utils",
     ]
 
     for component in components_to_test:
@@ -54,8 +54,8 @@ def test_main_package_imports():
 def test_hardware_subpackages():
     """Test that hardware subpackages can be imported."""
     hardware_components = [
-        "src.hwautomation.hardware.discovery",
-        "src.hwautomation.hardware.bios",
+        "hwautomation.hardware.discovery",
+        "hwautomation.hardware.bios",
     ]
 
     for component in hardware_components:
@@ -132,7 +132,7 @@ def test_exceptions_hierarchy():
 def test_basic_module_constants():
     """Test that basic module constants are defined."""
     try:
-        import src.hwautomation
+        import hwautomation
 
         # Test that __init__ has been properly executed
         success = True
@@ -205,11 +205,11 @@ def test_package_version_info():
     """Test that package version info is accessible."""
     try:
         # Test basic package structure
-        import src.hwautomation
+        import hwautomation
 
         # Package should have __name__ attribute
-        assert hasattr(src.hwautomation, "__name__")
-        assert src.hwautomation.__name__ == "src.hwautomation"
+        assert hasattr(hwautomation, "__name__")
+        assert hwautomation.__name__ == "hwautomation"
 
         success = True
     except (ImportError, AttributeError):
@@ -220,14 +220,14 @@ def test_package_version_info():
 def test_hardware_package_structure():
     """Test hardware package structure."""
     try:
-        import src.hwautomation.hardware
+        import hwautomation.hardware
 
         # Test that hardware package can be imported
-        assert hasattr(src.hwautomation.hardware, "__name__")
+        assert hasattr(hwautomation.hardware, "__name__")
 
         # Test subpackages exist
-        import src.hwautomation.hardware.bios
-        import src.hwautomation.hardware.discovery
+        import hwautomation.hardware.bios
+        import hwautomation.hardware.discovery
 
         success = True
     except ImportError:

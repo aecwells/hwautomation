@@ -82,14 +82,14 @@ class TestCorrelationTracking:
 class TestSetupLogging:
     """Test setup_logging function."""
 
-    @patch("src.hwautomation.logging.config.logging.config.dictConfig")
+    @patch("hwautomation.logging.config.logging.config.dictConfig")
     def test_setup_logging_basic(self, mock_dict_config):
         """Test basic logging setup."""
         setup_logging(environment="development", force_reload=True)
         # Should call dictConfig at least once
         assert mock_dict_config.called
 
-    @patch("src.hwautomation.logging.config.logging.config.dictConfig")
+    @patch("hwautomation.logging.config.logging.config.dictConfig")
     def test_setup_logging_with_level(self, mock_dict_config):
         """Test logging setup with specific environment."""
         setup_logging(environment="production", force_reload=True)
