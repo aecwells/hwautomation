@@ -67,46 +67,40 @@ class TestCorrelationTracking:
         assert get_correlation_id() is None
 
     def test_with_correlation_decorator(self):
-        """Test the with_correlation decorator."""
-        # This tests that the decorator can be imported and used
+        """Test the with_correlation context manager."""
+        # This tests that the context manager can be imported and used
         test_correlation_id = "decorator-test-123"
 
-        @with_correlation(test_correlation_id)
-        def test_function():
-            return get_correlation_id()
+        # Use with_correlation as a context manager (not decorator)
+        with with_correlation(test_correlation_id):
+            result = get_correlation_id()
 
-        # Call the decorated function
-        result = test_function()
-
-        # The correlation ID should have been set during function execution
-        # Note: Depending on implementation, this might need adjustment
-        assert (
-            result == test_correlation_id or get_correlation_id() == test_correlation_id
-        )
+        # The correlation ID should have been set during context execution
+        assert result == test_correlation_id
 
 
 class TestSetupLogging:
     """Test setup_logging function."""
 
-    @patch("src.hwautomation.logging.config.logging.basicConfig")
-    def test_setup_logging_basic(self, mock_basic_config):
+    @patch("src.hwautomation.logging.config.logging.config.dictConfig")
+    def test_setup_logging_basic(self, mock_dict_config):
         """Test basic logging setup."""
-        setup_logging()
-        # Should call basicConfig at least once
-        assert mock_basic_config.called
+        setup_logging(environment="development", force_reload=True)
+        # Should call dictConfig at least once
+        assert mock_dict_config.called
 
-    @patch("src.hwautomation.logging.config.logging.basicConfig")
-    def test_setup_logging_with_level(self, mock_basic_config):
-        """Test logging setup with specific level."""
-        setup_logging(level="DEBUG")
-        # Should call basicConfig
-        assert mock_basic_config.called
+    @patch("src.hwautomation.logging.config.logging.config.dictConfig")
+    def test_setup_logging_with_level(self, mock_dict_config):
+        """Test logging setup with specific environment."""
+        setup_logging(environment="production", force_reload=True)
+        # Should call dictConfig
+        assert mock_dict_config.called
 
     def test_setup_logging_integration(self):
         """Test setup_logging integration without mocking."""
         # Create a simple config and ensure no exceptions
         try:
-            setup_logging(level="WARNING")
+            setup_logging(environment="development", force_reload=True)
             # Test that we can get a logger and it works
             logger = get_logger("test.integration")
             logger.warning("Test warning message")

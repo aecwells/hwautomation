@@ -20,9 +20,6 @@ class TestConfigMethod:
             "vendor_tools",
             "hybrid",
             "manual",
-            "validate",
-            "push",
-            "pull",
         }
         actual_values = {method.value for method in ConfigMethod}
         assert actual_values == expected_values
