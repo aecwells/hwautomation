@@ -1,11 +1,65 @@
-[default]
 # Configuration for typos spell checker
 
+[default]
 # Words to ignore as legitimate technical terms
-[default.extend-words]
-HPE = "HPE"  # Hewlett Packard Enterprise - legitimate company name
-hpe = "hpe"  # Hewlett Packard Enterprise - legitimate company name
+extend-words = { tme = "tme", HPE = "HPE", hpe = "hpe" }
 
-# Additional technical terms and acronyms that are valid
-[type.py.extend-words]
-async = "async"  # Python async keyword
+[files]
+# Exclude patterns - comprehensive list
+extend-exclude = [
+    # Node.js and frontend dependencies
+    "node_modules/**",
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+
+    # Build artifacts and compiled files
+    "*.min.js",
+    "*.min.css",
+    "*.map",
+    "dist/**",
+    "build/**",
+    "target/**",
+
+    # Version control and IDE
+    ".git/**",
+    ".vscode/**",
+    ".idea/**",
+    "*.swp",
+    "*.swo",
+
+    # Python artifacts
+    "__pycache__/**",
+    "*.pyc",
+    "*.pyo",
+    "*.egg-info/**",
+    ".pytest_cache/**",
+    ".mypy_cache/**",
+    ".coverage",
+    "coverage.xml",
+    "htmlcov/**",
+    "junit.xml",
+
+    # Virtual environments
+    "venv/**",
+    ".venv/**",
+    "env/**",
+    ".env/**",
+    "hwautomation-env/**",
+
+    # Logs and databases
+    "*.log",
+    "*.db",
+    "*.sqlite",
+    "*.sqlite3",
+    "*.backup",
+
+    # Documentation artifacts
+    "_build/**",
+    "site/**",
+
+    # Generated files
+    "*.lock",
+    "Pipfile.lock",
+    "poetry.lock",
+]

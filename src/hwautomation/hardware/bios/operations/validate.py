@@ -20,26 +20,28 @@ class ValidationOperationHandler(BaseOperationHandler):
         """Initialize validation operation handler."""
         super().__init__()
 
-    def execute(
-        self,
-        config: ET.Element,
-        device_type: str,
-        device_mappings: Dict[str, Any],
-        template_rules: Dict[str, Any],
-        **kwargs,
-    ) -> List[str]:
+    def execute(self, **kwargs) -> BiosConfigResult:
         """Execute validation operation on BIOS configuration.
 
         Args:
-            config: Configuration XML to validate
-            device_type: Target device type
-            device_mappings: Device mapping configuration
-            template_rules: Template rules configuration
-            **kwargs: Additional operation parameters
+            **kwargs: Operation parameters including:
+                - config: Configuration XML to validate
+                - device_type: Target device type
+                - device_mappings: Device mapping configuration
+                - template_rules: Template rules configuration
 
         Returns:
-            List of validation errors (empty if valid)
+            BiosConfigResult containing validation results
         """
+        # Extract required parameters
+        config = kwargs.get("config")
+        device_type = kwargs.get("device_type", "")
+        device_mappings = kwargs.get("device_mappings", {})
+        template_rules = kwargs.get("template_rules", {})
+
+        assert config is not None, "config parameter is required"
+        assert device_type, "device_type parameter is required"
+
         self.logger.info(
             f"Validating BIOS configuration for device type: {device_type}"
         )
@@ -70,35 +72,56 @@ class ValidationOperationHandler(BaseOperationHandler):
 
             if errors:
                 self.logger.warning(f"Found {len(errors)} validation errors")
+                return BiosConfigResult(
+                    success=False,
+                    method_used=ConfigMethod.REDFISH_STANDARD,
+                    settings_applied={},
+                    settings_failed={},
+                    validation_errors=errors,
+                )
             else:
                 self.logger.info("Configuration validation passed")
-
-            return errors
+                return BiosConfigResult(
+                    success=True,
+                    method_used=ConfigMethod.REDFISH_STANDARD,
+                    settings_applied={},
+                    settings_failed={},
+                    validation_errors=[],
+                )
 
         except Exception as e:
             self.logger.error(f"Error during validation: {e}")
-            return [f"Validation error: {e}"]
+            return BiosConfigResult(
+                success=False,
+                method_used=ConfigMethod.REDFISH_STANDARD,
+                settings_applied={},
+                settings_failed={},
+                validation_errors=[f"Validation error: {e}"],
+            )
 
-    def validate_inputs(
-        self, config: ET.Element, device_type: str, **kwargs
-    ) -> List[str]:
+    def validate_inputs(self, **kwargs) -> List[str]:
         """Validate input parameters for the validation operation.
 
         Args:
-            config: Configuration XML
-            device_type: Device type
-            **kwargs: Additional parameters
+            **kwargs: Parameters including config, device_type
 
         Returns:
             List of validation errors
         """
         errors = []
 
+        config = kwargs.get("config")
+        device_type = kwargs.get("device_type")
+
         if config is None:
-            errors.append("Configuration XML is required")
+            errors.append("Missing required parameter: config")
+        elif not isinstance(config, ET.Element):
+            errors.append("config must be an XML Element")
 
         if not device_type:
-            errors.append("Device type is required")
+            errors.append("Missing required parameter: device_type")
+        elif not isinstance(device_type, str):
+            errors.append("device_type must be a string")
 
         return errors
 

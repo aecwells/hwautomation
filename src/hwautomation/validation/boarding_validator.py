@@ -185,7 +185,7 @@ class BMCBoardingValidator:
                     "hardware_p_states": "native_mode",
                     "sata_controller": "disabled",
                     "ssata_controller": "disabled",
-                    "tme": "enabled",  # For SGX builds
+                    "tme": "enabled",  # For SGX builds (Trusted Memory Encryption)
                     "sgx": "enabled",  # For SGX builds
                 },
             },

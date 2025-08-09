@@ -201,24 +201,26 @@ def get_default_config(environment: str = "development") -> Dict[str, Any]:
         }
 
         if use_file_logging:
-            handlers.update({
-                "file": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "INFO",
-                    "formatter": "detailed",
-                    "filename": "logs/hwautomation.log",
-                    "maxBytes": 10485760,  # 10MB
-                    "backupCount": 5,
-                },
-                "error_file": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "ERROR",
-                    "formatter": "detailed",
-                    "filename": "logs/errors.log",
-                    "maxBytes": 10485760,
-                    "backupCount": 10,
-                },
-            })
+            handlers.update(
+                {
+                    "file": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "level": "INFO",
+                        "formatter": "detailed",
+                        "filename": "logs/hwautomation.log",
+                        "maxBytes": 10485760,  # 10MB
+                        "backupCount": 5,
+                    },
+                    "error_file": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "level": "ERROR",
+                        "formatter": "detailed",
+                        "filename": "logs/errors.log",
+                        "maxBytes": 10485760,
+                        "backupCount": 10,
+                    },
+                }
+            )
 
         handler_list = ["console"]
         if use_file_logging:
