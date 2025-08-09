@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from hwautomation import *
 from hwautomation.database.migrations import DatabaseMigrator
 from hwautomation.hardware.ipmi import IpmiManager
-from hwautomation.hardware.redfish_manager import RedfishManager
+from hwautomation.hardware.redfish import RedfishManager
 from hwautomation.maas.client import create_maas_client
 from hwautomation.utils.config import load_config
 

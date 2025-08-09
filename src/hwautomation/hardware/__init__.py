@@ -8,13 +8,15 @@ from .discovery import (
     NetworkInterface,
     SystemInfo,
 )
+from .firmware import FirmwareManager
 from .ipmi import IpmiManager
-from .redfish_manager import RedfishManager
+from .redfish import RedfishManager
 
 __all__ = [
     "IpmiManager",
-    "RedfishManager",
+    "RedfishManager", 
     "BiosConfigManager",
+    "FirmwareManager",
     "HardwareDiscoveryManager",
     "HardwareDiscovery",
     "SystemInfo",

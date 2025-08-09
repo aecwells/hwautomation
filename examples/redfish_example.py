@@ -20,8 +20,8 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from hwautomation.hardware.bios_config import BiosConfigManager
-from hwautomation.hardware.redfish_manager import RedfishManager, create_redfish_manager
+from hwautomation.hardware.bios import BiosConfigManager
+from hwautomation.hardware.redfish import RedfishManager
 
 # Setup logging
 logging.basicConfig(

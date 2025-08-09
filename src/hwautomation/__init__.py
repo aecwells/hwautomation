@@ -13,7 +13,7 @@ from .database.helper import DbHelper
 from .database.migrations import DatabaseMigrator
 from .hardware.bios import BiosConfigManager
 from .hardware.ipmi import IpmiManager
-from .hardware.redfish_manager import RedfishManager
+from .hardware.redfish import RedfishManager
 from .maas.client import MaasClient
 from .utils.network import ping_host
 

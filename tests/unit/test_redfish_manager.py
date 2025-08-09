@@ -15,8 +15,8 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from hwautomation.hardware.bios_config import BiosConfigManager
-from hwautomation.hardware.redfish_manager import (
+from hwautomation.hardware.bios import BiosConfigManager
+from hwautomation.hardware.redfish import (
     RedfishCapabilities,
     RedfishManager,
     SystemInfo,
@@ -32,7 +32,7 @@ class TestRedfishManager:
         self.username = "admin"
         self.password = "password"
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_redfish_manager_initialization(self, mock_session_class):
         """Test RedfishManager initialization"""
         mock_session = Mock()
