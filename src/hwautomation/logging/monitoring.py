@@ -570,7 +570,9 @@ class AlertManager:
             if any(op in eval_condition for op in ["import", "exec", "eval", "__"]):
                 return False
 
-            return eval(eval_condition)
+            # Use ast.literal_eval for safer evaluation in production
+            # For now, using basic string matching instead of eval
+            return eval_condition.strip().lower() == "true"
         except:
             return False
 
