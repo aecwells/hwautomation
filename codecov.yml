@@ -2,37 +2,37 @@ coverage:
   status:
     project:
       default:
-        target: 80%          # Require 80% overall coverage
-        threshold: 2%        # Allow 2% drop without failing
+        target: 80% # Require 80% overall coverage
+        threshold: 2% # Allow 2% drop without failing
     patch:
       default:
-        target: 70%          # Require 70% coverage on new code
-        threshold: 5%        # More lenient for patches
+        target: 70% # Require 70% coverage on new code
+        threshold: 5% # More lenient for patches
 
 ignore:
-  - "tests/"               # Exclude test files from coverage
-  - "examples/"            # Exclude example files
-  - "tools/"               # Exclude tool scripts
-  - "gui/"                 # Exclude GUI components if not core
-  - "scripts/"             # Exclude standalone scripts
-  - "src/hwautomation/web/static/"  # Exclude static web assets
-  - "**/__pycache__/"      # Exclude Python cache
-  - "**/migrations/"       # Exclude database migrations
-  - "setup.py"             # Exclude setup files
-  - "conftest.py"          # Exclude pytest config
+- "tests/" # Exclude test files from coverage
+- "examples/" # Exclude example files
+- "tools/" # Exclude tool scripts
+- "gui/" # Exclude GUI components if not core
+- "scripts/" # Exclude standalone scripts
+- "src/hwautomation/web/static/" # Exclude static web assets
+- "**/__pycache__/" # Exclude Python cache
+- "**/migrations/" # Exclude database migrations
+- "setup.py" # Exclude setup files
+- "conftest.py" # Exclude pytest config
 
 comment:
   layout: "header, diff, flags, files"
   behavior: default
-  require_changes: false   # Show coverage even if no changes
+  require_changes: false # Show coverage even if no changes
 
 flags:
   unittests:
     paths:
-      - src/hwautomation/
+    - src/hwautomation/
   integration:
     paths:
-      - src/hwautomation/
+    - src/hwautomation/
   performance:
     paths:
-      - src/hwautomation/
+    - src/hwautomation/
