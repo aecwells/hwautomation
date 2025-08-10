@@ -15,7 +15,13 @@ import logging
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
+
+# Skip this entire module since legacy decision logic components were removed
+pytestmark = pytest.mark.skip(
+    reason="Legacy decision logic components removed during modularization"
+)
 
 # Set up logging
 logging.basicConfig(
@@ -43,10 +49,17 @@ except ImportError as e:
     print("⚠️  Legacy decision logic components removed during modularization")
     print("    This test is disabled until rewritten for modular system")
 
-    # Skip this test since the legacy decision logic file was removed
-    import sys
 
-    sys.exit(0)  # Exit gracefully without running tests
+# Create mock classes for the removed legacy components
+class BiosSettingMethodSelector:
+    """Mock BiosSettingMethodSelector class"""
+
+    def __init__(self, device_config):
+        self.device_config = device_config
+
+    def analyze_settings(self, settings_to_apply, **kwargs):
+        """Mock analyze_settings method"""
+        return None
 
 
 def load_device_config():

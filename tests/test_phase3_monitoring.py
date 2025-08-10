@@ -18,6 +18,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+import pytest
 import yaml
 
 # Set up logging
@@ -28,6 +29,11 @@ logger = logging.getLogger(__name__)
 
 # Add the src directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+# Skip this entire module since legacy monitoring components were removed
+pytestmark = pytest.mark.skip(
+    reason="Legacy monitoring components removed during modularization"
+)
 
 # Import Phase 3 components
 try:
@@ -44,51 +50,65 @@ try:
     # )
     print("⚠️  Legacy monitoring components not available - using modular BIOS system")
 
-    # Skip this test since legacy monitoring components were removed
-    import sys
-
-    sys.exit(0)  # Exit gracefully without running tests
-
 except ImportError:
     print("⚠️  Could not import full modules - running in demonstration mode")
 
-    # Skip this test since legacy monitoring components were removed
-    import sys
 
-    sys.exit(0)  # Exit gracefully without running tests
+# Create mock classes for the removed legacy components
+class ProgressCallback:
+    """Mock ProgressCallback class"""
 
-    # Create mock classes for demonstration
-    class MockBiosConfigManager:
-        async def apply_bios_config_phase3(self, **kwargs):
-            return {
-                "success": True,
-                "operation_id": "mock-operation-123",
-                "monitoring_enabled": True,
-                "method_analysis": {
-                    "total_settings": 7,
-                    "method_breakdown": {
-                        "redfish_settings": 4,
-                        "vendor_settings": 3,
-                        "unknown_settings": 0,
-                    },
+    def __init__(self):
+        pass
+
+    def on_progress(self, event):
+        pass
+
+
+class WebSocketProgressCallback(ProgressCallback):
+    """Mock WebSocketProgressCallback class"""
+
+    def __init__(self):
+        super().__init__()
+
+
+def get_monitor():
+    """Mock get_monitor function"""
+    return None
+
+
+# Create mock classes for demonstration
+class MockBiosConfigManager:
+    async def apply_bios_config_phase3(self, **kwargs):
+        return {
+            "success": True,
+            "operation_id": "mock-operation-123",
+            "monitoring_enabled": True,
+            "method_analysis": {
+                "total_settings": 7,
+                "method_breakdown": {
+                    "redfish_settings": 4,
+                    "vendor_settings": 3,
+                    "unknown_settings": 0,
                 },
-                "validation_results": {
-                    "pre_flight": {"success": True},
-                    "post_configuration": {"success": True},
+            },
+            "validation_results": {
+                "pre_flight": {"success": True},
+                "post_configuration": {"success": True},
+            },
+            "execution_phases": [
+                {
+                    "phase_name": "batch_1_redfish",
+                    "success": True,
+                    "execution_time": 5.2,
                 },
-                "execution_phases": [
-                    {
-                        "phase_name": "batch_1_redfish",
-                        "success": True,
-                        "execution_time": 5.2,
-                    },
-                    {
-                        "phase_name": "batch_2_vendor_tool",
-                        "success": True,
-                        "execution_time": 45.1,
-                    },
-                ],
-            }
+                {
+                    "phase_name": "batch_2_vendor_tool",
+                    "success": True,
+                    "execution_time": 45.1,
+                },
+            ],
+        }
 
 
 def load_device_config(device_type="a1.c5.large"):
