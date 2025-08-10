@@ -12,38 +12,38 @@
 @import "components/device-selection.css";
 
 /* HWAutomation specific theme overrides */
-.status-connected { 
-  color: #28a745; 
+.status-connected {
+  color: #28a745;
 }
 
-.status-disconnected { 
-  color: #dc3545; 
+.status-disconnected {
+  color: #dc3545;
 }
 
-.status-warning { 
-  color: #fd7e14; 
+.status-warning {
+  color: #fd7e14;
 }
 
-.status-working { 
-  color: #ffc107; 
+.status-working {
+  color: #ffc107;
 }
 
-.theme-toggle { 
-  border: none; 
-  background: none; 
-  color: inherit; 
+.theme-toggle {
+  border: none;
+  background: none;
+  color: inherit;
 }
 
-.theme-toggle:hover { 
-  background-color: rgba(0,0,0,0.1); 
+.theme-toggle:hover {
+  background-color: rgba(0,0,0,0.1);
 }
 
-[data-bs-theme="dark"] .theme-toggle:hover { 
-  background-color: rgba(255,255,255,0.1); 
+[data-bs-theme="dark"] .theme-toggle:hover {
+  background-color: rgba(255,255,255,0.1);
 }
 
-[data-bs-theme="dark"] .bg-light { 
-  background-color: #2d3035 !important; 
+[data-bs-theme="dark"] .bg-light {
+  background-color: #2d3035 !important;
 }
 
 /* Additional component imports would go here */

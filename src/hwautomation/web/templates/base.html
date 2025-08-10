@@ -129,7 +129,7 @@
         {% for preload_url in get_preload_assets('app') %}
             <link rel="modulepreload" href="{{ preload_url }}">
         {% endfor %}
-        
+
         <!-- Built JavaScript from Vite -->
         <script type="module" src="{{ asset_url('app') }}"></script>
         <script type="module" src="{{ asset_url('module-loader') }}"></script>
