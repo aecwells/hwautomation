@@ -30,3 +30,9 @@ flags:
   unittests:
     paths:
       - src/hwautomation/
+  integration:
+    paths:
+      - src/hwautomation/
+  performance:
+    paths:
+      - src/hwautomation/
