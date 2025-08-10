@@ -174,11 +174,13 @@ jobs:
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == env.PYTHON_DEFAULT_VERSION
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
         # Download and install Codecov CLI
         curl -Os https://cli.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'unittests'-${{ github.run_id }} -F unittests -f coverage.xml
+        ./codecov upload-process --fail-on-error --file coverage.xml --flag unittests --name unittests-${{ github.run_id }}
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -238,11 +240,13 @@ jobs:
         pytest tests/ -m "integration" --tb=short --maxfail=5 --cov=src/hwautomation --cov-report=xml:coverage-integration.xml --cov-report=term-missing
 
     - name: Upload integration coverage to Codecov
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
         # Download and install Codecov CLI
         curl -Os https://cli.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'integration'-${{ github.run_id }} -F integration -f coverage-integration.xml
+        ./codecov upload-process --fail-on-error --file coverage-integration.xml --flag integration --name integration-${{ github.run_id }}
 
     - name: Upload integration test results
       uses: actions/upload-artifact@v4
@@ -281,11 +285,13 @@ jobs:
         pytest tests/ -m "performance" --tb=short --cov=src/hwautomation --cov-report=xml:coverage-performance.xml --cov-report=term-missing
 
     - name: Upload performance coverage to Codecov
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       run: |
         # Download and install Codecov CLI
         curl -Os https://cli.codecov.io/latest/linux/codecov
         chmod +x codecov
-        ./codecov --verbose upload-process --fail-on-error -t ${{ secrets.CODECOV_TOKEN }} -n 'performance'-${{ github.run_id }} -F performance -f coverage-performance.xml
+        ./codecov upload-process --fail-on-error --file coverage-performance.xml --flag performance --name performance-${{ github.run_id }}
 
     - name: Generate performance report
       run: |
