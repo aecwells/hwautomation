@@ -153,7 +153,9 @@ def create_app():
 
         # Get available device types from BIOS configuration
         try:
-            bios_manager = BiosConfigManager()
+            # Use default config directory if not specified
+            config_dir = config.get("bios", {}).get("config_dir", "configs/bios")
+            bios_manager = BiosConfigManager(config_dir)
             device_types = bios_manager.get_device_types()
             if not device_types:
                 # Fallback to default types if none loaded

@@ -152,7 +152,9 @@ class WorkflowManager:
             ),  # Note: token_key in config
             secret=maas_config.get("token_secret", ""),
         )
-        self.bios_manager = BiosConfigManager(config.get("bios", {}).get("config_dir"))
+        self.bios_manager = BiosConfigManager(
+            config.get("bios", {}).get("config_dir", "configs/bios")
+        )
         self.ipmi_manager = IpmiManager(config.get("ipmi", {}))
         self.ssh_manager = SSHManager(config.get("ssh", {}))
         self.discovery_manager = HardwareDiscoveryManager(self.ssh_manager)

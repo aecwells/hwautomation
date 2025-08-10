@@ -86,7 +86,8 @@ def dashboard():
 
         # Get available device types from BIOS configuration
         try:
-            bios_manager = BiosConfigManager()
+            # Use default config directory if not specified
+            bios_manager = BiosConfigManager("configs/bios")
             device_types = bios_manager.get_device_types()
             if not device_types:
                 # Fallback to default types if none loaded
