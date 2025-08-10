@@ -13,6 +13,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseRedfishClient,
     RedfishAuthenticationError,
@@ -30,28 +31,30 @@ class RedfishSession(BaseRedfishClient):
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize Redfish session.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
         super().__init__(credentials)
         self.session = requests.Session()
         self.session.auth = HTTPBasicAuth(credentials.username, credentials.password)
-        
+
         # Configure session
         self.session.verify = credentials.verify_ssl
         self.session.timeout = credentials.timeout
-        
+
         # Set default headers
-        self.session.headers.update({
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        })
-        
+        self.session.headers.update(
+            {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
+        )
+
         # Build base URL
         protocol = "https" if credentials.use_ssl else "http"
         self.base_url = f"{protocol}://{credentials.host}:{credentials.port}"
-        
+
         logger.info(f"Initialized Redfish session for {credentials.host}")
 
     def __enter__(self):
@@ -64,11 +67,11 @@ class RedfishSession(BaseRedfishClient):
 
     def get(self, uri: str, **kwargs) -> RedfishResponse:
         """Perform GET request.
-        
+
         Args:
             uri: Request URI
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -76,12 +79,12 @@ class RedfishSession(BaseRedfishClient):
 
     def post(self, uri: str, data: Optional[Dict] = None, **kwargs) -> RedfishResponse:
         """Perform POST request.
-        
+
         Args:
             uri: Request URI
             data: Request data
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -89,12 +92,12 @@ class RedfishSession(BaseRedfishClient):
 
     def patch(self, uri: str, data: Optional[Dict] = None, **kwargs) -> RedfishResponse:
         """Perform PATCH request.
-        
+
         Args:
             uri: Request URI
             data: Request data
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -102,12 +105,12 @@ class RedfishSession(BaseRedfishClient):
 
     def put(self, uri: str, data: Optional[Dict] = None, **kwargs) -> RedfishResponse:
         """Perform PUT request.
-        
+
         Args:
             uri: Request URI
             data: Request data
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -115,11 +118,11 @@ class RedfishSession(BaseRedfishClient):
 
     def delete(self, uri: str, **kwargs) -> RedfishResponse:
         """Perform DELETE request.
-        
+
         Args:
             uri: Request URI
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -148,23 +151,22 @@ class RedfishSession(BaseRedfishClient):
             RedfishError: For other HTTP errors
         """
         # Build full URL
-        if uri.startswith('http'):
+        if uri.startswith("http"):
             url = uri
         else:
-            url = urljoin(self.base_url, uri.lstrip('/'))
+            url = urljoin(self.base_url, uri.lstrip("/"))
 
         logger.debug(f"Redfish {method} request to {url}")
 
         try:
             response = self.session.request(method, url, **kwargs)
-            
+
             # Handle authentication errors
             if response.status_code == 401:
                 raise RedfishAuthenticationError(
-                    "Authentication failed - invalid credentials",
-                    response.status_code
+                    "Authentication failed - invalid credentials", response.status_code
                 )
-            
+
             # Parse response data
             response_data = None
             if response.content:
@@ -186,7 +188,7 @@ class RedfishSession(BaseRedfishClient):
             if not response.ok:
                 error_msg = self._extract_error_message(response_data)
                 redfish_response.error_message = error_msg
-                
+
                 if response.status_code >= 500:
                     logger.error(f"Server error {response.status_code}: {error_msg}")
                 elif response.status_code >= 400:
@@ -239,18 +241,18 @@ class RedfishSession(BaseRedfishClient):
             Value if found, None otherwise
         """
         try:
-            parts = path.split('.')
+            parts = path.split(".")
             current = data
-            
+
             for part in parts:
-                if '[' in part and ']' in part:
+                if "[" in part and "]" in part:
                     # Handle array indexing like "field[0]"
-                    field, index_part = part.split('[', 1)
-                    index = int(index_part.rstrip(']'))
+                    field, index_part = part.split("[", 1)
+                    index = int(index_part.rstrip("]"))
                     current = current[field][index]
                 else:
                     current = current[part]
-                    
+
             return current
         except (KeyError, IndexError, TypeError, ValueError):
             return None

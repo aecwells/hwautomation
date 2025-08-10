@@ -6,6 +6,6 @@ from .sensors import SensorManager
 
 __all__ = [
     "IPMIConfigurator",
-    "PowerManager", 
+    "PowerManager",
     "SensorManager",
 ]

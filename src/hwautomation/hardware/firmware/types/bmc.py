@@ -26,14 +26,18 @@ class BmcFirmwareHandler(BaseFirmwareHandler):
         """Get current BMC version."""
         try:
             if self.vendor.lower() == "supermicro":
-                return await self._get_supermicro_bmc_version(target_ip, username, password)
+                return await self._get_supermicro_bmc_version(
+                    target_ip, username, password
+                )
             elif self.vendor.lower() == "dell":
                 return await self._get_dell_bmc_version(target_ip, username, password)
             elif self.vendor.lower() == "hpe":
                 return await self._get_hpe_bmc_version(target_ip, username, password)
             else:
-                return await self._get_generic_bmc_version(target_ip, username, password)
-        
+                return await self._get_generic_bmc_version(
+                    target_ip, username, password
+                )
+
         except Exception as e:
             logger.error(f"Failed to get BMC version from {target_ip}: {e}")
             return "unknown"
@@ -76,7 +80,7 @@ class BmcFirmwareHandler(BaseFirmwareHandler):
     ) -> FirmwareUpdateResult:
         """Update BMC firmware."""
         start_time = asyncio.get_event_loop().time()
-        
+
         try:
             if not self.validate_firmware_file(firmware_file):
                 return FirmwareUpdateResult(
@@ -90,17 +94,19 @@ class BmcFirmwareHandler(BaseFirmwareHandler):
                 )
 
             old_version = await self.get_current_version(target_ip, username, password)
-            
+
             success = await self._perform_bmc_update(
                 target_ip, username, password, firmware_file, operation_id
             )
-            
+
             execution_time = asyncio.get_event_loop().time() - start_time
-            
+
             if success:
                 # BMC needs time to restart after update
                 await asyncio.sleep(30)
-                new_version = await self.get_current_version(target_ip, username, password)
+                new_version = await self.get_current_version(
+                    target_ip, username, password
+                )
                 return FirmwareUpdateResult(
                     firmware_type=self.firmware_type,
                     success=True,
@@ -121,7 +127,7 @@ class BmcFirmwareHandler(BaseFirmwareHandler):
                     error_message="BMC update failed",
                     operation_id=operation_id,
                 )
-                
+
         except Exception as e:
             execution_time = asyncio.get_event_loop().time() - start_time
             logger.error(f"BMC update failed for {target_ip}: {e}")
@@ -146,10 +152,10 @@ class BmcFirmwareHandler(BaseFirmwareHandler):
     ) -> bool:
         """Perform the actual BMC update."""
         logger.info(f"Starting BMC update for {target_ip} with {firmware_file}")
-        
+
         # TODO: Implement actual BMC update logic based on vendor
         await asyncio.sleep(3)  # Simulate update time
-        
+
         logger.info(f"BMC update completed for {target_ip}")
         return True
 
@@ -158,17 +164,17 @@ class BmcFirmwareHandler(BaseFirmwareHandler):
         if not Path(firmware_file).exists():
             logger.error(f"Firmware file not found: {firmware_file}")
             return False
-            
+
         # Check file size (BMC files are typically 16-128MB)
         file_size = Path(firmware_file).stat().st_size
         if file_size < 1024 * 1024:  # Less than 1MB
             logger.warning(f"BMC file seems too small: {file_size} bytes")
             return False
-            
+
         if file_size > 256 * 1024 * 1024:  # More than 256MB
             logger.warning(f"BMC file seems too large: {file_size} bytes")
             return False
-            
+
         logger.debug(f"BMC firmware file validation passed: {firmware_file}")
         return True
 

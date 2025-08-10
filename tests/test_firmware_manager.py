@@ -24,7 +24,6 @@ from hwautomation.hardware.firmware import (
     Priority,
     UpdatePolicy,
 )
-)
 
 
 class TestFirmwareManager:

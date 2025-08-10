@@ -30,7 +30,7 @@ class VersionChecker:
     def get_handler(self, firmware_type: FirmwareType, vendor: str, model: str):
         """Get appropriate firmware handler."""
         handler_key = f"{firmware_type.value}_{vendor}_{model}"
-        
+
         if handler_key not in self.handlers:
             if firmware_type == FirmwareType.BIOS:
                 self.handlers[handler_key] = BiosFirmwareHandler(vendor, model)
@@ -40,7 +40,7 @@ class VersionChecker:
                 # TODO: Add other firmware type handlers
                 logger.warning(f"No handler for firmware type: {firmware_type}")
                 return None
-                
+
         return self.handlers[handler_key]
 
     async def check_all_firmware_versions(
@@ -54,13 +54,13 @@ class VersionChecker:
     ) -> Dict[str, FirmwareInfo]:
         """Check all firmware versions for a device."""
         results = {}
-        
+
         # Define firmware types to check based on device
         firmware_types = [FirmwareType.BIOS, FirmwareType.BMC]
-        
+
         vendor = vendor_info.get("vendor", "unknown")
         model = vendor_info.get("model", "unknown")
-        
+
         for fw_type in firmware_types:
             try:
                 fw_info = await self.check_firmware_version(
@@ -70,7 +70,7 @@ class VersionChecker:
                     results[fw_type.value] = fw_info
             except Exception as e:
                 logger.error(f"Failed to check {fw_type.value} firmware: {e}")
-                
+
         return results
 
     async def check_firmware_version(
@@ -87,31 +87,31 @@ class VersionChecker:
         handler = self.get_handler(firmware_type, vendor, model)
         if not handler:
             return None
-            
+
         try:
             # Get current version
             current_version = await handler.get_current_version(
                 target_ip, username, password
             )
-            
+
             # Get latest version from repository
             latest_version = repository.get_latest_version(firmware_type, vendor, model)
             if not latest_version:
                 latest_version = current_version
-                
+
             # Determine if update is required
             update_required = self._compare_versions(current_version, latest_version)
-            
+
             # Determine priority
             priority = self._determine_update_priority(
                 firmware_type, current_version, latest_version
             )
-            
+
             # Get firmware file path
             file_path = repository.get_firmware_file_path(
                 firmware_type, vendor, model, latest_version
             )
-            
+
             return FirmwareInfo(
                 firmware_type=firmware_type,
                 current_version=current_version,
@@ -124,7 +124,7 @@ class VersionChecker:
                 vendor=vendor,
                 model=model,
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to check {firmware_type.value} version: {e}")
             return None
@@ -133,26 +133,26 @@ class VersionChecker:
         """Compare firmware versions to determine if update is needed."""
         if current == "unknown" or latest == "unknown":
             return False
-            
+
         if current == latest:
             return False
-            
+
         # Simple version comparison - in production this would be more sophisticated
         try:
             # Try to parse as semantic versions
-            current_parts = current.replace('-', '.').split('.')
-            latest_parts = latest.replace('-', '.').split('.')
-            
+            current_parts = current.replace("-", ".").split(".")
+            latest_parts = latest.replace("-", ".").split(".")
+
             # Pad with zeros for comparison
             max_len = max(len(current_parts), len(latest_parts))
-            current_parts.extend(['0'] * (max_len - len(current_parts)))
-            latest_parts.extend(['0'] * (max_len - len(latest_parts)))
-            
+            current_parts.extend(["0"] * (max_len - len(current_parts)))
+            latest_parts.extend(["0"] * (max_len - len(latest_parts)))
+
             for i in range(max_len):
                 try:
                     curr_num = int(current_parts[i])
                     latest_num = int(latest_parts[i])
-                    
+
                     if latest_num > curr_num:
                         return True
                     elif latest_num < curr_num:
@@ -163,9 +163,9 @@ class VersionChecker:
                         return True
                     elif latest_parts[i] < current_parts[i]:
                         return False
-                        
+
             return False
-            
+
         except Exception:
             # Fallback to string comparison
             return latest > current
@@ -176,12 +176,12 @@ class VersionChecker:
         """Determine update priority based on firmware type and versions."""
         if current == "unknown":
             return Priority.HIGH
-            
+
         # TODO: Implement more sophisticated priority logic based on:
         # - Security vulnerability databases
         # - Release notes parsing
         # - Critical bug fixes
-        
+
         if firmware_type == FirmwareType.BMC:
             return Priority.HIGH  # BMC updates are generally important
         elif firmware_type == FirmwareType.BIOS:

@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Union
 
 class IPMIVendor(Enum):
     """Supported IPMI vendors."""
-    
+
     SUPERMICRO = "supermicro"
     HP_ILO = "hp_ilo"
     DELL_IDRAC = "dell_idrac"
@@ -22,7 +22,7 @@ class IPMIVendor(Enum):
 
 class PowerState(Enum):
     """IPMI power states."""
-    
+
     ON = "on"
     OFF = "off"
     RESET = "reset"
@@ -32,7 +32,7 @@ class PowerState(Enum):
 
 class IPMICommand(Enum):
     """Common IPMI commands."""
-    
+
     POWER_STATUS = "power status"
     POWER_ON = "power on"
     POWER_OFF = "power off"
@@ -47,7 +47,7 @@ class IPMICommand(Enum):
 @dataclass
 class IPMICredentials:
     """IPMI connection credentials."""
-    
+
     ip_address: str
     username: str = "ADMIN"
     password: str = ""
@@ -83,7 +83,7 @@ class IPMIConfigResult:
 @dataclass
 class PowerStatus:
     """Power status information."""
-    
+
     state: str
     raw_output: str
     timestamp: Optional[str] = None
@@ -92,7 +92,7 @@ class PowerStatus:
 @dataclass
 class SensorReading:
     """IPMI sensor reading."""
-    
+
     name: str
     value: Optional[str]
     unit: Optional[str]
@@ -104,7 +104,7 @@ class SensorReading:
 @dataclass
 class IPMISystemInfo:
     """IPMI system information."""
-    
+
     manufacturer: Optional[str] = None
     product_name: Optional[str] = None
     firmware_version: Optional[str] = None
@@ -118,7 +118,7 @@ class BaseIPMIHandler(ABC):
 
     def __init__(self, credentials: IPMICredentials, timeout: int = 30):
         """Initialize IPMI handler.
-        
+
         Args:
             credentials: IPMI connection credentials
             timeout: Command timeout in seconds
@@ -128,16 +128,16 @@ class BaseIPMIHandler(ABC):
 
     @abstractmethod
     def execute_command(
-        self, 
-        command: Union[str, IPMICommand], 
-        additional_args: Optional[List[str]] = None
+        self,
+        command: Union[str, IPMICommand],
+        additional_args: Optional[List[str]] = None,
     ) -> subprocess.CompletedProcess:
         """Execute an IPMI command.
-        
+
         Args:
             command: IPMI command to execute
             additional_args: Additional command arguments
-            
+
         Returns:
             Completed process result
         """
@@ -146,7 +146,7 @@ class BaseIPMIHandler(ABC):
     @abstractmethod
     def get_power_status(self) -> PowerStatus:
         """Get current power status.
-        
+
         Returns:
             Power status information
         """
@@ -155,10 +155,10 @@ class BaseIPMIHandler(ABC):
     @abstractmethod
     def set_power_state(self, state: PowerState) -> bool:
         """Set power state.
-        
+
         Args:
             state: Target power state
-            
+
         Returns:
             True if successful, False otherwise
         """
@@ -167,7 +167,7 @@ class BaseIPMIHandler(ABC):
     @abstractmethod
     def get_sensor_data(self) -> List[SensorReading]:
         """Get sensor readings.
-        
+
         Returns:
             List of sensor readings
         """
@@ -179,7 +179,7 @@ class BaseVendorHandler(ABC):
 
     def __init__(self, vendor: IPMIVendor):
         """Initialize vendor handler.
-        
+
         Args:
             vendor: IPMI vendor type
         """
@@ -188,10 +188,10 @@ class BaseVendorHandler(ABC):
     @abstractmethod
     def detect_vendor(self, credentials: IPMICredentials) -> bool:
         """Detect if this handler supports the target system.
-        
+
         Args:
             credentials: IPMI credentials for detection
-            
+
         Returns:
             True if this handler supports the system
         """
@@ -199,16 +199,14 @@ class BaseVendorHandler(ABC):
 
     @abstractmethod
     def configure_ipmi(
-        self, 
-        credentials: IPMICredentials,
-        settings: IPMISettings
+        self, credentials: IPMICredentials, settings: IPMISettings
     ) -> IPMIConfigResult:
         """Configure IPMI settings for this vendor.
-        
+
         Args:
             credentials: IPMI connection credentials
             settings: Configuration settings to apply
-            
+
         Returns:
             Configuration result
         """
@@ -217,10 +215,10 @@ class BaseVendorHandler(ABC):
     @abstractmethod
     def get_system_info(self, credentials: IPMICredentials) -> IPMISystemInfo:
         """Get system information for this vendor.
-        
+
         Args:
             credentials: IPMI connection credentials
-            
+
         Returns:
             System information
         """
@@ -228,16 +226,14 @@ class BaseVendorHandler(ABC):
 
     @abstractmethod
     def validate_configuration(
-        self, 
-        credentials: IPMICredentials,
-        settings: IPMISettings
+        self, credentials: IPMICredentials, settings: IPMISettings
     ) -> bool:
         """Validate IPMI configuration.
-        
+
         Args:
             credentials: IPMI connection credentials
             settings: Settings to validate
-            
+
         Returns:
             True if configuration is valid
         """
@@ -246,10 +242,10 @@ class BaseVendorHandler(ABC):
 
 class IPMICommandError(Exception):
     """Exception raised for IPMI command execution errors."""
-    
+
     def __init__(self, message: str, command: str, exit_code: Optional[int] = None):
         """Initialize IPMI command error.
-        
+
         Args:
             message: Error message
             command: Command that failed
@@ -262,9 +258,11 @@ class IPMICommandError(Exception):
 
 class IPMIConnectionError(Exception):
     """Exception raised for IPMI connection errors."""
+
     pass
 
 
 class IPMIConfigurationError(Exception):
     """Exception raised for IPMI configuration errors."""
+
     pass

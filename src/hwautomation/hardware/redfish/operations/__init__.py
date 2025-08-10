@@ -11,7 +11,7 @@ from .system import RedfishSystemOperation
 
 __all__ = [
     "RedfishPowerOperation",
-    "RedfishSystemOperation", 
+    "RedfishSystemOperation",
     "RedfishBiosOperation",
     "RedfishFirmwareOperation",
 ]

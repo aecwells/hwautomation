@@ -58,6 +58,7 @@ def create_app():
 
     # Initialize asset management for Vite-built frontend
     from hwautomation.web.core.assets import init_assets
+
     init_assets(app)
 
     # Add correlation tracking to all requests
@@ -178,19 +179,20 @@ def create_app():
         return {"global_stats": get_global_stats()}
 
     # Handle font file requests - redirect to dist folder
-    @app.route('/static/fonts/<path:filename>')
+    @app.route("/static/fonts/<path:filename>")
     def serve_fonts(filename):
         """Serve font files from the dist/fonts directory."""
-        from flask import send_from_directory, abort
         import os
-        
+
+        from flask import abort, send_from_directory
+
         # Try to serve from dist/fonts first (built assets)
-        dist_fonts_path = os.path.join(app.static_folder, 'dist', 'fonts')
+        dist_fonts_path = os.path.join(app.static_folder, "dist", "fonts")
         font_file_path = os.path.join(dist_fonts_path, filename)
-        
+
         if os.path.exists(font_file_path):
             return send_from_directory(dist_fonts_path, filename)
-        
+
         # If not found, return 404
         abort(404)
 

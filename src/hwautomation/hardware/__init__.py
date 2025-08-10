@@ -14,7 +14,7 @@ from .redfish import RedfishManager
 
 __all__ = [
     "IpmiManager",
-    "RedfishManager", 
+    "RedfishManager",
     "BiosConfigManager",
     "FirmwareManager",
     "HardwareDiscoveryManager",

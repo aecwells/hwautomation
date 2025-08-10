@@ -12,16 +12,16 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 import requests
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
 class RedfishCapabilities:
     """Redfish capabilities discovered from the BMC.
-    
+
     Legacy compatibility class for existing test code.
     """
-    
+
     supports_bios_config: bool = False
     supports_power_control: bool = False
     supports_system_info: bool = False
@@ -33,7 +33,7 @@ class RedfishCapabilities:
 
 class PowerAction(Enum):
     """Redfish power actions."""
-    
+
     ON = "On"
     FORCE_ON = "ForceOn"
     OFF = "GracefulShutdown"
@@ -48,7 +48,7 @@ class PowerAction(Enum):
 
 class PowerState(Enum):
     """Redfish power states."""
-    
+
     ON = "On"
     OFF = "Off"
     POWERING_ON = "PoweringOn"
@@ -58,7 +58,7 @@ class PowerState(Enum):
 
 class HealthStatus(Enum):
     """Redfish health status values."""
-    
+
     OK = "OK"
     WARNING = "Warning"
     CRITICAL = "Critical"
@@ -68,7 +68,7 @@ class HealthStatus(Enum):
 @dataclass
 class RedfishCredentials:
     """Redfish connection credentials."""
-    
+
     host: str
     username: str
     password: str
@@ -122,7 +122,7 @@ class SystemInfo:
 @dataclass
 class BiosAttribute:
     """BIOS attribute information."""
-    
+
     name: str
     value: Any
     type: Optional[str] = None
@@ -136,7 +136,7 @@ class BiosAttribute:
 @dataclass
 class FirmwareComponent:
     """Firmware component information."""
-    
+
     name: str
     version: str
     updateable: bool = False
@@ -149,7 +149,7 @@ class FirmwareComponent:
 @dataclass
 class RedfishResponse:
     """Standardized Redfish response wrapper."""
-    
+
     success: bool
     status_code: int
     data: Optional[Dict[str, Any]] = None
@@ -160,11 +160,11 @@ class RedfishResponse:
 @dataclass
 class RedfishOperation(Generic[T]):
     """Redfish operation result with generic result type."""
-    
+
     success: bool
     result: Optional[T] = None
     error_message: Optional[str] = None
-    response: Optional['RedfishResponse'] = None
+    response: Optional["RedfishResponse"] = None
     execution_time: float = 0.0
     task_id: Optional[str] = None
 
@@ -174,7 +174,7 @@ class BaseRedfishClient(ABC):
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize Redfish client.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
@@ -183,11 +183,11 @@ class BaseRedfishClient(ABC):
     @abstractmethod
     def get(self, uri: str, **kwargs) -> RedfishResponse:
         """Perform GET request.
-        
+
         Args:
             uri: Request URI
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -196,12 +196,12 @@ class BaseRedfishClient(ABC):
     @abstractmethod
     def post(self, uri: str, data: Optional[Dict] = None, **kwargs) -> RedfishResponse:
         """Perform POST request.
-        
+
         Args:
             uri: Request URI
             data: Request data
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -210,12 +210,12 @@ class BaseRedfishClient(ABC):
     @abstractmethod
     def patch(self, uri: str, data: Optional[Dict] = None, **kwargs) -> RedfishResponse:
         """Perform PATCH request.
-        
+
         Args:
             uri: Request URI
             data: Request data
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -224,12 +224,12 @@ class BaseRedfishClient(ABC):
     @abstractmethod
     def put(self, uri: str, data: Optional[Dict] = None, **kwargs) -> RedfishResponse:
         """Perform PUT request.
-        
+
         Args:
             uri: Request URI
             data: Request data
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -238,11 +238,11 @@ class BaseRedfishClient(ABC):
     @abstractmethod
     def delete(self, uri: str, **kwargs) -> RedfishResponse:
         """Perform DELETE request.
-        
+
         Args:
             uri: Request URI
             **kwargs: Additional request parameters
-            
+
         Returns:
             Redfish response
         """
@@ -259,7 +259,7 @@ class BaseRedfishOperation(ABC):
 
     def __init__(self, client: BaseRedfishClient):
         """Initialize operation handler.
-        
+
         Args:
             client: Redfish client instance
         """
@@ -274,10 +274,10 @@ class BaseRedfishOperation(ABC):
 
 class RedfishError(Exception):
     """Base exception for Redfish operations."""
-    
+
     def __init__(self, message: str, status_code: Optional[int] = None):
         """Initialize Redfish error.
-        
+
         Args:
             message: Error message
             status_code: HTTP status code
@@ -288,20 +288,22 @@ class RedfishError(Exception):
 
 class RedfishConnectionError(RedfishError):
     """Exception for Redfish connection errors."""
+
     pass
 
 
 class RedfishAuthenticationError(RedfishError):
     """Exception for Redfish authentication errors."""
+
     pass
 
 
 class RedfishOperationError(RedfishError):
     """Exception for Redfish operation errors."""
-    
+
     def __init__(self, message: str, operation: str, status_code: Optional[int] = None):
         """Initialize operation error.
-        
+
         Args:
             message: Error message
             operation: Failed operation name
@@ -313,4 +315,5 @@ class RedfishOperationError(RedfishError):
 
 class RedfishNotSupportedError(RedfishError):
     """Exception for unsupported Redfish operations."""
+
     pass

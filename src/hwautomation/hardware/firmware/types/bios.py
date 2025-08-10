@@ -30,15 +30,19 @@ class BiosFirmwareHandler(BaseFirmwareHandler):
         try:
             # Use vendor-specific methods to get BIOS version
             if self.vendor.lower() == "supermicro":
-                return await self._get_supermicro_bios_version(target_ip, username, password)
+                return await self._get_supermicro_bios_version(
+                    target_ip, username, password
+                )
             elif self.vendor.lower() == "dell":
                 return await self._get_dell_bios_version(target_ip, username, password)
             elif self.vendor.lower() == "hpe":
                 return await self._get_hpe_bios_version(target_ip, username, password)
             else:
                 # Generic Redfish method
-                return await self._get_generic_bios_version(target_ip, username, password)
-        
+                return await self._get_generic_bios_version(
+                    target_ip, username, password
+                )
+
         except Exception as e:
             logger.error(f"Failed to get BIOS version from {target_ip}: {e}")
             return "unknown"
@@ -85,7 +89,7 @@ class BiosFirmwareHandler(BaseFirmwareHandler):
     ) -> FirmwareUpdateResult:
         """Update BIOS firmware."""
         start_time = asyncio.get_event_loop().time()
-        
+
         try:
             # Validate firmware file
             if not self.validate_firmware_file(firmware_file):
@@ -100,16 +104,18 @@ class BiosFirmwareHandler(BaseFirmwareHandler):
                 )
 
             old_version = await self.get_current_version(target_ip, username, password)
-            
+
             # Perform vendor-specific BIOS update
             success = await self._perform_bios_update(
                 target_ip, username, password, firmware_file, operation_id
             )
-            
+
             execution_time = asyncio.get_event_loop().time() - start_time
-            
+
             if success:
-                new_version = await self.get_current_version(target_ip, username, password)
+                new_version = await self.get_current_version(
+                    target_ip, username, password
+                )
                 return FirmwareUpdateResult(
                     firmware_type=self.firmware_type,
                     success=True,
@@ -130,7 +136,7 @@ class BiosFirmwareHandler(BaseFirmwareHandler):
                     error_message="BIOS update failed",
                     operation_id=operation_id,
                 )
-                
+
         except Exception as e:
             execution_time = asyncio.get_event_loop().time() - start_time
             logger.error(f"BIOS update failed for {target_ip}: {e}")
@@ -155,11 +161,11 @@ class BiosFirmwareHandler(BaseFirmwareHandler):
     ) -> bool:
         """Perform the actual BIOS update."""
         logger.info(f"Starting BIOS update for {target_ip} with {firmware_file}")
-        
+
         # TODO: Implement actual BIOS update logic based on vendor
         # For now, simulate the update process
         await asyncio.sleep(2)  # Simulate update time
-        
+
         logger.info(f"BIOS update completed for {target_ip}")
         return True
 
@@ -168,17 +174,17 @@ class BiosFirmwareHandler(BaseFirmwareHandler):
         if not Path(firmware_file).exists():
             logger.error(f"Firmware file not found: {firmware_file}")
             return False
-            
+
         # Check file size (BIOS files are typically 8-32MB)
         file_size = Path(firmware_file).stat().st_size
         if file_size < 1024 * 1024:  # Less than 1MB
             logger.warning(f"BIOS file seems too small: {file_size} bytes")
             return False
-            
+
         if file_size > 64 * 1024 * 1024:  # More than 64MB
             logger.warning(f"BIOS file seems too large: {file_size} bytes")
             return False
-            
+
         logger.debug(f"BIOS firmware file validation passed: {firmware_file}")
         return True
 

@@ -5,17 +5,17 @@ the legacy firmware_manager.py with a structured approach to handling
 different firmware types, vendors, and update operations.
 """
 
-from .manager import FirmwareManager
 from .base import (
-    FirmwareInfo,
-    FirmwareType,
-    FirmwareUpdateResult,
-    FirmwareUpdateException,
-    Priority,
-    UpdatePolicy,
     BaseFirmwareHandler,
     BaseFirmwareRepository,
+    FirmwareInfo,
+    FirmwareType,
+    FirmwareUpdateException,
+    FirmwareUpdateResult,
+    Priority,
+    UpdatePolicy,
 )
+from .manager import FirmwareManager
 from .repositories.local import FirmwareRepository
 
 __all__ = [

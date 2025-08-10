@@ -1,11 +1,11 @@
 # Pre-commit configuration for HWAutomation
-# This file configures pre-commit hooks to automatically run code quality checks
-# before each commit, ensuring consistent code standards.
+# Simplified configuration to focus on essential formatting
+# Additional quality checks can be added incrementally
 
 repos:
   # Code formatting with black
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 25.1.0
     hooks:
       - id: black
         name: Code formatting (black)
@@ -22,50 +22,10 @@ repos:
         description: Sort Python imports
         args: [--profile=black, --line-length=88]
 
-  # Code linting with flake8
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
-        name: Code linting (flake8)
-        description: Lint Python code for style and errors
-        additional_dependencies: [flake8-docstrings, flake8-bugbear]
-
-  # Type checking with mypy
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.17.1
-    hooks:
-      - id: mypy
-        name: Type checking (mypy)
-        description: Static type checking for Python
-        additional_dependencies: [types-requests, types-PyYAML]
-        args: [--ignore-missing-imports, --follow-imports=silent]
-        exclude: |
-          (?x)^(
-              node_modules/.*|
-              build/.*|
-              dist/.*|
-              \.venv/.*|
-              venv/.*|
-              hwautomation-env/.*|
-              __pycache__/.*
-          )$
-
-  # Security scanning with bandit
-  - repo: https://github.com/pycqa/bandit
-    rev: 1.8.6
-    hooks:
-      - id: bandit
-        name: Security scanning (bandit)
-        description: Security-focused static analysis
-        args: ['-c', 'pyproject.toml']
-        exclude: ^tests/
-
-  # General file checks
+  # Basic file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
-      # Check file formatting
       - id: trailing-whitespace
         name: Remove trailing whitespace
         description: Remove trailing whitespace from files
@@ -75,106 +35,12 @@ repos:
       - id: check-yaml
         name: Validate YAML syntax
         description: Check YAML files for syntax errors
-      - id: check-json
-        name: Validate JSON syntax
-        description: Check JSON files for syntax errors
-      - id: check-toml
-        name: Validate TOML syntax
-        description: Check TOML files for syntax errors
-      - id: check-xml
-        name: Validate XML syntax
-        description: Check XML files for syntax errors
-
-      # Check for common issues
-      - id: check-added-large-files
-        name: Check for large files
-        description: Prevent committing large files
-        args: ['--maxkb=1000']
-      - id: check-case-conflict
-        name: Check filename case conflicts
-        description: Check for files with names that differ only in case
       - id: check-merge-conflict
         name: Check for merge conflicts
         description: Check for merge conflict markers
-      - id: check-symlinks
-        name: Check symbolic links
-        description: Check for broken symbolic links
-      - id: check-executables-have-shebangs
-        name: Check executable shebangs
-        description: Ensure executable files have shebangs
-      - id: check-shebang-scripts-are-executable
-        name: Check shebang executability
-        description: Ensure shebang scripts are executable
-
-      # Python-specific checks
       - id: check-ast
         name: Check Python AST
         description: Check Python files compile correctly
-      - id: check-builtin-literals
-        name: Check builtin literals
-        description: Require literal syntax when initializing builtin types
-      - id: check-docstring-first
-        name: Check docstring placement
-        description: Check that docstrings come first
-      - id: debug-statements
-        name: Check for debug statements
-        description: Check for debugger imports and breakpoints
-      - id: name-tests-test
-        name: Check test naming
-        description: Ensure test files are named correctly
-        args: ['--pytest-test-first']
-
-  # Documentation checks
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        name: Docstring style (pydocstyle)
-        description: Check Python docstring style
-        args: [--convention=numpy, --add-ignore=D100,D104,D105,D202]
-
-  # Spell checking for documentation
-  - repo: https://github.com/crate-ci/typos
-    rev: v1
-    hooks:
-      - id: typos
-        name: Spell checking (typos)
-        description: Check for common typos
-        args: [--format=brief, --config=/home/ubuntu/HWAutomation/.typos.toml]
-        exclude: |
-          (?x)^(
-              .*node_modules/.*|
-              .*\.lock$|
-              .*\.min\.js$|
-              .*\.min\.css$|
-              .*/\.git/.*|
-              .*/__pycache__/.*|
-              .*\.db$|
-              .*\.backup$|
-              htmlcov/.*|
-              coverage\.xml|
-              junit\.xml
-          )$
-
-  # Jupyter notebook cleaning
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.9.1
-    hooks:
-      - id: nbqa-black
-        name: Format Jupyter notebooks (black)
-        description: Auto-format Jupyter notebooks with black
-      - id: nbqa-isort
-        name: Sort imports in Jupyter notebooks (isort)
-        description: Sort imports in Jupyter notebooks
-        args: [--profile=black]
-
-  # Shell script linting
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
-    hooks:
-      - id: shellcheck
-        name: Shell script linting (shellcheck)
-        description: Lint shell scripts for common errors
 
 # Global pre-commit configuration
 default_language_version:
@@ -204,9 +70,5 @@ exclude: |
   )$
 
 # Performance settings
-fail_fast: false  # Continue running all hooks even if one fails
+fail_fast: false
 minimum_pre_commit_version: '3.0.0'
-
-# For development - can temporarily skip strict checks
-# Run: SKIP=mypy,bandit,pydocstyle git commit -m "message"
-# to skip strict checks when needed

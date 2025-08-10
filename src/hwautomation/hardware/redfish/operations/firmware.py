@@ -5,10 +5,12 @@ through the Redfish API.
 """
 
 from __future__ import annotations
+
 import time
 from typing import Dict, List, Optional
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseRedfishOperation,
     FirmwareComponent,
@@ -25,7 +27,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize firmware operations.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
@@ -36,7 +38,9 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
         """Get operation name."""
         return "Firmware Management"
 
-    def get_firmware_inventory(self, system_id: str = "1") -> RedfishOperation[List[FirmwareComponent]]:
+    def get_firmware_inventory(
+        self, system_id: str = "1"
+    ) -> RedfishOperation[List[FirmwareComponent]]:
         """Get firmware inventory for the system.
 
         Args:
@@ -66,9 +70,11 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
                 # Get firmware inventory URI
                 firmware_inventory_uri = None
                 update_data = update_service_response.data
-                
+
                 if "FirmwareInventory" in update_data:
-                    firmware_inventory_uri = update_data["FirmwareInventory"].get("@odata.id")
+                    firmware_inventory_uri = update_data["FirmwareInventory"].get(
+                        "@odata.id"
+                    )
 
                 if not firmware_inventory_uri:
                     return RedfishOperation(
@@ -119,7 +125,9 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def get_firmware_component(self, component_id: str) -> RedfishOperation[FirmwareComponent]:
+    def get_firmware_component(
+        self, component_id: str
+    ) -> RedfishOperation[FirmwareComponent]:
         """Get specific firmware component information.
 
         Args:
@@ -130,7 +138,9 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
         """
         try:
             with RedfishSession(self.credentials) as session:
-                component_uri = f"/redfish/v1/UpdateService/FirmwareInventory/{component_id}"
+                component_uri = (
+                    f"/redfish/v1/UpdateService/FirmwareInventory/{component_id}"
+                )
                 component = self._get_firmware_component(session, component_uri)
 
                 if not component:
@@ -152,10 +162,10 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
             )
 
     def update_firmware(
-        self, 
-        firmware_uri: str, 
+        self,
+        firmware_uri: str,
         targets: Optional[List[str]] = None,
-        apply_time: str = "Immediate"
+        apply_time: str = "Immediate",
     ) -> RedfishOperation[str]:
         """Update firmware using a firmware image URI.
 
@@ -171,7 +181,10 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
             with RedfishSession(self.credentials) as session:
                 # Get update service
                 update_service_response = session.get("/redfish/v1/UpdateService")
-                if not update_service_response.success or not update_service_response.data:
+                if (
+                    not update_service_response.success
+                    or not update_service_response.data
+                ):
                     return RedfishOperation(
                         success=False,
                         error_message="Update service not available",
@@ -181,7 +194,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
                 # Check for simple update action
                 actions = update_service_response.data.get("Actions", {})
                 simple_update = actions.get("#UpdateService.SimpleUpdate")
-                
+
                 if not simple_update:
                     return RedfishOperation(
                         success=False,
@@ -208,7 +221,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
 
                 # Initiate firmware update
                 update_response = session.post(update_uri, update_data)
-                
+
                 if not update_response.success:
                     return RedfishOperation(
                         success=False,
@@ -224,7 +237,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
                         task_uri = location
 
                 logger.info(f"Firmware update initiated from {firmware_uri}")
-                
+
                 return RedfishOperation(
                     success=True,
                     result=task_uri or "Update initiated",
@@ -250,7 +263,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
         try:
             with RedfishSession(self.credentials) as session:
                 response = session.get(task_uri)
-                
+
                 if not response.success:
                     return RedfishOperation(
                         success=False,
@@ -293,9 +306,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
             )
 
     def wait_for_update_completion(
-        self, 
-        task_uri: str, 
-        timeout: int = 1800
+        self, task_uri: str, timeout: int = 1800
     ) -> RedfishOperation[bool]:
         """Wait for firmware update to complete.
 
@@ -313,7 +324,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
 
         while time.time() - start_time < timeout:
             status_result = self.get_update_status(task_uri)
-            
+
             if not status_result.success:
                 return RedfishOperation(
                     success=False,
@@ -348,7 +359,9 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
             error_message="Update timeout",
         )
 
-    def _get_firmware_component(self, session: RedfishSession, component_uri: str) -> Optional[FirmwareComponent]:
+    def _get_firmware_component(
+        self, session: RedfishSession, component_uri: str
+    ) -> Optional[FirmwareComponent]:
         """Get firmware component details.
 
         Args:
@@ -364,7 +377,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
                 return None
 
             data = response.data
-            
+
             # Determine component type from name/description
             name = data.get("Name", "Unknown")
             description = data.get("Description", "")
@@ -382,7 +395,9 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
             )
 
         except Exception as e:
-            logger.warning(f"Failed to get firmware component from {component_uri}: {e}")
+            logger.warning(
+                f"Failed to get firmware component from {component_uri}: {e}"
+            )
             return None
 
     def _determine_component_type(self, name: str, description: str) -> str:
@@ -396,7 +411,7 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
             Component type string
         """
         text = f"{name} {description}".lower()
-        
+
         if any(keyword in text for keyword in ["bios", "uefi", "system"]):
             return "BIOS"
         elif any(keyword in text for keyword in ["bmc", "management", "controller"]):

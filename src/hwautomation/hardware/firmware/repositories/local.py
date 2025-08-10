@@ -53,7 +53,7 @@ class FirmwareRepository(BaseFirmwareRepository):
         vendor_config = self.vendors.get(vendor.lower(), {})
         model_config = vendor_config.get("models", {}).get(model.lower(), {})
         firmware_config = model_config.get("firmware", {}).get(firmware_type.value, {})
-        
+
         return firmware_config.get("latest_version")
 
     def get_firmware_file_path(
@@ -61,14 +61,20 @@ class FirmwareRepository(BaseFirmwareRepository):
     ) -> Optional[str]:
         """Get path to firmware file."""
         # Build path: base_path/vendor/model/firmware_type/version/
-        path = Path(self.base_path) / vendor.lower() / model.lower() / firmware_type.value / version
-        
+        path = (
+            Path(self.base_path)
+            / vendor.lower()
+            / model.lower()
+            / firmware_type.value
+            / version
+        )
+
         if path.exists():
             # Look for common firmware file extensions
             for ext in [".bin", ".rom", ".fw", ".img", ".cap", ".exe"]:
                 for file in path.glob(f"*{ext}"):
                     return str(file)
-        
+
         return None
 
     def download_firmware(

@@ -6,6 +6,7 @@ This module provides HP iLO-specific IPMI configuration and management.
 import subprocess
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseVendorHandler,
     IPMICommand,
@@ -43,7 +44,7 @@ class HPiLOHandler(BaseVendorHandler):
     ) -> IPMIConfigResult:
         """Configure IPMI settings for HP iLO."""
         result = IPMIConfigResult(success=True, vendor=self.vendor)
-        
+
         try:
             # Basic HP iLO configuration
             if settings.admin_password:
@@ -62,7 +63,7 @@ class HPiLOHandler(BaseVendorHandler):
     def get_system_info(self, credentials: IPMICredentials) -> IPMISystemInfo:
         """Get system information for HP iLO."""
         info = IPMISystemInfo(vendor=self.vendor)
-        
+
         try:
             result = self._execute_command(credentials, IPMICommand.MC_INFO)
             if result.returncode == 0:
@@ -88,21 +89,29 @@ class HPiLOHandler(BaseVendorHandler):
     def _set_admin_password(self, credentials: IPMICredentials, password: str) -> bool:
         """Set admin password for HP iLO."""
         try:
-            result = self._execute_command(credentials, f"user set password 2 {password}")
+            result = self._execute_command(
+                credentials, f"user set password 2 {password}"
+            )
             return result.returncode == 0
         except Exception:
             return False
 
-    def _execute_command(self, credentials: IPMICredentials, command: str) -> subprocess.CompletedProcess:
+    def _execute_command(
+        self, credentials: IPMICredentials, command: str
+    ) -> subprocess.CompletedProcess:
         """Execute IPMI command."""
         cmd_args = [
             "ipmitool",
-            "-I", credentials.interface,
-            "-H", credentials.ip_address,
-            "-U", credentials.username,
-            "-P", credentials.password,
+            "-I",
+            credentials.interface,
+            "-H",
+            credentials.ip_address,
+            "-U",
+            credentials.username,
+            "-P",
+            credentials.password,
         ]
-        
+
         cmd_args.extend(command.split())
 
         return subprocess.run(
@@ -114,15 +123,15 @@ class HPiLOHandler(BaseVendorHandler):
 
     def _parse_mc_info(self, output: str, info: IPMISystemInfo) -> None:
         """Parse MC info output."""
-        for line in output.split('\n'):
-            if ':' in line:
-                key, value = line.split(':', 1)
+        for line in output.split("\n"):
+            if ":" in line:
+                key, value = line.split(":", 1)
                 key = key.strip().lower()
                 value = value.strip()
 
-                if 'manufacturer' in key:
+                if "manufacturer" in key:
                     info.manufacturer = value
-                elif 'product' in key:
+                elif "product" in key:
                     info.product_name = value
-                elif 'firmware' in key:
+                elif "firmware" in key:
                     info.firmware_version = value

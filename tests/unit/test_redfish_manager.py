@@ -125,9 +125,13 @@ class TestRedfishManager:
                     "Actions": {
                         "#ComputerSystem.Reset": {
                             "target": "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset",
-                            "ResetType@Redfish.AllowableValues": ["On", "ForceOff", "ForceRestart"]
+                            "ResetType@Redfish.AllowableValues": [
+                                "On",
+                                "ForceOff",
+                                "ForceRestart",
+                            ],
                         }
-                    }
+                    },
                 }
             elif "/redfish/v1/Systems/1/Bios" in url:
                 # BIOS endpoint

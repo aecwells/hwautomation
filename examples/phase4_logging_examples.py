@@ -9,19 +9,19 @@ import uuid
 from datetime import datetime
 
 # Import both legacy and new modular logging
+from hwautomation.logging import get_logger  # Legacy interface (backward compatible)
+from hwautomation.logging import reconfigure_logging  # New modular interface
 from hwautomation.logging import (
-    get_logger,  # Legacy interface (backward compatible)
-    reconfigure_logging,  # New modular interface
-    with_correlation,
     get_logging_status,
     get_metrics_handler,
+    with_correlation,
 )
+from hwautomation.logging.filters import ComponentFilter, RateLimitFilter
 
 # Import modular components for advanced usage
-from hwautomation.logging.formatters import JSONFormatter, DashboardFormatter
+from hwautomation.logging.formatters import DashboardFormatter, JSONFormatter
 from hwautomation.logging.handlers import DatabaseHandler, MetricsHandler
-from hwautomation.logging.filters import RateLimitFilter, ComponentFilter
-from hwautomation.logging.monitoring import LogAggregator, LogAnalyzer, AlertManager
+from hwautomation.logging.monitoring import AlertManager, LogAggregator, LogAnalyzer
 
 
 def example_basic_usage():

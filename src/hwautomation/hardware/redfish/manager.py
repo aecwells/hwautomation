@@ -8,6 +8,7 @@ while providing a clean, modular architecture.
 from typing import Any, Dict, List, Optional, Union
 
 from hwautomation.logging import get_logger
+
 from .base import (
     BiosAttribute,
     FirmwareComponent,
@@ -31,7 +32,7 @@ logger = get_logger(__name__)
 
 class RedfishManager:
     """Unified Redfish management interface.
-    
+
     This class provides a high-level interface for all Redfish operations,
     maintaining backward compatibility with the legacy redfish_manager.py
     while leveraging the new modular architecture.
@@ -63,7 +64,7 @@ class RedfishManager:
         # Handle legacy parameter name
         if use_https is not None:
             use_ssl = use_https
-            
+
         self.credentials = RedfishCredentials(
             host=host,
             username=username,
@@ -111,6 +112,7 @@ class RedfishManager:
         # Return a mock session object that behaves like requests.Session
         # This is primarily for test compatibility
         import requests
+
         return requests.Session()
 
     def test_connection(self) -> Union[bool, tuple]:
@@ -123,7 +125,7 @@ class RedfishManager:
         try:
             with RedfishSession(self.credentials) as session:
                 success = session.test_connection()
-                
+
                 # Try to get system info for a more detailed message
                 if success:
                     try:
@@ -136,10 +138,10 @@ class RedfishManager:
                         message = "Redfish connection successful"
                 else:
                     message = "Redfish connection failed"
-                
+
                 # Return tuple for legacy test compatibility
                 return success, message
-                
+
         except Exception as e:
             logger.error(f"Connection test failed: {e}")
             return False, f"Redfish connection failed: {str(e)}"
@@ -183,10 +185,7 @@ class RedfishManager:
         return result.result if result.success else None
 
     def set_power_state(
-        self, 
-        action: Union[PowerAction, str], 
-        system_id: str = "1",
-        wait: bool = True
+        self, action: Union[PowerAction, str], system_id: str = "1", wait: bool = True
     ) -> bool:
         """Set power state.
 
@@ -221,7 +220,9 @@ class RedfishManager:
         result = self.power.power_on(system_id, wait)
         return result.success
 
-    def power_off(self, system_id: str = "1", wait: bool = True, force: bool = False) -> bool:
+    def power_off(
+        self, system_id: str = "1", wait: bool = True, force: bool = False
+    ) -> bool:
         """Power off the system.
 
         Args:
@@ -235,7 +236,9 @@ class RedfishManager:
         result = self.power.power_off(system_id, wait, force)
         return result.success
 
-    def restart(self, system_id: str = "1", wait: bool = True, force: bool = False) -> bool:
+    def restart(
+        self, system_id: str = "1", wait: bool = True, force: bool = False
+    ) -> bool:
         """Restart the system.
 
         Args:
@@ -297,7 +300,9 @@ class RedfishManager:
         return result.success
 
     # BIOS management methods
-    def get_bios_attributes(self, system_id: str = "1") -> Optional[Dict[str, BiosAttribute]]:
+    def get_bios_attributes(
+        self, system_id: str = "1"
+    ) -> Optional[Dict[str, BiosAttribute]]:
         """Get all BIOS attributes.
 
         Args:
@@ -309,7 +314,9 @@ class RedfishManager:
         result = self.bios.get_bios_attributes(system_id)
         return result.result if result.success else None
 
-    def get_bios_attribute(self, attribute_name: str, system_id: str = "1") -> Optional[BiosAttribute]:
+    def get_bios_attribute(
+        self, attribute_name: str, system_id: str = "1"
+    ) -> Optional[BiosAttribute]:
         """Get specific BIOS attribute.
 
         Args:
@@ -322,7 +329,9 @@ class RedfishManager:
         result = self.bios.get_bios_attribute(attribute_name, system_id)
         return result.result if result.success else None
 
-    def set_bios_attributes(self, attributes: Dict[str, Any], system_id: str = "1") -> bool:
+    def set_bios_attributes(
+        self, attributes: Dict[str, Any], system_id: str = "1"
+    ) -> bool:
         """Set BIOS attributes.
 
         Args:
@@ -335,7 +344,9 @@ class RedfishManager:
         result = self.bios.set_bios_attributes(attributes, system_id)
         return result.success
 
-    def set_bios_attribute(self, attribute_name: str, value: Any, system_id: str = "1") -> bool:
+    def set_bios_attribute(
+        self, attribute_name: str, value: Any, system_id: str = "1"
+    ) -> bool:
         """Set specific BIOS attribute.
 
         Args:
@@ -361,7 +372,9 @@ class RedfishManager:
         result = self.bios.reset_bios_to_defaults(system_id)
         return result.success
 
-    def get_pending_bios_settings(self, system_id: str = "1") -> Optional[Dict[str, Any]]:
+    def get_pending_bios_settings(
+        self, system_id: str = "1"
+    ) -> Optional[Dict[str, Any]]:
         """Get pending BIOS settings.
 
         Args:
@@ -402,7 +415,7 @@ class RedfishManager:
         self,
         firmware_uri: str,
         targets: Optional[List[str]] = None,
-        apply_time: str = "Immediate"
+        apply_time: str = "Immediate",
     ) -> Optional[str]:
         """Update firmware.
 
@@ -445,10 +458,10 @@ class RedfishManager:
     # Legacy method aliases for backward compatibility
     def get_system_power_state(self, system_id: str = "1") -> Optional[str]:
         """Legacy method: Get system power state.
-        
+
         Args:
             system_id: System identifier
-            
+
         Returns:
             Power state string if successful
         """
@@ -457,11 +470,11 @@ class RedfishManager:
 
     def power_cycle(self, system_id: str = "1", wait: bool = True) -> bool:
         """Legacy method: Power cycle the system.
-        
+
         Args:
             system_id: System identifier
             wait: Wait for completion
-            
+
         Returns:
             True if successful
         """
@@ -469,10 +482,10 @@ class RedfishManager:
 
     def get_system_manufacturer(self, system_id: str = "1") -> Optional[str]:
         """Legacy method: Get system manufacturer.
-        
+
         Args:
             system_id: System identifier
-            
+
         Returns:
             Manufacturer string if available
         """
@@ -481,10 +494,10 @@ class RedfishManager:
 
     def get_system_model(self, system_id: str = "1") -> Optional[str]:
         """Legacy method: Get system model.
-        
+
         Args:
             system_id: System identifier
-            
+
         Returns:
             Model string if available
         """
@@ -493,10 +506,10 @@ class RedfishManager:
 
     def get_system_serial_number(self, system_id: str = "1") -> Optional[str]:
         """Legacy method: Get system serial number.
-        
+
         Args:
             system_id: System identifier
-            
+
         Returns:
             Serial number if available
         """
@@ -506,7 +519,7 @@ class RedfishManager:
     # Additional legacy compatibility methods for tests
     def discover_service_root(self) -> Optional[Dict[str, Any]]:
         """Legacy method: Discover service root.
-        
+
         Returns:
             Service root data as dictionary
         """
@@ -515,34 +528,42 @@ class RedfishManager:
             return {
                 "RedfishVersion": service_root.redfish_version,
                 "Id": "RootService",  # Default ID for legacy compatibility
-                "Systems": {"@odata.id": service_root.systems_uri} if service_root.systems_uri else {},
-                "Chassis": {"@odata.id": service_root.chassis_uri} if service_root.chassis_uri else {},
+                "Systems": (
+                    {"@odata.id": service_root.systems_uri}
+                    if service_root.systems_uri
+                    else {}
+                ),
+                "Chassis": (
+                    {"@odata.id": service_root.chassis_uri}
+                    if service_root.chassis_uri
+                    else {}
+                ),
             }
         return None
 
     def discover_capabilities(self):
         """Legacy method: Discover Redfish capabilities.
-        
+
         Returns:
             RedfishCapabilities object for test compatibility
         """
         # Import here to avoid circular imports
         from .base import RedfishCapabilities
-        
+
         validation = self.validate_service()
         return RedfishCapabilities(
             supports_bios_config=validation.get("bios_settings", False),
-            supports_power_control=validation.get("power_control", False), 
+            supports_power_control=validation.get("power_control", False),
             supports_system_info=validation.get("systems", False),
             supports_firmware_update=validation.get("firmware_update", False),
         )
 
     def get_bios_settings(self, system_id: str = "1") -> Optional[Dict[str, Any]]:
         """Legacy method: Get BIOS settings.
-        
+
         Args:
             system_id: System identifier
-            
+
         Returns:
             BIOS settings dictionary
         """

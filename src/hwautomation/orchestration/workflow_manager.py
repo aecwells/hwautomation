@@ -161,7 +161,9 @@ class WorkflowManager:
         try:
             # Lazy import to avoid circular dependency
             from ..hardware.firmware import FirmwareManager
-            from ..hardware.firmware_provisioning_workflow import FirmwareProvisioningWorkflow
+            from ..hardware.firmware_provisioning_workflow import (
+                FirmwareProvisioningWorkflow,
+            )
 
             self.firmware_manager = FirmwareManager()
             self.firmware_workflow = FirmwareProvisioningWorkflow()
@@ -246,6 +248,7 @@ class WorkflowManager:
 
         # Create provisioning context (lazy import)
         from ..hardware.firmware_provisioning_workflow import ProvisioningContext
+
         context = ProvisioningContext(
             server_id=server_id,
             device_type=device_type,

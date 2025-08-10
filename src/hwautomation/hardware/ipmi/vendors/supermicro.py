@@ -7,6 +7,7 @@ import subprocess
 from typing import List
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseVendorHandler,
     IPMICommand,
@@ -59,7 +60,7 @@ class SupermicroHandler(BaseVendorHandler):
             Configuration result
         """
         result = IPMIConfigResult(success=True, vendor=self.vendor)
-        
+
         try:
             # Configure KCS control
             if settings.kcs_control:
@@ -102,7 +103,7 @@ class SupermicroHandler(BaseVendorHandler):
             System information
         """
         info = IPMISystemInfo(vendor=self.vendor)
-        
+
         try:
             # Get MC info
             result = self._execute_command(credentials, IPMICommand.MC_INFO)
@@ -140,14 +141,16 @@ class SupermicroHandler(BaseVendorHandler):
                 return False
 
             # TODO: Add Supermicro-specific validation checks
-            
+
             return True
 
         except Exception as e:
             logger.error(f"Supermicro validation failed: {e}")
             return False
 
-    def _configure_kcs_control(self, credentials: IPMICredentials, control: str) -> bool:
+    def _configure_kcs_control(
+        self, credentials: IPMICredentials, control: str
+    ) -> bool:
         """Configure KCS control for Supermicro.
 
         Args:
@@ -159,14 +162,20 @@ class SupermicroHandler(BaseVendorHandler):
         """
         try:
             # Supermicro-specific KCS configuration
-            command = f"raw 0x30 0x70 0x0c 0x01 0x01" if control == "user" else f"raw 0x30 0x70 0x0c 0x01 0x00"
+            command = (
+                f"raw 0x30 0x70 0x0c 0x01 0x01"
+                if control == "user"
+                else f"raw 0x30 0x70 0x0c 0x01 0x00"
+            )
             result = self._execute_command(credentials, command)
             return result.returncode == 0
         except Exception as e:
             logger.error(f"Failed to configure KCS control: {e}")
             return False
 
-    def _configure_host_interface(self, credentials: IPMICredentials, interface: str) -> bool:
+    def _configure_host_interface(
+        self, credentials: IPMICredentials, interface: str
+    ) -> bool:
         """Configure host interface for Supermicro.
 
         Args:
@@ -178,7 +187,11 @@ class SupermicroHandler(BaseVendorHandler):
         """
         try:
             # Supermicro-specific host interface configuration
-            command = f"raw 0x30 0x70 0x0c 0x02 0x00" if interface == "off" else f"raw 0x30 0x70 0x0c 0x02 0x01"
+            command = (
+                f"raw 0x30 0x70 0x0c 0x02 0x00"
+                if interface == "off"
+                else f"raw 0x30 0x70 0x0c 0x02 0x01"
+            )
             result = self._execute_command(credentials, command)
             return result.returncode == 0
         except Exception as e:
@@ -196,13 +209,17 @@ class SupermicroHandler(BaseVendorHandler):
             True if successful
         """
         try:
-            result = self._execute_command(credentials, f"user set password 2 {password}")
+            result = self._execute_command(
+                credentials, f"user set password 2 {password}"
+            )
             return result.returncode == 0
         except Exception as e:
             logger.error(f"Failed to set admin password: {e}")
             return False
 
-    def _execute_command(self, credentials: IPMICredentials, command: str) -> subprocess.CompletedProcess:
+    def _execute_command(
+        self, credentials: IPMICredentials, command: str
+    ) -> subprocess.CompletedProcess:
         """Execute IPMI command.
 
         Args:
@@ -214,12 +231,16 @@ class SupermicroHandler(BaseVendorHandler):
         """
         cmd_args = [
             "ipmitool",
-            "-I", credentials.interface,
-            "-H", credentials.ip_address,
-            "-U", credentials.username,
-            "-P", credentials.password,
+            "-I",
+            credentials.interface,
+            "-H",
+            credentials.ip_address,
+            "-U",
+            credentials.username,
+            "-P",
+            credentials.password,
         ]
-        
+
         cmd_args.extend(command.split())
 
         return subprocess.run(
@@ -236,17 +257,17 @@ class SupermicroHandler(BaseVendorHandler):
             output: MC info output
             info: System info object to populate
         """
-        for line in output.split('\n'):
-            if ':' in line:
-                key, value = line.split(':', 1)
+        for line in output.split("\n"):
+            if ":" in line:
+                key, value = line.split(":", 1)
                 key = key.strip().lower()
                 value = value.strip()
 
-                if 'manufacturer' in key:
+                if "manufacturer" in key:
                     info.manufacturer = value
-                elif 'product' in key:
+                elif "product" in key:
                     info.product_name = value
-                elif 'firmware' in key:
+                elif "firmware" in key:
                     info.firmware_version = value
 
     def _parse_fru_info(self, output: str, info: IPMISystemInfo) -> None:
@@ -256,11 +277,11 @@ class SupermicroHandler(BaseVendorHandler):
             output: FRU info output
             info: System info object to populate
         """
-        for line in output.split('\n'):
-            if ':' in line:
-                key, value = line.split(':', 1)
+        for line in output.split("\n"):
+            if ":" in line:
+                key, value = line.split(":", 1)
                 key = key.strip().lower()
                 value = value.strip()
 
-                if 'serial' in key and not info.serial_number:
+                if "serial" in key and not info.serial_number:
                     info.serial_number = value

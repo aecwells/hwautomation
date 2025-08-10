@@ -17,6 +17,7 @@ logger = get_logger(__name__)
 
 class FirmwareUpdateException(Exception):
     """Exception raised during firmware update operations."""
+
     pass
 
 

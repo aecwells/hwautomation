@@ -45,7 +45,7 @@ class UpdateOperations:
             List of update results
         """
         logger.info(f"Executing update plan for {target_ip} (dry_run={dry_run})")
-        
+
         # Register operation
         self.active_operations[operation_id] = {
             "start_time": time.time(),
@@ -57,10 +57,10 @@ class UpdateOperations:
 
         try:
             results = []
-            
+
             # Sort by priority and dependencies
             sorted_firmware = self._sort_by_priority(firmware_list)
-            
+
             for firmware in sorted_firmware:
                 if dry_run:
                     result = self._simulate_update(firmware, operation_id)
@@ -68,37 +68,45 @@ class UpdateOperations:
                     result = await self._execute_single_update(
                         firmware, target_ip, username, password, operation_id
                     )
-                
+
                 results.append(result)
                 self.active_operations[operation_id]["results"].append(result)
-                
+
                 # Stop on critical failure
                 if not result.success and firmware.priority == Priority.CRITICAL:
-                    logger.error(f"Critical update failed, stopping operation {operation_id}")
+                    logger.error(
+                        f"Critical update failed, stopping operation {operation_id}"
+                    )
                     break
-                
+
                 # Reboot handling
                 if result.requires_reboot and result.success:
-                    logger.info(f"Firmware update requires reboot: {firmware.firmware_type.value}")
+                    logger.info(
+                        f"Firmware update requires reboot: {firmware.firmware_type.value}"
+                    )
                     if not dry_run:
-                        await self._handle_reboot_sequence(target_ip, username, password)
+                        await self._handle_reboot_sequence(
+                            target_ip, username, password
+                        )
 
             # Mark operation complete
             self.active_operations[operation_id]["status"] = "completed"
             self.active_operations[operation_id]["end_time"] = time.time()
-            
+
             # Archive to history
             self._archive_operation(operation_id)
-            
+
             return results
-            
+
         except Exception as e:
             logger.error(f"Update plan execution failed: {e}")
             self.active_operations[operation_id]["status"] = "failed"
             self.active_operations[operation_id]["error"] = str(e)
             raise
 
-    def _sort_by_priority(self, firmware_list: List[FirmwareInfo]) -> List[FirmwareInfo]:
+    def _sort_by_priority(
+        self, firmware_list: List[FirmwareInfo]
+    ) -> List[FirmwareInfo]:
         """Sort firmware by update priority and dependencies."""
         # Priority order: BMC first (required for other updates), then BIOS, then others
         type_order = {
@@ -109,20 +117,20 @@ class UpdateOperations:
             FirmwareType.STORAGE: 5,
             FirmwareType.CPLD: 6,
         }
-        
+
         priority_order = {
             Priority.CRITICAL: 1,
             Priority.HIGH: 2,
             Priority.NORMAL: 3,
             Priority.LOW: 4,
         }
-        
+
         return sorted(
             firmware_list,
             key=lambda x: (
                 type_order.get(x.firmware_type, 99),
                 priority_order.get(x.priority, 99),
-            )
+            ),
         )
 
     def _simulate_update(
@@ -132,10 +140,10 @@ class UpdateOperations:
     ) -> FirmwareUpdateResult:
         """Simulate a firmware update for dry-run mode."""
         logger.info(f"Simulating update: {firmware.firmware_type.value}")
-        
+
         # Simulate some processing time
         time.sleep(0.1)
-        
+
         return FirmwareUpdateResult(
             firmware_type=firmware.firmware_type,
             success=True,
@@ -157,15 +165,15 @@ class UpdateOperations:
     ) -> FirmwareUpdateResult:
         """Execute a single firmware update."""
         logger.info(f"Updating {firmware.firmware_type.value} firmware")
-        
+
         start_time = time.time()
-        
+
         try:
             # This would delegate to the appropriate handler
             # For now, return a mock successful result
-            
+
             execution_time = time.time() - start_time
-            
+
             return FirmwareUpdateResult(
                 firmware_type=firmware.firmware_type,
                 success=True,
@@ -175,11 +183,11 @@ class UpdateOperations:
                 requires_reboot=firmware.requires_reboot,
                 operation_id=operation_id,
             )
-            
+
         except Exception as e:
             execution_time = time.time() - start_time
             logger.error(f"Firmware update failed: {e}")
-            
+
             return FirmwareUpdateResult(
                 firmware_type=firmware.firmware_type,
                 success=False,
@@ -199,18 +207,18 @@ class UpdateOperations:
     ) -> None:
         """Handle system reboot after firmware update."""
         logger.info(f"Initiating reboot sequence for {target_ip}")
-        
+
         try:
             # Issue reboot command
             # This would use IPMI or Redfish to reboot the system
             logger.info("Reboot command issued")
-            
+
             # Wait for system to go down
             await asyncio.sleep(30)
-            
+
             # Wait for system to come back up
             await self._wait_for_system_ready(target_ip, username, password)
-            
+
         except Exception as e:
             logger.error(f"Reboot sequence failed: {e}")
             raise
@@ -224,26 +232,28 @@ class UpdateOperations:
     ) -> None:
         """Wait for system to be ready after reboot."""
         logger.info(f"Waiting for system {target_ip} to be ready")
-        
+
         start_time = time.time()
-        
+
         while time.time() - start_time < timeout:
             try:
                 # Try to connect and verify system is ready
                 # This would use IPMI/Redfish to check system status
                 logger.debug(f"Checking system readiness...")
                 await asyncio.sleep(10)
-                
+
                 # For now, assume system is ready after 60 seconds
                 if time.time() - start_time > 60:
                     logger.info("System appears to be ready")
                     return
-                    
+
             except Exception:
                 # System not ready yet, continue waiting
                 await asyncio.sleep(10)
-        
-        raise TimeoutError(f"System {target_ip} did not become ready within {timeout} seconds")
+
+        raise TimeoutError(
+            f"System {target_ip} did not become ready within {timeout} seconds"
+        )
 
     def get_operation_status(self, operation_id: str) -> Optional[Dict[str, Any]]:
         """Get status of an active operation."""
@@ -266,7 +276,7 @@ class UpdateOperations:
             operation = self.active_operations.pop(operation_id)
             operation["operation_id"] = operation_id
             self.update_history.append(operation)
-            
+
             # Keep only recent history (last 100 operations)
             if len(self.update_history) > 100:
                 self.update_history = self.update_history[-100:]
@@ -284,16 +294,16 @@ class UpdateOperations:
     ) -> bool:
         """Verify firmware update integrity."""
         logger.info(f"Verifying firmware update integrity for {target_ip}")
-        
+
         try:
             for result in results:
                 if result.success:
                     # This would verify the firmware was actually updated
                     logger.debug(f"Verifying {result.firmware_type.value} update")
-                    
+
             logger.info("Firmware update verification completed")
             return True
-            
+
         except Exception as e:
             logger.error(f"Firmware verification failed: {e}")
             return False

@@ -39,7 +39,6 @@ RedfishManager = RedfishManager
 __all__ = [
     # Main interface
     "RedfishManager",
-    
     # Base classes and data models
     "RedfishCredentials",
     "RedfishResponse",
@@ -47,20 +46,18 @@ __all__ = [
     "RedfishError",
     "RedfishCapabilities",
     "SystemInfo",
-    "BiosAttribute", 
+    "BiosAttribute",
     "FirmwareComponent",
     "PowerState",
     "PowerAction",
     "HealthStatus",
-    
     # Client modules
     "RedfishSession",
     "RedfishDiscovery",
     "ServiceRoot",
-    
     # Operation modules
     "RedfishPowerOperation",
     "RedfishSystemOperation",
-    "RedfishBiosOperation", 
+    "RedfishBiosOperation",
     "RedfishFirmwareOperation",
 ]

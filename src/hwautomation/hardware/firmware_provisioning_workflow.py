@@ -159,9 +159,7 @@ class FirmwareProvisioningWorkflow:
                     else []
                 )
                 critical_updates = [
-                    fw
-                    for fw in updates_needed
-                    if fw.priority == Priority.CRITICAL
+                    fw for fw in updates_needed if fw.priority == Priority.CRITICAL
                 ]
 
                 await self.monitor.update_progress(

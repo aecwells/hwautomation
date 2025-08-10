@@ -5,9 +5,11 @@ through the Redfish API.
 """
 
 from __future__ import annotations
+
 from typing import Dict, List, Optional
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseRedfishOperation,
     HealthStatus,
@@ -25,7 +27,7 @@ class RedfishSystemOperation(BaseRedfishOperation):
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize system operations.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
@@ -65,7 +67,7 @@ class RedfishSystemOperation(BaseRedfishOperation):
                     )
 
                 data = response.data
-                
+
                 # Parse status information
                 status_data = data.get("Status", {})
                 try:
@@ -74,8 +76,10 @@ class RedfishSystemOperation(BaseRedfishOperation):
                     health = HealthStatus.UNKNOWN
 
                 # Extract processor information
-                processors = self._extract_processor_info(data.get("ProcessorSummary", {}))
-                
+                processors = self._extract_processor_info(
+                    data.get("ProcessorSummary", {})
+                )
+
                 # Extract memory information
                 memory = self._extract_memory_info(data.get("MemorySummary", {}))
 
@@ -122,7 +126,9 @@ class RedfishSystemOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def get_system_status(self, system_id: str = "1") -> RedfishOperation[Dict[str, str]]:
+    def get_system_status(
+        self, system_id: str = "1"
+    ) -> RedfishOperation[Dict[str, str]]:
         """Get system status summary.
 
         Args:
@@ -210,15 +216,19 @@ class RedfishSystemOperation(BaseRedfishOperation):
                     system_response = session.get(system_uri)
                     if system_response.success and system_response.data:
                         data = system_response.data
-                        systems.append({
-                            "id": data.get("Id", "Unknown"),
-                            "name": data.get("Name", "Unknown"),
-                            "uri": system_uri,
-                            "manufacturer": data.get("Manufacturer", "Unknown"),
-                            "model": data.get("Model", "Unknown"),
-                            "power_state": data.get("PowerState", "Unknown"),
-                            "health": data.get("Status", {}).get("Health", "Unknown"),
-                        })
+                        systems.append(
+                            {
+                                "id": data.get("Id", "Unknown"),
+                                "name": data.get("Name", "Unknown"),
+                                "uri": system_uri,
+                                "manufacturer": data.get("Manufacturer", "Unknown"),
+                                "model": data.get("Model", "Unknown"),
+                                "power_state": data.get("PowerState", "Unknown"),
+                                "health": data.get("Status", {}).get(
+                                    "Health", "Unknown"
+                                ),
+                            }
+                        )
 
                 return RedfishOperation(
                     success=True,
@@ -233,7 +243,9 @@ class RedfishSystemOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def set_indicator_led(self, state: str, system_id: str = "1") -> RedfishOperation[bool]:
+    def set_indicator_led(
+        self, state: str, system_id: str = "1"
+    ) -> RedfishOperation[bool]:
         """Set system indicator LED state.
 
         Args:
@@ -254,7 +266,7 @@ class RedfishSystemOperation(BaseRedfishOperation):
             with RedfishSession(self.credentials) as session:
                 system_uri = f"/redfish/v1/Systems/{system_id}"
                 data = {"IndicatorLED": state}
-                
+
                 response = session.patch(system_uri, data)
 
                 if not response.success:
@@ -325,7 +337,9 @@ class RedfishSystemOperation(BaseRedfishOperation):
         boot_data = system_data.get("Boot", {})
         return boot_data.get("BootSourceOverrideTarget", "Unknown")
 
-    def _get_network_interfaces(self, session: RedfishSession, system_data: Dict) -> List[Dict]:
+    def _get_network_interfaces(
+        self, session: RedfishSession, system_data: Dict
+    ) -> List[Dict]:
         """Get network interface information.
 
         Args:
@@ -336,14 +350,14 @@ class RedfishSystemOperation(BaseRedfishOperation):
             List of network interface information
         """
         interfaces = []
-        
+
         # Try different possible locations for network interfaces
         network_interfaces_uri = None
-        
+
         # Check for NetworkInterfaces
         if "NetworkInterfaces" in system_data:
             network_interfaces_uri = system_data["NetworkInterfaces"].get("@odata.id")
-        
+
         # Check for EthernetInterfaces
         if not network_interfaces_uri and "EthernetInterfaces" in system_data:
             network_interfaces_uri = system_data["EthernetInterfaces"].get("@odata.id")
@@ -361,18 +375,22 @@ class RedfishSystemOperation(BaseRedfishOperation):
                         interface_data = session.get(interface_uri)
                         if interface_data.success and interface_data.data:
                             data = interface_data.data
-                            interfaces.append({
-                                "id": data.get("Id", "Unknown"),
-                                "name": data.get("Name", "Unknown"),
-                                "mac_address": data.get("MACAddress"),
-                                "status": data.get("Status", {}).get("Health"),
-                            })
+                            interfaces.append(
+                                {
+                                    "id": data.get("Id", "Unknown"),
+                                    "name": data.get("Name", "Unknown"),
+                                    "mac_address": data.get("MACAddress"),
+                                    "status": data.get("Status", {}).get("Health"),
+                                }
+                            )
         except Exception as e:
             logger.warning(f"Failed to get network interfaces: {e}")
 
         return interfaces
 
-    def _get_storage_info(self, session: RedfishSession, system_data: Dict) -> Optional[Dict]:
+    def _get_storage_info(
+        self, session: RedfishSession, system_data: Dict
+    ) -> Optional[Dict]:
         """Get storage summary information.
 
         Args:
@@ -383,7 +401,7 @@ class RedfishSystemOperation(BaseRedfishOperation):
             Storage summary information
         """
         storage_uri = None
-        
+
         if "Storage" in system_data:
             storage_uri = system_data["Storage"].get("@odata.id")
         elif "SimpleStorage" in system_data:

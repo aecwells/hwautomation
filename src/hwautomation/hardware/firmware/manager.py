@@ -42,7 +42,7 @@ class FirmwareManager:
         current_dir = Path(__file__).parent
         project_root = current_dir.parent.parent.parent.parent
         config_path = project_root / "configs" / "firmware" / "repository.yaml"
-        
+
         return str(config_path)
 
     def _load_firmware_repository(self) -> FirmwareRepository:
@@ -57,10 +57,10 @@ class FirmwareManager:
     def _initialize_vendor_tools(self) -> Dict[str, Any]:
         """Initialize vendor-specific tools."""
         tools = {}
-        
+
         # TODO: Initialize vendor tools based on configuration
         # For now, return empty dict
-        
+
         return tools
 
     async def check_firmware_versions(
@@ -90,15 +90,17 @@ class FirmwareManager:
         try:
             # Get vendor information from device type
             vendor_info = self._get_vendor_info(device_type)
-            
+
             # Check all firmware versions
             firmware_info = await self.version_checker.check_all_firmware_versions(
                 device_type, target_ip, username, password, vendor_info, self.repository
             )
-            
-            logger.info(f"Found {len(firmware_info)} firmware components for {device_type}")
+
+            logger.info(
+                f"Found {len(firmware_info)} firmware components for {device_type}"
+            )
             return firmware_info
-            
+
         except Exception as e:
             logger.error(f"Failed to check firmware versions: {e}")
             return {}
@@ -107,7 +109,7 @@ class FirmwareManager:
         """Extract vendor information from device type."""
         # TODO: Implement proper device type parsing
         # For now, return mock data based on device type patterns
-        
+
         if "supermicro" in device_type.lower() or device_type.startswith("s"):
             return {"vendor": "supermicro", "model": "x11"}
         elif "dell" in device_type.lower() or device_type.startswith("d"):
@@ -138,10 +140,10 @@ class FirmwareManager:
             List of update results
         """
         logger.info(f"Starting batch firmware update for {target_ip}")
-        
+
         # Sort updates by priority (BMC first, then BIOS, then others)
         sorted_updates = self._sort_firmware_updates(firmware_updates)
-        
+
         results = []
         for fw_info in sorted_updates:
             try:
@@ -149,26 +151,33 @@ class FirmwareManager:
                     fw_info, target_ip, username, password, operation_id
                 )
                 results.append(result)
-                
+
                 # If critical update fails, stop the batch
-                if not result.success and fw_info.priority.value in ["critical", "high"]:
+                if not result.success and fw_info.priority.value in [
+                    "critical",
+                    "high",
+                ]:
                     logger.error(f"Critical firmware update failed, stopping batch")
                     break
-                    
+
             except Exception as e:
                 logger.error(f"Firmware update failed: {e}")
-                results.append(FirmwareUpdateResult(
-                    firmware_type=fw_info.firmware_type,
-                    success=False,
-                    old_version=fw_info.current_version,
-                    new_version=fw_info.current_version,
-                    execution_time=0.0,
-                    requires_reboot=fw_info.requires_reboot,
-                    error_message=str(e),
-                    operation_id=operation_id,
-                ))
-        
-        logger.info(f"Batch firmware update completed: {len(results)} updates processed")
+                results.append(
+                    FirmwareUpdateResult(
+                        firmware_type=fw_info.firmware_type,
+                        success=False,
+                        old_version=fw_info.current_version,
+                        new_version=fw_info.current_version,
+                        execution_time=0.0,
+                        requires_reboot=fw_info.requires_reboot,
+                        error_message=str(e),
+                        operation_id=operation_id,
+                    )
+                )
+
+        logger.info(
+            f"Batch firmware update completed: {len(results)} updates processed"
+        )
         return results
 
     def _sort_firmware_updates(self, updates: List[FirmwareInfo]) -> List[FirmwareInfo]:
@@ -182,13 +191,13 @@ class FirmwareManager:
             FirmwareType.STORAGE: 5,
             FirmwareType.CPLD: 6,
         }
-        
+
         return sorted(
             updates,
             key=lambda x: (
                 priority_order.get(x.firmware_type, 99),
                 ["critical", "high", "normal", "low"].index(x.priority.value),
-            )
+            ),
         )
 
     async def update_firmware_component(
@@ -227,9 +236,9 @@ class FirmwareManager:
         handler = self.version_checker.get_handler(
             firmware_info.firmware_type,
             firmware_info.vendor or "unknown",
-            firmware_info.model or "unknown"
+            firmware_info.model or "unknown",
         )
-        
+
         if not handler:
             return FirmwareUpdateResult(
                 firmware_type=firmware_info.firmware_type,
@@ -242,8 +251,10 @@ class FirmwareManager:
                 operation_id=operation_id,
             )
 
-        logger.info(f"Updating {firmware_info.firmware_type.value} firmware on {target_ip}")
-        
+        logger.info(
+            f"Updating {firmware_info.firmware_type.value} firmware on {target_ip}"
+        )
+
         return await handler.update_firmware(
             target_ip, username, password, firmware_info.file_path, operation_id
         )

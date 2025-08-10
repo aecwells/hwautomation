@@ -9,6 +9,7 @@ from typing import Dict, List, Optional
 from urllib.parse import urljoin
 
 from hwautomation.logging import get_logger
+
 from ..base import RedfishCredentials, RedfishError
 from .session import RedfishSession
 
@@ -18,7 +19,7 @@ logger = get_logger(__name__)
 @dataclass
 class ServiceRoot:
     """Redfish service root information."""
-    
+
     redfish_version: str
     uuid: Optional[str] = None
     name: Optional[str] = None
@@ -38,7 +39,7 @@ class ServiceRoot:
 @dataclass
 class SystemInfo:
     """System information from Redfish."""
-    
+
     id: str
     name: str
     uri: str
@@ -62,7 +63,7 @@ class RedfishDiscovery:
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize discovery client.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
@@ -77,13 +78,13 @@ class RedfishDiscovery:
         try:
             with RedfishSession(self.credentials) as session:
                 response = session.get("/redfish/v1/")
-                
+
                 if not response.success or not response.data:
                     logger.warning("Failed to get service root")
                     return None
 
                 data = response.data
-                
+
                 return ServiceRoot(
                     redfish_version=data.get("RedfishVersion", "Unknown"),
                     uuid=data.get("UUID"),
@@ -112,7 +113,7 @@ class RedfishDiscovery:
             List of discovered systems
         """
         systems = []
-        
+
         try:
             with RedfishSession(self.credentials) as session:
                 # Get service root first
@@ -167,26 +168,34 @@ class RedfishDiscovery:
                 service_root = self.discover_service_root()
                 if service_root:
                     capabilities["service_root"] = True
-                    
+
                     # Test systems
                     if service_root.systems_uri:
                         systems = self.discover_systems()
                         capabilities["systems"] = len(systems) > 0
-                        
+
                         # Test system-specific capabilities
                         if systems:
                             system = systems[0]  # Test first system
-                            capabilities["power_control"] = self._test_power_control(session, system.uri)
-                            capabilities["bios_settings"] = self._test_bios_settings(session, system.uri)
-                    
+                            capabilities["power_control"] = self._test_power_control(
+                                session, system.uri
+                            )
+                            capabilities["bios_settings"] = self._test_bios_settings(
+                                session, system.uri
+                            )
+
                     # Test managers
                     if service_root.managers_uri:
-                        capabilities["managers"] = self._test_managers(session, service_root.managers_uri)
-                    
+                        capabilities["managers"] = self._test_managers(
+                            session, service_root.managers_uri
+                        )
+
                     # Test chassis
                     if service_root.chassis_uri:
-                        capabilities["chassis"] = self._test_chassis(session, service_root.chassis_uri)
-                    
+                        capabilities["chassis"] = self._test_chassis(
+                            session, service_root.chassis_uri
+                        )
+
                     # Test firmware update
                     if service_root.update_service_uri:
                         capabilities["firmware_update"] = self._test_update_service(
@@ -213,7 +222,9 @@ class RedfishDiscovery:
             return item.get("@odata.id")
         return None
 
-    def _get_system_details(self, session: RedfishSession, system_uri: str) -> Optional[SystemInfo]:
+    def _get_system_details(
+        self, session: RedfishSession, system_uri: str
+    ) -> Optional[SystemInfo]:
         """Get detailed system information.
 
         Args:
@@ -229,7 +240,7 @@ class RedfishDiscovery:
                 return None
 
             data = response.data
-            
+
             # Extract processor summary
             processor_summary = None
             processors = data.get("ProcessorSummary", {})
@@ -251,7 +262,7 @@ class RedfishDiscovery:
 
             # Extract status
             status_obj = data.get("Status", {})
-            
+
             return SystemInfo(
                 id=data.get("Id", "Unknown"),
                 name=data.get("Name", "Unknown"),
@@ -292,7 +303,7 @@ class RedfishDiscovery:
             # Check for Actions with Reset
             actions = response.data.get("Actions", {})
             reset_action = actions.get("#ComputerSystem.Reset")
-            
+
             return reset_action is not None
 
         except Exception:

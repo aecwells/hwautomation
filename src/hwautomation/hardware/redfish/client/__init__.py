@@ -9,7 +9,7 @@ from .session import RedfishSession
 
 __all__ = [
     "RedfishSession",
-    "RedfishDiscovery", 
+    "RedfishDiscovery",
     "ServiceRoot",
     "SystemInfo",
 ]

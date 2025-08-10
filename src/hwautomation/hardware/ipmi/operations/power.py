@@ -9,6 +9,7 @@ import time
 from typing import Optional
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseIPMIHandler,
     IPMICommand,
@@ -26,7 +27,7 @@ class PowerManager:
 
     def __init__(self, timeout: int = 30):
         """Initialize power manager.
-        
+
         Args:
             timeout: Command timeout in seconds
         """
@@ -46,10 +47,10 @@ class PowerManager:
         """
         try:
             result = self._execute_power_command(credentials, IPMICommand.POWER_STATUS)
-            
+
             # Parse power status from output
             output = result.stdout.strip()
-            
+
             # Common power status patterns
             if "Chassis Power is on" in output or "Power is on" in output:
                 state = "on"
@@ -58,24 +59,23 @@ class PowerManager:
             else:
                 # Try to extract state from output
                 state = self._parse_power_state(output)
-                
+
             return PowerStatus(
                 state=state,
                 raw_output=output,
                 timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
             )
-            
+
         except subprocess.TimeoutExpired:
             raise IPMICommandError(
-                f"Power status check timed out after {self.timeout}s",
-                "power status"
+                f"Power status check timed out after {self.timeout}s", "power status"
             )
         except Exception as e:
             raise IPMICommandError(f"Failed to get power status: {e}", "power status")
 
     def set_power_state(
-        self, 
-        credentials: IPMICredentials, 
+        self,
+        credentials: IPMICredentials,
         state: PowerState,
         wait_for_completion: bool = True,
     ) -> bool:
@@ -98,26 +98,28 @@ class PowerManager:
                 PowerState.CYCLE: IPMICommand.POWER_CYCLE,
                 PowerState.SOFT: IPMICommand.POWER_SOFT,
             }
-            
+
             command = command_map.get(state)
             if not command:
                 logger.error(f"Unsupported power state: {state}")
                 return False
 
-            logger.info(f"Setting power state to {state.value} for {credentials.ip_address}")
-            
+            logger.info(
+                f"Setting power state to {state.value} for {credentials.ip_address}"
+            )
+
             result = self._execute_power_command(credentials, command)
-            
+
             if result.returncode == 0:
                 logger.info(f"Power command successful: {command.value}")
-                
+
                 if wait_for_completion:
                     return self._wait_for_power_state(credentials, state)
                 return True
             else:
                 logger.error(f"Power command failed: {result.stderr}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Failed to set power state {state.value}: {e}")
             return False
@@ -140,30 +142,34 @@ class PowerManager:
         """
         try:
             # Power off
-            if not self.set_power_state(credentials, PowerState.OFF, wait_for_completion=True):
+            if not self.set_power_state(
+                credentials, PowerState.OFF, wait_for_completion=True
+            ):
                 logger.error("Failed to power off system")
                 return False
-                
+
             logger.info(f"Waiting {off_delay} seconds before power on")
             time.sleep(off_delay)
-            
+
             # Power on
-            if not self.set_power_state(credentials, PowerState.ON, wait_for_completion=True):
+            if not self.set_power_state(
+                credentials, PowerState.ON, wait_for_completion=True
+            ):
                 logger.error("Failed to power on system")
                 return False
-                
+
             logger.info(f"Waiting {on_delay} seconds for system stabilization")
             time.sleep(on_delay)
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Power cycle failed: {e}")
             return False
 
     def _execute_power_command(
-        self, 
-        credentials: IPMICredentials, 
+        self,
+        credentials: IPMICredentials,
         command: IPMICommand,
     ) -> subprocess.CompletedProcess:
         """Execute a power-related IPMI command.
@@ -177,12 +183,16 @@ class PowerManager:
         """
         cmd_args = [
             "ipmitool",
-            "-I", credentials.interface,
-            "-H", credentials.ip_address,
-            "-U", credentials.username,
-            "-P", credentials.password,
+            "-I",
+            credentials.interface,
+            "-H",
+            credentials.ip_address,
+            "-U",
+            credentials.username,
+            "-P",
+            credentials.password,
         ]
-        
+
         cmd_args.extend(command.value.split())
 
         return subprocess.run(
@@ -202,7 +212,7 @@ class PowerManager:
             Parsed power state
         """
         output_lower = output.lower()
-        
+
         if "on" in output_lower:
             return "on"
         elif "off" in output_lower:
@@ -230,22 +240,22 @@ class PowerManager:
             True if target state reached, False if timeout
         """
         start_time = time.time()
-        
+
         while time.time() - start_time < max_wait:
             try:
                 current_status = self.get_power_status(credentials)
-                
+
                 # Check if we've reached the target state
                 if target_state == PowerState.ON and current_status.state == "on":
                     return True
                 elif target_state == PowerState.OFF and current_status.state == "off":
                     return True
-                    
+
                 time.sleep(check_interval)
-                
+
             except Exception as e:
                 logger.warning(f"Error checking power state: {e}")
                 time.sleep(check_interval)
-                
+
         logger.warning(f"Timeout waiting for power state {target_state.value}")
         return False

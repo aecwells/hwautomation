@@ -9,6 +9,7 @@ import time
 from typing import Dict, List, Optional
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseVendorHandler,
     IPMICommand,
@@ -28,7 +29,7 @@ class IPMIConfigurator:
 
     def __init__(self, config: Optional[Dict] = None):
         """Initialize IPMI configurator.
-        
+
         Args:
             config: Configuration dictionary
         """
@@ -48,13 +49,13 @@ class IPMIConfigurator:
         try:
             # Get system information to identify vendor
             result = self._execute_ipmi_command(credentials, IPMICommand.MC_INFO)
-            
+
             if result.returncode != 0:
                 logger.warning(f"MC info command failed: {result.stderr}")
                 return IPMIVendor.UNKNOWN
-                
+
             output = result.stdout.lower()
-            
+
             # Vendor detection patterns
             if "supermicro" in output:
                 return IPMIVendor.SUPERMICRO
@@ -65,7 +66,7 @@ class IPMIConfigurator:
             else:
                 logger.info(f"Unknown vendor detected from output: {output[:200]}")
                 return IPMIVendor.UNKNOWN
-                
+
         except Exception as e:
             logger.error(f"Vendor detection failed: {e}")
             return IPMIVendor.UNKNOWN
@@ -87,25 +88,25 @@ class IPMIConfigurator:
             Configuration result
         """
         start_time = time.time()
-        
+
         if vendor is None:
             vendor = self.detect_vendor(credentials)
-            
+
         logger.info(f"Configuring IPMI for vendor: {vendor.value}")
-        
+
         try:
             # Get vendor-specific handler
             handler = self._get_vendor_handler(vendor)
-            
+
             if handler:
                 result = handler.configure_ipmi(credentials, settings)
             else:
                 # Fall back to generic configuration
                 result = self._configure_generic_ipmi(credentials, settings, vendor)
-                
+
             result.execution_time = time.time() - start_time
             return result
-            
+
         except Exception as e:
             logger.error(f"IPMI configuration failed: {e}")
             return IPMIConfigResult(
@@ -127,12 +128,12 @@ class IPMIConfigurator:
         try:
             # Get MC info
             mc_result = self._execute_ipmi_command(credentials, IPMICommand.MC_INFO)
-            
+
             # Get FRU info
             fru_result = self._execute_ipmi_command(credentials, IPMICommand.FRU_LIST)
-            
+
             return self._parse_system_info(mc_result.stdout, fru_result.stdout)
-            
+
         except Exception as e:
             logger.error(f"Failed to get system info: {e}")
             return IPMISystemInfo()
@@ -154,21 +155,21 @@ class IPMIConfigurator:
         try:
             # Basic connectivity test
             result = self._execute_ipmi_command(credentials, IPMICommand.MC_INFO)
-            
+
             if result.returncode != 0:
                 logger.error("Basic IPMI connectivity failed")
                 return False
-                
+
             # Vendor-specific validation
             vendor = self.detect_vendor(credentials)
             handler = self._get_vendor_handler(vendor)
-            
+
             if handler:
                 return handler.validate_configuration(credentials, settings)
             else:
                 # Generic validation - just check connectivity
                 return True
-                
+
         except Exception as e:
             logger.error(f"Configuration validation failed: {e}")
             return False
@@ -187,18 +188,21 @@ class IPMIConfigurator:
                 # Lazy load vendor handlers
                 if vendor == IPMIVendor.SUPERMICRO:
                     from ..vendors.supermicro import SupermicroHandler
+
                     self._vendor_handlers[vendor] = SupermicroHandler(vendor)
                 elif vendor == IPMIVendor.HP_ILO:
                     from ..vendors.hp_ilo import HPiLOHandler
+
                     self._vendor_handlers[vendor] = HPiLOHandler(vendor)
                 elif vendor == IPMIVendor.DELL_IDRAC:
                     from ..vendors.dell_idrac import DellHandler
+
                     self._vendor_handlers[vendor] = DellHandler(vendor)
-                    
+
             except ImportError as e:
                 logger.warning(f"Vendor handler not available for {vendor.value}: {e}")
                 return None
-                
+
         return self._vendor_handlers.get(vendor)
 
     def _configure_generic_ipmi(
@@ -218,24 +222,28 @@ class IPMIConfigurator:
             Configuration result
         """
         result = IPMIConfigResult(success=True, vendor=vendor)
-        
+
         try:
             # Basic password change
             if settings.admin_password:
-                password_result = self._set_admin_password(credentials, settings.admin_password)
+                password_result = self._set_admin_password(
+                    credentials, settings.admin_password
+                )
                 if password_result:
                     result.settings_applied.append("admin_password")
                 else:
                     result.errors.append("Failed to set admin password")
                     result.success = False
-                    
+
         except Exception as e:
             result.errors.append(f"Generic configuration failed: {e}")
             result.success = False
-            
+
         return result
 
-    def _set_admin_password(self, credentials: IPMICredentials, new_password: str) -> bool:
+    def _set_admin_password(
+        self, credentials: IPMICredentials, new_password: str
+    ) -> bool:
         """Set admin password via IPMI.
 
         Args:
@@ -251,9 +259,9 @@ class IPMIConfigurator:
                 credentials,
                 f"user set password 2 {new_password}",
             )
-            
+
             return result.returncode == 0
-            
+
         except Exception as e:
             logger.error(f"Failed to set admin password: {e}")
             return False
@@ -274,12 +282,16 @@ class IPMIConfigurator:
         """
         cmd_args = [
             "ipmitool",
-            "-I", credentials.interface,
-            "-H", credentials.ip_address,
-            "-U", credentials.username,
-            "-P", credentials.password,
+            "-I",
+            credentials.interface,
+            "-H",
+            credentials.ip_address,
+            "-U",
+            credentials.username,
+            "-P",
+            credentials.password,
         ]
-        
+
         cmd_args.extend(command.split())
 
         return subprocess.run(
@@ -300,37 +312,37 @@ class IPMIConfigurator:
             Parsed system information
         """
         info = IPMISystemInfo()
-        
+
         # Parse MC info
-        for line in mc_output.split('\n'):
+        for line in mc_output.split("\n"):
             line = line.strip()
-            if ':' in line:
-                key, value = line.split(':', 1)
+            if ":" in line:
+                key, value = line.split(":", 1)
                 key = key.strip().lower()
                 value = value.strip()
-                
-                if 'manufacturer' in key:
+
+                if "manufacturer" in key:
                     info.manufacturer = value
-                elif 'product' in key:
+                elif "product" in key:
                     info.product_name = value
-                elif 'firmware' in key or 'version' in key:
+                elif "firmware" in key or "version" in key:
                     info.firmware_version = value
-                elif 'guid' in key:
+                elif "guid" in key:
                     info.guid = value
-                    
+
         # Parse FRU info for additional details
-        for line in fru_output.split('\n'):
+        for line in fru_output.split("\n"):
             line = line.strip()
-            if ':' in line:
-                key, value = line.split(':', 1)
+            if ":" in line:
+                key, value = line.split(":", 1)
                 key = key.strip().lower()
                 value = value.strip()
-                
-                if 'serial' in key and not info.serial_number:
+
+                if "serial" in key and not info.serial_number:
                     info.serial_number = value
-                elif 'manufacturer' in key and not info.manufacturer:
+                elif "manufacturer" in key and not info.manufacturer:
                     info.manufacturer = value
-                    
+
         # Detect vendor from manufacturer
         if info.manufacturer:
             manufacturer_lower = info.manufacturer.lower()
@@ -340,5 +352,5 @@ class IPMIConfigurator:
                 info.vendor = IPMIVendor.HP_ILO
             elif "dell" in manufacturer_lower:
                 info.vendor = IPMIVendor.DELL_IDRAC
-                
+
         return info

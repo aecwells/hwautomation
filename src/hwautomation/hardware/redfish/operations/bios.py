@@ -4,9 +4,11 @@ This module provides BIOS settings management through the Redfish API.
 """
 
 from __future__ import annotations
+
 from typing import Any, Dict, List, Optional
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseRedfishOperation,
     BiosAttribute,
@@ -23,7 +25,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize BIOS operations.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
@@ -34,7 +36,9 @@ class RedfishBiosOperation(BaseRedfishOperation):
         """Get operation name."""
         return "BIOS Configuration"
 
-    def get_bios_attributes(self, system_id: str = "1") -> RedfishOperation[Dict[str, BiosAttribute]]:
+    def get_bios_attributes(
+        self, system_id: str = "1"
+    ) -> RedfishOperation[Dict[str, BiosAttribute]]:
         """Get all BIOS attributes.
 
         Args:
@@ -108,7 +112,9 @@ class RedfishBiosOperation(BaseRedfishOperation):
                     )
 
                 # Try to get attribute registry for additional metadata
-                self._enrich_attributes_from_registry(session, bios_response.data, attributes)
+                self._enrich_attributes_from_registry(
+                    session, bios_response.data, attributes
+                )
 
                 return RedfishOperation(
                     success=True,
@@ -124,9 +130,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
             )
 
     def set_bios_attributes(
-        self, 
-        attributes: Dict[str, Any], 
-        system_id: str = "1"
+        self, attributes: Dict[str, Any], system_id: str = "1"
     ) -> RedfishOperation[bool]:
         """Set BIOS attributes.
 
@@ -149,7 +153,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
 
                 # Prepare BIOS settings data
                 settings_data = {"Attributes": attributes}
-                
+
                 # Send PATCH request to update settings
                 response = session.patch(bios_settings_uri, settings_data)
 
@@ -174,7 +178,9 @@ class RedfishBiosOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def get_bios_attribute(self, attribute_name: str, system_id: str = "1") -> RedfishOperation[BiosAttribute]:
+    def get_bios_attribute(
+        self, attribute_name: str, system_id: str = "1"
+    ) -> RedfishOperation[BiosAttribute]:
         """Get specific BIOS attribute.
 
         Args:
@@ -185,7 +191,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
             Operation result with BIOS attribute
         """
         result = self.get_bios_attributes(system_id)
-        
+
         if not result.success:
             return RedfishOperation(
                 success=False,
@@ -195,7 +201,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
 
         attributes = result.result or {}
         attribute = attributes.get(attribute_name)
-        
+
         if not attribute:
             return RedfishOperation(
                 success=False,
@@ -209,10 +215,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
         )
 
     def set_bios_attribute(
-        self, 
-        attribute_name: str, 
-        value: Any, 
-        system_id: str = "1"
+        self, attribute_name: str, value: Any, system_id: str = "1"
     ) -> RedfishOperation[bool]:
         """Set specific BIOS attribute.
 
@@ -276,7 +279,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
                 # Look for reset to defaults action
                 actions = bios_response.data.get("Actions", {})
                 reset_action = actions.get("#Bios.ResetBios")
-                
+
                 if not reset_action:
                     return RedfishOperation(
                         success=False,
@@ -316,7 +319,9 @@ class RedfishBiosOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def get_pending_bios_settings(self, system_id: str = "1") -> RedfishOperation[Dict[str, Any]]:
+    def get_pending_bios_settings(
+        self, system_id: str = "1"
+    ) -> RedfishOperation[Dict[str, Any]]:
         """Get pending BIOS settings that require reboot.
 
         Args:
@@ -365,7 +370,9 @@ class RedfishBiosOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def _get_bios_settings_uri(self, session: RedfishSession, system_id: str) -> Optional[str]:
+    def _get_bios_settings_uri(
+        self, session: RedfishSession, system_id: str
+    ) -> Optional[str]:
         """Get BIOS settings URI for the system.
 
         Args:
@@ -410,10 +417,10 @@ class RedfishBiosOperation(BaseRedfishOperation):
             return None
 
     def _enrich_attributes_from_registry(
-        self, 
-        session: RedfishSession, 
-        bios_data: Dict, 
-        attributes: Dict[str, BiosAttribute]
+        self,
+        session: RedfishSession,
+        bios_data: Dict,
+        attributes: Dict[str, BiosAttribute],
     ) -> None:
         """Enrich attributes with metadata from registry.
 
@@ -430,13 +437,13 @@ class RedfishBiosOperation(BaseRedfishOperation):
 
             registry_uri = f"/redfish/v1/Registries/{registry_data}"
             registry_response = session.get(registry_uri)
-            
+
             if not registry_response.success or not registry_response.data:
                 return
 
             # Get registry entries
             entries = registry_response.data.get("Registry", {}).get("Attributes", [])
-            
+
             for entry in entries:
                 attr_name = entry.get("AttributeName")
                 if attr_name in attributes:

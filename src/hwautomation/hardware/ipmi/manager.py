@@ -10,6 +10,7 @@ from typing import Dict, List, Optional
 
 from hwautomation.logging import get_logger
 from hwautomation.utils.network import get_ipmi_ip_via_ssh
+
 from .base import (
     BaseIPMIHandler,
     IPMICommand,
@@ -55,9 +56,9 @@ class IpmiManager(BaseIPMIHandler):
             ip_address="", username=username, password=password
         )
         super().__init__(default_credentials, timeout)
-        
+
         self.config = config or {}
-        
+
         # Initialize operation managers
         self.power_manager = PowerManager(timeout=timeout)
         self.sensor_manager = SensorManager(timeout=timeout)
@@ -84,15 +85,19 @@ class IpmiManager(BaseIPMIHandler):
         """
         cmd_args = [
             "ipmitool",
-            "-I", credentials.interface,
-            "-H", credentials.ip_address,
-            "-U", credentials.username,
-            "-P", credentials.password,
+            "-I",
+            credentials.interface,
+            "-H",
+            credentials.ip_address,
+            "-U",
+            credentials.username,
+            "-P",
+            credentials.password,
         ]
-        
+
         if additional_args:
             cmd_args.extend(additional_args)
-            
+
         cmd_args.extend(command.split())
 
         try:
@@ -102,13 +107,13 @@ class IpmiManager(BaseIPMIHandler):
                 text=True,
                 timeout=self.timeout,
             )
-            
+
             if result.returncode != 0:
                 logger.error(f"IPMI command failed: {' '.join(cmd_args)}")
                 logger.error(f"Error output: {result.stderr}")
-                
+
             return result
-            
+
         except subprocess.TimeoutExpired:
             logger.error(f"IPMI command timed out: {' '.join(cmd_args)}")
             raise IPMICommandError(f"Command timed out after {self.timeout}s", command)
@@ -117,7 +122,7 @@ class IpmiManager(BaseIPMIHandler):
             raise IPMICommandError(f"Command execution failed: {e}", command)
 
     # Legacy compatibility methods (from original ipmi.py)
-    
+
     def get_ipmi_ips_from_servers(
         self, server_ips: List[str], ssh_username: str = "ubuntu"
     ) -> List[str]:
@@ -173,14 +178,16 @@ class IpmiManager(BaseIPMIHandler):
                 f"user set password {user_id} {new_password}",
                 credentials,
             )
-            
+
             if result.returncode == 0:
                 logger.info(f"Successfully set IPMI password for {ipmi_ip}")
                 return True
             else:
-                logger.error(f"Failed to set IPMI password for {ipmi_ip}: {result.stderr}")
+                logger.error(
+                    f"Failed to set IPMI password for {ipmi_ip}: {result.stderr}"
+                )
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error setting IPMI password for {ipmi_ip}: {e}")
             return False
@@ -204,13 +211,13 @@ class IpmiManager(BaseIPMIHandler):
             Dictionary mapping IP addresses to success status
         """
         results = {}
-        
+
         for ipmi_ip in ipmi_ips:
             results[ipmi_ip] = self.set_ipmi_password(
                 ipmi_ip, current_password, new_password, user_id
             )
             time.sleep(1)  # Brief delay between operations
-            
+
         return results
 
     def get_power_status(self, ipmi_ip: str, password: str) -> Optional[str]:
@@ -228,7 +235,7 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         try:
             status = self.power_manager.get_power_status(credentials)
             return status.state
@@ -252,7 +259,7 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         try:
             # Convert string action to PowerState enum
             power_state = PowerState(action.lower())
@@ -279,10 +286,10 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         try:
             sensors = self.sensor_manager.get_sensor_data(credentials)
-            
+
             # Convert to legacy format
             sensor_dict = {}
             for sensor in sensors:
@@ -291,15 +298,15 @@ class IpmiManager(BaseIPMIHandler):
                     "unit": sensor.unit,
                     "status": sensor.status,
                 }
-                
+
             return sensor_dict
-            
+
         except Exception as e:
             logger.error(f"Failed to get sensor data for {ipmi_ip}: {e}")
             return None
 
     # New unified configuration methods (from ipmi_automation.py)
-    
+
     def detect_ipmi_vendor(self, ipmi_ip: str, password: str) -> IPMIVendor:
         """Detect IPMI vendor for the target system.
 
@@ -315,7 +322,7 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         return self.configurator.detect_vendor(credentials)
 
     def configure_ipmi(
@@ -341,9 +348,9 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         settings = IPMISettings(admin_password=admin_password)
-        
+
         return self.configurator.configure_ipmi(credentials, settings, vendor)
 
     def validate_ipmi_configuration(
@@ -367,7 +374,7 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         return self.configurator.validate_configuration(credentials, settings)
 
     def get_system_info(self, ipmi_ip: str, password: str) -> Optional[IPMISystemInfo]:
@@ -385,7 +392,7 @@ class IpmiManager(BaseIPMIHandler):
             username=self.credentials.username,
             password=password,
         )
-        
+
         try:
             return self.configurator.get_system_info(credentials)
         except Exception as e:

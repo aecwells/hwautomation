@@ -5,10 +5,12 @@ through the Redfish API.
 """
 
 from __future__ import annotations
+
 import time
 from typing import Optional
 
 from hwautomation.logging import get_logger
+
 from ..base import (
     BaseRedfishOperation,
     PowerAction,
@@ -29,7 +31,7 @@ class RedfishPowerOperation(BaseRedfishOperation):
 
     def __init__(self, credentials: RedfishCredentials):
         """Initialize power operations.
-        
+
         Args:
             credentials: Redfish connection credentials
         """
@@ -69,7 +71,7 @@ class RedfishPowerOperation(BaseRedfishOperation):
                     )
 
                 power_state_str = response.data.get("PowerState", "Unknown")
-                
+
                 # Map Redfish power states to our enum
                 try:
                     power_state = PowerState(power_state_str)
@@ -91,11 +93,11 @@ class RedfishPowerOperation(BaseRedfishOperation):
             )
 
     def set_power_state(
-        self, 
-        action: PowerAction, 
+        self,
+        action: PowerAction,
         system_id: str = "1",
         wait_for_completion: bool = True,
-        timeout: int = 300
+        timeout: int = 300,
     ) -> RedfishOperation[bool]:
         """Set power state of the system.
 
@@ -131,7 +133,7 @@ class RedfishPowerOperation(BaseRedfishOperation):
                 # Find reset action
                 actions = response.data.get("Actions", {})
                 reset_action = actions.get("#ComputerSystem.Reset")
-                
+
                 if not reset_action:
                     return RedfishOperation(
                         success=False,
@@ -148,15 +150,17 @@ class RedfishPowerOperation(BaseRedfishOperation):
                     )
 
                 # Get allowed reset types
-                allowed_values = reset_action.get("ResetType@Redfish.AllowableValues", [])
-                
+                allowed_values = reset_action.get(
+                    "ResetType@Redfish.AllowableValues", []
+                )
+
                 # Map our action to Redfish reset type
                 reset_type = self._map_power_action(action, allowed_values)
                 if not reset_type:
                     return RedfishOperation(
                         success=False,
                         error_message=f"Power action {action.value} not supported. "
-                                    f"Available: {allowed_values}",
+                        f"Available: {allowed_values}",
                         response=response,
                     )
 
@@ -178,7 +182,7 @@ class RedfishPowerOperation(BaseRedfishOperation):
                     success = self._wait_for_power_state_change(
                         session, system_uri, action, timeout
                     )
-                    
+
                     return RedfishOperation(
                         success=success,
                         result=success,
@@ -199,7 +203,9 @@ class RedfishPowerOperation(BaseRedfishOperation):
                 error_message=str(e),
             )
 
-    def power_on(self, system_id: str = "1", wait: bool = True) -> RedfishOperation[bool]:
+    def power_on(
+        self, system_id: str = "1", wait: bool = True
+    ) -> RedfishOperation[bool]:
         """Power on the system.
 
         Args:
@@ -211,7 +217,9 @@ class RedfishPowerOperation(BaseRedfishOperation):
         """
         return self.set_power_state(PowerAction.ON, system_id, wait)
 
-    def power_off(self, system_id: str = "1", wait: bool = True, force: bool = False) -> RedfishOperation[bool]:
+    def power_off(
+        self, system_id: str = "1", wait: bool = True, force: bool = False
+    ) -> RedfishOperation[bool]:
         """Power off the system.
 
         Args:
@@ -225,7 +233,9 @@ class RedfishPowerOperation(BaseRedfishOperation):
         action = PowerAction.FORCE_OFF if force else PowerAction.GRACEFUL_SHUTDOWN
         return self.set_power_state(action, system_id, wait)
 
-    def restart(self, system_id: str = "1", wait: bool = True, force: bool = False) -> RedfishOperation[bool]:
+    def restart(
+        self, system_id: str = "1", wait: bool = True, force: bool = False
+    ) -> RedfishOperation[bool]:
         """Restart the system.
 
         Args:
@@ -239,7 +249,9 @@ class RedfishPowerOperation(BaseRedfishOperation):
         action = PowerAction.FORCE_RESTART if force else PowerAction.GRACEFUL_RESTART
         return self.set_power_state(action, system_id, wait)
 
-    def _map_power_action(self, action: PowerAction, allowed_values: list) -> Optional[str]:
+    def _map_power_action(
+        self, action: PowerAction, allowed_values: list
+    ) -> Optional[str]:
         """Map power action to Redfish reset type.
 
         Args:
@@ -259,7 +271,7 @@ class RedfishPowerOperation(BaseRedfishOperation):
         }
 
         possible_types = action_mapping.get(action, [])
-        
+
         # Find first supported type
         for reset_type in possible_types:
             if reset_type in allowed_values:
@@ -268,11 +280,11 @@ class RedfishPowerOperation(BaseRedfishOperation):
         return None
 
     def _wait_for_power_state_change(
-        self, 
-        session: RedfishSession, 
-        system_uri: str, 
+        self,
+        session: RedfishSession,
+        system_uri: str,
         action: PowerAction,
-        timeout: int
+        timeout: int,
     ) -> bool:
         """Wait for power state to change after action.
 
@@ -308,7 +320,7 @@ class RedfishPowerOperation(BaseRedfishOperation):
                 response = session.get(system_uri)
                 if response.success and response.data:
                     power_state_str = response.data.get("PowerState", "Unknown")
-                    
+
                     try:
                         current_state = PowerState(power_state_str)
                         if current_state in target_states:

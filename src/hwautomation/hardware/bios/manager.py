@@ -470,10 +470,10 @@ class BiosConfigManager(BaseBiosManager):
     ) -> Dict[str, Any]:
         """
         Real-time monitored BIOS configuration with advanced error recovery.
-        
+
         This is a bridge method that delegates to the advanced monitoring functionality.
         TODO: Migrate the full phase3 implementation to the modular system.
-        
+
         Args:
             device_type: Device type template to apply
             target_ip: Target system IP address
@@ -492,15 +492,15 @@ class BiosConfigManager(BaseBiosManager):
             "apply_bios_config_phase3 called - using fallback to apply_bios_config_smart. "
             "Full phase3 monitoring implementation needed in modular system."
         )
-        
+
         result = self.apply_bios_config_smart(
             device_type=device_type,
             target_ip=target_ip,
             username=username,
             password=password,
-            dry_run=dry_run
+            dry_run=dry_run,
         )
-        
+
         # Convert BiosConfigResult to phase3 format
         return {
             "success": result.success,
@@ -508,7 +508,9 @@ class BiosConfigManager(BaseBiosManager):
             "device_type": device_type,
             "operation_id": None,
             "monitoring_enabled": enable_monitoring,
-            "method_analysis": {"method": result.method_used.value if result.method_used else "unknown"},
+            "method_analysis": {
+                "method": result.method_used.value if result.method_used else "unknown"
+            },
             "execution_phases": [{"phase": "configuration", "success": result.success}],
             "real_time_progress": [],
             "error_recovery_actions": [],
@@ -525,21 +527,23 @@ class BiosConfigManager(BaseBiosManager):
         device_mappings = self.config_loader.load_device_mappings()
         return list(device_mappings.get("device_types", {}).keys())
 
-    def test_redfish_connection(self, target_ip: str, username: str, password: str) -> tuple[bool, str]:
+    def test_redfish_connection(
+        self, target_ip: str, username: str, password: str
+    ) -> tuple[bool, str]:
         """Test Redfish connection for BIOS management.
-        
+
         Args:
             target_ip: Target system IP address
             username: Authentication username
             password: Authentication password
-            
+
         Returns:
             Tuple of (success, message)
         """
         try:
             # Import here to avoid circular imports
             from ..redfish import RedfishManager
-            
+
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.test_connection()
         except Exception as e:
@@ -548,47 +552,49 @@ class BiosConfigManager(BaseBiosManager):
 
     def get_system_info_via_redfish(self, target_ip: str, username: str, password: str):
         """Get system information via Redfish.
-        
+
         Args:
             target_ip: Target system IP address
             username: Authentication username
             password: Authentication password
-            
+
         Returns:
             SystemInfo object or None if failed
         """
         try:
             # Import here to avoid circular imports
             from ..redfish import RedfishManager
-            
+
             with RedfishManager(target_ip, username, password) as redfish:
                 return redfish.get_system_info()
         except Exception as e:
             logger.error(f"Failed to get system info via Redfish: {e}")
             return None
 
-    def determine_bios_config_method(self, target_ip: str, device_type: str, username: str, password: str) -> str:
+    def determine_bios_config_method(
+        self, target_ip: str, device_type: str, username: str, password: str
+    ) -> str:
         """Determine the best BIOS configuration method.
-        
+
         Args:
             target_ip: Target system IP address
             device_type: Device type identifier
             username: Authentication username
             password: Authentication password
-            
+
         Returns:
             Method string: 'redfish', 'vendor_tool', or 'hybrid'
         """
         try:
             # Import here to avoid circular imports
             from ..redfish import RedfishManager
-            
+
             with RedfishManager(target_ip, username, password) as redfish:
                 # Test connection first
                 success, _ = redfish.test_connection()
                 if not success:
                     return "vendor_tool"
-                
+
                 # Check capabilities
                 capabilities = redfish.discover_capabilities()
                 if capabilities and capabilities.supports_bios_config:

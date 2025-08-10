@@ -16,7 +16,7 @@ from .base import (
 
 __all__ = [
     "BaseWorkflow",
-    "BaseWorkflowStep", 
+    "BaseWorkflowStep",
     "ConditionalWorkflowStep",
     "RetryableWorkflowStep",
     "StepContext",
