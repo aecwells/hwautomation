@@ -27,7 +27,12 @@ class RedfishBiosOperation(BaseRedfishOperation):
         Args:
             credentials: Redfish connection credentials
         """
-        super().__init__(credentials)
+        self.credentials = credentials
+
+    @property
+    def operation_name(self) -> str:
+        """Get operation name."""
+        return "BIOS Configuration"
 
     def get_bios_attributes(self, system_id: str = "1") -> RedfishOperation[Dict[str, BiosAttribute]]:
         """Get all BIOS attributes.
@@ -98,7 +103,7 @@ class RedfishBiosOperation(BaseRedfishOperation):
                 for name, value in attributes_data.items():
                     attributes[name] = BiosAttribute(
                         name=name,
-                        current_value=value,
+                        value=value,
                         description=f"BIOS attribute {name}",  # Basic description
                     )
 

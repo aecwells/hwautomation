@@ -524,3 +524,77 @@ class BiosConfigManager(BaseBiosManager):
         """Get list of available device types."""
         device_mappings = self.config_loader.load_device_mappings()
         return list(device_mappings.get("device_types", {}).keys())
+
+    def test_redfish_connection(self, target_ip: str, username: str, password: str) -> tuple[bool, str]:
+        """Test Redfish connection for BIOS management.
+        
+        Args:
+            target_ip: Target system IP address
+            username: Authentication username
+            password: Authentication password
+            
+        Returns:
+            Tuple of (success, message)
+        """
+        try:
+            # Import here to avoid circular imports
+            from ..redfish import RedfishManager
+            
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.test_connection()
+        except Exception as e:
+            logger.error(f"Failed to test Redfish connection: {e}")
+            return False, f"Connection test failed: {e}"
+
+    def get_system_info_via_redfish(self, target_ip: str, username: str, password: str):
+        """Get system information via Redfish.
+        
+        Args:
+            target_ip: Target system IP address
+            username: Authentication username
+            password: Authentication password
+            
+        Returns:
+            SystemInfo object or None if failed
+        """
+        try:
+            # Import here to avoid circular imports
+            from ..redfish import RedfishManager
+            
+            with RedfishManager(target_ip, username, password) as redfish:
+                return redfish.get_system_info()
+        except Exception as e:
+            logger.error(f"Failed to get system info via Redfish: {e}")
+            return None
+
+    def determine_bios_config_method(self, target_ip: str, device_type: str, username: str, password: str) -> str:
+        """Determine the best BIOS configuration method.
+        
+        Args:
+            target_ip: Target system IP address
+            device_type: Device type identifier
+            username: Authentication username
+            password: Authentication password
+            
+        Returns:
+            Method string: 'redfish', 'vendor_tool', or 'hybrid'
+        """
+        try:
+            # Import here to avoid circular imports
+            from ..redfish import RedfishManager
+            
+            with RedfishManager(target_ip, username, password) as redfish:
+                # Test connection first
+                success, _ = redfish.test_connection()
+                if not success:
+                    return "vendor_tool"
+                
+                # Check capabilities
+                capabilities = redfish.discover_capabilities()
+                if capabilities and capabilities.supports_bios_config:
+                    return "redfish"
+                else:
+                    return "vendor_tool"
+        except Exception as e:
+            logger.error(f"Failed to determine BIOS config method: {e}")
+            return "vendor_tool"

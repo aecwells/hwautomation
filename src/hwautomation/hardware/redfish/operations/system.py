@@ -29,7 +29,12 @@ class RedfishSystemOperation(BaseRedfishOperation):
         Args:
             credentials: Redfish connection credentials
         """
-        super().__init__(credentials)
+        self.credentials = credentials
+
+    @property
+    def operation_name(self) -> str:
+        """Get operation name."""
+        return "System Information"
 
     def get_system_info(self, system_id: str = "1") -> RedfishOperation[SystemInfo]:
         """Get comprehensive system information.
@@ -94,7 +99,10 @@ class RedfishSystemOperation(BaseRedfishOperation):
                     asset_tag=data.get("AssetTag"),
                     power_state=data.get("PowerState"),
                     health=health,
+                    health_status=health.value if health else None,
                     bios_version=data.get("BiosVersion"),
+                    processor_count=processors.get("count") if processors else None,
+                    memory_total_gb=memory.get("total_size_gib") if memory else None,
                     processor_summary=processors,
                     memory_summary=memory,
                     network_interfaces=network_interfaces,

@@ -33,7 +33,12 @@ class RedfishPowerOperation(BaseRedfishOperation):
         Args:
             credentials: Redfish connection credentials
         """
-        super().__init__(credentials)
+        self.credentials = credentials
+
+    @property
+    def operation_name(self) -> str:
+        """Get operation name."""
+        return "Power Management"
 
     def get_power_state(self, system_id: str = "1") -> RedfishOperation[PowerState]:
         """Get current power state of the system.

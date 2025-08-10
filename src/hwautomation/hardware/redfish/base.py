@@ -8,9 +8,11 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 import requests
+
+T = TypeVar('T')
 
 
 @dataclass
@@ -60,6 +62,7 @@ class HealthStatus(Enum):
     OK = "OK"
     WARNING = "Warning"
     CRITICAL = "Critical"
+    UNKNOWN = "Unknown"
 
 
 @dataclass
@@ -94,17 +97,26 @@ class RedfishCapabilities:
 class SystemInfo:
     """System information retrieved via Redfish."""
 
+    id: Optional[str] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
     manufacturer: Optional[str] = None
     model: Optional[str] = None
     serial_number: Optional[str] = None
     bios_version: Optional[str] = None
     power_state: Optional[str] = None
     health_status: Optional[str] = None
+    health: Optional[str] = None  # Alternative name for health_status
     processor_count: Optional[int] = None
     memory_total_gb: Optional[float] = None
     sku: Optional[str] = None
     part_number: Optional[str] = None
     uuid: Optional[str] = None
+    asset_tag: Optional[str] = None
+    processor_summary: Optional[Dict[str, Any]] = None
+    memory_summary: Optional[Dict[str, Any]] = None
+    network_interfaces: Optional[List[Dict[str, Any]]] = None
+    storage_summary: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -146,13 +158,13 @@ class RedfishResponse:
 
 
 @dataclass
-class RedfishOperation:
-    """Redfish operation result."""
+class RedfishOperation(Generic[T]):
+    """Redfish operation result with generic result type."""
     
     success: bool
-    operation: str
-    message: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
+    result: Optional[T] = None
+    error_message: Optional[str] = None
+    response: Optional['RedfishResponse'] = None
     execution_time: float = 0.0
     task_id: Optional[str] = None
 

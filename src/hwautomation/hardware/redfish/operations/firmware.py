@@ -29,7 +29,12 @@ class RedfishFirmwareOperation(BaseRedfishOperation):
         Args:
             credentials: Redfish connection credentials
         """
-        super().__init__(credentials)
+        self.credentials = credentials
+
+    @property
+    def operation_name(self) -> str:
+        """Get operation name."""
+        return "Firmware Management"
 
     def get_firmware_inventory(self, system_id: str = "1") -> RedfishOperation[List[FirmwareComponent]]:
         """Get firmware inventory for the system.

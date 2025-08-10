@@ -46,7 +46,7 @@ class TestRedfishManager:
         assert redfish.base_url == f"https://{self.target_ip}:443"
         assert redfish.session == mock_session
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_redfish_manager_http_mode(self, mock_session_class):
         """Test RedfishManager with HTTP (non-HTTPS) mode"""
         mock_session = Mock()
@@ -58,7 +58,7 @@ class TestRedfishManager:
 
         assert redfish.base_url == f"http://{self.target_ip}:80"
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_service_root_discovery(self, mock_session_class):
         """Test service root discovery"""
         mock_session = Mock()
@@ -73,6 +73,9 @@ class TestRedfishManager:
             "Chassis": {"@odata.id": "/redfish/v1/Chassis"},
         }
         mock_response.raise_for_status.return_value = None
+        mock_response.ok = True
+        mock_response.status_code = 200
+        mock_response.headers = {"Content-Type": "application/json"}
         mock_session.request.return_value = mock_response
 
         redfish = RedfishManager(self.target_ip, self.username, self.password)
@@ -83,7 +86,7 @@ class TestRedfishManager:
         assert "Systems" in service_root
         assert "Chassis" in service_root
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_capability_discovery(self, mock_session_class):
         """Test capability discovery"""
         mock_session = Mock()
@@ -94,6 +97,9 @@ class TestRedfishManager:
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
             mock_response.status_code = 200
+            mock_response.ok = True
+            mock_response.content = b'{"test": "content"}'
+            mock_response.headers = {}
 
             if "/redfish/v1/" in url and url.endswith("/redfish/v1/"):
                 # Service root
@@ -116,11 +122,23 @@ class TestRedfishManager:
                     "Manufacturer": "TestVendor",
                     "Model": "TestModel",
                     "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"},
+                    "Actions": {
+                        "#ComputerSystem.Reset": {
+                            "target": "/redfish/v1/Systems/1/Actions/ComputerSystem.Reset",
+                            "ResetType@Redfish.AllowableValues": ["On", "ForceOff", "ForceRestart"]
+                        }
+                    }
                 }
             elif "/redfish/v1/Systems/1/Bios" in url:
                 # BIOS endpoint
                 mock_response.json.return_value = {
                     "Attributes": {"BootMode": "UEFI", "SecureBoot": "Disabled"}
+                }
+            elif "/redfish/v1/Chassis" in url:
+                # Chassis collection
+                mock_response.json.return_value = {
+                    "Members": [{"@odata.id": "/redfish/v1/Chassis/1"}],
+                    "Members@odata.count": 1,
                 }
 
             return mock_response
@@ -135,7 +153,7 @@ class TestRedfishManager:
         assert capabilities.supports_power_control == True
         assert capabilities.supports_bios_config == True
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_system_info_retrieval(self, mock_session_class):
         """Test system information retrieval"""
         mock_session = Mock()
@@ -145,6 +163,9 @@ class TestRedfishManager:
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
             mock_response.status_code = 200
+            mock_response.ok = True
+            mock_response.content = b'{"test": "content"}'
+            mock_response.headers = {}
 
             if "/redfish/v1/" in url and url.endswith("/redfish/v1/"):
                 # Service root for capability discovery
@@ -191,7 +212,7 @@ class TestRedfishManager:
         assert system_info.memory_total_gb == 64.0
         assert system_info.health_status == "OK"
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_bios_settings_retrieval(self, mock_session_class):
         """Test BIOS settings retrieval"""
         mock_session = Mock()
@@ -201,6 +222,9 @@ class TestRedfishManager:
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
             mock_response.status_code = 200
+            mock_response.ok = True
+            mock_response.content = b'{"test": "content"}'
+            mock_response.headers = {}
 
             if "/redfish/v1/" in url and url.endswith("/redfish/v1/"):
                 # Service root for capability discovery
@@ -247,7 +271,7 @@ class TestRedfishManager:
         assert bios_settings["Hyper-Threading"] == "Enabled"
         assert bios_settings["PowerProfile"] == "Performance"
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_connection_test_success(self, mock_session_class):
         """Test successful connection test"""
         mock_session = Mock()
@@ -257,6 +281,9 @@ class TestRedfishManager:
             mock_response = Mock()
             mock_response.raise_for_status.return_value = None
             mock_response.status_code = 200
+            mock_response.ok = True
+            mock_response.content = b'{"test": "content"}'
+            mock_response.headers = {}
 
             if "/redfish/v1/" in url and url.endswith("/redfish/v1/"):
                 # Service root
@@ -278,6 +305,9 @@ class TestRedfishManager:
                     "Manufacturer": "TestVendor",
                     "Model": "TestModel",
                     "PowerState": "On",
+                    "Status": {"Health": "OK"},
+                    "ProcessorSummary": {"Count": 2},
+                    "MemorySummary": {"TotalSystemMemoryGiB": 64},
                     "Bios": {"@odata.id": "/redfish/v1/Systems/1/Bios"},
                 }
 
@@ -297,7 +327,7 @@ class TestRedfishManager:
         assert "Redfish connection successful" in message
         assert "TestVendor TestModel" in message
 
-    @patch("hwautomation.hardware.redfish_manager.requests.Session")
+    @patch("hwautomation.hardware.redfish.client.session.requests.Session")
     def test_connection_test_failure(self, mock_session_class):
         """Test failed connection test"""
         mock_session = Mock()
@@ -325,7 +355,7 @@ class TestBiosConfigManagerRedfish:
         self.password = "password"
         self.device_type = "a1.c5.large"
 
-    @patch("hwautomation.hardware.bios_config.RedfishManager")
+    @patch("hwautomation.hardware.redfish.RedfishManager")
     def test_redfish_connection_via_bios_manager(self, mock_redfish_class):
         """Test Redfish connection through BiosConfigManager"""
         mock_redfish = Mock()
@@ -340,7 +370,7 @@ class TestBiosConfigManagerRedfish:
         assert success == True
         assert "Connection successful" in message
 
-    @patch("hwautomation.hardware.bios_config.RedfishManager")
+    @patch("hwautomation.hardware.redfish.RedfishManager")
     def test_system_info_via_bios_manager(self, mock_redfish_class):
         """Test system info retrieval through BiosConfigManager"""
         mock_redfish = Mock()
@@ -362,7 +392,7 @@ class TestBiosConfigManagerRedfish:
         assert system_info.manufacturer == "TestVendor"
         assert system_info.model == "TestModel"
 
-    @patch("hwautomation.hardware.bios_config.RedfishManager")
+    @patch("hwautomation.hardware.redfish.RedfishManager")
     def test_bios_config_method_determination(self, mock_redfish_class):
         """Test BIOS configuration method determination"""
         mock_redfish = Mock()
