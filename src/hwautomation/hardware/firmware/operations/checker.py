@@ -67,7 +67,7 @@ class VersionChecker:
                     fw_type, target_ip, username, password, vendor, model, repository
                 )
                 if fw_info:
-                    results[fw_type.value] = fw_info
+                    results[fw_type] = fw_info
             except Exception as e:
                 logger.error(f"Failed to check {fw_type.value} firmware: {e}")
 
