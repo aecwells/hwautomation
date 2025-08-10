@@ -3,44 +3,44 @@
 # Additional quality checks can be added incrementally
 
 repos:
-  # Code formatting with black
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
-    hooks:
-      - id: black
-        name: Code formatting (black)
-        description: Auto-format Python code with black
-        language_version: python3
-        args: [--line-length=88, --target-version=py39]
+# Code formatting with black
+- repo: https://github.com/psf/black
+  rev: 25.1.0
+  hooks:
+  - id: black
+    name: Code formatting (black)
+    description: Auto-format Python code with black
+    language_version: python3
+    args: [ --line-length=88, --target-version=py39 ]
 
-  # Import sorting with isort
-  - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
-    hooks:
-      - id: isort
-        name: Import sorting (isort)
-        description: Sort Python imports
-        args: [--profile=black, --line-length=88]
+# Import sorting with isort
+- repo: https://github.com/pycqa/isort
+  rev: 6.0.1
+  hooks:
+  - id: isort
+    name: Import sorting (isort)
+    description: Sort Python imports
+    args: [ --profile=black, --line-length=88 ]
 
-  # Basic file checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-      - id: trailing-whitespace
-        name: Remove trailing whitespace
-        description: Remove trailing whitespace from files
-      - id: end-of-file-fixer
-        name: Fix file endings
-        description: Ensure files end with a newline
-      - id: check-yaml
-        name: Validate YAML syntax
-        description: Check YAML files for syntax errors
-      - id: check-merge-conflict
-        name: Check for merge conflicts
-        description: Check for merge conflict markers
-      - id: check-ast
-        name: Check Python AST
-        description: Check Python files compile correctly
+# Basic file checks
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: trailing-whitespace
+    name: Remove trailing whitespace
+    description: Remove trailing whitespace from files
+  - id: end-of-file-fixer
+    name: Fix file endings
+    description: Ensure files end with a newline
+  - id: check-yaml
+    name: Validate YAML syntax
+    description: Check YAML files for syntax errors
+  - id: check-merge-conflict
+    name: Check for merge conflicts
+    description: Check for merge conflict markers
+  - id: check-ast
+    name: Check Python AST
+    description: Check Python files compile correctly
 
 # Global pre-commit configuration
 default_language_version:
