@@ -97,52 +97,59 @@ def api_orchestration_provision():
         rack_location = data.get("rack_location")
         gateway = data.get("gateway")
 
-        # Create and start provisioning workflow
-        from hwautomation.orchestration.server_provisioning import (
-            ServerProvisioningWorkflow,
+        # Create and start provisioning workflow using modular components
+        from hwautomation.orchestration.workflows.provisioning import (
+            create_provisioning_workflow,
         )
 
-        provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
-
-        workflow = provisioning_workflow.create_provisioning_workflow(
+        workflow = create_provisioning_workflow(
             server_id=server_id,
             device_type=device_type,
             target_ipmi_ip=target_ipmi_ip,
-            rack_location=rack_location,
             gateway=gateway,
+            workflow_type="standard",
         )
 
-        # Set up progress callback for WebSocket updates
-        def progress_callback(progress_data):
-            if socketio:
-                socketio.emit("workflow_progress", progress_data)
+        # Note: Modular workflows don't support set_progress_callback yet
+        # TODO: Add WebSocket progress integration to modular workflows
 
-        workflow.set_progress_callback(progress_callback)
+        # Create execution context for modular workflow
+        context = workflow.create_initial_context()
 
-        # Start workflow execution in background thread
-        from hwautomation.orchestration.workflow_manager import WorkflowContext
-
-        context = WorkflowContext(
-            server_id=server_id,
-            device_type=device_type,
-            target_ipmi_ip=target_ipmi_ip,
-            rack_location=rack_location,
-            gateway=gateway,
-            maas_client=workflow_manager.maas_client,
-            db_helper=workflow_manager.db_helper,
-        )
-        context.workflow_id = workflow.id
+        # Set additional context data from workflow manager
+        if hasattr(workflow_manager, "maas_client"):
+            context.set_data("maas_client", workflow_manager.maas_client)
+        if hasattr(workflow_manager, "db_helper"):
+            context.set_data("db_helper", workflow_manager.db_helper)
 
         def execute_workflow():
             try:
-                success = workflow.execute(context)
-                logger.info(f"Workflow {workflow.id} completed with success: {success}")
-            except Exception as e:
-                logger.error(f"Workflow {workflow.id} failed: {e}")
-                from hwautomation.orchestration.workflow_manager import WorkflowStatus
+                result = workflow.execute(context)
+                success = result.status.value == "success"
+                logger.info(
+                    f"Workflow {workflow.workflow_id} completed with success: {success}"
+                )
 
-                workflow.status = WorkflowStatus.FAILED
-                workflow.error = str(e)
+                # TODO: Add WebSocket notification for completion
+                if socketio:
+                    socketio.emit(
+                        "workflow_complete",
+                        {
+                            "workflow_id": workflow.workflow_id,
+                            "success": success,
+                            "message": result.message,
+                        },
+                    )
+
+            except Exception as e:
+                logger.error(f"Workflow {workflow.workflow_id} failed: {e}")
+
+                # TODO: Add WebSocket notification for failure
+                if socketio:
+                    socketio.emit(
+                        "workflow_failed",
+                        {"workflow_id": workflow.workflow_id, "error": str(e)},
+                    )
 
         thread = threading.Thread(target=execute_workflow)
         thread.daemon = True
@@ -150,7 +157,7 @@ def api_orchestration_provision():
 
         response_data = {
             "success": True,
-            "id": workflow.id,
+            "id": workflow.workflow_id,
             "message": f"Provisioning workflow started for {server_id}",
             "steps": [
                 {"name": step.name, "description": step.description}
@@ -208,19 +215,19 @@ def api_start_firmware_first_provisioning():
                 400,
             )
 
-        # Create and start firmware-first provisioning workflow
-        from hwautomation.orchestration.server_provisioning import (
-            ServerProvisioningWorkflow,
+        # Create and start firmware-first provisioning workflow using modular components
+        from hwautomation.orchestration.workflows.provisioning import (
+            create_provisioning_workflow,
         )
 
-        provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
-
-        workflow = provisioning_workflow.create_firmware_first_provisioning_workflow(
+        workflow = create_provisioning_workflow(
             server_id=server_id,
             device_type=device_type,
             target_ipmi_ip=target_ipmi_ip,
-            rack_location=rack_location,
             gateway=gateway,
+            workflow_type="firmware_first",
+            # Additional firmware-first specific parameters
+            rack_location=rack_location,
             firmware_policy=firmware_policy,
         )
 
@@ -234,40 +241,52 @@ def api_start_firmware_first_provisioning():
                 503,
             )
 
-        # Set up progress callback for WebSocket updates
-        def progress_callback(progress_data):
-            if socketio:
-                socketio.emit("workflow_progress", progress_data)
+        # Note: Modular workflows don't support set_progress_callback yet
+        # TODO: Add WebSocket progress integration to modular workflows
 
-        workflow.set_progress_callback(progress_callback)
+        # Create execution context for modular workflow
+        context = workflow.create_initial_context()
 
-        # Start workflow execution in background thread
-        from hwautomation.orchestration.workflow_manager import WorkflowContext
+        # Set additional context data from workflow manager
+        if hasattr(workflow_manager, "maas_client"):
+            context.set_data("maas_client", workflow_manager.maas_client)
+        if hasattr(workflow_manager, "db_helper"):
+            context.set_data("db_helper", workflow_manager.db_helper)
 
-        context = WorkflowContext(
-            server_id=server_id,
-            device_type=device_type,
-            target_ipmi_ip=target_ipmi_ip,
-            rack_location=rack_location,
-            gateway=gateway,
-            maas_client=workflow_manager.maas_client,
-            db_helper=workflow_manager.db_helper,
-            firmware_policy=firmware_policy,
-        )
-        context.workflow_id = workflow.id
+        # Set firmware-first specific context data
+        context.set_data("rack_location", rack_location)
+        context.set_data("firmware_policy", firmware_policy)
 
         def execute_workflow():
             try:
-                success = workflow.execute(context)
+                result = workflow.execute(context)
+                success = result.status.value == "success"
                 logger.info(
-                    f"Firmware-first workflow {workflow.id} completed with success: {success}"
+                    f"Firmware-first workflow {workflow.workflow_id} completed with success: {success}"
                 )
-            except Exception as e:
-                logger.error(f"Firmware-first workflow {workflow.id} failed: {e}")
-                from hwautomation.orchestration.workflow_manager import WorkflowStatus
 
-                workflow.status = WorkflowStatus.FAILED
-                workflow.error = str(e)
+                # TODO: Add WebSocket notification for completion
+                if socketio:
+                    socketio.emit(
+                        "workflow_complete",
+                        {
+                            "workflow_id": workflow.workflow_id,
+                            "success": success,
+                            "message": result.message,
+                        },
+                    )
+
+            except Exception as e:
+                logger.error(
+                    f"Firmware-first workflow {workflow.workflow_id} failed: {e}"
+                )
+
+                # TODO: Add WebSocket notification for failure
+                if socketio:
+                    socketio.emit(
+                        "workflow_failed",
+                        {"workflow_id": workflow.workflow_id, "error": str(e)},
+                    )
 
         thread = threading.Thread(target=execute_workflow)
         thread.daemon = True
@@ -275,7 +294,7 @@ def api_start_firmware_first_provisioning():
 
         response_data = {
             "success": True,
-            "id": workflow.id,
+            "id": workflow.workflow_id,
             "message": f"Firmware-first provisioning workflow started for {server_id}",
             "firmware_policy": firmware_policy,
             "steps": [
@@ -335,11 +354,9 @@ def init_orchestration_routes(app, workflow_manager, socketio):
             # Start batch commissioning workflow for each device
             workflows = []
             for device_id in device_ids:
-                from hwautomation.orchestration.server_provisioning import (
-                    ServerProvisioningWorkflow,
+                from hwautomation.orchestration.workflows.provisioning import (
+                    create_provisioning_workflow,
                 )
-
-                provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
 
                 # Assign IPMI IP if range is provided
                 target_ipmi_ip = None
@@ -348,18 +365,20 @@ def init_orchestration_routes(app, workflow_manager, socketio):
                     # This would need to be implemented based on your IPMI assignment logic
                     pass
 
-                workflow = provisioning_workflow.create_provisioning_workflow(
+                workflow = create_provisioning_workflow(
                     server_id=device_id,
                     device_type=device_type,
                     target_ipmi_ip=target_ipmi_ip,
-                    subnet_mask=subnet_mask,
                     gateway=gateway,
+                    workflow_type="standard",
+                    # Additional batch commissioning parameters
+                    subnet_mask=subnet_mask,
                 )
 
                 if workflow:
                     workflows.append(
                         {
-                            "id": workflow.id,
+                            "id": workflow.workflow_id,
                             "device_id": device_id,
                             "device_type": device_type,
                         }

@@ -1,6 +1,17 @@
 """
 Server Provisioning Workflow
 
+DEPRECATED: This module is deprecated and will be removed in a future version.
+Please use the modular workflow components in hwautomation.orchestration.workflows instead:
+
+    from hwautomation.orchestration.workflows.provisioning import create_provisioning_workflow
+
+    # Instead of:
+    # workflow = ServerProvisioningWorkflow(manager).create_provisioning_workflow(...)
+
+    # Use:
+    # workflow = create_provisioning_workflow(...)
+
 Implements the complete server provisioning workflow from commissioning
 through BIOS configuration to IPMI setup and finalization.
 ."""
@@ -12,10 +23,19 @@ import socket
 import subprocess
 import time
 import traceback
+import warnings
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
+
+# Issue deprecation warning when module is imported
+warnings.warn(
+    "hwautomation.orchestration.server_provisioning is deprecated. "
+    "Use hwautomation.orchestration.workflows.provisioning instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 from ..logging import get_logger
 from .exceptions import (

@@ -22,7 +22,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from hwautomation.orchestration.server_provisioning import ServerProvisioningWorkflow
+from hwautomation.orchestration.workflows.provisioning import create_provisioning_workflow
 from hwautomation.orchestration.workflow_manager import WorkflowManager
 from hwautomation.utils.config import load_config
 
@@ -40,7 +40,6 @@ async def main():
 
         # Initialize orchestration system
         workflow_manager = WorkflowManager(config)
-        provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
         print("✅ Orchestration system initialized")
 
         # Example server configuration
@@ -77,10 +76,13 @@ async def main():
 
         # Start provisioning (this would normally be a real server)
         # For demo purposes, we'll create the workflow but not execute it
-        workflow = provisioning_workflow.create_provisioning_workflow(
+        workflow = create_provisioning_workflow(
             server_id=server_config["server_id"],
             device_type=server_config["device_type"],
             target_ipmi_ip=server_config["target_ipmi_ip"],
+            gateway=None,  # Optional parameter
+            workflow_type="standard",
+            # Additional parameters from config
             rack_location=server_config["rack_location"],
         )
 
@@ -91,7 +93,7 @@ async def main():
         print(f"\n📊 Workflow Summary:")
         print(f"   Total Steps: {len(workflow.steps)}")
         print(f"   Estimated Time: ~30-45 minutes")
-        print(f"   Workflow ID: {workflow.id}")
+        print(f"   Workflow ID: {workflow.workflow_id}")
 
         print(f"\n🔧 Integration Points:")
         print(f"   ✅ MaaS Client: Ready for server commissioning")

@@ -17,8 +17,10 @@ from typing import Any, Dict
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from hwautomation.orchestration.server_provisioning import ServerProvisioningWorkflow
 from hwautomation.orchestration.workflow_manager import WorkflowManager
+from hwautomation.orchestration.workflows.provisioning import (
+    create_provisioning_workflow,
+)
 from hwautomation.utils.config import load_config
 
 
@@ -49,7 +51,6 @@ def provision_server(args):
 
         # Initialize orchestration system
         workflow_manager = WorkflowManager(config)
-        provisioning_workflow = ServerProvisioningWorkflow(workflow_manager)
 
         print(f"🚀 Starting server provisioning for {args.server_id}")
         print(f"   Device Type: {args.device_type}")
@@ -58,28 +59,47 @@ def provision_server(args):
             print(f"   Rack Location: {args.rack_location}")
         print()
 
-        # Start provisioning
-        result = provisioning_workflow.provision_server(
+        # Create modular provisioning workflow
+        workflow = create_provisioning_workflow(
             server_id=args.server_id,
             device_type=args.device_type,
             target_ipmi_ip=args.target_ipmi_ip,
+            gateway=getattr(args, "gateway", None),
+            workflow_type="standard",
+            # Additional parameters
             rack_location=args.rack_location,
-            progress_callback=progress_callback,
         )
 
-        # Print results
-        if result["success"]:
-            print("\n🎉 Server provisioning completed successfully!")
+        print(f"📝 Workflow created with {len(workflow.steps)} steps")
+        for i, step in enumerate(workflow.steps, 1):
+            print(f"   {i}. {step.name}")
+        print()
 
-            context = result.get("context", {})
-            if context.get("server_ip"):
-                print(f"   Server IP: {context['server_ip']}")
-            if context.get("metadata"):
-                print(f"   Metadata: {json.dumps(context['metadata'], indent=2)}")
+        # Create execution context
+        context = workflow.create_initial_context()
+
+        # Set additional context data from workflow manager
+        if hasattr(workflow_manager, "maas_client"):
+            context.set_data("maas_client", workflow_manager.maas_client)
+        if hasattr(workflow_manager, "db_helper"):
+            context.set_data("db_helper", workflow_manager.db_helper)
+        if args.rack_location:
+            context.set_data("rack_location", args.rack_location)
+
+        # Execute workflow
+        print("🔄 Executing workflow...")
+        result = workflow.execute(context)
+
+        # Print results
+        if result.status.value == "success":
+            print("\n🎉 Server provisioning completed successfully!")
+            print(f"   Message: {result.message}")
+
+            # Print context data if available
+            if hasattr(result, "context_data") and result.context_data:
+                print(f"   Result data: {json.dumps(result.context_data, indent=2)}")
         else:
-            print(
-                f"\n❌ Server provisioning failed: {result.get('error', 'Unknown error')}"
-            )
+            print(f"\n❌ Server provisioning failed: {result.message}")
             return 1
 
     except KeyboardInterrupt:
