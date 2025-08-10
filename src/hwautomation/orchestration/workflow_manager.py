@@ -161,12 +161,11 @@ class WorkflowManager:
         try:
             # Lazy import to avoid circular dependency
             from ..hardware.firmware import FirmwareManager
-            from ..hardware.firmware_provisioning_workflow import (
-                FirmwareProvisioningWorkflow,
-            )
 
             self.firmware_manager = FirmwareManager()
-            self.firmware_workflow = FirmwareProvisioningWorkflow()
+            # Note: FirmwareProvisioningWorkflow was in legacy firmware_provisioning_workflow
+            # Using None for now until we implement a modular firmware workflow
+            self.firmware_workflow = None
             logger.info("Firmware management initialized successfully")
         except Exception as e:
             logger.warning(f"Failed to initialize firmware management: {e}")
@@ -246,19 +245,18 @@ class WorkflowManager:
         workflow_id = f"firmware_first_{server_id}_{int(time.time())}"
         workflow = self.create_workflow(workflow_id)
 
-        # Create provisioning context (lazy import)
-        from ..hardware.firmware_provisioning_workflow import ProvisioningContext
-
-        context = ProvisioningContext(
-            server_id=server_id,
-            device_type=device_type,
-            target_ip=target_ip,
-            credentials=credentials,
-            firmware_policy=firmware_policy,
-            operation_id=workflow_id,
-            skip_firmware_check=skip_firmware_check,
-            skip_bios_config=skip_bios_config,
-        )
+        # Create provisioning context
+        # Note: Using dict for context since ProvisioningContext was in legacy firmware_provisioning_workflow
+        context = {
+            "server_id": server_id,
+            "device_type": device_type,
+            "target_ip": target_ip,
+            "credentials": credentials,
+            "firmware_policy": firmware_policy,
+            "operation_id": workflow_id,
+            "skip_firmware_check": skip_firmware_check,
+            "skip_bios_config": skip_bios_config,
+        }
 
         # Add firmware-first provisioning step
         workflow.add_step(

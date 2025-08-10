@@ -147,7 +147,7 @@ class ModuleLoader {
 
       // Check if we have a manifest with built assets
       try {
-        const manifestResponse = await fetch('/static/dist/manifest.json');
+        const manifestResponse = await fetch("/static/dist/manifest.json");
         if (manifestResponse.ok) {
           const manifest = await manifestResponse.json();
 
@@ -159,7 +159,9 @@ class ModuleLoader {
           }
         }
       } catch (e) {
-        console.warn('Could not load manifest, falling back to development paths');
+        console.warn(
+          "Could not load manifest, falling back to development paths",
+        );
       }
 
       // Fallback to development path if not in manifest

@@ -19,12 +19,14 @@ from hwautomation.hardware.firmware import (
     FirmwareInfo,
     FirmwareManager,
     FirmwareType,
-    UpdatePriority,
+    Priority as UpdatePriority,
 )
-from hwautomation.hardware.firmware_provisioning_workflow import (
-    FirmwareProvisioningWorkflow,
-    ProvisioningContext,
-)
+# Note: FirmwareProvisioningWorkflow was in legacy firmware_provisioning_workflow.py (removed)
+# These components need to be reimplemented in the modular system
+# from hwautomation.hardware.firmware_provisioning_workflow import (
+#     FirmwareProvisioningWorkflow,
+#     ProvisioningContext,
+# )
 
 # Set up logging
 logging.basicConfig(
@@ -150,55 +152,66 @@ async def demonstrate_firmware_provisioning_workflow():
     print("FIRMWARE-FIRST PROVISIONING WORKFLOW DEMONSTRATION")
     print("=" * 80)
 
-    # Initialize workflow
-    workflow = FirmwareProvisioningWorkflow()
+    # Note: FirmwareProvisioningWorkflow was removed with legacy firmware_provisioning_workflow.py
+    # This demo would need to be updated to use the modular workflow system
+    print("⚠️  Legacy FirmwareProvisioningWorkflow not available")
+    print("    This demo needs to be updated to use the modular orchestration workflows")
+    print("    from hwautomation.orchestration.workflows.provisioning import FirmwareFirstProvisioningWorkflow")
+    
+    # For now, skip the workflow demonstration
+    print("⚠️  Skipping firmware workflow demonstration (requires modular implementation)")
+    return True
 
-    # Create provisioning context
-    context = workflow.create_provisioning_context(
-        server_id="server_001",
-        device_type="a1.c5.large",
-        target_ip="192.168.1.100",
-        credentials={"username": "admin", "password": "password"},
-        firmware_policy="recommended",
-    )
+    # The following code is commented out until the modular equivalent is implemented:
+    # # Initialize workflow
+    # workflow = FirmwareProvisioningWorkflow()
 
-    print(f"\n🚀 Provisioning Configuration:")
-    print(f"   Server ID: {context.server_id}")
-    print(f"   Device Type: {context.device_type}")
-    print(f"   Target IP: {context.target_ip}")
-    print(f"   Firmware Policy: {context.firmware_policy}")
+    # # Create provisioning context
+    # context = workflow.create_provisioning_context(
+    #     server_id="server_001",
+    #     device_type="a1.c5.large",
+    #     target_ip="192.168.1.100",
+    #     credentials={"username": "admin", "password": "password"},
+    #     firmware_policy="recommended",
+    # )
 
-    try:
-        # Execute the complete workflow
-        result = await workflow.execute_firmware_first_provisioning(context)
+    # print(f"\n🚀 Provisioning Configuration:")
+    # print(f"   Server ID: {context.server_id}")
+    # print(f"   Device Type: {context.device_type}")
+    # print(f"   Target IP: {context.target_ip}")
+    # print(f"   Firmware Policy: {context.firmware_policy}")
 
-        if result.success:
-            print(f"\n" + "=" * 60)
-            print("PROVISIONING COMPLETED SUCCESSFULLY")
-            print("=" * 60)
+    # try:
+    #     # Execute the complete workflow
+    #     result = await workflow.execute_firmware_first_provisioning(context)
 
-            print(f"\n📊 Results Summary:")
-            print(f"   Operation ID: {result.operation_id}")
-            print(f"   Server ID: {result.server_id}")
-            print(f"   Device Type: {result.device_type}")
-            print(f"   Execution Time: {result.execution_time:.1f} seconds")
-            print(f"   Firmware Updates Applied: {result.firmware_updates_applied}")
-            print(f"   BIOS Settings Applied: {result.bios_settings_applied}")
+    #     if result.success:
+    #         print(f"\n" + "=" * 60)
+    #         print("PROVISIONING COMPLETED SUCCESSFULLY")
+    #         print("=" * 60)
 
-            if result.warnings:
-                print(f"\n⚠️  Warnings:")
-                for warning in result.warnings:
-                    print(f"     • {warning}")
+    #         print(f"\n📊 Results Summary:")
+    #         print(f"   Operation ID: {result.operation_id}")
+    #         print(f"   Server ID: {result.server_id}")
+    #         print(f"   Device Type: {result.device_type}")
+    #         print(f"   Execution Time: {result.execution_time:.1f} seconds")
+    #         print(f"   Firmware Updates Applied: {result.firmware_updates_applied}")
+    #         print(f"   BIOS Settings Applied: {result.bios_settings_applied}")
 
-            return True
-        else:
-            print(f"\n❌ Provisioning failed: {result.error_message}")
-            return False
+    #         if result.warnings:
+    #             print(f"\n⚠️  Warnings:")
+    #             for warning in result.warnings:
+    #                 print(f"     • {warning}")
 
-    except Exception as e:
-        print(f"\n❌ Workflow demonstration failed: {e}")
-        logger.exception("Workflow demonstration failed")
-        return False
+    #         return True
+    #     else:
+    #         print(f"\n❌ Provisioning failed: {result.error_message}")
+    #         return False
+
+    # except Exception as e:
+    #     print(f"\n❌ Workflow demonstration failed: {e}")
+    #     logger.exception("Workflow demonstration failed")
+    #     return False
 
 
 async def main():

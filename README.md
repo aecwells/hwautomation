@@ -534,8 +534,8 @@ print(xml_config)
 ### 5. Firmware Management
 
 ```python
-from hwautomation.hardware.firmware_manager import FirmwareManager
-from hwautomation.hardware.firmware_provisioning_workflow import create_firmware_provisioning_workflow
+from hwautomation.hardware.firmware import FirmwareManager
+from hwautomation.orchestration.workflows.provisioning import FirmwareFirstProvisioningWorkflow
 
 # Initialize firmware manager
 firmware_manager = FirmwareManager()
@@ -862,9 +862,9 @@ results = await firmware_manager.update_firmware_batch(
 Complete firmware-first provisioning workflow.
 
 ```python
-from hwautomation.hardware.firmware_provisioning_workflow import create_firmware_provisioning_workflow
+from hwautomation.orchestration.workflows.provisioning import FirmwareFirstProvisioningWorkflow
 
-workflow = create_firmware_provisioning_workflow()
+workflow = FirmwareFirstProvisioningWorkflow(server_id="srv001", device_type="a1.c5.large")
 context = workflow.create_provisioning_context(
     server_id="server_001", device_type="a1.c5.large",
     target_ip="192.168.1.100", credentials={"username": "admin", "password": "password"}

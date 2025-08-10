@@ -326,16 +326,15 @@ class ServerProvisioningWorkflow:
             }
 
             # Create firmware provisioning context
-            from ..hardware.firmware_provisioning_workflow import ProvisioningContext
-
-            provisioning_context = ProvisioningContext(
-                server_id=context.server_id,
-                device_type=device_type,
-                target_ip=server_ip,
-                credentials=credentials,
-                firmware_policy=firmware_policy,
-                operation_id=context.workflow_id,
-            )
+            # Note: Using dict for context since ProvisioningContext was in legacy firmware_provisioning_workflow
+            provisioning_context = {
+                "server_id": context.server_id,
+                "device_type": device_type,
+                "target_ip": server_ip,
+                "credentials": credentials,
+                "firmware_policy": firmware_policy,
+                "operation_id": context.workflow_id,
+            }
 
             context.report_sub_task("Executing firmware-first provisioning workflow...")
 

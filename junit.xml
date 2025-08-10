@@ -1,1 +1,162 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="11" time="4.359" timestamp="2025-08-09T18:14:29.420401-07:00" hostname="ethereal"><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_redfish_manager_initialization" time="0.007" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_redfish_manager_http_mode" time="0.002" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_service_root_discovery" time="0.005" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_capability_discovery" time="0.005" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_system_info_retrieval" time="0.002" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_bios_settings_retrieval" time="0.006" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_connection_test_success" time="0.005" /><testcase classname="tests.unit.test_redfish_manager.TestRedfishManager" name="test_connection_test_failure" time="0.002" /><testcase classname="tests.unit.test_redfish_manager.TestBiosConfigManagerRedfish" name="test_redfish_connection_via_bios_manager" time="0.313" /><testcase classname="tests.unit.test_redfish_manager.TestBiosConfigManagerRedfish" name="test_system_info_via_bios_manager" time="0.297" /><testcase classname="tests.unit.test_redfish_manager.TestBiosConfigManagerRedfish" name="test_bios_config_method_determination" time="0.300" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="0" skipped="0" tests="3" time="1.454" timestamp="2025-08-10T13:43:15.282897-07:00" hostname="ethereal"><testcase classname="" name="tests.test_firmware_web_interface" time="0.000"><error message="collection failure">tests/test_firmware_web_interface.py:27: in &lt;module&gt;
+    from hwautomation.web.routes.firmware import (
+        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
+        FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
+        MagicMock  = &lt;class 'unittest.mock.MagicMock'&gt;
+        Mock       = &lt;class 'unittest.mock.Mock'&gt;
+        Path       = &lt;class 'pathlib.Path'&gt;
+        WorkflowManager = &lt;class 'hwautomation.orchestration.workflow_manager.WorkflowManager'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_firmware_web_interface.cpython-312.pyc'
+        __doc__    = '\nUnit tests for firmware web interface components.\n'
+        __file__   = '/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;
+        __name__   = 'test_firmware_web_interface'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_firmware_web_interface', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;, origin='/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py')
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
+        patch      = &lt;function patch at 0x7fbce80d3100&gt;
+        pytest     = &lt;module 'pytest' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/pytest/__init__.py'&gt;
+        pytestmark = [MarkDecorator(mark=Mark(name='web', args=(), kwargs={})), MarkDecorator(mark=Mark(name='integration', args=(), kwargs={}))]
+        shutil     = &lt;module 'shutil' from '/usr/lib/python3.12/shutil.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        tempfile   = &lt;module 'tempfile' from '/usr/lib/python3.12/tempfile.py'&gt;
+        timedelta  = &lt;class 'datetime.timedelta'&gt;
+src/hwautomation/web/__init__.py:7: in &lt;module&gt;
+    from .app import create_app
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/web/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = '\nWeb module for HWAutomation.\n\nThis module contains the Flask web application and all web-related components.\n.'
+        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/web/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7fbce6894350&gt;
+        __name__   = 'hwautomation.web'
+        __package__ = 'hwautomation.web'
+        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/web']
+        __spec__   = ModuleSpec(name='hwautomation.web', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7fbce6894350&gt;, ori.../hwautomation/web/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/web'])
+        core       = &lt;module 'hwautomation.web.core' from '/home/cwells/projects/hwautomation/src/hwautomation/web/core/__init__.py'&gt;
+src/hwautomation/web/app.py:268: in &lt;module&gt;
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+        Flask      = &lt;class 'flask.app.Flask'&gt;
+        Path       = &lt;class 'pathlib.Path'&gt;
+        SocketIO   = &lt;class 'flask_socketio.SocketIO'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/web/__pycache__/app.cpython-312.pyc'
+        __doc__    = '\nFlask Web Application for HWAutomation - Refactored with Blueprints.\n\nClean modular web interface with organized ...ints.\nCore workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration.\n'
+        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/web/app.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7fbce68945c0&gt;
+        __name__   = 'hwautomation.web.app'
+        __package__ = 'hwautomation.web'
+        __spec__   = ModuleSpec(name='hwautomation.web.app', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7fbce68945c0&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/web/app.py')
+        create_app = &lt;function create_app at 0x7fbce687f2e0&gt;
+        environment = 'development'
+        get_logger = &lt;function get_logger at 0x7fbce7e5e520&gt;
+        logger     = &lt;Logger hwautomation.web.app (DEBUG)&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        set_correlation_id = &lt;function set_correlation_id at 0x7fbce7e5e5c0&gt;
+        setup_logging = &lt;function setup_logging at 0x7fbce7e5e480&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        threading  = &lt;module 'threading' from '/usr/lib/python3.12/threading.py'&gt;
+        time       = &lt;module 'time' (built-in)&gt;
+        uuid       = &lt;module 'uuid' from '/usr/lib/python3.12/uuid.py'&gt;
+src/hwautomation/web/app.py:94: in create_app
+    workflow_manager = WorkflowManager(config)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
+        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
+        DeviceSelectionService = &lt;class 'hwautomation.orchestration.device_selection.DeviceSelectionService'&gt;
+        ServerProvisioningWorkflow = &lt;class 'hwautomation.orchestration.server_provisioning.ServerProvisioningWorkflow'&gt;
+        WorkflowManager = &lt;class 'hwautomation.orchestration.workflow_manager.WorkflowManager'&gt;
+        after_request = &lt;function create_app.&lt;locals&gt;.after_request at 0x7fbce62e3380&gt;
+        app        = &lt;Flask 'hwautomation.web.app'&gt;
+        before_request = &lt;function create_app.&lt;locals&gt;.before_request at 0x7fbce6126ca0&gt;
+        config     = {'database': {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}, '...admin'}, 'logging': {'backup_count': 5, 'file': '/app/logs/hwautomation.log', 'level': 'INFO', 'max_size_mb': 10}, ...}
+        create_maas_client = &lt;function create_maas_client at 0x7fbce690b060&gt;
+        database_path = 'hw_automation.db'
+        db_helper  = &lt;hwautomation.database.helper.DbHelper object at 0x7fbce6129fd0&gt;
+        init_assets = &lt;function init_assets at 0x7fbce613c360&gt;
+        load_config = &lt;function load_config at 0x7fbce683c2c0&gt;
+        project_root = PosixPath('/home/cwells/projects/hwautomation')
+        request    = &lt;LocalProxy unbound&gt;
+        socketio   = &lt;flask_socketio.SocketIO object at 0x7fbce634d670&gt;
+        src_path   = PosixPath('/home/cwells/projects/hwautomation/src')
+src/hwautomation/orchestration/workflow_manager.py:155: in __init__
+    self.bios_manager = BiosConfigManager(config.get("bios", {}).get("config_dir"))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        config     = {'database': {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}, '...admin'}, 'logging': {'backup_count': 5, 'file': '/app/logs/hwautomation.log', 'level': 'INFO', 'max_size_mb': 10}, ...}
+        db_config  = {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}
+        maas_config = {'admin_password': 'admin123', 'admin_username': 'admin', 'api_key': 'your-api-key-here', 'consumer_key': 'your-consumer-key-here', ...}
+        self       = &lt;hwautomation.orchestration.workflow_manager.WorkflowManager object at 0x7fbce612a0c0&gt;
+src/hwautomation/hardware/bios/manager.py:51: in __init__
+    self.config_loader = ConfigurationLoader(config_dir)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        __class__  = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
+        config_dir = None
+        self       = &lt;hwautomation.hardware.bios.manager.BiosConfigManager object at 0x7fbce61597f0&gt;
+src/hwautomation/hardware/bios/config/loader.py:28: in __init__
+    self.device_mappings_file = os.path.join(config_dir, "device_mappings.yaml")
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        __class__  = &lt;class 'hwautomation.hardware.bios.config.loader.ConfigurationLoader'&gt;
+        config_dir = None
+        self       = &lt;hwautomation.hardware.bios.config.loader.ConfigurationLoader object at 0x7fbce61591f0&gt;
+&lt;frozen posixpath&gt;:76: in join
+    ???
+E   TypeError: expected str, bytes or os.PathLike object, not NoneType
+        a          = None
+        p          = ('device_mappings.yaml',)</error></testcase><testcase classname="" name="tests.test_phase2_focused" time="0.000"><error message="collection failure">tests/test_phase2_focused.py:24: in &lt;module&gt;
+    from hwautomation.hardware.bios_decision_logic import (
+E   ModuleNotFoundError: No module named 'hwautomation.hardware.bios_decision_logic'
+        Path       = &lt;class 'pathlib.Path'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase2_focused.cpython-312.pyc'
+        __doc__    = '\nFocused Phase 2 Decision Logic Test\n\nThis test demonstrates the enhanced per-setting method selection without\nrequiring full hwautomation module imports.\n'
+        __file__   = '/home/cwells/projects/hwautomation/tests/test_phase2_focused.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;
+        __name__   = 'test_phase2_focused'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_phase2_focused', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase2_focused.py')
+        logger     = &lt;Logger test_phase2_focused (INFO)&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        yaml       = &lt;module 'yaml' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/yaml/__init__.py'&gt;
+
+During handling of the above exception, another exception occurred:
+tests/test_phase2_focused.py:35: in &lt;module&gt;
+    open(
+E   FileNotFoundError: [Errno 2] No such file or directory: '/home/cwells/projects/hwautomation/src/hwautomation/hardware/bios_decision_logic.py'
+        Path       = &lt;class 'pathlib.Path'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase2_focused.cpython-312.pyc'
+        __doc__    = '\nFocused Phase 2 Decision Logic Test\n\nThis test demonstrates the enhanced per-setting method selection without\nrequiring full hwautomation module imports.\n'
+        __file__   = '/home/cwells/projects/hwautomation/tests/test_phase2_focused.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;
+        __name__   = 'test_phase2_focused'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_phase2_focused', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase2_focused.py')
+        logger     = &lt;Logger test_phase2_focused (INFO)&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        yaml       = &lt;module 'yaml' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/yaml/__init__.py'&gt;</error></testcase><testcase classname="" name="tests.test_phase3_monitoring" time="0.000"><error message="collection failure">tests/test_phase3_monitoring.py:92: in &lt;module&gt;
+    class TestProgressCallback(ProgressCallback):
+                               ^^^^^^^^^^^^^^^^
+E   NameError: name 'ProgressCallback' is not defined
+        MockBiosConfigManager = &lt;class 'test_phase3_monitoring.MockBiosConfigManager'&gt;
+        Path       = &lt;class 'pathlib.Path'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase3_monitoring.cpython-312.pyc'
+        __doc__    = '\nPhase 3 Enhanced BIOS Configuration - Real-time Monitoring Test\n\nThis test demonstrates the Phase 3 real-time monitoring capabilities including\nWebSocket progress updates, error recovery, and comprehensive validation.\n'
+        __file__   = '/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;
+        __name__   = 'test_phase3_monitoring'
+        __package__ = ''
+        __spec__   = ModuleSpec(name='test_phase3_monitoring', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fbce8ff6f90&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py')
+        asyncio    = &lt;module 'asyncio' from '/usr/lib/python3.12/asyncio/__init__.py'&gt;
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
+        load_device_config = &lt;function load_device_config at 0x7fbce613de40&gt;
+        logger     = &lt;Logger test_phase3_monitoring (INFO)&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        yaml       = &lt;module 'yaml' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/yaml/__init__.py'&gt;</error></testcase></testsuite></testsuites>

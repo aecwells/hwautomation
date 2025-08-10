@@ -236,7 +236,7 @@ class HWAutomationApp {
     }
 
     // Destroy all components
-    for (const [name, component] of this.components) {
+    for (const [, component] of this.components) {
       if (component.destroy) {
         component.destroy();
       }
