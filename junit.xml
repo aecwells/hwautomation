@@ -1,149 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="0.950" timestamp="2025-08-09T16:44:54.936235-07:00" hostname="ethereal"><testcase classname="" name="tests.integration.test_workflow" time="0.000"><error message="collection failure">tests/integration/test_workflow.py:7: in &lt;module&gt;
-    from hwautomation.orchestration.workflow_manager import WorkflowManager
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/tests/integration/__pycache__/test_workflow.cpython-312.pyc'
-        __doc__    = '\nIntegration tests for workflow management.\n'
-        __file__   = '/home/cwells/projects/hwautomation/tests/integration/test_workflow.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;
-        __name__   = 'integration.test_workflow'
-        __package__ = 'integration'
-        __spec__   = ModuleSpec(name='integration.test_workflow', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;, origin='/home/cwells/projects/hwautomation/tests/integration/test_workflow.py')
-        pytest     = &lt;module 'pytest' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/pytest/__init__.py'&gt;
-src/hwautomation/__init__.py:14: in &lt;module&gt;
-    from .hardware.bios import BiosConfigManager
-        DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
-        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
-        __author__ = 'Hardware Automation Team'
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915c0f9df0&gt;
-        __name__   = 'hwautomation'
-        __package__ = 'hwautomation'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915c0f9df0&gt;, origin=...tion/src/hwautomation/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation'])
-        __version__ = '1.0.0'
-        database   = &lt;module 'hwautomation.database' from '/home/cwells/projects/hwautomation/src/hwautomation/database/__init__.py'&gt;
-        logging    = &lt;module 'hwautomation.logging' from '/home/cwells/projects/hwautomation/src/hwautomation/logging/__init__.py'&gt;
-        utils      = &lt;module 'hwautomation.utils' from '/home/cwells/projects/hwautomation/src/hwautomation/utils/__init__.py'&gt;
-src/hwautomation/hardware/__init__.py:13: in &lt;module&gt;
-    from .redfish import RedfishManager
-        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
-        HardwareDiscovery = &lt;class 'hwautomation.hardware.discovery.base.HardwareDiscovery'&gt;
-        HardwareDiscoveryManager = &lt;class 'hwautomation.hardware.discovery.manager.HardwareDiscoveryManager'&gt;
-        IPMIInfo   = &lt;class 'hwautomation.hardware.discovery.base.IPMIInfo'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        NetworkInterface = &lt;class 'hwautomation.hardware.discovery.base.NetworkInterface'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.discovery.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Hardware management package.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915c0fb440&gt;
-        __name__   = 'hwautomation.hardware'
-        __package__ = 'hwautomation.hardware'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915c0fb440&gt;...ion/hardware/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware'])
-        bios       = &lt;module 'hwautomation.hardware.bios' from '/home/cwells/projects/hwautomation/src/hwautomation/hardware/bios/__init__.py'&gt;
-        discovery  = &lt;module 'hwautomation.hardware.discovery' from '/home/cwells/projects/hwautomation/src/hwautomation/hardware/discovery/__init__.py'&gt;
-        firmware   = &lt;module 'hwautomation.hardware.firmware' from '/home/cwells/projects/hwautomation/src/hwautomation/hardware/firmware/__init__.py'&gt;
-        ipmi       = &lt;module 'hwautomation.hardware.ipmi' from '/home/cwells/projects/hwautomation/src/hwautomation/hardware/ipmi/__init__.py'&gt;
-src/hwautomation/hardware/redfish/__init__.py:28: in &lt;module&gt;
-    from .manager import RedfishManager
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        HealthStatus = &lt;enum 'HealthStatus'&gt;
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCapabilities = &lt;class 'hwautomation.hardware.redfish.base.RedfishCapabilities'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishResponse = &lt;class 'hwautomation.hardware.redfish.base.RedfishResponse'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish hardware management module.\n\nThis package provides a modular implementation of Redfish operations\nfor serv...ion implementations (power, BIOS, firmware, system)\n- manager: Unified interface maintaining backward compatibility\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915ad89880&gt;
-        __name__   = 'hwautomation.hardware.redfish'
-        __package__ = 'hwautomation.hardware.redfish'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915...fish/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish'])
-        base       = &lt;module 'hwautomation.hardware.redfish.base' from '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/base.py'&gt;
-        client     = &lt;module 'hwautomation.hardware.redfish.client' from '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/client/__init__.py'&gt;
-src/hwautomation/hardware/redfish/manager.py:22: in &lt;module&gt;
-    from .operations import (
-        Any        = typing.Any
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        List       = typing.List
-        Optional   = typing.Optional
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        Union      = typing.Union
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/manager.cpython-312.pyc'
-        __doc__    = 'Redfish management integration.\n\nThis module provides a unified interface for Redfish operations,\nconsolidating functionality from the legacy redfish_manager.py\nwhile providing a clean, modular architecture.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915abe7590&gt;
-        __name__   = 'hwautomation.hardware.redfish.manager'
-        __package__ = 'hwautomation.hardware.redfish'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.manager', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915abe7590&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-src/hwautomation/hardware/redfish/operations/__init__.py:7: in &lt;module&gt;
-    from .bios import RedfishBiosOperation
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish operation modules.\n\nThis package provides specific operation implementations\nfor different Redfish functionalities.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915cfd5070&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations', loader=&lt;_frozen_importlib_external.SourceFileLoader object...__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations'])
-src/hwautomation/hardware/redfish/operations/bios.py:20: in &lt;module&gt;
-    class RedfishBiosOperation(BaseRedfishOperation):
-        Any        = typing.Any
-        BaseRedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.BaseRedfishOperation'&gt;
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        List       = typing.List
-        Optional   = typing.Optional
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/bios.cpython-312.pyc'
-        __doc__    = 'Redfish BIOS configuration operations.\n\nThis module provides BIOS settings management through the Redfish API.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa18440&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations.bios'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations.bios', loader=&lt;_frozen_importlib_external.SourceFileLoader o...t at 0x7f915aa18440&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-        logger     = &lt;Logger hwautomation.hardware.redfish.operations.bios (DEBUG)&gt;
-src/hwautomation/hardware/redfish/operations/bios.py:31: in RedfishBiosOperation
-    def get_bios_attributes(self, system_id: str = "1") -&gt; RedfishOperation[Dict[str, BiosAttribute]]:
-                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   TypeError: type 'RedfishOperation' is not subscriptable
-        __doc__    = 'Redfish BIOS configuration operations.'
-        __init__   = &lt;function RedfishBiosOperation.__init__ at 0x7f915aa502c0&gt;
-        __module__ = 'hwautomation.hardware.redfish.operations.bios'
-        __qualname__ = 'RedfishBiosOperation'</error></testcase><testcase classname="" name="tests.test_firmware_manager" time="0.000"><error message="collection failure">.venv/lib/python3.12/site-packages/_pytest/python.py:498: in importtestmodule
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="1.887" timestamp="2025-08-09T17:30:26.424562-07:00" hostname="ethereal"><testcase classname="" name="tests.test_firmware_manager" time="0.000"><error message="collection failure">.venv/lib/python3.12/site-packages/_pytest/python.py:498: in importtestmodule
     mod = import_path(
 .venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
     importlib.import_module(module_name)
@@ -169,437 +24,140 @@ E   TypeError: type 'RedfishOperation' is not subscriptable
 E     File "/home/cwells/projects/hwautomation/tests/test_firmware_manager.py", line 27
 E       )
 E       ^
-E   SyntaxError: unmatched ')'</error></testcase><testcase classname="" name="tests.test_firmware_web_interface" time="0.000"><error message="collection failure">tests/test_firmware_web_interface.py:26: in &lt;module&gt;
-    from hwautomation.orchestration.workflow_manager import WorkflowManager
+E   SyntaxError: unmatched ')'</error></testcase><testcase classname="" name="tests.test_firmware_web_interface" time="0.000"><error message="collection failure">tests/test_firmware_web_interface.py:27: in &lt;module&gt;
+    from hwautomation.web.routes.firmware import (
         DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
         FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
         MagicMock  = &lt;class 'unittest.mock.MagicMock'&gt;
         Mock       = &lt;class 'unittest.mock.Mock'&gt;
         Path       = &lt;class 'pathlib.Path'&gt;
+        WorkflowManager = &lt;class 'hwautomation.orchestration.workflow_manager.WorkflowManager'&gt;
         __builtins__ = &lt;builtins&gt;
         __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_firmware_web_interface.cpython-312.pyc'
         __doc__    = '\nUnit tests for firmware web interface components.\n'
         __file__   = '/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fb481e66ae0&gt;
         __name__   = 'test_firmware_web_interface'
         __package__ = ''
-        __spec__   = ModuleSpec(name='test_firmware_web_interface', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py')
+        __spec__   = ModuleSpec(name='test_firmware_web_interface', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fb481e66ae0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_firmware_web_interface.py')
         datetime   = &lt;class 'datetime.datetime'&gt;
         json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
-        patch      = &lt;function patch at 0x7f915c1e6340&gt;
+        patch      = &lt;function patch at 0x7fb4810a2340&gt;
         pytest     = &lt;module 'pytest' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/pytest/__init__.py'&gt;
         pytestmark = [MarkDecorator(mark=Mark(name='web', args=(), kwargs={})), MarkDecorator(mark=Mark(name='integration', args=(), kwargs={}))]
         shutil     = &lt;module 'shutil' from '/usr/lib/python3.12/shutil.py'&gt;
         sys        = &lt;module 'sys' (built-in)&gt;
         tempfile   = &lt;module 'tempfile' from '/usr/lib/python3.12/tempfile.py'&gt;
         timedelta  = &lt;class 'datetime.timedelta'&gt;
-src/hwautomation/__init__.py:16: in &lt;module&gt;
-    from .hardware.redfish import RedfishManager
+src/hwautomation/web/__init__.py:7: in &lt;module&gt;
+    from .app import create_app
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/web/__pycache__/__init__.cpython-312.pyc'
+        __doc__    = '\nWeb module for HWAutomation.\n\nThis module contains the Flask web application and all web-related components.\n.'
+        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/web/__init__.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7fb47f89bb90&gt;
+        __name__   = 'hwautomation.web'
+        __package__ = 'hwautomation.web'
+        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/web']
+        __spec__   = ModuleSpec(name='hwautomation.web', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7fb47f89bb90&gt;, ori.../hwautomation/web/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/web'])
+        core       = &lt;module 'hwautomation.web.core' from '/home/cwells/projects/hwautomation/src/hwautomation/web/core/__init__.py'&gt;
+src/hwautomation/web/app.py:266: in &lt;module&gt;
+    app, socketio = create_app()
+                    ^^^^^^^^^^^^
+        Flask      = &lt;class 'flask.app.Flask'&gt;
+        Path       = &lt;class 'pathlib.Path'&gt;
+        SocketIO   = &lt;class 'flask_socketio.SocketIO'&gt;
+        __builtins__ = &lt;builtins&gt;
+        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/web/__pycache__/app.cpython-312.pyc'
+        __doc__    = '\nFlask Web Application for HWAutomation - Refactored with Blueprints.\n\nClean modular web interface with organized ...ints.\nCore workflow: MaaS device discovery → Device type selection → Batch commissioning → IPMI/BIOS configuration.\n'
+        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/web/app.py'
+        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7fb47f89be00&gt;
+        __name__   = 'hwautomation.web.app'
+        __package__ = 'hwautomation.web'
+        __spec__   = ModuleSpec(name='hwautomation.web.app', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7fb47f89be00&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/web/app.py')
+        create_app = &lt;function create_app at 0x7fb47f788680&gt;
+        environment = 'development'
+        get_logger = &lt;function get_logger at 0x7fb480e31620&gt;
+        logger     = &lt;Logger hwautomation.web.app (DEBUG)&gt;
+        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
+        os         = &lt;module 'os' (frozen)&gt;
+        set_correlation_id = &lt;function set_correlation_id at 0x7fb480e316c0&gt;
+        setup_logging = &lt;function setup_logging at 0x7fb480e31580&gt;
+        sys        = &lt;module 'sys' (built-in)&gt;
+        threading  = &lt;module 'threading' from '/usr/lib/python3.12/threading.py'&gt;
+        time       = &lt;module 'time' (built-in)&gt;
+        uuid       = &lt;module 'uuid' from '/usr/lib/python3.12/uuid.py'&gt;
+src/hwautomation/web/app.py:93: in create_app
+    workflow_manager = WorkflowManager(config)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
         BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
         DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        __author__ = 'Hardware Automation Team'
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1af90&gt;
-        __name__   = 'hwautomation'
-        __package__ = 'hwautomation'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1af90&gt;, origin=...tion/src/hwautomation/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation'])
-        __version__ = '1.0.0'
-src/hwautomation/hardware/__init__.py:13: in &lt;module&gt;
-    from .redfish import RedfishManager
-        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
-        HardwareDiscovery = &lt;class 'hwautomation.hardware.discovery.base.HardwareDiscovery'&gt;
-        HardwareDiscoveryManager = &lt;class 'hwautomation.hardware.discovery.manager.HardwareDiscoveryManager'&gt;
-        IPMIInfo   = &lt;class 'hwautomation.hardware.discovery.base.IPMIInfo'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        NetworkInterface = &lt;class 'hwautomation.hardware.discovery.base.NetworkInterface'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.discovery.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Hardware management package.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1bbc0&gt;
-        __name__   = 'hwautomation.hardware'
-        __package__ = 'hwautomation.hardware'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1bbc0&gt;...ion/hardware/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware'])
-src/hwautomation/hardware/redfish/__init__.py:28: in &lt;module&gt;
-    from .manager import RedfishManager
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        HealthStatus = &lt;enum 'HealthStatus'&gt;
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCapabilities = &lt;class 'hwautomation.hardware.redfish.base.RedfishCapabilities'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishResponse = &lt;class 'hwautomation.hardware.redfish.base.RedfishResponse'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish hardware management module.\n\nThis package provides a modular implementation of Redfish operations\nfor serv...ion implementations (power, BIOS, firmware, system)\n- manager: Unified interface maintaining backward compatibility\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1bda0&gt;
-        __name__   = 'hwautomation.hardware.redfish'
-        __package__ = 'hwautomation.hardware.redfish'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915...fish/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish'])
-src/hwautomation/hardware/redfish/manager.py:22: in &lt;module&gt;
-    from .operations import (
-        Any        = typing.Any
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        List       = typing.List
-        Optional   = typing.Optional
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        Union      = typing.Union
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/manager.cpython-312.pyc'
-        __doc__    = 'Redfish management integration.\n\nThis module provides a unified interface for Redfish operations,\nconsolidating functionality from the legacy redfish_manager.py\nwhile providing a clean, modular architecture.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1bdd0&gt;
-        __name__   = 'hwautomation.hardware.redfish.manager'
-        __package__ = 'hwautomation.hardware.redfish'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.manager', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1bdd0&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-src/hwautomation/hardware/redfish/operations/__init__.py:7: in &lt;module&gt;
-    from .bios import RedfishBiosOperation
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish operation modules.\n\nThis package provides specific operation implementations\nfor different Redfish functionalities.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1b4d0&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations', loader=&lt;_frozen_importlib_external.SourceFileLoader object...__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations'])
-src/hwautomation/hardware/redfish/operations/bios.py:20: in &lt;module&gt;
-    class RedfishBiosOperation(BaseRedfishOperation):
-        Any        = typing.Any
-        BaseRedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.BaseRedfishOperation'&gt;
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        List       = typing.List
-        Optional   = typing.Optional
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/bios.cpython-312.pyc'
-        __doc__    = 'Redfish BIOS configuration operations.\n\nThis module provides BIOS settings management through the Redfish API.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa1b620&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations.bios'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations.bios', loader=&lt;_frozen_importlib_external.SourceFileLoader o...t at 0x7f915aa1b620&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-        logger     = &lt;Logger hwautomation.hardware.redfish.operations.bios (DEBUG)&gt;
-src/hwautomation/hardware/redfish/operations/bios.py:31: in RedfishBiosOperation
-    def get_bios_attributes(self, system_id: str = "1") -&gt; RedfishOperation[Dict[str, BiosAttribute]]:
-                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   TypeError: type 'RedfishOperation' is not subscriptable
-        __doc__    = 'Redfish BIOS configuration operations.'
-        __init__   = &lt;function RedfishBiosOperation.__init__ at 0x7f915aa98c20&gt;
-        __module__ = 'hwautomation.hardware.redfish.operations.bios'
-        __qualname__ = 'RedfishBiosOperation'</error></testcase><testcase classname="" name="tests.test_phase2_decision_logic" time="0.000"><error message="collection failure">tests/test_phase2_decision_logic.py:15: in &lt;module&gt;
+        DeviceSelectionService = &lt;class 'hwautomation.orchestration.device_selection.DeviceSelectionService'&gt;
+        ServerProvisioningWorkflow = &lt;class 'hwautomation.orchestration.server_provisioning.ServerProvisioningWorkflow'&gt;
+        WorkflowManager = &lt;class 'hwautomation.orchestration.workflow_manager.WorkflowManager'&gt;
+        after_request = &lt;function create_app.&lt;locals&gt;.after_request at 0x7fb47efac5e0&gt;
+        app        = &lt;Flask 'hwautomation.web.app'&gt;
+        before_request = &lt;function create_app.&lt;locals&gt;.before_request at 0x7fb47f3cb420&gt;
+        config     = {'database': {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}, '...admin'}, 'logging': {'backup_count': 5, 'file': '/app/logs/hwautomation.log', 'level': 'INFO', 'max_size_mb': 10}, ...}
+        create_maas_client = &lt;function create_maas_client at 0x7fb47f9240e0&gt;
+        database_path = 'hw_automation.db'
+        db_helper  = &lt;hwautomation.database.helper.DbHelper object at 0x7fb47f309d00&gt;
+        init_assets = &lt;function init_assets at 0x7fb47f3c56c0&gt;
+        load_config = &lt;function load_config at 0x7fb47f81aca0&gt;
+        project_root = PosixPath('/home/cwells/projects/hwautomation')
+        request    = &lt;LocalProxy unbound&gt;
+        socketio   = &lt;flask_socketio.SocketIO object at 0x7fb47ef9d7c0&gt;
+        src_path   = PosixPath('/home/cwells/projects/hwautomation/src')
+src/hwautomation/orchestration/workflow_manager.py:155: in __init__
+    self.bios_manager = BiosConfigManager(config.get("bios", {}).get("config_dir"))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        config     = {'database': {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}, '...admin'}, 'logging': {'backup_count': 5, 'file': '/app/logs/hwautomation.log', 'level': 'INFO', 'max_size_mb': 10}, ...}
+        db_config  = {'auto_migrate': True, 'backup_before_migration': True, 'host': 'db', 'name': 'hwautomation_dev', ...}
+        maas_config = {'admin_password': 'admin123', 'admin_username': 'admin', 'api_key': 'your-api-key-here', 'consumer_key': 'your-consumer-key-here', ...}
+        self       = &lt;hwautomation.orchestration.workflow_manager.WorkflowManager object at 0x7fb47f6c17c0&gt;
+src/hwautomation/hardware/bios/manager.py:51: in __init__
+    self.config_loader = ConfigurationLoader(config_dir)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        __class__  = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
+        config_dir = None
+        self       = &lt;hwautomation.hardware.bios.manager.BiosConfigManager object at 0x7fb47f315ac0&gt;
+src/hwautomation/hardware/bios/config/loader.py:28: in __init__
+    self.device_mappings_file = os.path.join(config_dir, "device_mappings.yaml")
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        __class__  = &lt;class 'hwautomation.hardware.bios.config.loader.ConfigurationLoader'&gt;
+        config_dir = None
+        self       = &lt;hwautomation.hardware.bios.config.loader.ConfigurationLoader object at 0x7fb47f315c40&gt;
+&lt;frozen posixpath&gt;:76: in join
+    ???
+E   TypeError: expected str, bytes or os.PathLike object, not NoneType
+        a          = None
+        p          = ('device_mappings.yaml',)</error></testcase><testcase classname="" name="tests.test_phase2_decision_logic" time="0.000"><error message="collection failure">ImportError while importing test module '/home/cwells/projects/hwautomation/tests/test_phase2_decision_logic.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_phase2_decision_logic.py:15: in &lt;module&gt;
     from hwautomation.hardware.bios_config import BiosConfigManager
+E   ModuleNotFoundError: No module named 'hwautomation.hardware.bios_config'</error></testcase><testcase classname="" name="tests.test_phase3_monitoring" time="0.000"><error message="collection failure">tests/test_phase3_monitoring.py:92: in &lt;module&gt;
+    class TestProgressCallback(ProgressCallback):
+                               ^^^^^^^^^^^^^^^^
+E   NameError: name 'ProgressCallback' is not defined
+        MockBiosConfigManager = &lt;class 'test_phase3_monitoring.MockBiosConfigManager'&gt;
         Path       = &lt;class 'pathlib.Path'&gt;
         __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase2_decision_logic.cpython-312.pyc'
-        __doc__    = '\nTest Phase 2 Enhanced BIOS Configuration Decision Logic\n\nThis test demonstrates the new per-setting method selection capabilities\nthat intelligently choose between Redfish and vendor tools for each BIOS setting.\n'
-        __file__   = '/home/cwells/projects/hwautomation/tests/test_phase2_decision_logic.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;
-        __name__   = 'test_phase2_decision_logic'
+        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase3_monitoring.cpython-312.pyc'
+        __doc__    = '\nPhase 3 Enhanced BIOS Configuration - Real-time Monitoring Test\n\nThis test demonstrates the Phase 3 real-time monitoring capabilities including\nWebSocket progress updates, error recovery, and comprehensive validation.\n'
+        __file__   = '/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py'
+        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fb481e66ae0&gt;
+        __name__   = 'test_phase3_monitoring'
         __package__ = ''
-        __spec__   = ModuleSpec(name='test_phase2_decision_logic', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase2_decision_logic.py')
+        __spec__   = ModuleSpec(name='test_phase3_monitoring', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7fb481e66ae0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase3_monitoring.py')
+        asyncio    = &lt;module 'asyncio' from '/usr/lib/python3.12/asyncio/__init__.py'&gt;
+        datetime   = &lt;class 'datetime.datetime'&gt;
+        json       = &lt;module 'json' from '/usr/lib/python3.12/json/__init__.py'&gt;
+        load_device_config = &lt;function load_device_config at 0x7fb47f8e8360&gt;
+        logger     = &lt;Logger test_phase3_monitoring (INFO)&gt;
         logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
         sys        = &lt;module 'sys' (built-in)&gt;
-src/hwautomation/__init__.py:16: in &lt;module&gt;
-    from .hardware.redfish import RedfishManager
-        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
-        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        __author__ = 'Hardware Automation Team'
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2f740&gt;
-        __name__   = 'hwautomation'
-        __package__ = 'hwautomation'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2f740&gt;, origin=...tion/src/hwautomation/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation'])
-        __version__ = '1.0.0'
-src/hwautomation/hardware/__init__.py:13: in &lt;module&gt;
-    from .redfish import RedfishManager
-        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
-        HardwareDiscovery = &lt;class 'hwautomation.hardware.discovery.base.HardwareDiscovery'&gt;
-        HardwareDiscoveryManager = &lt;class 'hwautomation.hardware.discovery.manager.HardwareDiscoveryManager'&gt;
-        IPMIInfo   = &lt;class 'hwautomation.hardware.discovery.base.IPMIInfo'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        NetworkInterface = &lt;class 'hwautomation.hardware.discovery.base.NetworkInterface'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.discovery.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Hardware management package.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2f9b0&gt;
-        __name__   = 'hwautomation.hardware'
-        __package__ = 'hwautomation.hardware'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2f9b0&gt;...ion/hardware/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware'])
-src/hwautomation/hardware/redfish/__init__.py:28: in &lt;module&gt;
-    from .manager import RedfishManager
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        HealthStatus = &lt;enum 'HealthStatus'&gt;
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCapabilities = &lt;class 'hwautomation.hardware.redfish.base.RedfishCapabilities'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishResponse = &lt;class 'hwautomation.hardware.redfish.base.RedfishResponse'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish hardware management module.\n\nThis package provides a modular implementation of Redfish operations\nfor serv...ion implementations (power, BIOS, firmware, system)\n- manager: Unified interface maintaining backward compatibility\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa42e70&gt;
-        __name__   = 'hwautomation.hardware.redfish'
-        __package__ = 'hwautomation.hardware.redfish'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915...fish/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish'])
-src/hwautomation/hardware/redfish/manager.py:22: in &lt;module&gt;
-    from .operations import (
-        Any        = typing.Any
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        List       = typing.List
-        Optional   = typing.Optional
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        Union      = typing.Union
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/manager.cpython-312.pyc'
-        __doc__    = 'Redfish management integration.\n\nThis module provides a unified interface for Redfish operations,\nconsolidating functionality from the legacy redfish_manager.py\nwhile providing a clean, modular architecture.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa41eb0&gt;
-        __name__   = 'hwautomation.hardware.redfish.manager'
-        __package__ = 'hwautomation.hardware.redfish'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.manager', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa41eb0&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-src/hwautomation/hardware/redfish/operations/__init__.py:7: in &lt;module&gt;
-    from .bios import RedfishBiosOperation
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish operation modules.\n\nThis package provides specific operation implementations\nfor different Redfish functionalities.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa401d0&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations', loader=&lt;_frozen_importlib_external.SourceFileLoader object...__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations'])
-src/hwautomation/hardware/redfish/operations/bios.py:20: in &lt;module&gt;
-    class RedfishBiosOperation(BaseRedfishOperation):
-        Any        = typing.Any
-        BaseRedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.BaseRedfishOperation'&gt;
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        List       = typing.List
-        Optional   = typing.Optional
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/bios.cpython-312.pyc'
-        __doc__    = 'Redfish BIOS configuration operations.\n\nThis module provides BIOS settings management through the Redfish API.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa408f0&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations.bios'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations.bios', loader=&lt;_frozen_importlib_external.SourceFileLoader o...t at 0x7f915aa408f0&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-        logger     = &lt;Logger hwautomation.hardware.redfish.operations.bios (DEBUG)&gt;
-src/hwautomation/hardware/redfish/operations/bios.py:31: in RedfishBiosOperation
-    def get_bios_attributes(self, system_id: str = "1") -&gt; RedfishOperation[Dict[str, BiosAttribute]]:
-                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   TypeError: type 'RedfishOperation' is not subscriptable
-        __doc__    = 'Redfish BIOS configuration operations.'
-        __init__   = &lt;function RedfishBiosOperation.__init__ at 0x7f915aa9a7a0&gt;
-        __module__ = 'hwautomation.hardware.redfish.operations.bios'
-        __qualname__ = 'RedfishBiosOperation'</error></testcase><testcase classname="" name="tests.test_phase2_focused" time="0.000"><error message="collection failure">tests/test_phase2_focused.py:24: in &lt;module&gt;
-    from hwautomation.hardware.bios_decision_logic import (
-        Path       = &lt;class 'pathlib.Path'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/tests/__pycache__/test_phase2_focused.cpython-312.pyc'
-        __doc__    = '\nFocused Phase 2 Decision Logic Test\n\nThis test demonstrates the enhanced per-setting method selection without\nrequiring full hwautomation module imports.\n'
-        __file__   = '/home/cwells/projects/hwautomation/tests/test_phase2_focused.py'
-        __loader__ = &lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;
-        __name__   = 'test_phase2_focused'
-        __package__ = ''
-        __spec__   = ModuleSpec(name='test_phase2_focused', loader=&lt;_pytest.assertion.rewrite.AssertionRewritingHook object at 0x7f915cf744d0&gt;, origin='/home/cwells/projects/hwautomation/tests/test_phase2_focused.py')
-        logger     = &lt;Logger test_phase2_focused (INFO)&gt;
-        logging    = &lt;module 'logging' from '/usr/lib/python3.12/logging/__init__.py'&gt;
-        sys        = &lt;module 'sys' (built-in)&gt;
-        yaml       = &lt;module 'yaml' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/yaml/__init__.py'&gt;
-src/hwautomation/__init__.py:16: in &lt;module&gt;
-    from .hardware.redfish import RedfishManager
-        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        DatabaseMigrator = &lt;class 'hwautomation.database.migrations.DatabaseMigrator'&gt;
-        DbHelper   = &lt;class 'hwautomation.database.helper.DbHelper'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        __author__ = 'Hardware Automation Team'
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = '\nHardware Automation Package\n\nA Python package for automating server hardware management through MAAS API,\nIPMI, and RedFish interfaces.\n.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915b205760&gt;
-        __name__   = 'hwautomation'
-        __package__ = 'hwautomation'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation']
-        __spec__   = ModuleSpec(name='hwautomation', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915b205760&gt;, origin=...tion/src/hwautomation/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation'])
-        __version__ = '1.0.0'
-src/hwautomation/hardware/__init__.py:13: in &lt;module&gt;
-    from .redfish import RedfishManager
-        BiosConfigManager = &lt;class 'hwautomation.hardware.bios.manager.BiosConfigManager'&gt;
-        FirmwareManager = &lt;class 'hwautomation.hardware.firmware.manager.FirmwareManager'&gt;
-        HardwareDiscovery = &lt;class 'hwautomation.hardware.discovery.base.HardwareDiscovery'&gt;
-        HardwareDiscoveryManager = &lt;class 'hwautomation.hardware.discovery.manager.HardwareDiscoveryManager'&gt;
-        IPMIInfo   = &lt;class 'hwautomation.hardware.discovery.base.IPMIInfo'&gt;
-        IpmiManager = &lt;class 'hwautomation.hardware.ipmi.manager.IpmiManager'&gt;
-        NetworkInterface = &lt;class 'hwautomation.hardware.discovery.base.NetworkInterface'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.discovery.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Hardware management package.'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2e2d0&gt;
-        __name__   = 'hwautomation.hardware'
-        __package__ = 'hwautomation.hardware'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware']
-        __spec__   = ModuleSpec(name='hwautomation.hardware', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2e2d0&gt;...ion/hardware/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware'])
-src/hwautomation/hardware/redfish/__init__.py:28: in &lt;module&gt;
-    from .manager import RedfishManager
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        HealthStatus = &lt;enum 'HealthStatus'&gt;
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCapabilities = &lt;class 'hwautomation.hardware.redfish.base.RedfishCapabilities'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishResponse = &lt;class 'hwautomation.hardware.redfish.base.RedfishResponse'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish hardware management module.\n\nThis package provides a modular implementation of Redfish operations\nfor serv...ion implementations (power, BIOS, firmware, system)\n- manager: Unified interface maintaining backward compatibility\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2fb00&gt;
-        __name__   = 'hwautomation.hardware.redfish'
-        __package__ = 'hwautomation.hardware.redfish'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915...fish/__init__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish'])
-src/hwautomation/hardware/redfish/manager.py:22: in &lt;module&gt;
-    from .operations import (
-        Any        = typing.Any
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        FirmwareComponent = &lt;class 'hwautomation.hardware.redfish.base.FirmwareComponent'&gt;
-        List       = typing.List
-        Optional   = typing.Optional
-        PowerAction = &lt;enum 'PowerAction'&gt;
-        PowerState = &lt;enum 'PowerState'&gt;
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishDiscovery = &lt;class 'hwautomation.hardware.redfish.client.discovery.RedfishDiscovery'&gt;
-        RedfishError = &lt;class 'hwautomation.hardware.redfish.base.RedfishError'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        ServiceRoot = &lt;class 'hwautomation.hardware.redfish.client.discovery.ServiceRoot'&gt;
-        SystemInfo = &lt;class 'hwautomation.hardware.redfish.base.SystemInfo'&gt;
-        Union      = typing.Union
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/__pycache__/manager.cpython-312.pyc'
-        __doc__    = 'Redfish management integration.\n\nThis module provides a unified interface for Redfish operations,\nconsolidating functionality from the legacy redfish_manager.py\nwhile providing a clean, modular architecture.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2eed0&gt;
-        __name__   = 'hwautomation.hardware.redfish.manager'
-        __package__ = 'hwautomation.hardware.redfish'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.manager', loader=&lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2eed0&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/manager.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-src/hwautomation/hardware/redfish/operations/__init__.py:7: in &lt;module&gt;
-    from .bios import RedfishBiosOperation
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/__init__.cpython-312.pyc'
-        __doc__    = 'Redfish operation modules.\n\nThis package provides specific operation implementations\nfor different Redfish functionalities.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__init__.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2e9c0&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __path__   = ['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations']
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations', loader=&lt;_frozen_importlib_external.SourceFileLoader object...__.py', submodule_search_locations=['/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations'])
-src/hwautomation/hardware/redfish/operations/bios.py:20: in &lt;module&gt;
-    class RedfishBiosOperation(BaseRedfishOperation):
-        Any        = typing.Any
-        BaseRedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.BaseRedfishOperation'&gt;
-        BiosAttribute = &lt;class 'hwautomation.hardware.redfish.base.BiosAttribute'&gt;
-        Dict       = typing.Dict
-        List       = typing.List
-        Optional   = typing.Optional
-        RedfishCredentials = &lt;class 'hwautomation.hardware.redfish.base.RedfishCredentials'&gt;
-        RedfishOperation = &lt;class 'hwautomation.hardware.redfish.base.RedfishOperation'&gt;
-        RedfishSession = &lt;class 'hwautomation.hardware.redfish.client.session.RedfishSession'&gt;
-        __builtins__ = &lt;builtins&gt;
-        __cached__ = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/__pycache__/bios.cpython-312.pyc'
-        __doc__    = 'Redfish BIOS configuration operations.\n\nThis module provides BIOS settings management through the Redfish API.\n'
-        __file__   = '/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py'
-        __loader__ = &lt;_frozen_importlib_external.SourceFileLoader object at 0x7f915aa2f4a0&gt;
-        __name__   = 'hwautomation.hardware.redfish.operations.bios'
-        __package__ = 'hwautomation.hardware.redfish.operations'
-        __spec__   = ModuleSpec(name='hwautomation.hardware.redfish.operations.bios', loader=&lt;_frozen_importlib_external.SourceFileLoader o...t at 0x7f915aa2f4a0&gt;, origin='/home/cwells/projects/hwautomation/src/hwautomation/hardware/redfish/operations/bios.py')
-        get_logger = &lt;function get_logger at 0x7f915bf71620&gt;
-        logger     = &lt;Logger hwautomation.hardware.redfish.operations.bios (DEBUG)&gt;
-src/hwautomation/hardware/redfish/operations/bios.py:31: in RedfishBiosOperation
-    def get_bios_attributes(self, system_id: str = "1") -&gt; RedfishOperation[Dict[str, BiosAttribute]]:
-                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   TypeError: type 'RedfishOperation' is not subscriptable
-        __doc__    = 'Redfish BIOS configuration operations.'
-        __init__   = &lt;function RedfishBiosOperation.__init__ at 0x7f915aa99800&gt;
-        __module__ = 'hwautomation.hardware.redfish.operations.bios'
-        __qualname__ = 'RedfishBiosOperation'</error></testcase></testsuite></testsuites>
+        yaml       = &lt;module 'yaml' from '/home/cwells/projects/hwautomation/.venv/lib/python3.12/site-packages/yaml/__init__.py'&gt;</error></testcase></testsuite></testsuites>

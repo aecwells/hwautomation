@@ -3,6 +3,7 @@
 This module provides BIOS settings management through the Redfish API.
 """
 
+from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from hwautomation.logging import get_logger

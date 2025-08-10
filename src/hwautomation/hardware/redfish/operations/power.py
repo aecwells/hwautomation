@@ -4,6 +4,7 @@ This module provides power control operations for computer systems
 through the Redfish API.
 """
 
+from __future__ import annotations
 import time
 from typing import Optional
 

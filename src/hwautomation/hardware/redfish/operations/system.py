@@ -4,6 +4,7 @@ This module provides system information and basic management operations
 through the Redfish API.
 """
 
+from __future__ import annotations
 from typing import Dict, List, Optional
 
 from hwautomation.logging import get_logger
