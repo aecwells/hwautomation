@@ -525,7 +525,7 @@ class BiosConfigManager(BaseBiosManager):
     def get_device_types(self) -> List[str]:
         """Get list of available device types."""
         device_mappings = self.config_loader.load_device_mappings()
-        return list(device_mappings.get("device_types", {}).keys())
+        return list(device_mappings.keys())
 
     def test_redfish_connection(
         self, target_ip: str, username: str, password: str

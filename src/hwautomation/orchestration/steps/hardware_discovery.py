@@ -45,6 +45,12 @@ class EstablishSSHConnectionStep(RetryableWorkflowStep):
         try:
             context.add_sub_task(f"Connecting to server via SSH at {context.server_ip}")
 
+            # Add debug delay to make workflow visible
+            import time
+
+            context.add_sub_task("Preparing SSH connection (debug mode)")
+            time.sleep(10)  # 10 second delay for debugging
+
             # Test SSH connectivity
             ssh_manager = SSHManager()
             connection_result = ssh_manager.test_connection(
@@ -97,6 +103,12 @@ class DiscoverHardwareStep(BaseWorkflowStep):
             self.discovery_manager = HardwareDiscoveryManager()
 
             context.add_sub_task("Performing hardware discovery")
+
+            # Add debug delay to make workflow visible in dashboard
+            import time
+
+            context.add_sub_task("Processing hardware information (debug mode)")
+            time.sleep(15)  # 15 second delay for debugging
 
             # Perform discovery
             discovery_result = self.discovery_manager.discover_system(

@@ -36,16 +36,26 @@ class SelectMachineStep(BaseWorkflowStep):
     def validate_prerequisites(self, context: StepContext) -> bool:
         """Validate MaaS configuration is available."""
         config = load_config()
-        required_keys = [
-            "MAAS_URL",
-            "MAAS_CONSUMER_KEY",
-            "MAAS_TOKEN_KEY",
-            "MAAS_TOKEN_SECRET",
-        ]
 
-        for key in required_keys:
-            if not config.get(key):
-                context.add_error(f"Missing MaaS configuration: {key}")
+        # Check if we're in development/mock mode
+        dev_config = config.get("development", {})
+        mock_mode = (
+            dev_config.get("mock_services", False)
+            or config.get("DEVELOPMENT_MODE", False)
+            or config.get("MOCK_MAAS", False)
+        )
+
+        if mock_mode:
+            context.add_sub_task("Running in development/mock mode")
+            return True
+
+        # Check MaaS configuration in nested structure
+        maas_config = config.get("maas", {})
+        required_maas_keys = ["url", "consumer_key", "token_key", "token_secret"]
+
+        for key in required_maas_keys:
+            if not maas_config.get(key):
+                context.add_error(f"Missing MaaS configuration: maas.{key}")
                 return False
 
         return True
@@ -53,15 +63,60 @@ class SelectMachineStep(BaseWorkflowStep):
     def execute(self, context: StepContext) -> StepExecutionResult:
         """Select an appropriate machine for commissioning."""
         try:
+            config = load_config()
+
+            # Check if we're in development/mock mode
+            dev_config = config.get("development", {})
+            mock_mode = dev_config.get("mock_services", False) or config.get(
+                "MOCK_MAAS", False
+            )
+
+            if mock_mode:
+                import time
+
+                context.add_sub_task("Running in development/mock mode")
+                time.sleep(2)  # Small delay for debugging visibility
+
+                # Generate mock machine data
+                server_id = context.get_data("server_id", "mock-server")
+                mock_machine = {
+                    "system_id": f"mock-{server_id}",
+                    "hostname": f"mock-host-{server_id}",
+                    "status_name": "Available",
+                    "architecture": "amd64",
+                    "memory": 16384,
+                    "cpu_count": 4,
+                }
+
+                # Store machine information in context
+                context.set_data("machine_id", mock_machine["system_id"])
+                context.set_data("machine_hostname", mock_machine["hostname"])
+                context.set_data("machine_status", mock_machine["status_name"])
+                context.set_data("machine_architecture", mock_machine["architecture"])
+                context.set_data("selected_machine_id", mock_machine["system_id"])
+                context.set_data("selected_machine_name", mock_machine["hostname"])
+
+                self.logger.info(
+                    f"Mock mode: Selected machine {mock_machine['system_id']} for commissioning"
+                )
+
+                return StepExecutionResult.success(
+                    f"Mock mode: Selected machine {mock_machine['system_id']}",
+                    {
+                        "machine_id": mock_machine["system_id"],
+                        "machine_info": mock_machine,
+                    },
+                )
+
             context.add_sub_task("Initializing MaaS client")
 
             # Initialize MaaS client
-            config = load_config()
+            maas_config = config.get("maas", {})
             self.maas_client = MaasClient(
-                url=config["MAAS_URL"],
-                consumer_key=config["MAAS_CONSUMER_KEY"],
-                token_key=config["MAAS_TOKEN_KEY"],
-                token_secret=config["MAAS_TOKEN_SECRET"],
+                host=maas_config["url"],
+                consumer_key=maas_config["consumer_key"],
+                consumer_token=maas_config["token_key"],
+                secret=maas_config["token_secret"],
             )
 
             # Initialize device selection service
@@ -71,13 +126,13 @@ class SelectMachineStep(BaseWorkflowStep):
 
             # Create filter for available machines
             machine_filter = MachineFilter(
-                status=MachineStatus.AVAILABLE,
+                status_category=MachineStatus.AVAILABLE,
                 min_memory_gb=8,  # Minimum requirements
-                min_cpu_cores=2,
+                min_cpu_count=2,
             )
 
             # Get available machines
-            machines = self.device_service.filter_machines(machine_filter)
+            machines = self.device_service.list_available_machines(machine_filter)
 
             if not machines:
                 return StepExecutionResult.failure(
@@ -139,11 +194,12 @@ class CommissionMachineStep(RetryableWorkflowStep):
             # Initialize MaaS client if needed
             if not self.maas_client:
                 config = load_config()
+                maas_config = config["maas"]
                 self.maas_client = MaasClient(
-                    url=config["MAAS_URL"],
-                    consumer_key=config["MAAS_CONSUMER_KEY"],
-                    token_key=config["MAAS_TOKEN_KEY"],
-                    token_secret=config["MAAS_TOKEN_SECRET"],
+                    host=maas_config["url"],
+                    consumer_key=maas_config["consumer_key"],
+                    consumer_token=maas_config["token_key"],
+                    secret=maas_config["token_secret"],
                 )
 
             machine_id = context.get_data("machine_id")
@@ -195,11 +251,12 @@ class WaitForCommissioningStep(RetryableWorkflowStep):
             # Initialize MaaS client if needed
             if not self.maas_client:
                 config = load_config()
+                maas_config = config["maas"]
                 self.maas_client = MaasClient(
-                    url=config["MAAS_URL"],
-                    consumer_key=config["MAAS_CONSUMER_KEY"],
-                    token_key=config["MAAS_TOKEN_KEY"],
-                    token_secret=config["MAAS_TOKEN_SECRET"],
+                    host=maas_config["url"],
+                    consumer_key=maas_config["consumer_key"],
+                    consumer_token=maas_config["token_key"],
+                    secret=maas_config["token_secret"],
                 )
 
             machine_id = context.get_data("machine_id")
@@ -240,7 +297,12 @@ class WaitForCommissioningStep(RetryableWorkflowStep):
                 )
 
             # Check for failure states
-            elif status in ["Failed commissioning", "Failed deployment", "Broken"]:
+            elif status in [
+                "Failed commissioning",
+                "Failed deployment",
+                "Failed testing",
+                "Broken",
+            ]:
                 return StepExecutionResult.failure(
                     f"Commissioning failed with status: {status} - {status_message}"
                 )

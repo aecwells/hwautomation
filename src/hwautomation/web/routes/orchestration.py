@@ -6,6 +6,7 @@ Handles workflow management, server provisioning, and batch operations.
 
 import logging
 import threading
+import uuid
 
 from flask import Blueprint, current_app, jsonify, request
 
@@ -340,10 +341,12 @@ def init_orchestration_routes(app, workflow_manager, socketio):
         try:
             data = request.json
             device_type = data.get("device_type")
-            device_ids = data.get("device_ids", [])
+            # Accept both device_ids and server_ids for backwards compatibility
+            device_ids = data.get("device_ids", []) or data.get("server_ids", [])
             ipmi_range = data.get("ipmi_range")
             subnet_mask = data.get("subnet_mask")
             gateway = data.get("gateway")
+            target_ipmi_ip = data.get("target_ipmi_ip")
 
             if not device_type:
                 return jsonify({"error": "Device type is required"}), 400
@@ -352,46 +355,149 @@ def init_orchestration_routes(app, workflow_manager, socketio):
                 return jsonify({"error": "At least one device must be selected"}), 400
 
             # Start batch commissioning workflow for each device
-            workflows = []
+            results = []
+            batch_id = f"batch_{uuid.uuid4().hex[:8]}"  # Generate a batch ID
+
             for device_id in device_ids:
-                from hwautomation.orchestration.workflows.provisioning import (
-                    create_provisioning_workflow,
-                )
+                try:
+                    from hwautomation.orchestration.workflows.provisioning import (
+                        create_provisioning_workflow,
+                    )
 
-                # Assign IPMI IP if range is provided
-                target_ipmi_ip = None
-                if ipmi_range:
-                    # Get next available IP from range
-                    # This would need to be implemented based on your IPMI assignment logic
-                    pass
+                    # Assign IPMI IP if provided directly or from range
+                    assigned_ipmi_ip = target_ipmi_ip
+                    if not assigned_ipmi_ip and ipmi_range:
+                        # Get next available IP from range
+                        # This would need to be implemented based on your IPMI assignment logic
+                        pass
 
-                workflow = create_provisioning_workflow(
-                    server_id=device_id,
-                    device_type=device_type,
-                    target_ipmi_ip=target_ipmi_ip,
-                    gateway=gateway,
-                    workflow_type="standard",
-                    # Additional batch commissioning parameters
-                    subnet_mask=subnet_mask,
-                )
+                    workflow = create_provisioning_workflow(
+                        server_id=device_id,
+                        device_type=device_type,
+                        target_ipmi_ip=assigned_ipmi_ip,
+                        gateway=gateway,
+                        workflow_type="standard",
+                        # Additional batch commissioning parameters
+                        subnet_mask=subnet_mask,
+                    )
 
-                if workflow:
-                    workflows.append(
-                        {
-                            "id": workflow.workflow_id,
+                    if workflow:
+                        # Register workflow with workflow manager using existing tracking
+                        workflow_manager.workflows[workflow.workflow_id] = workflow
+
+                        # Create execution context for modular workflow
+                        context = workflow.create_initial_context()
+
+                        # Set additional context data from workflow manager
+                        if hasattr(workflow_manager, "maas_client"):
+                            context.set_data(
+                                "maas_client", workflow_manager.maas_client
+                            )
+                        if hasattr(workflow_manager, "db_helper"):
+                            context.set_data("db_helper", workflow_manager.db_helper)
+
+                        def execute_workflow(wf, ctx, wf_id):
+                            try:
+                                # Update workflow status to running
+                                wf.status = "RUNNING"
+
+                                result = wf.execute(ctx)
+                                success = result.status.value == "success"
+
+                                # Update workflow status based on result
+                                final_status = "COMPLETED" if success else "FAILED"
+                                wf.status = final_status
+
+                                logger.info(
+                                    f"Batch workflow {wf_id} completed with success: {success}"
+                                )
+
+                                # TODO: Add WebSocket notification for completion
+                                if socketio:
+                                    socketio.emit(
+                                        "workflow_complete",
+                                        {
+                                            "workflow_id": wf_id,
+                                            "success": success,
+                                            "message": result.message,
+                                        },
+                                    )
+
+                            except Exception as e:
+                                # Update workflow status to failed
+                                wf.status = "FAILED"
+
+                                logger.error(f"Batch workflow {wf_id} failed: {e}")
+
+                                # TODO: Add WebSocket notification for failure
+                                if socketio:
+                                    socketio.emit(
+                                        "workflow_failed",
+                                        {"workflow_id": wf_id, "error": str(e)},
+                                    )
+
+                        thread = threading.Thread(
+                            target=execute_workflow,
+                            args=(workflow, context, workflow.workflow_id),
+                        )
+                        thread.daemon = True
+                        thread.start()
+
+                        result = {
+                            "status": "started",
                             "device_id": device_id,
-                            "device_type": device_type,
+                            "workflow_id": workflow.workflow_id,
                         }
+
+                        # Add optional fields if they exist
+                        if assigned_ipmi_ip:
+                            result["target_ipmi_ip"] = assigned_ipmi_ip
+                        if gateway:
+                            result["gateway"] = gateway
+
+                        results.append(result)
+                    else:
+                        results.append(
+                            {
+                                "status": "failed",
+                                "device_id": device_id,
+                                "error": "Failed to create workflow",
+                            }
+                        )
+
+                except Exception as e:
+                    logger.error(
+                        f"Failed to create workflow for device {device_id}: {e}"
+                    )
+                    results.append(
+                        {"status": "failed", "device_id": device_id, "error": str(e)}
                     )
 
             return jsonify(
                 {
                     "success": True,
-                    "message": f"Started commissioning {len(workflows)} devices",
-                    "workflows": workflows,
+                    "message": f"Started commissioning {len([r for r in results if r['status'] == 'started'])} devices",
+                    "batch_id": batch_id,
+                    "results": results,
                 }
             )
 
         except Exception as e:
             logger.error(f"Batch commission failed: {e}")
+            return jsonify({"error": str(e)}), 500
+
+    # Device types endpoint for frontend
+    @app.route("/api/device-types", methods=["GET"])
+    def api_device_types():
+        """Get available device types for frontend dropdown."""
+        try:
+            from hwautomation.hardware.bios.manager import BiosConfigManager
+
+            bios_manager = BiosConfigManager()
+            device_types = bios_manager.get_device_types()
+
+            return jsonify({"device_types": device_types, "count": len(device_types)})
+
+        except Exception as e:
+            logger.error(f"Failed to get device types: {e}")
             return jsonify({"error": str(e)}), 500

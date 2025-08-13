@@ -67,8 +67,10 @@ class ServerProvisioningWorkflow(BaseWorkflow):
         gateway: Optional[str] = None,
         ipmi_range_start: Optional[str] = None,
         ipmi_range_end: Optional[str] = None,
+        subnet_mask: Optional[str] = None,
         ssh_username: str = "ubuntu",
         ssh_key_path: Optional[str] = None,
+        **kwargs,
     ):
         """Initialize provisioning workflow."""
         super().__init__(
@@ -83,6 +85,7 @@ class ServerProvisioningWorkflow(BaseWorkflow):
         self.gateway = gateway
         self.ipmi_range_start = ipmi_range_start
         self.ipmi_range_end = ipmi_range_end
+        self.subnet_mask = subnet_mask
         self.ssh_username = ssh_username
         self.ssh_key_path = ssh_key_path
 
@@ -202,8 +205,10 @@ class FirmwareFirstProvisioningWorkflow(BaseWorkflow):
         firmware_version: Optional[str] = None,
         target_ipmi_ip: Optional[str] = None,
         gateway: Optional[str] = None,
+        subnet_mask: Optional[str] = None,
         ssh_username: str = "ubuntu",
         ssh_key_path: Optional[str] = None,
+        **kwargs,
     ):
         """Initialize firmware-first provisioning workflow."""
         super().__init__(
@@ -217,6 +222,7 @@ class FirmwareFirstProvisioningWorkflow(BaseWorkflow):
         self.firmware_version = firmware_version
         self.target_ipmi_ip = target_ipmi_ip
         self.gateway = gateway
+        self.subnet_mask = subnet_mask
         self.ssh_username = ssh_username
         self.ssh_key_path = ssh_key_path
 
@@ -299,6 +305,7 @@ def create_provisioning_workflow(
     device_type: str,
     target_ipmi_ip: Optional[str] = None,
     gateway: Optional[str] = None,
+    subnet_mask: Optional[str] = None,
     ipmi_range_start: Optional[str] = None,
     ipmi_range_end: Optional[str] = None,
     workflow_type: str = "standard",
@@ -312,6 +319,7 @@ def create_provisioning_workflow(
             device_type=device_type,
             target_ipmi_ip=target_ipmi_ip,
             gateway=gateway,
+            subnet_mask=subnet_mask,
             **kwargs,
         )
     else:
@@ -320,6 +328,7 @@ def create_provisioning_workflow(
             device_type=device_type,
             target_ipmi_ip=target_ipmi_ip,
             gateway=gateway,
+            subnet_mask=subnet_mask,
             ipmi_range_start=ipmi_range_start,
             ipmi_range_end=ipmi_range_end,
             **kwargs,

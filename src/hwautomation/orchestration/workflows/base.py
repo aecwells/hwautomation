@@ -335,6 +335,9 @@ class BaseWorkflow(ABC):
         self.description = description
         self.steps: List[BaseWorkflowStep] = []
         self.logger = get_logger(f"{__name__}.{self.__class__.__name__}")
+        self.status = WorkflowStatus.PENDING
+        self.current_step_index = 0
+        self.current_step_name = ""
 
     def add_step(self, step: BaseWorkflowStep) -> None:
         """Add a step to the workflow.
@@ -377,13 +380,18 @@ class BaseWorkflow(ABC):
         Returns:
             Final execution result
         """
+        self.status = WorkflowStatus.RUNNING
+
         for i, step in enumerate(self.steps):
+            self.current_step_index = i + 1
+            self.current_step_name = step.name
             self.logger.info(f"Executing step {i+1}/{len(self.steps)}: {step.name}")
 
             # Validate prerequisites
             if not step.validate_prerequisites(context):
                 error_msg = f"Prerequisites not met for step {step.name}"
                 context.add_error(error_msg)
+                self.status = WorkflowStatus.FAILED
                 return StepExecutionResult.failure(error_msg)
 
             # Execute step
@@ -422,6 +430,7 @@ class BaseWorkflow(ABC):
                 error_msg = f"Step {step.name} failed with exception: {e}"
                 self.logger.error(error_msg)
                 context.add_error(error_msg)
+                self.status = WorkflowStatus.FAILED
                 return StepExecutionResult.failure(error_msg)
 
             finally:
@@ -431,6 +440,8 @@ class BaseWorkflow(ABC):
                 except Exception as e:
                     self.logger.warning(f"Cleanup failed for step {step.name}: {e}")
 
+        # All steps completed successfully
+        self.status = WorkflowStatus.SUCCESS
         return StepExecutionResult.success("Workflow completed successfully")
 
     def _find_step_index(self, step_name: str) -> Optional[int]:
@@ -446,6 +457,27 @@ class BaseWorkflow(ABC):
             if step.name == step_name:
                 return i
         return None
+
+    def get_status(self) -> Dict[str, Any]:
+        """Get workflow status for API consumption.
+
+        Returns:
+            Dictionary containing workflow status information
+        """
+        return {
+            "id": getattr(self, "workflow_id", self.name),
+            "name": self.name,
+            "description": self.description,
+            "status": (
+                self.status.value if hasattr(self.status, "value") else str(self.status)
+            ),
+            "current_step_index": self.current_step_index,
+            "current_step_name": self.current_step_name,
+            "total_steps": len(self.steps),
+            "progress": (
+                (self.current_step_index / len(self.steps) * 100) if self.steps else 0
+            ),
+        }
 
     @abstractmethod
     def build_steps(self) -> List[BaseWorkflowStep]:
