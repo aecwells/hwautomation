@@ -195,37 +195,59 @@ class TestBaseResourceView:
             delete_result = view.delete("test-789")
             assert "deleted" in delete_result["message"]
 
-    @patch("hwautomation.web.base_classes.request")
-    def test_get_request_data_json(self, mock_request):
+    def test_get_request_data_json(self):
         """Test getting JSON request data."""
-        mock_request.is_json = True
-        mock_request.get_json.return_value = {"key": "value"}
 
-        # Create a mock resource view instance
-        resource_view = BaseResourceView()
+        # Create a concrete resource view instance
+        class TestResourceView(BaseResourceView):
+            def get(self, resource_id=None):
+                return {}
 
-        with patch.object(
-            resource_view, "get_request_data", return_value={"key": "value"}
+            def get_list(self):
+                return []
+
+            def create(self):
+                return {}
+
+            def update(self, resource_id):
+                return {}
+
+            def delete_resource(self, resource_id):
+                return {}
+
+        with self.app.test_request_context(
+            "/test", json={"key": "value"}, content_type="application/json"
         ):
+            resource_view = TestResourceView()
             data = resource_view.get_request_data()
+            assert data == {"key": "value"}
 
-        assert data == {"key": "value"}
-
-    @patch("hwautomation.web.base_classes.request")
-    def test_get_request_data_not_json(self, mock_request):
+    def test_get_request_data_not_json(self):
         """Test handling non-JSON request data."""
-        mock_request.is_json = False
-        mock_request.form = {"form_key": "form_value"}
 
-        # Create a mock resource view instance
-        resource_view = BaseResourceView()
+        # Create a concrete resource view instance
+        class TestResourceView(BaseResourceView):
+            def get(self, resource_id=None):
+                return {}
 
-        with patch.object(
-            resource_view, "get_request_data", return_value={"form_key": "form_value"}
-        ):
-            data = resource_view.get_request_data()
+            def get_list(self):
+                return []
 
-        assert data == {"form_key": "form_value"}
+            def create(self):
+                return {}
+
+            def update(self, resource_id):
+                return {}
+
+            def delete_resource(self, resource_id):
+                return {}
+
+        with self.app.test_request_context("/test", data="form_data"):
+            resource_view = TestResourceView()
+
+            # This should raise a ValueError since it's not JSON
+            with pytest.raises(ValueError, match="Request must be JSON"):
+                resource_view.get_request_data()
 
 
 class TestDatabaseMixin:
@@ -257,10 +279,10 @@ class TestDatabaseMixin:
         self.mock_connection.cursor.return_value = self.mock_cursor
 
         class TestDatabaseClass(DatabaseMixin):
-            def __init__(self):
-                self.db_helper = self.mock_db_helper
+            def __init__(self, mock_db_helper):
+                self.db_helper = mock_db_helper
 
-        self.test_class = TestDatabaseClass()
+        self.test_class = TestDatabaseClass(self.mock_db_helper)
 
     def test_database_mixin_initialization(self):
         """Test DatabaseMixin initializes properly."""
@@ -487,8 +509,9 @@ class TestCacheMixin:
         assert result == "expiring_value"
 
         # Mock time passage
+        current_time = time.time()
         with patch("time.time") as mock_time:
-            mock_time.return_value = time.time() + 2  # 2 seconds later
+            mock_time.return_value = current_time + 2  # 2 seconds later
 
             result = self.cache.cache_get("expiring_key", ttl=1)
             assert result is None
