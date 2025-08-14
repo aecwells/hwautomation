@@ -172,7 +172,9 @@ class TestRedfishCoordinator:
     def setup_method(self):
         """Set up test fixtures."""
         self.mock_credentials = Mock()
-        self.coordinator = RedfishCoordinator(self.mock_credentials)
+        self.coordinator = RedfishCoordinator(
+            host="192.168.1.100", username="admin", password="password"
+        )
 
     def test_coordinator_initialization(self):
         """Test RedfishCoordinator initializes with all managers."""

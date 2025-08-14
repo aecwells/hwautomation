@@ -96,6 +96,27 @@ class RedfishCoordinator(BaseRedfishManager):
 
         return operations
 
+    # Manager property compatibility
+    @property
+    def power_manager(self) -> RedfishPowerManager:
+        """Get power manager."""
+        return self.power
+
+    @property
+    def bios_manager(self) -> RedfishBiosManager:
+        """Get BIOS manager."""
+        return self.bios
+
+    @property
+    def firmware_manager(self) -> RedfishFirmwareManager:
+        """Get firmware manager."""
+        return self.firmware
+
+    @property
+    def system_manager(self) -> RedfishSystemManager:
+        """Get system manager."""
+        return self.system
+
     # Legacy property compatibility
     @property
     def username(self) -> str:

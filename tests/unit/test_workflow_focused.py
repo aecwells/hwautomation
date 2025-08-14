@@ -52,7 +52,7 @@ class TestWorkflowManager:
         workflow = manager.create_workflow("test-001")
 
         assert workflow is not None
-        assert workflow.workflow_id == "test-001"
+        assert workflow.id == "test-001"
 
     def test_get_workflow(self):
         """Test getting a workflow by ID."""
