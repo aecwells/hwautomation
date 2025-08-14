@@ -102,7 +102,18 @@ class ProvisioningCoordinator:
 
         for stage in stage_order:
             # Skip stages that should be skipped
-            if strategy.should_skip_stage(stage, WorkflowContext(server_id=server_id)):
+            # Create a minimal context for stage decision making
+            context = WorkflowContext(
+                server_id=server_id,
+                device_type=config.device_type,
+                target_ipmi_ip=config.target_ipmi_ip,
+                rack_location=config.rack_location,
+                maas_client=None,  # Will be set during execution
+                db_helper=None,  # Will be set during execution
+                gateway=config.gateway,
+                subnet_mask=config.subnet_mask,
+            )
+            if strategy.should_skip_stage(stage, context):
                 continue
 
             # Get stage handler

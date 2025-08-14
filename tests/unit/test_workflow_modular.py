@@ -39,7 +39,7 @@ class TestWorkflowCoordinator:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_config = WorkflowConfig(
+        self.mock_config = WorkflowContext(
             timeout=300, retry_count=3, parallel_execution=True
         )
 
@@ -224,7 +224,7 @@ class TestWorkflowExecutor:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_config = WorkflowConfig(
+        self.mock_config = WorkflowContext(
             timeout=300, retry_count=3, parallel_execution=True
         )
         self.mock_status_manager = Mock()
@@ -663,7 +663,7 @@ class TestWorkflowManagerIntegration:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.config = WorkflowConfig(
+        self.config = WorkflowContext(
             timeout=300, retry_count=2, parallel_execution=True
         )
 
@@ -765,7 +765,7 @@ class TestBackwardCompatibility:
 
     def test_workflow_manager_api_compatibility(self):
         """Test that old API still works with new implementation."""
-        config = WorkflowConfig(timeout=300, retry_count=3)
+        config = WorkflowContext(timeout=300, retry_count=3)
 
         # Test old import path
         from hwautomation.orchestration.workflow_manager import WorkflowManager

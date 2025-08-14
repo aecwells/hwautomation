@@ -67,7 +67,10 @@ class TestProvisioningRefactoring:
         assert actual_stages == expected_stages
 
     @patch("hwautomation.orchestration.workflow_manager.WorkflowManager")
-    def test_coordinator_creation(self, mock_workflow_manager):
+    @patch(
+        "hwautomation.orchestration.provisioning.hardware_discovery.HardwareDiscoveryManager"
+    )
+    def test_coordinator_creation(self, mock_discovery_manager, mock_workflow_manager):
         """Test that ProvisioningCoordinator can be created."""
         coordinator = ProvisioningCoordinator(mock_workflow_manager)
 
@@ -75,7 +78,13 @@ class TestProvisioningRefactoring:
         assert len(coordinator.stage_handlers) >= 3  # At least the implemented ones
 
     @patch("hwautomation.orchestration.workflow_manager.WorkflowManager")
-    def test_workflow_creation_via_factory(self, mock_workflow_manager):
+    @patch(
+        "hwautomation.orchestration.provisioning.hardware_discovery.HardwareDiscoveryManager"
+    )
+    @patch("hwautomation.orchestration.provisioning.coordinator.WorkflowContext")
+    def test_workflow_creation_via_factory(
+        self, mock_context, mock_discovery_manager, mock_workflow_manager
+    ):
         """Test workflow creation via factory function."""
         # Mock the workflow manager
         mock_workflow = MagicMock()
@@ -94,7 +103,10 @@ class TestProvisioningRefactoring:
         assert workflow == mock_workflow
         mock_workflow_manager.create_workflow.assert_called_once()
 
-    def test_stage_handlers_exist(self):
+    @patch(
+        "hwautomation.orchestration.provisioning.hardware_discovery.HardwareDiscoveryManager"
+    )
+    def test_stage_handlers_exist(self, mock_discovery_manager):
         """Test that required stage handlers are available."""
         mock_workflow_manager = MagicMock()
         coordinator = ProvisioningCoordinator(mock_workflow_manager)
@@ -115,7 +127,10 @@ class TestProvisioningRefactoring:
         except ImportError:
             pytest.fail("Backward compatibility import failed")
 
-    def test_stage_timeout_configuration(self):
+    @patch(
+        "hwautomation.orchestration.provisioning.hardware_discovery.HardwareDiscoveryManager"
+    )
+    def test_stage_timeout_configuration(self, mock_discovery_manager):
         """Test that stage timeouts are properly configured."""
         mock_workflow_manager = MagicMock()
         coordinator = ProvisioningCoordinator(mock_workflow_manager)
@@ -131,7 +146,10 @@ class TestProvisioningRefactoring:
         assert commissioning_timeout == 1800  # 30 minutes
         assert network_timeout == 300  # 5 minutes
 
-    def test_stage_retry_configuration(self):
+    @patch(
+        "hwautomation.orchestration.provisioning.hardware_discovery.HardwareDiscoveryManager"
+    )
+    def test_stage_retry_configuration(self, mock_discovery_manager):
         """Test that stage retry counts are properly configured."""
         mock_workflow_manager = MagicMock()
         coordinator = ProvisioningCoordinator(mock_workflow_manager)

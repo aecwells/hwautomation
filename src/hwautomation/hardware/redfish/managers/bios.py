@@ -47,13 +47,14 @@ class RedfishBiosManager(BaseRedfishManager):
             Dictionary of BIOS attributes
         """
         try:
-            with self.create_session() as session:
-                result = self.bios_ops.get_bios_attributes(session, system_id)
-                if result.success:
-                    return result.result
-                else:
-                    self.logger.error(f"Failed to get BIOS attributes: {result.error}")
-                    return None
+            result = self.bios_ops.get_bios_attributes(system_id)
+            if result.success:
+                return result.result
+            else:
+                self.logger.error(
+                    f"Failed to get BIOS attributes: {result.error_message}"
+                )
+                return None
         except Exception as e:
             self.logger.error(f"Error getting BIOS attributes: {e}")
             return None
@@ -79,7 +80,7 @@ class RedfishBiosManager(BaseRedfishManager):
                     return result.result
                 else:
                     self.logger.error(
-                        f"Failed to get BIOS attribute {attribute_name}: {result.error}"
+                        f"Failed to get BIOS attribute {attribute_name}: {result.error_message}"
                     )
                     return None
         except Exception as e:
@@ -104,7 +105,9 @@ class RedfishBiosManager(BaseRedfishManager):
                     session, attributes, system_id
                 )
                 if not result.success:
-                    self.logger.error(f"Failed to set BIOS attributes: {result.error}")
+                    self.logger.error(
+                        f"Failed to set BIOS attributes: {result.error_message}"
+                    )
                 return result.success
         except Exception as e:
             self.logger.error(f"Error setting BIOS attributes: {e}")
@@ -139,7 +142,7 @@ class RedfishBiosManager(BaseRedfishManager):
                 result = self.bios_ops.reset_bios_to_defaults(session, system_id)
                 if not result.success:
                     self.logger.error(
-                        f"Failed to reset BIOS to defaults: {result.error}"
+                        f"Failed to reset BIOS to defaults: {result.error_message}"
                     )
                 return result.success
         except Exception as e:
@@ -164,7 +167,7 @@ class RedfishBiosManager(BaseRedfishManager):
                     return result.result
                 else:
                     self.logger.error(
-                        f"Failed to get pending BIOS settings: {result.error}"
+                        f"Failed to get pending BIOS settings: {result.error_message}"
                     )
                     return None
         except Exception as e:
@@ -183,7 +186,7 @@ class RedfishBiosManager(BaseRedfishManager):
         attributes = self.get_bios_attributes(system_id)
         if attributes:
             # Convert BiosAttribute objects to simple dictionary
-            return {name: attr.current_value for name, attr in attributes.items()}
+            return {name: attr.value for name, attr in attributes.items()}
         return None
 
     def validate_bios_attribute(

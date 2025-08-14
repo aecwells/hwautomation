@@ -356,3 +356,33 @@ class RedfishBiosManager(BaseBiosManagerImpl, BiosManagerMixin):
         except Exception as e:
             logger.error(f"Failed to apply BIOS config via Redfish: {e}")
             return False
+
+    # Abstract method implementations for BaseBiosManager compatibility
+    def pull_current_config(
+        self, target_ip: str, username: str, password: str
+    ) -> ET.Element:
+        """Pull current BIOS configuration from target system."""
+        # Stub implementation for compatibility
+        root = ET.Element("BiosConfiguration")
+        logger.warning("pull_current_config: Stub implementation")
+        return root
+
+    def apply_template(self, config: ET.Element, device_type: str) -> ET.Element:
+        """Apply template modifications to configuration."""
+        # Stub implementation for compatibility
+        logger.warning("apply_template: Stub implementation")
+        return config
+
+    def validate_config(self, config: ET.Element, device_type: str) -> List[str]:
+        """Validate modified configuration."""
+        # Stub implementation for compatibility
+        logger.warning("validate_config: Stub implementation")
+        return []
+
+    def push_config(
+        self, config: ET.Element, target_ip: str, username: str, password: str
+    ) -> bool:
+        """Push modified configuration to target system."""
+        # Stub implementation for compatibility
+        logger.warning("push_config: Stub implementation")
+        return True

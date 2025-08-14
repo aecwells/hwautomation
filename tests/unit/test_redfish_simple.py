@@ -26,18 +26,31 @@ from hwautomation.hardware.redfish.managers import (
 )
 
 
+class TestConcreteRedfishManager(BaseRedfishManager):
+    """Concrete implementation of BaseRedfishManager for testing."""
+
+    def get_supported_operations(self):
+        """Return test operations."""
+        return ["test_operation"]
+
+
 class TestBaseRedfishManager:
     """Test suite for BaseRedfishManager common functionality."""
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_client = Mock()
-        self.base_manager = BaseRedfishManager(self.mock_client)
+        from hwautomation.hardware.redfish.base import RedfishCredentials
+
+        self.mock_credentials = RedfishCredentials(
+            host="test-host", username="test-user", password="test-pass"
+        )
+        self.base_manager = TestConcreteRedfishManager(self.mock_credentials)
 
     def test_base_manager_initialization(self):
         """Test BaseRedfishManager initializes properly."""
-        assert self.base_manager.client == self.mock_client
+        assert self.base_manager.credentials == self.mock_credentials
         assert hasattr(self.base_manager, "logger")
+        assert self.base_manager.host == "test-host"
 
 
 class TestRedfishPowerManager:
@@ -45,13 +58,17 @@ class TestRedfishPowerManager:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_client = Mock()
-        self.power_manager = RedfishPowerManager(self.mock_client)
+        from hwautomation.hardware.redfish.base import RedfishCredentials
+
+        self.mock_credentials = RedfishCredentials(
+            host="test-host", username="test-user", password="test-pass"
+        )
+        self.power_manager = RedfishPowerManager(self.mock_credentials)
 
     def test_power_manager_initialization(self):
         """Test RedfishPowerManager initializes properly."""
         assert isinstance(self.power_manager, BaseRedfishManager)
-        assert self.power_manager.client == self.mock_client
+        assert self.power_manager.credentials == self.mock_credentials
 
 
 class TestRedfishBiosManager:
@@ -59,13 +76,17 @@ class TestRedfishBiosManager:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_client = Mock()
-        self.bios_manager = RedfishBiosManager(self.mock_client)
+        from hwautomation.hardware.redfish.base import RedfishCredentials
+
+        self.mock_credentials = RedfishCredentials(
+            host="test-host", username="test-user", password="test-pass"
+        )
+        self.bios_manager = RedfishBiosManager(self.mock_credentials)
 
     def test_bios_manager_initialization(self):
         """Test RedfishBiosManager initializes properly."""
         assert isinstance(self.bios_manager, BaseRedfishManager)
-        assert self.bios_manager.client == self.mock_client
+        assert self.bios_manager.credentials == self.mock_credentials
 
 
 class TestRedfishSystemManager:
@@ -73,13 +94,17 @@ class TestRedfishSystemManager:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_client = Mock()
-        self.system_manager = RedfishSystemManager(self.mock_client)
+        from hwautomation.hardware.redfish.base import RedfishCredentials
+
+        self.mock_credentials = RedfishCredentials(
+            host="test-host", username="test-user", password="test-pass"
+        )
+        self.system_manager = RedfishSystemManager(self.mock_credentials)
 
     def test_system_manager_initialization(self):
         """Test RedfishSystemManager initializes properly."""
         assert isinstance(self.system_manager, BaseRedfishManager)
-        assert self.system_manager.client == self.mock_client
+        assert self.system_manager.credentials == self.mock_credentials
 
 
 class TestRedfishFirmwareManager:
@@ -87,13 +112,17 @@ class TestRedfishFirmwareManager:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.mock_client = Mock()
-        self.firmware_manager = RedfishFirmwareManager(self.mock_client)
+        from hwautomation.hardware.redfish.base import RedfishCredentials
+
+        self.mock_credentials = RedfishCredentials(
+            host="test-host", username="test-user", password="test-pass"
+        )
+        self.firmware_manager = RedfishFirmwareManager(self.mock_credentials)
 
     def test_firmware_manager_initialization(self):
         """Test RedfishFirmwareManager initializes properly."""
         assert isinstance(self.firmware_manager, BaseRedfishManager)
-        assert self.firmware_manager.client == self.mock_client
+        assert self.firmware_manager.credentials == self.mock_credentials
 
 
 class TestRedfishCoordinator:
@@ -106,18 +135,18 @@ class TestRedfishCoordinator:
     def test_redfish_coordinator_initialization(self):
         """Test RedfishCoordinator initializes properly."""
         assert self.coordinator.host == "test.example.com"
-        assert self.coordinator.username == "admin"
-        assert hasattr(self.coordinator, "power_manager")
-        assert hasattr(self.coordinator, "bios_manager")
-        assert hasattr(self.coordinator, "system_manager")
-        assert hasattr(self.coordinator, "firmware_manager")
+        assert self.coordinator.credentials.username == "admin"
+        assert hasattr(self.coordinator, "power")
+        assert hasattr(self.coordinator, "bios")
+        assert hasattr(self.coordinator, "system")
+        assert hasattr(self.coordinator, "firmware")
 
     def test_coordinator_manager_types(self):
         """Test that coordinator creates proper manager types."""
-        assert isinstance(self.coordinator.power_manager, RedfishPowerManager)
-        assert isinstance(self.coordinator.bios_manager, RedfishBiosManager)
-        assert isinstance(self.coordinator.system_manager, RedfishSystemManager)
-        assert isinstance(self.coordinator.firmware_manager, RedfishFirmwareManager)
+        assert isinstance(self.coordinator.power, RedfishPowerManager)
+        assert isinstance(self.coordinator.bios, RedfishBiosManager)
+        assert isinstance(self.coordinator.system, RedfishSystemManager)
+        assert isinstance(self.coordinator.firmware, RedfishFirmwareManager)
 
 
 class TestBackwardCompatibility:

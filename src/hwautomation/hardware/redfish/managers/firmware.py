@@ -44,15 +44,14 @@ class RedfishFirmwareManager(BaseRedfishManager):
             List of firmware components
         """
         try:
-            with self.create_session() as session:
-                result = self.firmware_ops.get_firmware_inventory(session, system_id)
-                if result.success:
-                    return result.result
-                else:
-                    self.logger.error(
-                        f"Failed to get firmware inventory: {result.error}"
-                    )
-                    return []
+            result = self.firmware_ops.get_firmware_inventory(system_id)
+            if result.success:
+                return result.result
+            else:
+                self.logger.error(
+                    f"Failed to get firmware inventory: {result.error_message}"
+                )
+                return []
         except Exception as e:
             self.logger.error(f"Error getting firmware inventory: {e}")
             return []
@@ -73,7 +72,7 @@ class RedfishFirmwareManager(BaseRedfishManager):
                     return result.result
                 else:
                     self.logger.error(
-                        f"Failed to get firmware component {component_id}: {result.error}"
+                        f"Failed to get firmware component {component_id}: {result.error_message}"
                     )
                     return None
         except Exception as e:
@@ -107,7 +106,7 @@ class RedfishFirmwareManager(BaseRedfishManager):
                     return result.result  # Task URI
                 else:
                     self.logger.error(
-                        f"Failed to start firmware update: {result.error}"
+                        f"Failed to start firmware update: {result.error_message}"
                     )
                     return None
         except Exception as e:
@@ -129,7 +128,9 @@ class RedfishFirmwareManager(BaseRedfishManager):
                 if result.success:
                     return result.result
                 else:
-                    self.logger.error(f"Failed to get update status: {result.error}")
+                    self.logger.error(
+                        f"Failed to get update status: {result.error_message}"
+                    )
                     return None
         except Exception as e:
             self.logger.error(f"Error getting update status: {e}")
@@ -152,7 +153,7 @@ class RedfishFirmwareManager(BaseRedfishManager):
                 )
                 if not result.success:
                     self.logger.error(
-                        f"Firmware update failed or timed out: {result.error}"
+                        f"Firmware update failed or timed out: {result.error_message}"
                     )
                 return result.success
         except Exception as e:

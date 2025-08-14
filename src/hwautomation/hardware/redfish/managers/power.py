@@ -45,13 +45,12 @@ class RedfishPowerManager(BaseRedfishManager):
             Current power state
         """
         try:
-            with self.create_session() as session:
-                result = self.power_ops.get_power_state(session, system_id)
-                if result.success:
-                    return result.result
-                else:
-                    self.logger.error(f"Failed to get power state: {result.error}")
-                    return None
+            result = self.power_ops.get_power_state(system_id)
+            if result.success:
+                return result.result
+            else:
+                self.logger.error(f"Failed to get power state: {result.error_message}")
+                return None
         except Exception as e:
             self.logger.error(f"Error getting power state: {e}")
             return None
@@ -86,7 +85,9 @@ class RedfishPowerManager(BaseRedfishManager):
                     session, action, system_id, wait
                 )
                 if not result.success:
-                    self.logger.error(f"Failed to set power state: {result.error}")
+                    self.logger.error(
+                        f"Failed to set power state: {result.error_message}"
+                    )
                 return result.success
 
         except Exception as e:
@@ -118,7 +119,7 @@ class RedfishPowerManager(BaseRedfishManager):
         Returns:
             True if successful
         """
-        action = PowerAction.FORCE_OFF if force else PowerAction.GRACEFUL_SHUTDOWN
+        action = PowerAction.FORCE_OFF if force else PowerAction.OFF
         return self.set_power_state(action, system_id, wait)
 
     def restart(
@@ -147,7 +148,7 @@ class RedfishPowerManager(BaseRedfishManager):
         Returns:
             True if successful
         """
-        return self.set_power_state(PowerAction.POWER_CYCLE, system_id, wait)
+        return self.set_power_state(PowerAction.RESTART, system_id, wait)
 
     def get_system_power_state(self, system_id: str = "1") -> Optional[str]:
         """Get system power state as string (legacy compatibility).

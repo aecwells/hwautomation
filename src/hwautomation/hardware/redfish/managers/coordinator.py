@@ -14,6 +14,7 @@ from ..base import (
     FirmwareComponent,
     PowerAction,
     PowerState,
+    RedfishCapabilities,
     RedfishCredentials,
     SystemInfo,
 )
@@ -188,7 +189,7 @@ class RedfishCoordinator(BaseRedfishManager):
         """Discover Redfish service root (legacy compatibility)."""
         return self.system.discover_service_root()
 
-    def discover_capabilities(self) -> Dict[str, bool]:
+    def discover_capabilities(self) -> RedfishCapabilities:
         """Discover system capabilities."""
         return self.system.discover_capabilities()
 

@@ -171,20 +171,19 @@ class TestRedfishCoordinator:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.coordinator = RedfishCoordinator(
-            host="test.example.com", username="admin", password="password"
-        )
+        self.mock_credentials = Mock()
+        self.coordinator = RedfishCoordinator(self.mock_credentials)
 
     def test_coordinator_initialization(self):
         """Test RedfishCoordinator initializes with all managers."""
-        assert hasattr(self.coordinator, "power")
-        assert hasattr(self.coordinator, "bios")
-        assert hasattr(self.coordinator, "system")
-        assert hasattr(self.coordinator, "firmware")
+        assert hasattr(self.coordinator, "power_manager")
+        assert hasattr(self.coordinator, "bios_manager")
+        assert hasattr(self.coordinator, "system_manager")
+        assert hasattr(self.coordinator, "firmware_manager")
 
     def test_coordinator_manager_types(self):
         """Test that coordinator creates proper manager types."""
-        assert isinstance(self.coordinator.power, RedfishPowerManager)
-        assert isinstance(self.coordinator.bios, RedfishBiosManager)
-        assert isinstance(self.coordinator.system, RedfishSystemManager)
-        assert isinstance(self.coordinator.firmware, RedfishFirmwareManager)
+        assert isinstance(self.coordinator.power_manager, RedfishPowerManager)
+        assert isinstance(self.coordinator.bios_manager, RedfishBiosManager)
+        assert isinstance(self.coordinator.system_manager, RedfishSystemManager)
+        assert isinstance(self.coordinator.firmware_manager, RedfishFirmwareManager)

@@ -26,10 +26,10 @@ class TestRedfishCoordinator:
         """Test RedfishCoordinator initializes properly."""
         assert self.coordinator.host == "test.example.com"
         assert self.coordinator.username == "admin"
-        assert hasattr(self.coordinator, "power_manager")
-        assert hasattr(self.coordinator, "bios_manager")
-        assert hasattr(self.coordinator, "system_manager")
-        assert hasattr(self.coordinator, "firmware_manager")
+        assert hasattr(self.coordinator, "power")
+        assert hasattr(self.coordinator, "bios")
+        assert hasattr(self.coordinator, "system")
+        assert hasattr(self.coordinator, "firmware")
 
 
 class TestBackwardCompatibility:

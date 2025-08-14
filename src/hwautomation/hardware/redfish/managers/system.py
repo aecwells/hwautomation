@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from hwautomation.logging import get_logger
 
-from ..base import RedfishCredentials, SystemInfo
+from ..base import RedfishCapabilities, RedfishCredentials, SystemInfo
 from ..client import RedfishDiscovery, ServiceRoot
 from ..operations import RedfishSystemOperation
 from .base import BaseRedfishManager, RedfishManagerError
@@ -50,13 +50,12 @@ class RedfishSystemManager(BaseRedfishManager):
             System information if successful
         """
         try:
-            with self.create_session() as session:
-                result = self.system_ops.get_system_info(session, system_id)
-                if result.success:
-                    return result.result
-                else:
-                    self.logger.error(f"Failed to get system info: {result.error}")
-                    return None
+            result = self.system_ops.get_system_info(system_id)
+            if result.success:
+                return result.result
+            else:
+                self.logger.error(f"Failed to get system info: {result.error_message}")
+                return None
         except Exception as e:
             self.logger.error(f"Error getting system info: {e}")
             return None
@@ -76,7 +75,9 @@ class RedfishSystemManager(BaseRedfishManager):
                 if result.success:
                     return result.result
                 else:
-                    self.logger.error(f"Failed to get system status: {result.error}")
+                    self.logger.error(
+                        f"Failed to get system status: {result.error_message}"
+                    )
                     return None
         except Exception as e:
             self.logger.error(f"Error getting system status: {e}")
@@ -94,7 +95,7 @@ class RedfishSystemManager(BaseRedfishManager):
                 if result.success:
                     return result.result
                 else:
-                    self.logger.error(f"Failed to list systems: {result.error}")
+                    self.logger.error(f"Failed to list systems: {result.error_message}")
                     return []
         except Exception as e:
             self.logger.error(f"Error listing systems: {e}")
@@ -121,8 +122,7 @@ class RedfishSystemManager(BaseRedfishManager):
             Service root information
         """
         try:
-            with self.create_session() as session:
-                return self.discovery.get_service_root(session)
+            return self.discovery.discover_service_root()
         except Exception as e:
             self.logger.error(f"Error getting service root: {e}")
             return None
@@ -134,8 +134,7 @@ class RedfishSystemManager(BaseRedfishManager):
             Dictionary of supported capabilities
         """
         try:
-            with self.create_session() as session:
-                return self.discovery.validate_service(session)
+            return self.discovery.validate_service()
         except Exception as e:
             self.logger.error(f"Error validating service: {e}")
             return {}
@@ -151,11 +150,12 @@ class RedfishSystemManager(BaseRedfishManager):
             True if successful
         """
         try:
-            with self.create_session() as session:
-                result = self.system_ops.set_indicator_led(session, state, system_id)
-                if not result.success:
-                    self.logger.error(f"Failed to set indicator LED: {result.error}")
-                return result.success
+            result = self.system_ops.set_indicator_led(state, system_id)
+            if not result.success:
+                self.logger.error(
+                    f"Failed to set indicator LED: {result.error_message}"
+                )
+            return result.success
         except Exception as e:
             self.logger.error(f"Error setting indicator LED: {e}")
             return False
@@ -205,35 +205,38 @@ class RedfishSystemManager(BaseRedfishManager):
         service_root = self.get_service_root()
         if service_root:
             return {
-                "redfish_version": service_root.redfish_version,
-                "uuid": service_root.uuid,
-                "product": service_root.product,
-                "systems_url": service_root.systems_url,
-                "chassis_url": service_root.chassis_url,
-                "managers_url": service_root.managers_url,
-                "session_service_url": service_root.session_service_url,
+                "RedfishVersion": service_root.redfish_version,
+                "Id": "RootService",  # Standard Redfish ID
+                "UUID": service_root.uuid,
+                "Product": service_root.product,
+                "Systems": {"@odata.id": service_root.systems_uri},
+                "Chassis": {"@odata.id": service_root.chassis_uri},
+                "Managers": (
+                    {"@odata.id": service_root.managers_uri}
+                    if service_root.managers_uri
+                    else None
+                ),
+                "SessionService": (
+                    {"@odata.id": service_root.session_service_uri}
+                    if service_root.session_service_uri
+                    else None
+                ),
             }
         return None
 
-    def discover_capabilities(self) -> Dict[str, bool]:
+    def discover_capabilities(self) -> RedfishCapabilities:
         """Discover system capabilities.
 
         Returns:
-            Dictionary of capabilities
+            RedfishCapabilities object
         """
-        capabilities = {
-            "power_management": False,
-            "bios_management": False,
-            "firmware_management": False,
-            "system_information": False,
-            "indicator_led": False,
-        }
+        capabilities = RedfishCapabilities()
 
         try:
             # Test basic system info
             system_info = self.get_system_info()
             if system_info:
-                capabilities["system_information"] = True
+                capabilities.supports_system_info = True
 
             # Test power management (check if we can get power state)
             try:
@@ -242,7 +245,7 @@ class RedfishSystemManager(BaseRedfishManager):
                 power_manager = RedfishPowerManager(self.credentials)
                 power_state = power_manager.get_power_state()
                 if power_state:
-                    capabilities["power_management"] = True
+                    capabilities.supports_power_control = True
             except:
                 pass
 
@@ -253,7 +256,7 @@ class RedfishSystemManager(BaseRedfishManager):
                 bios_manager = RedfishBiosManager(self.credentials)
                 bios_attrs = bios_manager.get_bios_attributes()
                 if bios_attrs:
-                    capabilities["bios_management"] = True
+                    capabilities.supports_bios_config = True
             except:
                 pass
 
@@ -264,7 +267,7 @@ class RedfishSystemManager(BaseRedfishManager):
                 firmware_manager = RedfishFirmwareManager(self.credentials)
                 firmware_inventory = firmware_manager.get_firmware_inventory()
                 if firmware_inventory:
-                    capabilities["firmware_management"] = True
+                    capabilities.supports_firmware_update = True
             except:
                 pass
 
@@ -272,7 +275,7 @@ class RedfishSystemManager(BaseRedfishManager):
             try:
                 # Just check if the method succeeds (don't actually change state)
                 result = self.set_indicator_led("Off")
-                capabilities["indicator_led"] = True
+                # No specific attribute for LED in RedfishCapabilities, but test passes if we get here
             except:
                 pass
 
