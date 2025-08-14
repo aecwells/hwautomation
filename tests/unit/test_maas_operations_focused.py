@@ -23,7 +23,7 @@ import pytest
 import requests
 from requests_oauthlib import OAuth1Session
 
-from src.hwautomation.maas.client import MaasClient
+from hwautomation.maas.client import MaasClient
 
 
 class TestMaasClientInitialization(unittest.TestCase):

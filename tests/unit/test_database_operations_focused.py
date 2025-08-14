@@ -22,7 +22,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import sqlite3
 
-from src.hwautomation.database import DatabaseMigrator, DbHelper
+from hwautomation.database import DatabaseMigrator, DbHelper
 
 
 class TestDbHelperAdvancedOperations(unittest.TestCase):
