@@ -65,9 +65,7 @@ class TestDbHelperAdvancedOperations(unittest.TestCase):
 
     def test_migrate_database_success(self):
         """Test successful database migration."""
-        with patch(
-            "src.hwautomation.database.helper.DatabaseMigrator"
-        ) as mock_migrator:
+        with patch("hwautomation.database.helper.DatabaseMigrator") as mock_migrator:
             mock_instance = Mock()
             mock_migrator.return_value = mock_instance
 
@@ -81,9 +79,7 @@ class TestDbHelperAdvancedOperations(unittest.TestCase):
 
     def test_migrate_database_failure(self):
         """Test database migration failure fallback."""
-        with patch(
-            "src.hwautomation.database.helper.DatabaseMigrator"
-        ) as mock_migrator:
+        with patch("hwautomation.database.helper.DatabaseMigrator") as mock_migrator:
             # Make migration fail
             mock_migrator.side_effect = Exception("Migration failed")
 
