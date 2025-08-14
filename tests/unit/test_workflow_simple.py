@@ -81,17 +81,32 @@ class TestWorkflowContext:
 
     def setup_method(self):
         """Set up test fixtures."""
+        from unittest.mock import Mock
+
         self.context = WorkflowContext(
-            server_id="server-123", device_type="a1.c5.large"
+            server_id="server-123",
+            device_type="a1.c5.large",
+            target_ipmi_ip="192.168.1.100",
+            rack_location="rack-1",
+            maas_client=Mock(),
+            db_helper=Mock(),
         )
 
     def test_workflow_context_initialization(self):
-        """Test WorkflowContext initializes properly."""
+        """Test WorkflowContext initialization and basic functionality."""
+        # Test basic initialization
         assert self.context.server_id == "server-123"
         assert self.context.device_type == "a1.c5.large"
-        assert hasattr(self.context, "set_data")
-        assert hasattr(self.context, "get_data")
+        assert self.context.target_ipmi_ip == "192.168.1.100"
+        assert self.context.rack_location == "rack-1"
+
+        # Test available methods
         assert hasattr(self.context, "report_sub_task")
+
+        # Test metadata manipulation
+        assert isinstance(self.context.metadata, dict)
+        self.context.metadata["test_key"] = "test_value"
+        assert self.context.metadata["test_key"] == "test_value"
 
 
 class TestWorkflow:
@@ -103,26 +118,39 @@ class TestWorkflow:
         self.server_id = "server-123"
         self.device_type = "a1.c5.large"
 
+        # Create a mock workflow manager
+        self.mock_manager = Mock()
+
         # Create test steps
         self.test_steps = [
-            WorkflowStep(name="Test Step 1", function=lambda ctx: True, timeout=60),
-            WorkflowStep(name="Test Step 2", function=lambda ctx: True, timeout=120),
+            WorkflowStep(
+                name="Test Step 1",
+                description="First test step",
+                function=lambda ctx: True,
+                timeout=60,
+            ),
+            WorkflowStep(
+                name="Test Step 2",
+                description="Second test step",
+                function=lambda ctx: True,
+                timeout=120,
+            ),
         ]
 
         self.workflow = Workflow(
-            workflow_id=self.workflow_id,
-            server_id=self.server_id,
-            device_type=self.device_type,
-            steps=self.test_steps,
+            workflow_id=self.workflow_id, manager=self.mock_manager
         )
+
+        # Add steps to workflow
+        for step in self.test_steps:
+            self.workflow.add_step(step)
 
     def test_workflow_initialization(self):
         """Test Workflow initializes properly."""
-        assert self.workflow.workflow_id == self.workflow_id
-        assert self.workflow.server_id == self.server_id
-        assert self.workflow.device_type == self.device_type
+        assert self.workflow.id == self.workflow_id
         assert len(self.workflow.steps) == 2
         assert self.workflow.status == WorkflowStatus.PENDING
+        assert self.workflow.manager == self.mock_manager
 
 
 class TestFirmwareWorkflowHandler:
@@ -130,12 +158,16 @@ class TestFirmwareWorkflowHandler:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.handler = FirmwareWorkflowHandler()
+        from unittest.mock import Mock
+
+        mock_config = {"firmware": {"enabled": True}}
+        self.handler = FirmwareWorkflowHandler(mock_config)
 
     def test_firmware_handler_initialization(self):
         """Test FirmwareWorkflowHandler initializes properly."""
-        assert hasattr(self.handler, "create_firmware_update_workflow")
-        assert hasattr(self.handler, "validate_firmware_configuration")
+        assert hasattr(self.handler, "create_firmware_first_workflow")
+        assert hasattr(self.handler, "initialize_firmware_components")
+        assert hasattr(self.handler, "is_firmware_available")
 
 
 class TestBackwardCompatibility:
