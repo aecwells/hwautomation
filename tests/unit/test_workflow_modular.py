@@ -1,0 +1,784 @@
+"""
+Comprehensive test suite for the modular workflow components in hwautomation.orchestration.workflow.
+
+This module tests all the newly refactored workflow manager components:
+- WorkflowCoordinator: Main workflow coordination
+- WorkflowFactory: Workflow creation patterns
+- WorkflowExecutor: Workflow execution engine
+- StatusManager: Status tracking and updates
+- ContextManager: Workflow context management
+- RegistryManager: Workflow type registry
+"""
+
+import threading
+import time
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, Optional
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
+
+from hwautomation.orchestration.workflow import (
+    FirmwareWorkflowHandler,
+    StepStatus,
+    Workflow,
+    WorkflowCancellationError,
+    WorkflowContext,
+    WorkflowExecutionError,
+    WorkflowFactory,
+    WorkflowManager,
+    WorkflowStatus,
+    WorkflowStep,
+    WorkflowTimeoutError,
+)
+
+
+class TestWorkflowCoordinator:
+    """Test suite for WorkflowCoordinator main coordination functionality."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.mock_config = WorkflowConfig(
+            timeout=300, retry_count=3, parallel_execution=True
+        )
+
+    def test_workflow_coordinator_initialization(self):
+        """Test WorkflowCoordinator initializes properly."""
+        coordinator = WorkflowCoordinator(self.mock_config)
+
+        assert coordinator.config == self.mock_config
+        assert hasattr(coordinator, "factory")
+        assert hasattr(coordinator, "executor")
+        assert hasattr(coordinator, "status_manager")
+        assert hasattr(coordinator, "context_manager")
+
+    def test_create_workflow_via_coordinator(self):
+        """Test workflow creation through coordinator."""
+        coordinator = WorkflowCoordinator(self.mock_config)
+
+        workflow_id = coordinator.create_workflow(
+            workflow_type="test_workflow", parameters={"param1": "value1"}
+        )
+
+        assert isinstance(workflow_id, str)
+        assert len(workflow_id) > 0
+
+        # Should be able to get the workflow
+        workflow = coordinator.get_workflow(workflow_id)
+        assert workflow is not None
+        assert workflow.workflow_id == workflow_id
+
+    @patch(
+        "hwautomation.orchestration.workflow.executor.WorkflowExecutor.execute_workflow"
+    )
+    def test_execute_workflow_via_coordinator(self, mock_execute):
+        """Test workflow execution through coordinator."""
+        coordinator = WorkflowCoordinator(self.mock_config)
+        mock_execute.return_value = WorkflowResult(
+            workflow_id="test-123",
+            status=WorkflowStatus.COMPLETED,
+            result={"success": True},
+        )
+
+        workflow_id = coordinator.create_workflow(
+            workflow_type="test_workflow", parameters={"param1": "value1"}
+        )
+
+        result = coordinator.execute_workflow(workflow_id)
+
+        assert result.status == WorkflowStatus.COMPLETED
+        assert result.result["success"] is True
+        mock_execute.assert_called_once()
+
+    def test_list_workflows(self):
+        """Test listing workflows through coordinator."""
+        coordinator = WorkflowCoordinator(self.mock_config)
+
+        # Create several workflows
+        workflow_ids = []
+        for i in range(3):
+            workflow_id = coordinator.create_workflow(
+                workflow_type=f"test_workflow_{i}", parameters={"param": f"value{i}"}
+            )
+            workflow_ids.append(workflow_id)
+
+        # List all workflows
+        workflows = coordinator.list_workflows()
+
+        assert len(workflows) >= 3
+        workflow_ids_from_list = [w.workflow_id for w in workflows]
+
+        for wf_id in workflow_ids:
+            assert wf_id in workflow_ids_from_list
+
+    def test_get_workflow_status_via_coordinator(self):
+        """Test getting workflow status through coordinator."""
+        coordinator = WorkflowCoordinator(self.mock_config)
+
+        workflow_id = coordinator.create_workflow(
+            workflow_type="test_workflow", parameters={"param1": "value1"}
+        )
+
+        status = coordinator.get_workflow_status(workflow_id)
+
+        assert isinstance(status, WorkflowStatus)
+        # New workflows should be PENDING
+        assert status == WorkflowStatus.PENDING
+
+
+class TestWorkflowFactory:
+    """Test suite for WorkflowFactory workflow creation patterns."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.mock_registry = Mock()
+        self.factory = WorkflowFactory(self.mock_registry)
+
+    def test_workflow_factory_initialization(self):
+        """Test WorkflowFactory initializes properly."""
+        assert self.factory.registry == self.mock_registry
+
+    def test_create_workflow_basic(self):
+        """Test basic workflow creation."""
+        # Mock workflow class
+        mock_workflow_class = Mock()
+        mock_workflow_instance = Mock()
+        mock_workflow_class.return_value = mock_workflow_instance
+
+        self.mock_registry.get_workflow_class.return_value = mock_workflow_class
+
+        workflow = self.factory.create_workflow(
+            workflow_type="test_workflow",
+            workflow_id="test-123",
+            parameters={"param1": "value1"},
+        )
+
+        assert workflow == mock_workflow_instance
+        self.mock_registry.get_workflow_class.assert_called_once_with("test_workflow")
+        mock_workflow_class.assert_called_once_with(
+            workflow_id="test-123", parameters={"param1": "value1"}
+        )
+
+    def test_create_workflow_with_context(self):
+        """Test workflow creation with context."""
+        mock_workflow_class = Mock()
+        mock_workflow_instance = Mock()
+        mock_workflow_class.return_value = mock_workflow_instance
+
+        self.mock_registry.get_workflow_class.return_value = mock_workflow_class
+
+        context = {"context_key": "context_value"}
+
+        workflow = self.factory.create_workflow(
+            workflow_type="test_workflow",
+            workflow_id="test-456",
+            parameters={"param1": "value1"},
+            context=context,
+        )
+
+        mock_workflow_class.assert_called_once_with(
+            workflow_id="test-456", parameters={"param1": "value1"}, context=context
+        )
+
+    def test_create_workflow_unknown_type(self):
+        """Test workflow creation with unknown type."""
+        self.mock_registry.get_workflow_class.return_value = None
+
+        with pytest.raises(ValueError, match="Unknown workflow type"):
+            self.factory.create_workflow(
+                workflow_type="unknown_workflow", workflow_id="test-789", parameters={}
+            )
+
+    def test_validate_workflow_parameters(self):
+        """Test workflow parameter validation."""
+        # Test valid parameters
+        assert self.factory.validate_parameters({"key": "value"}) is True
+        assert self.factory.validate_parameters({}) is True
+
+        # Test invalid parameters
+        assert self.factory.validate_parameters(None) is False
+        assert self.factory.validate_parameters("not_a_dict") is False
+
+    def test_create_workflow_batch(self):
+        """Test batch workflow creation."""
+        mock_workflow_class = Mock()
+        mock_workflow_class.side_effect = [Mock(), Mock(), Mock()]
+
+        self.mock_registry.get_workflow_class.return_value = mock_workflow_class
+
+        workflow_specs = [
+            {"workflow_type": "test_workflow", "parameters": {"param": "value1"}},
+            {"workflow_type": "test_workflow", "parameters": {"param": "value2"}},
+            {"workflow_type": "test_workflow", "parameters": {"param": "value3"}},
+        ]
+
+        workflows = self.factory.create_workflow_batch(workflow_specs)
+
+        assert len(workflows) == 3
+        assert self.mock_registry.get_workflow_class.call_count == 3
+
+
+class TestWorkflowExecutor:
+    """Test suite for WorkflowExecutor workflow execution engine."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.mock_config = WorkflowConfig(
+            timeout=300, retry_count=3, parallel_execution=True
+        )
+        self.mock_status_manager = Mock()
+        self.executor = WorkflowExecutor(self.mock_config, self.mock_status_manager)
+
+    def test_workflow_executor_initialization(self):
+        """Test WorkflowExecutor initializes properly."""
+        assert self.executor.config == self.mock_config
+        assert self.executor.status_manager == self.mock_status_manager
+
+    def test_execute_workflow_synchronous(self):
+        """Test synchronous workflow execution."""
+        # Mock workflow
+        mock_workflow = Mock()
+        mock_workflow.workflow_id = "test-123"
+        mock_workflow.execute.return_value = {"result": "success"}
+
+        result = self.executor.execute_workflow(mock_workflow, async_execution=False)
+
+        assert isinstance(result, WorkflowResult)
+        assert result.workflow_id == "test-123"
+        assert result.status == WorkflowStatus.COMPLETED
+        assert result.result == {"result": "success"}
+
+        mock_workflow.execute.assert_called_once()
+
+    @patch("threading.Thread")
+    def test_execute_workflow_asynchronous(self, mock_thread):
+        """Test asynchronous workflow execution."""
+        mock_workflow = Mock()
+        mock_workflow.workflow_id = "test-456"
+
+        mock_thread_instance = Mock()
+        mock_thread.return_value = mock_thread_instance
+
+        result = self.executor.execute_workflow(mock_workflow, async_execution=True)
+
+        assert isinstance(result, WorkflowResult)
+        assert result.workflow_id == "test-456"
+        assert result.status == WorkflowStatus.RUNNING
+
+        mock_thread.assert_called_once()
+        mock_thread_instance.start.assert_called_once()
+
+    def test_execute_workflow_with_timeout(self):
+        """Test workflow execution with timeout."""
+        mock_workflow = Mock()
+        mock_workflow.workflow_id = "test-timeout"
+
+        # Mock a slow workflow
+        def slow_execute():
+            time.sleep(2)
+            return {"result": "slow"}
+
+        mock_workflow.execute = slow_execute
+
+        # Set short timeout
+        self.executor.config.timeout = 1
+
+        result = self.executor.execute_workflow(mock_workflow, async_execution=False)
+
+        assert result.status == WorkflowStatus.FAILED
+        assert "timeout" in result.error.lower()
+
+    def test_execute_workflow_with_retry(self):
+        """Test workflow execution with retry logic."""
+        mock_workflow = Mock()
+        mock_workflow.workflow_id = "test-retry"
+
+        # Mock workflow that fails twice then succeeds
+        call_count = 0
+
+        def failing_execute():
+            nonlocal call_count
+            call_count += 1
+            if call_count < 3:
+                raise Exception("Temporary failure")
+            return {"result": "finally_succeeded"}
+
+        mock_workflow.execute = failing_execute
+
+        result = self.executor.execute_workflow(mock_workflow, async_execution=False)
+
+        assert result.status == WorkflowStatus.COMPLETED
+        assert result.result == {"result": "finally_succeeded"}
+        assert call_count == 3  # Should have retried
+
+    def test_execute_workflow_permanent_failure(self):
+        """Test workflow execution with permanent failure."""
+        mock_workflow = Mock()
+        mock_workflow.workflow_id = "test-fail"
+        mock_workflow.execute.side_effect = Exception("Permanent failure")
+
+        result = self.executor.execute_workflow(mock_workflow, async_execution=False)
+
+        assert result.status == WorkflowStatus.FAILED
+        assert "Permanent failure" in result.error
+
+    def test_cancel_workflow_execution(self):
+        """Test workflow execution cancellation."""
+        mock_workflow = Mock()
+        mock_workflow.workflow_id = "test-cancel"
+
+        # Mock a long-running workflow
+        def long_execute():
+            time.sleep(5)
+            return {"result": "completed"}
+
+        mock_workflow.execute = long_execute
+
+        # Start async execution
+        result = self.executor.execute_workflow(mock_workflow, async_execution=True)
+
+        # Cancel it
+        cancel_result = self.executor.cancel_workflow("test-cancel")
+
+        assert cancel_result is True
+
+        # Status should be updated to cancelled
+        self.mock_status_manager.update_status.assert_called()
+
+
+class TestStatusManager:
+    """Test suite for StatusManager status tracking and updates."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.status_manager = StatusManager()
+
+    def test_status_manager_initialization(self):
+        """Test StatusManager initializes properly."""
+        assert hasattr(self.status_manager, "_statuses")
+        assert isinstance(self.status_manager._statuses, dict)
+
+    def test_set_and_get_status(self):
+        """Test setting and getting workflow status."""
+        workflow_id = "test-123"
+
+        self.status_manager.set_status(workflow_id, WorkflowStatus.RUNNING)
+
+        status = self.status_manager.get_status(workflow_id)
+        assert status == WorkflowStatus.RUNNING
+
+    def test_get_status_nonexistent(self):
+        """Test getting status for non-existent workflow."""
+        status = self.status_manager.get_status("nonexistent")
+        assert status is None
+
+    def test_update_status_with_progress(self):
+        """Test updating status with progress information."""
+        workflow_id = "test-progress"
+
+        self.status_manager.update_status(
+            workflow_id,
+            WorkflowStatus.RUNNING,
+            progress=50,
+            message="Half way complete",
+        )
+
+        status_info = self.status_manager.get_status_info(workflow_id)
+
+        assert status_info["status"] == WorkflowStatus.RUNNING
+        assert status_info["progress"] == 50
+        assert status_info["message"] == "Half way complete"
+        assert "last_updated" in status_info
+
+    def test_list_workflows_by_status(self):
+        """Test listing workflows by status."""
+        # Create workflows with different statuses
+        self.status_manager.set_status("wf-1", WorkflowStatus.PENDING)
+        self.status_manager.set_status("wf-2", WorkflowStatus.RUNNING)
+        self.status_manager.set_status("wf-3", WorkflowStatus.RUNNING)
+        self.status_manager.set_status("wf-4", WorkflowStatus.COMPLETED)
+
+        running_workflows = self.status_manager.list_workflows_by_status(
+            WorkflowStatus.RUNNING
+        )
+
+        assert len(running_workflows) == 2
+        assert "wf-2" in running_workflows
+        assert "wf-3" in running_workflows
+
+    def test_cleanup_old_statuses(self):
+        """Test cleanup of old workflow statuses."""
+        # Add some statuses
+        self.status_manager.set_status("old-1", WorkflowStatus.COMPLETED)
+        self.status_manager.set_status("old-2", WorkflowStatus.FAILED)
+        self.status_manager.set_status("current-1", WorkflowStatus.RUNNING)
+
+        # Mock old timestamps
+        with patch("time.time", return_value=time.time() + 1000):
+            cleaned_count = self.status_manager.cleanup_old_statuses(
+                max_age_seconds=500
+            )
+
+        assert cleaned_count == 2  # Should have cleaned old-1 and old-2
+        assert self.status_manager.get_status("current-1") == WorkflowStatus.RUNNING
+
+    def test_status_statistics(self):
+        """Test status statistics generation."""
+        # Create workflows with various statuses
+        statuses = [
+            WorkflowStatus.PENDING,
+            WorkflowStatus.RUNNING,
+            WorkflowStatus.RUNNING,
+            WorkflowStatus.COMPLETED,
+            WorkflowStatus.COMPLETED,
+            WorkflowStatus.COMPLETED,
+            WorkflowStatus.FAILED,
+        ]
+
+        for i, status in enumerate(statuses):
+            self.status_manager.set_status(f"wf-{i}", status)
+
+        stats = self.status_manager.get_status_statistics()
+
+        assert stats[WorkflowStatus.PENDING] == 1
+        assert stats[WorkflowStatus.RUNNING] == 2
+        assert stats[WorkflowStatus.COMPLETED] == 3
+        assert stats[WorkflowStatus.FAILED] == 1
+        assert stats.get(WorkflowStatus.CANCELLED, 0) == 0
+
+
+class TestContextManager:
+    """Test suite for ContextManager workflow context management."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.context_manager = ContextManager()
+
+    def test_context_manager_initialization(self):
+        """Test ContextManager initializes properly."""
+        assert hasattr(self.context_manager, "_contexts")
+        assert isinstance(self.context_manager._contexts, dict)
+
+    def test_create_and_get_context(self):
+        """Test creating and getting workflow context."""
+        workflow_id = "test-123"
+        initial_data = {"key1": "value1", "key2": "value2"}
+
+        context = self.context_manager.create_context(workflow_id, initial_data)
+
+        assert isinstance(context, WorkflowContext)
+        assert context.workflow_id == workflow_id
+        assert context.get_data("key1") == "value1"
+
+        # Should be able to retrieve the same context
+        retrieved_context = self.context_manager.get_context(workflow_id)
+        assert retrieved_context == context
+
+    def test_update_context_data(self):
+        """Test updating context data."""
+        workflow_id = "test-update"
+
+        context = self.context_manager.create_context(workflow_id, {"initial": "data"})
+
+        self.context_manager.update_context(
+            workflow_id, {"new": "data", "updated": "value"}
+        )
+
+        updated_context = self.context_manager.get_context(workflow_id)
+        assert updated_context.get_data("initial") == "data"  # Should preserve existing
+        assert updated_context.get_data("new") == "data"
+        assert updated_context.get_data("updated") == "value"
+
+    def test_context_data_isolation(self):
+        """Test that contexts are isolated between workflows."""
+        context1 = self.context_manager.create_context("wf-1", {"shared_key": "value1"})
+        context2 = self.context_manager.create_context("wf-2", {"shared_key": "value2"})
+
+        assert context1.get_data("shared_key") == "value1"
+        assert context2.get_data("shared_key") == "value2"
+
+        # Updating one shouldn't affect the other
+        self.context_manager.update_context("wf-1", {"shared_key": "updated1"})
+
+        assert context1.get_data("shared_key") == "updated1"
+        assert context2.get_data("shared_key") == "value2"
+
+    def test_context_cleanup(self):
+        """Test context cleanup."""
+        # Create several contexts
+        for i in range(5):
+            self.context_manager.create_context(f"wf-{i}", {"data": f"value{i}"})
+
+        assert len(self.context_manager._contexts) == 5
+
+        # Cleanup specific workflows
+        cleaned = self.context_manager.cleanup_contexts(["wf-1", "wf-3", "wf-5"])
+
+        assert cleaned == 3
+        assert len(self.context_manager._contexts) == 2
+        assert "wf-0" in self.context_manager._contexts
+        assert "wf-2" in self.context_manager._contexts
+        assert "wf-4" in self.context_manager._contexts
+
+    def test_context_serialization(self):
+        """Test context serialization for persistence."""
+        workflow_id = "test-serialize"
+        context_data = {
+            "string_data": "test",
+            "numeric_data": 42,
+            "list_data": [1, 2, 3],
+            "dict_data": {"nested": "value"},
+        }
+
+        context = self.context_manager.create_context(workflow_id, context_data)
+
+        serialized = self.context_manager.serialize_context(workflow_id)
+
+        assert isinstance(serialized, dict)
+        assert serialized["workflow_id"] == workflow_id
+        assert serialized["data"] == context_data
+        assert "created_at" in serialized
+
+    def test_context_deserialization(self):
+        """Test context deserialization from persistence."""
+        serialized_data = {
+            "workflow_id": "test-deserialize",
+            "data": {"key": "value", "number": 123},
+            "created_at": time.time(),
+        }
+
+        context = self.context_manager.deserialize_context(serialized_data)
+
+        assert context.workflow_id == "test-deserialize"
+        assert context.get_data("key") == "value"
+        assert context.get_data("number") == 123
+
+
+class TestRegistryManager:
+    """Test suite for RegistryManager workflow type registry."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.registry = RegistryManager()
+
+    def test_registry_manager_initialization(self):
+        """Test RegistryManager initializes properly."""
+        assert hasattr(self.registry, "_workflow_classes")
+        assert isinstance(self.registry._workflow_classes, dict)
+
+    def test_register_workflow_class(self):
+        """Test registering workflow classes."""
+        # Mock workflow class
+        mock_workflow_class = Mock()
+        mock_workflow_class.__name__ = "TestWorkflow"
+
+        self.registry.register_workflow("test_workflow", mock_workflow_class)
+
+        retrieved_class = self.registry.get_workflow_class("test_workflow")
+        assert retrieved_class == mock_workflow_class
+
+    def test_register_duplicate_workflow_type(self):
+        """Test registering duplicate workflow types."""
+        mock_class1 = Mock()
+        mock_class2 = Mock()
+
+        self.registry.register_workflow("duplicate", mock_class1)
+
+        # Should raise error on duplicate registration
+        with pytest.raises(ValueError, match="already registered"):
+            self.registry.register_workflow("duplicate", mock_class2)
+
+    def test_register_workflow_with_override(self):
+        """Test registering workflow with override."""
+        mock_class1 = Mock()
+        mock_class2 = Mock()
+
+        self.registry.register_workflow("override_test", mock_class1)
+        self.registry.register_workflow(
+            "override_test", mock_class2, allow_override=True
+        )
+
+        retrieved_class = self.registry.get_workflow_class("override_test")
+        assert retrieved_class == mock_class2
+
+    def test_get_unregistered_workflow_class(self):
+        """Test getting unregistered workflow class."""
+        result = self.registry.get_workflow_class("unregistered")
+        assert result is None
+
+    def test_list_registered_workflows(self):
+        """Test listing registered workflow types."""
+        mock_classes = [Mock() for _ in range(3)]
+        workflow_types = ["type1", "type2", "type3"]
+
+        for wf_type, mock_class in zip(workflow_types, mock_classes):
+            self.registry.register_workflow(wf_type, mock_class)
+
+        registered_types = self.registry.list_workflow_types()
+
+        assert len(registered_types) == 3
+        for wf_type in workflow_types:
+            assert wf_type in registered_types
+
+    def test_unregister_workflow_type(self):
+        """Test unregistering workflow types."""
+        mock_class = Mock()
+
+        self.registry.register_workflow("to_unregister", mock_class)
+        assert self.registry.get_workflow_class("to_unregister") == mock_class
+
+        unregistered = self.registry.unregister_workflow("to_unregister")
+        assert unregistered is True
+        assert self.registry.get_workflow_class("to_unregister") is None
+
+        # Unregistering non-existent should return False
+        unregistered = self.registry.unregister_workflow("nonexistent")
+        assert unregistered is False
+
+    def test_workflow_class_validation(self):
+        """Test workflow class validation during registration."""
+
+        # Valid workflow class (has required methods)
+        class ValidWorkflow:
+            def __init__(self, workflow_id, parameters):
+                pass
+
+            def execute(self):
+                pass
+
+        self.registry.register_workflow("valid", ValidWorkflow)
+        assert self.registry.get_workflow_class("valid") == ValidWorkflow
+
+        # Invalid workflow class (missing methods)
+        class InvalidWorkflow:
+            pass
+
+        with pytest.raises(ValueError, match="must implement"):
+            self.registry.register_workflow("invalid", InvalidWorkflow)
+
+
+class TestWorkflowManagerIntegration:
+    """Integration tests for the complete WorkflowManager system."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.config = WorkflowConfig(
+            timeout=300, retry_count=2, parallel_execution=True
+        )
+
+    def test_workflow_manager_full_lifecycle(self):
+        """Test complete workflow lifecycle through WorkflowManager."""
+        manager = WorkflowManager(self.config)
+
+        # Create workflow
+        workflow_id = manager.create_workflow(
+            workflow_type="test_workflow", parameters={"param1": "value1"}
+        )
+
+        assert isinstance(workflow_id, str)
+
+        # Check initial status
+        status = manager.get_workflow_status(workflow_id)
+        assert status == WorkflowStatus.PENDING
+
+        # Execute workflow (mock the execution)
+        with patch.object(manager.executor, "execute_workflow") as mock_execute:
+            mock_execute.return_value = WorkflowResult(
+                workflow_id=workflow_id,
+                status=WorkflowStatus.COMPLETED,
+                result={"success": True},
+            )
+
+            result = manager.execute_workflow(workflow_id)
+
+        assert result.status == WorkflowStatus.COMPLETED
+        assert result.result["success"] is True
+
+    def test_workflow_manager_error_handling(self):
+        """Test error handling in WorkflowManager."""
+        manager = WorkflowManager(self.config)
+
+        # Test getting non-existent workflow
+        workflow = manager.get_workflow("nonexistent")
+        assert workflow is None
+
+        # Test executing non-existent workflow
+        with pytest.raises(ValueError, match="not found"):
+            manager.execute_workflow("nonexistent")
+
+    def test_workflow_manager_concurrent_execution(self):
+        """Test concurrent workflow execution."""
+        manager = WorkflowManager(self.config)
+
+        # Create multiple workflows
+        workflow_ids = []
+        for i in range(3):
+            workflow_id = manager.create_workflow(
+                workflow_type="concurrent_test", parameters={"index": i}
+            )
+            workflow_ids.append(workflow_id)
+
+        # Execute them concurrently
+        with patch.object(manager.executor, "execute_workflow") as mock_execute:
+            mock_execute.return_value = WorkflowResult(
+                workflow_id="test",
+                status=WorkflowStatus.COMPLETED,
+                result={"success": True},
+            )
+
+            results = []
+            threads = []
+
+            def execute_workflow(wf_id):
+                result = manager.execute_workflow(wf_id)
+                results.append(result)
+
+            for wf_id in workflow_ids:
+                thread = threading.Thread(target=execute_workflow, args=(wf_id,))
+                threads.append(thread)
+                thread.start()
+
+            for thread in threads:
+                thread.join()
+
+        assert len(results) == 3
+        for result in results:
+            assert result.status == WorkflowStatus.COMPLETED
+
+
+class TestBackwardCompatibility:
+    """Test suite for backward compatibility of refactored workflow components."""
+
+    def test_workflow_manager_import_compatibility(self):
+        """Test that old WorkflowManager import still works."""
+        # This should work without modification
+        from hwautomation.orchestration.workflow.manager import (
+            WorkflowManager as NewWorkflowManager,
+        )
+        from hwautomation.orchestration.workflow_manager import (
+            WorkflowManager as OldWorkflowManager,
+        )
+
+        # Should be the same class
+        assert OldWorkflowManager is NewWorkflowManager
+
+    def test_workflow_manager_api_compatibility(self):
+        """Test that old API still works with new implementation."""
+        config = WorkflowConfig(timeout=300, retry_count=3)
+
+        # Test old import path
+        from hwautomation.orchestration.workflow_manager import WorkflowManager
+
+        manager = WorkflowManager(config)
+
+        # All old methods should still be available
+        assert hasattr(manager, "create_workflow")
+        assert hasattr(manager, "execute_workflow")
+        assert hasattr(manager, "get_workflow")
+        assert hasattr(manager, "list_workflows")
+        assert hasattr(manager, "get_workflow_status")
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

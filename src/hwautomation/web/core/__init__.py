@@ -5,7 +5,7 @@ This module provides the foundation for the HWAutomation web interface
 with modular, reusable components for API and web development.
 """
 
-from .base_classes import (
+from .base import (
     BaseAPIView,
     BaseResource,
     BaseResourceView,
