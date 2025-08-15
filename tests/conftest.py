@@ -53,15 +53,26 @@ def pytest_configure(config):
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
     """Set up test environment variables."""
-    # Set DATABASE_PATH to use in-memory database for all tests
+    # Set DATABASE_PATH to use a temporary database file for all tests
+    # Using a temp file instead of :memory: to avoid migration issues
+    import tempfile
+    temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+    temp_db.close()
+    
     original_db_path = os.environ.get("DATABASE_PATH")
-    os.environ["DATABASE_PATH"] = ":memory:"
+    os.environ["DATABASE_PATH"] = temp_db.name
     
     # Ensure data directory exists for any tests that might need it
     data_dir = Path(__file__).parent.parent / "data"
     data_dir.mkdir(exist_ok=True)
     
     yield
+    
+    # Cleanup
+    try:
+        os.unlink(temp_db.name)
+    except FileNotFoundError:
+        pass
     
     # Restore original value if it existed
     if original_db_path is not None:
