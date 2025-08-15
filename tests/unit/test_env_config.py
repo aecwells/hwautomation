@@ -169,7 +169,7 @@ class TestLoadConfigFunction:
 
             from hwautomation.utils.env_config import reload_config
 
-            config = reload_config(str(env_file))
+            config = reload_config(env_file=str(env_file))
             assert config["project"]["name"] == "custom_load_test"
 
     def test_load_config_finds_env_file(self):
