@@ -322,6 +322,7 @@ class RecordIpmiConfigStep(BaseWorkflowStep):
 
             # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
             import os
+
             db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
             db_helper = DbHelper(db_path)
 
@@ -422,6 +423,7 @@ class AssignIpmiIpStep(BaseWorkflowStep):
         """Find the next available IP in the range."""
         try:
             import os
+
             from ...database.helper import DbHelper
 
             # Get all assigned IPMI IPs from database

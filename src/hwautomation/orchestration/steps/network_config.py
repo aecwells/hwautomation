@@ -455,6 +455,7 @@ class RecordNetworkInfoStep(BaseWorkflowStep):
         """Record network information in the database."""
         try:
             import os
+
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording network information in database")

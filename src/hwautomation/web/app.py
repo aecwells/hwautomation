@@ -300,12 +300,14 @@ def create_app():
 app = None
 socketio = None
 
+
 def get_or_create_app():
     """Get existing app or create new one if needed."""
     global app, socketio
     if app is None:
         app, socketio = create_app()
     return app, socketio
+
 
 # Don't auto-create app during imports in test environments
 if not (os.environ.get("PYTEST_CURRENT_TEST") or "pytest" in sys.modules):

@@ -395,6 +395,7 @@ class RecordBiosConfigStep(BaseWorkflowStep):
         """Record BIOS configuration information in the database."""
         try:
             import os
+
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording BIOS configuration results in database")

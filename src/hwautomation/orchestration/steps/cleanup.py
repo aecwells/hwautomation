@@ -165,9 +165,9 @@ class RecordWorkflowCompletionStep(BaseWorkflowStep):
     def execute(self, context: StepContext) -> StepExecutionResult:
         """Record workflow completion."""
         try:
+            import os
             from datetime import datetime
 
-            import os
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording workflow completion")

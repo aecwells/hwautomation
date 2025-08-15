@@ -58,9 +58,9 @@ def setup_test_environment():
     # Use multiple fallback strategies for maximum compatibility
     import tempfile
     import uuid
-    
+
     original_db_path = os.environ.get("DATABASE_PATH")
-    
+
     # Try different approaches for creating temp database path
     temp_db_path = None
     try:
@@ -79,15 +79,15 @@ def setup_test_environment():
             # Method 3: Use current directory as last resort
             temp_db_name = f"test_{uuid.uuid4().hex[:8]}.db"
             temp_db_path = os.path.join(os.getcwd(), temp_db_name)
-    
+
     os.environ["DATABASE_PATH"] = temp_db_path
-    
+
     # Ensure data directory exists for any tests that might need it
     data_dir = Path(__file__).parent.parent / "data"
     data_dir.mkdir(exist_ok=True)
-    
+
     yield
-    
+
     # Cleanup
     try:
         if temp_db_path and os.path.exists(temp_db_path):
@@ -95,7 +95,7 @@ def setup_test_environment():
     except (FileNotFoundError, PermissionError, OSError):
         # Ignore cleanup errors in CI environments
         pass
-    
+
     # Restore original value if it existed
     if original_db_path is not None:
         os.environ["DATABASE_PATH"] = original_db_path

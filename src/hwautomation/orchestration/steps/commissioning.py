@@ -353,6 +353,7 @@ class RecordCommissioningStep(BaseWorkflowStep):
             # Initialize database helper
             # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
             import os
+
             db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
             db_helper = DbHelper(db_path)
 

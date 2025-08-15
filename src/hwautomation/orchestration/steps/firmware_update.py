@@ -250,6 +250,7 @@ class RecordFirmwareUpdateStep(BaseWorkflowStep):
         """Record firmware update results."""
         try:
             import os
+
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording firmware update results")

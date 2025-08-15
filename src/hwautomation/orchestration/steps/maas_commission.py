@@ -236,6 +236,7 @@ class RecordMaasInfoStep(BaseWorkflowStep):
         """Record MaaS information."""
         try:
             import os
+
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording MaaS machine information")
