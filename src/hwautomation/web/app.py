@@ -296,7 +296,20 @@ def create_app():
 
 
 # For backward compatibility and standalone usage
-app, socketio = create_app()
+# Only create app automatically if not in test environment
+app = None
+socketio = None
+
+def get_or_create_app():
+    """Get existing app or create new one if needed."""
+    global app, socketio
+    if app is None:
+        app, socketio = create_app()
+    return app, socketio
+
+# Don't auto-create app during imports in test environments
+if not (os.environ.get("PYTEST_CURRENT_TEST") or "pytest" in sys.modules):
+    app, socketio = create_app()
 
 if __name__ == "__main__":
     import argparse
