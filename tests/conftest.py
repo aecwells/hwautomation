@@ -50,6 +50,26 @@ def pytest_configure(config):
     )
 
 
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_environment():
+    """Set up test environment variables."""
+    # Set DATABASE_PATH to use in-memory database for all tests
+    original_db_path = os.environ.get("DATABASE_PATH")
+    os.environ["DATABASE_PATH"] = ":memory:"
+    
+    # Ensure data directory exists for any tests that might need it
+    data_dir = Path(__file__).parent.parent / "data"
+    data_dir.mkdir(exist_ok=True)
+    
+    yield
+    
+    # Restore original value if it existed
+    if original_db_path is not None:
+        os.environ["DATABASE_PATH"] = original_db_path
+    else:
+        os.environ.pop("DATABASE_PATH", None)
+
+
 @pytest.fixture(scope="session")
 def event_loop():
     """Create an instance of the default event loop for the test session."""

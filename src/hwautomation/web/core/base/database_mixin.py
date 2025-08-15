@@ -5,6 +5,7 @@ This module provides DatabaseMixin with connection management,
 transaction handling, query helpers, and comprehensive error handling.
 """
 
+import os
 from typing import Any, Dict, List, Tuple
 
 from hwautomation.database import DbHelper
@@ -26,7 +27,9 @@ class DatabaseMixin:
 
     def __init__(self):
         if not hasattr(self, "db_helper"):
-            self.db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            self.db_helper = DbHelper(db_path)
 
     def with_connection(self, func, *args, **kwargs):
         """Execute function with database connection."""
