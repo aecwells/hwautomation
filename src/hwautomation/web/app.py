@@ -37,6 +37,7 @@ def create_app():
     # Import dependencies
     from hwautomation.database.helper import DbHelper
     from hwautomation.hardware.bios import BiosConfigManager
+    from hwautomation.hardware.firmware.manager import FirmwareManager
     from hwautomation.maas.client import create_maas_client
     from hwautomation.orchestration.device_selection import DeviceSelectionService
     from hwautomation.orchestration.server_provisioning import (
@@ -97,6 +98,27 @@ def create_app():
 
     # Workflow Manager (pass config, not db_helper)
     workflow_manager = WorkflowManager(config)
+
+    # Firmware Manager
+    firmware_manager = None
+    try:
+        # Get the correct config path for firmware repository
+        firmware_config_path = (
+            Path(__file__).parent.parent.parent.parent
+            / "configs"
+            / "firmware"
+            / "firmware_repository.yaml"
+        )
+        firmware_manager = FirmwareManager(str(firmware_config_path))
+        logger.info("FirmwareManager initialized successfully")
+    except Exception as e:
+        logger.warning(f"FirmwareManager initialization failed: {e}")
+        # Create a basic firmware manager with None config for fallback
+        try:
+            firmware_manager = FirmwareManager()
+        except Exception as e2:
+            logger.error(f"Failed to create fallback FirmwareManager: {e2}")
+            firmware_manager = None
 
     # MaaS Client (if configured) - WorkflowManager already initializes MaaS client
     maas_client = None
@@ -248,7 +270,9 @@ def create_app():
     if firmware_bp:
         app.register_blueprint(firmware_bp)
         if init_firmware_routes is not None:
-            init_firmware_routes(app, workflow_manager, db_helper, socketio)
+            init_firmware_routes(
+                firmware_manager, workflow_manager, db_helper, socketio
+            )
 
     # WebSocket event handlers
     @socketio.on("connect")

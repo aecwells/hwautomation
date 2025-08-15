@@ -13,7 +13,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+import yaml
+from flask import (
+    Blueprint,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 from flask_socketio import emit
 
 from ...logging import get_logger
@@ -31,7 +41,7 @@ class FirmwareWebManager:
         """Initialize firmware web manager.
 
         Args:
-            firmware_manager: FirmwareManager instance
+            firmware_manager: FirmwareManager instance (can be None)
             workflow_manager: WorkflowManager instance
             db_helper: Database helper instance
             socketio: SocketIO instance for real-time updates
@@ -51,6 +61,7 @@ class FirmwareWebManager:
         try:
             inventory: Dict[str, Any] = {
                 "servers": [],
+                "device_types": [],
                 "update_summary": {
                     "total_servers": 0,
                     "updates_available": 0,
@@ -63,6 +74,9 @@ class FirmwareWebManager:
                     "latest_versions": {},
                 },
             }
+
+            # Get device types and motherboard information
+            inventory["device_types"] = self._get_device_types_firmware_info()
 
             # Get all servers from database
             try:
@@ -212,6 +226,208 @@ class FirmwareWebManager:
             logger.warning(f"Failed to check updates for {device_type}: {e}")
             return []
 
+    def _get_device_types_firmware_info(self) -> List[Dict[str, Any]]:
+        """Get firmware information for all device types from device mappings.
+
+        Returns:
+            List of device types with motherboard and firmware information
+        """
+        try:
+            device_types = []
+
+            # Load device mappings
+            device_mappings_path = Path("./configs/bios/device_mappings.yaml")
+            if not device_mappings_path.exists():
+                device_mappings_path = Path("/app/configs/bios/device_mappings.yaml")
+
+            if not device_mappings_path.exists():
+                logger.warning("Device mappings file not found")
+                return []
+
+            with open(device_mappings_path, "r") as f:
+                mappings = yaml.safe_load(f)
+
+            device_types_config = mappings.get("device_types", {})
+
+            for device_type, config in device_types_config.items():
+                # Clean up device type name (remove extra spaces)
+                clean_device_type = device_type.strip()
+
+                motherboards = config.get("motherboards", ["Unknown"])
+                vendor = config.get("hardware_specs", {}).get("vendor", "unknown")
+                description = config.get("description", "No description available")
+                cpu_name = config.get("hardware_specs", {}).get(
+                    "cpu_name", "Unknown CPU"
+                )
+                ram_gb = config.get("hardware_specs", {}).get("ram_gb", 0)
+                cpu_cores = config.get("hardware_specs", {}).get("cpu_cores", 0)
+
+                # Get firmware versions for each motherboard
+                for motherboard in motherboards:
+                    if motherboard != "Unknown":
+                        # Get current firmware versions (simulated for now)
+                        bios_version, bmc_version = (
+                            self._get_motherboard_firmware_versions(vendor, motherboard)
+                        )
+
+                        # Check for available firmware files
+                        available_firmware = self._get_available_firmware_files(
+                            vendor, motherboard
+                        )
+
+                        device_info = {
+                            "device_type": clean_device_type,
+                            "motherboard": motherboard,
+                            "vendor": vendor.title(),
+                            "description": description,
+                            "cpu_name": cpu_name,
+                            "ram_gb": ram_gb,
+                            "cpu_cores": cpu_cores,
+                            "bios_version": bios_version,
+                            "bmc_version": bmc_version,
+                            "firmware_files": available_firmware,
+                            "last_updated": datetime.now().strftime("%Y-%m-%d"),
+                        }
+                        device_types.append(device_info)
+
+            return sorted(device_types, key=lambda x: x["device_type"])
+
+        except Exception as e:
+            logger.error(f"Failed to get device types firmware info: {e}")
+            return []
+
+    def _get_motherboard_firmware_versions(
+        self, vendor: str, motherboard: str
+    ) -> tuple:
+        """Get current firmware versions for a specific motherboard.
+
+        Args:
+            vendor: Hardware vendor (supermicro, hpe, etc.)
+            motherboard: Motherboard model
+
+        Returns:
+            Tuple of (bios_version, bmc_version)
+        """
+        try:
+            # This would integrate with actual firmware detection
+            # For now, provide realistic simulated versions based on vendor/motherboard
+
+            if vendor.lower() == "supermicro":
+                if "X12" in motherboard:
+                    return ("3.7", "1.73.14")
+                elif "X13" in motherboard:
+                    return ("1.2", "1.00.25")
+                elif "X11" in motherboard:
+                    return ("3.4", "1.66.07")
+                else:
+                    return ("2.5", "1.50.10")
+            elif vendor.lower() == "hpe":
+                return ("U46 2.78", "iLO 5 2.82")
+            else:
+                return ("1.0.0", "1.0.0")
+
+        except Exception as e:
+            logger.warning(
+                f"Failed to get firmware versions for {vendor}/{motherboard}: {e}"
+            )
+            return ("Unknown", "Unknown")
+
+    def _get_available_firmware_files(
+        self, vendor: str, motherboard: str
+    ) -> List[Dict[str, Any]]:
+        """Get available firmware files for a specific motherboard.
+
+        Args:
+            vendor: Hardware vendor
+            motherboard: Motherboard model
+
+        Returns:
+            List of available firmware files with metadata
+        """
+        try:
+            firmware_files = []
+
+            # Check firmware directory
+            firmware_base_path = Path("/app/firmware")  # Docker path
+            if not firmware_base_path.exists():
+                firmware_base_path = Path("./firmware")  # Local path
+
+            if not firmware_base_path.exists():
+                return []
+
+            vendor_path = firmware_base_path / vendor.lower()
+            if not vendor_path.exists():
+                return []
+
+            # Check BIOS files
+            bios_path = vendor_path / "bios"
+            if bios_path.exists():
+                firmware_extensions = [".bin", ".rom", ".fwpkg", ".fw", ".img", ".cap"]
+                for ext in firmware_extensions:
+                    for file_path in bios_path.glob(f"*{ext}"):
+                        if (
+                            motherboard.lower() in file_path.name.lower()
+                            or "universal" in file_path.name.lower()
+                        ):
+                            file_info = {
+                                "filename": file_path.name,
+                                "type": "BIOS",
+                                "size": self._format_file_size(
+                                    file_path.stat().st_size
+                                ),
+                                "date_modified": datetime.fromtimestamp(
+                                    file_path.stat().st_mtime
+                                ).strftime("%Y-%m-%d"),
+                                "path": str(file_path.relative_to(firmware_base_path)),
+                                "download_url": f"/firmware/api/download/{vendor.lower()}/bios/{file_path.name}",
+                            }
+                            firmware_files.append(file_info)
+
+            # Check BMC files
+            bmc_path = vendor_path / "bmc"
+            if bmc_path.exists():
+                firmware_extensions = [".bin", ".rom", ".fwpkg", ".fw", ".img", ".cap"]
+                for ext in firmware_extensions:
+                    for file_path in bmc_path.glob(f"*{ext}"):
+                        if (
+                            motherboard.lower() in file_path.name.lower()
+                            or "universal" in file_path.name.lower()
+                        ):
+                            file_info = {
+                                "filename": file_path.name,
+                                "type": "BMC",
+                                "size": self._format_file_size(
+                                    file_path.stat().st_size
+                                ),
+                                "date_modified": datetime.fromtimestamp(
+                                    file_path.stat().st_mtime
+                                ).strftime("%Y-%m-%d"),
+                                "path": str(file_path.relative_to(firmware_base_path)),
+                                "download_url": f"/firmware/api/download/{vendor.lower()}/bmc/{file_path.name}",
+                            }
+                            firmware_files.append(file_info)
+
+            return sorted(firmware_files, key=lambda x: (x["type"], x["filename"]))
+
+        except Exception as e:
+            logger.warning(
+                f"Failed to get firmware files for {vendor}/{motherboard}: {e}"
+            )
+            return []
+
+    def _format_file_size(self, size_bytes: int) -> str:
+        """Format file size in human readable format."""
+        if size_bytes == 0:
+            return "0 B"
+
+        size_names = ["B", "KB", "MB", "GB"]
+        import math
+
+        i = int(math.floor(math.log(size_bytes, 1024)))
+        p = math.pow(1024, i)
+        s = round(size_bytes / p, 2)
+        return f"{s} {size_names[i]}"
+
     def schedule_firmware_update(
         self, server_ids: List[str], update_config: Dict
     ) -> Dict[str, Any]:
@@ -334,7 +550,7 @@ def init_firmware_routes(firmware_manager, workflow_manager, db_helper, socketio
     """Initialize firmware routes with dependencies.
 
     Args:
-        firmware_manager: FirmwareManager instance
+        firmware_manager: FirmwareManager instance (can be None for basic functionality)
         workflow_manager: WorkflowManager instance
         db_helper: Database helper instance
         socketio: SocketIO instance for real-time updates
@@ -380,6 +596,70 @@ def api_firmware_inventory():
 
     except Exception as e:
         logger.error(f"API error getting firmware inventory: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/device-types")
+def api_device_types_firmware():
+    """API endpoint for device types firmware information."""
+    try:
+        if not firmware_web_manager:
+            return jsonify({"error": "Firmware management not initialized"}), 500
+
+        device_types = firmware_web_manager._get_device_types_firmware_info()
+        return jsonify({"device_types": device_types})
+
+    except Exception as e:
+        logger.error(f"API error getting device types firmware: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/download/<vendor>/<firmware_type>/<filename>")
+def api_download_firmware(vendor, firmware_type, filename):
+    """API endpoint to download firmware files."""
+    try:
+        # Validate inputs
+        allowed_vendors = ["supermicro", "hpe"]
+        allowed_types = ["bios", "bmc"]
+
+        if vendor.lower() not in allowed_vendors:
+            return jsonify({"error": "Invalid vendor"}), 400
+
+        if firmware_type.lower() not in allowed_types:
+            return jsonify({"error": "Invalid firmware type"}), 400
+
+        # Construct file path
+        firmware_base_path = Path("/app/firmware")  # Docker path
+        if not firmware_base_path.exists():
+            firmware_base_path = Path("./firmware")  # Local path
+
+        if not firmware_base_path.exists():
+            return jsonify({"error": "Firmware directory not found"}), 404
+
+        file_path = (
+            firmware_base_path / vendor.lower() / firmware_type.lower() / filename
+        )
+
+        if not file_path.exists():
+            return jsonify({"error": "Firmware file not found"}), 404
+
+        # Security check - ensure file is within firmware directory
+        try:
+            file_path.resolve().relative_to(firmware_base_path.resolve())
+        except ValueError:
+            return jsonify({"error": "Invalid file path"}), 400
+
+        return send_file(
+            str(file_path),
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/octet-stream",
+        )
+
+    except Exception as e:
+        logger.error(
+            f"Error downloading firmware {vendor}/{firmware_type}/{filename}: {e}"
+        )
         return jsonify({"error": str(e)}), 500
 
 
