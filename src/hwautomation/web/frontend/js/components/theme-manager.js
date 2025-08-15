@@ -100,8 +100,9 @@ class ThemeManager {
    */
   setupThemeToggle() {
     // Look for existing theme toggle button
-    this.toggleButton = document.querySelector('#themeToggle') ||
-                       document.querySelector('[data-bs-toggle="theme"]');
+    this.toggleButton =
+      document.querySelector("#themeToggle") ||
+      document.querySelector('[data-bs-toggle="theme"]');
 
     if (!this.toggleButton) {
       // Create theme toggle button if it doesn't exist
@@ -176,7 +177,10 @@ class ThemeManager {
     } else {
       // Template icon (managed by template event listener)
       // Just update the title - icon will be updated by template event listener
-      this.toggleButton.title = this.currentTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+      this.toggleButton.title =
+        this.currentTheme === "light"
+          ? "Switch to dark theme"
+          : "Switch to light theme";
     }
   }
 
@@ -235,7 +239,10 @@ class ThemeManager {
    */
   destroy() {
     if (this.toggleButton) {
-      this.toggleButton.removeEventListener("click", this.toggleTheme.bind(this));
+      this.toggleButton.removeEventListener(
+        "click",
+        this.toggleTheme.bind(this),
+      );
     }
     this.isInitialized = false;
   }
