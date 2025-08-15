@@ -418,11 +418,11 @@
                             <i class="bi bi-funnel"></i> Advanced Filters
                         </button>
                         <div class="btn-group me-3" role="group">
-                            <input type="radio" class="btn-check" name="deviceViewMode" id="cardView" value="card" checked onchange="toggleDeviceView('card')">
+                            <input type="radio" class="btn-check" name="deviceViewMode" id="cardView" value="card" onchange="toggleDeviceView('card')">
                             <label class="btn btn-outline-secondary btn-sm" for="cardView" title="Card View">
                                 <i class="bi bi-grid-3x3-gap"></i>
                             </label>
-                            <input type="radio" class="btn-check" name="deviceViewMode" id="listView" value="list" onchange="toggleDeviceView('list')">
+                            <input type="radio" class="btn-check" name="deviceViewMode" id="listView" value="list" checked onchange="toggleDeviceView('list')">
                             <label class="btn btn-outline-secondary btn-sm" for="listView" title="List View">
                                 <i class="bi bi-list"></i>
                             </label>
@@ -583,7 +583,7 @@
                 </div>
 
                 <div class="card-body">
-                    <div id="deviceTypeGrid" class="row">
+                    <div id="deviceTypeGrid" class="row" style="display: none;">
                         <!-- Device types will be loaded here via JavaScript -->
                         <div class="col-12 text-center py-4" id="deviceTypesLoading">
                             <div class="spinner-border text-primary" role="status">
@@ -594,7 +594,7 @@
                     </div>
 
                     <!-- Device Types List View -->
-                    <div id="deviceTypeTable" class="table-responsive" style="display: none;">
+                    <div id="deviceTypeTable" class="table-responsive">
                         <table class="table table-hover table-striped">
                             <thead class="table-dark">
                                 <tr>
@@ -716,13 +716,13 @@
                     <table class="table table-striped" id="inventoryTable">
                         <thead>
                             <tr>
-                                <th>Server ID</th>
-                                <th>Hostname</th>
                                 <th>Device Type</th>
-                                <th>BIOS Version</th>
-                                <th>BMC Version</th>
-                                <th>Status</th>
-                                <th>Last Checked</th>
+                                <th>Vendor</th>
+                                <th>Motherboard</th>
+                                <th>Firmware File</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Date Modified</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -873,22 +873,24 @@ function applyDeviceTypeFilters() {
             }
         }
 
-        // Size filter (extract from device type name)
+        // Size filter (use data-ram attribute)
         if (sizeFilter) {
-            const deviceTypeName = card.querySelector('.card-title')?.textContent?.toLowerCase() || '';
-            if (!deviceTypeName.includes(sizeFilter)) {
+            const ramSize = parseInt(card.getAttribute('data-ram')) || 0;
+            // Map size filter to RAM size ranges
+            let ramRange = null;
+            if (sizeFilter === 'small' && ramSize <= 64) ramRange = true;
+            else if (sizeFilter === 'medium' && ramSize > 64 && ramSize <= 256) ramRange = true;
+            else if (sizeFilter === 'large' && ramSize > 256) ramRange = true;
+
+            if (!ramRange) {
                 showCard = false;
             }
         }
 
-        // Core count filter (check CPU info)
-        const cpuInfo = card.querySelector('.cpu-info')?.textContent || '';
-        const coreMatch = cpuInfo.match(/(\d+)\s*cores?/i);
-        if (coreMatch) {
-            const cores = parseInt(coreMatch[1]);
-            if (cores < minCores || cores > maxCores) {
-                showCard = false;
-            }
+        // Core count filter (use data-cores attribute)
+        const cores = parseInt(card.getAttribute('data-cores')) || 0;
+        if (cores < minCores || cores > maxCores) {
+            showCard = false;
         }
 
         // Vendor filter
@@ -903,23 +905,22 @@ function applyDeviceTypeFilters() {
         if (!biosFilter && hasBIOS && !hasBMC) showCard = false;
         if (!bmcFilter && hasBMC && !hasBIOS) showCard = false;
 
-        // Firmware status filter
+        // Firmware status filter (use data-firmware-status attribute)
         if (firmwareStatusFilter) {
-            const statusBadge = card.querySelector('.firmware-status-badge, .badge');
-            const statusText = statusBadge ? statusBadge.textContent.toLowerCase() : '';
+            const firmwareStatus = card.getAttribute('data-firmware-status') || '';
 
             switch(firmwareStatusFilter) {
                 case 'latest':
-                    if (!statusText.includes('latest') && !statusText.includes('up to date')) showCard = false;
+                    if (firmwareStatus !== 'up-to-date') showCard = false;
                     break;
                 case 'outdated':
-                    if (!statusText.includes('outdated')) showCard = false;
+                    if (firmwareStatus !== 'outdated') showCard = false;
                     break;
                 case 'updates':
-                    if (!statusText.includes('updates available') && !statusText.includes('update available')) showCard = false;
+                    if (firmwareStatus !== 'updates-available') showCard = false;
                     break;
                 case 'unknown':
-                    if (!statusText.includes('unknown')) showCard = false;
+                    if (firmwareStatus !== 'status-unknown') showCard = false;
                     break;
             }
         }
@@ -939,6 +940,87 @@ function applyDeviceTypeFilters() {
 
         card.style.display = showCard ? '' : 'none';
         if (showCard) filteredCount++;
+    });
+
+    // Apply filters to device type table rows (for list view)
+    const deviceRows = document.querySelectorAll('.device-type-row');
+    deviceRows.forEach(row => {
+        let showRow = true;
+
+        // Advanced device name search
+        if (advancedDeviceSearch) {
+            const rowText = row.textContent.toLowerCase();
+            if (!rowText.includes(advancedDeviceSearch)) {
+                showRow = false;
+            }
+        }
+
+        // Size filter (use data-ram attribute)
+        if (sizeFilter) {
+            const ramSize = parseInt(row.getAttribute('data-ram')) || 0;
+            // Map size filter to RAM size ranges
+            let ramRange = null;
+            if (sizeFilter === 'small' && ramSize <= 64) ramRange = true;
+            else if (sizeFilter === 'medium' && ramSize > 64 && ramSize <= 256) ramRange = true;
+            else if (sizeFilter === 'large' && ramSize > 256) ramRange = true;
+
+            if (!ramRange) {
+                showRow = false;
+            }
+        }
+
+        // Core count filter (use data-cores attribute)
+        const cores = parseInt(row.getAttribute('data-cores')) || 0;
+        if (cores < minCores || cores > maxCores) {
+            showRow = false;
+        }
+
+        // Vendor filter
+        const vendor = row.getAttribute('data-vendor')?.toLowerCase() || '';
+        if (!supermicroFilter && vendor === 'supermicro') showRow = false;
+        if (!hpeFilter && vendor === 'hpe') showRow = false;
+        if (!dellFilter && vendor === 'dell') showRow = false;
+
+        // Firmware component filter
+        const hasBIOS = row.querySelector('.bios-version, .bios-info') !== null;
+        const hasBMC = row.querySelector('.bmc-version, .bmc-info') !== null;
+        if (!biosFilter && hasBIOS && !hasBMC) showRow = false;
+        if (!bmcFilter && hasBMC && !hasBIOS) showRow = false;
+
+        // Firmware status filter (use data-firmware-status attribute)
+        if (firmwareStatusFilter) {
+            const firmwareStatus = row.getAttribute('data-firmware-status') || '';
+
+            switch(firmwareStatusFilter) {
+                case 'latest':
+                    if (firmwareStatus !== 'up-to-date') showRow = false;
+                    break;
+                case 'outdated':
+                    if (firmwareStatus !== 'outdated') showRow = false;
+                    break;
+                case 'updates':
+                    if (firmwareStatus !== 'updates-available') showRow = false;
+                    break;
+                case 'unknown':
+                    if (firmwareStatus !== 'status-unknown') showRow = false;
+                    break;
+            }
+        }
+
+        // File count filter
+        const fileCountElement = row.querySelector('.file-count');
+        if (fileCountElement) {
+            const fileCountText = fileCountElement.textContent;
+            const fileMatch = fileCountText.match(/(\d+)/);
+            if (fileMatch) {
+                const fileCount = parseInt(fileMatch[1]);
+                if (fileCount < minFiles || fileCount > maxFiles) {
+                    showRow = false;
+                }
+            }
+        }
+
+        row.style.display = showRow ? '' : 'none';
     });
 
     // Update device type count
@@ -972,6 +1054,11 @@ function clearDeviceTypeFilters() {
     // Show all device type cards
     document.querySelectorAll('.device-type-card').forEach(card => {
         card.style.display = '';
+    });
+
+    // Show all device type table rows
+    document.querySelectorAll('.device-type-row').forEach(row => {
+        row.style.display = '';
     });
 
     // Reset count
@@ -1218,47 +1305,15 @@ function showScheduleModal(preSelectedServerId = null) {
     const serverSelection = document.getElementById('serverSelection');
     serverSelection.innerHTML = '';
 
-    // Add servers with available updates from template data
-    {% if inventory.servers %}
-    const serversData = [
-        {% for server in inventory.servers %}
-        {
-            id: '{{ server.id }}',
-            hostname: '{{ server.hostname }}',
-            updates_available: {{ server.updates_available | lower }},
-            available_updates: [
-                {% if server.available_updates %}
-                {% for update in server.available_updates %}
-                {
-                    component: '{{ update.component }}',
-                    current: '{{ update.current }}',
-                    available: '{{ update.available }}'
-                }{% if not loop.last %},{% endif %}
-                {% endfor %}
-                {% endif %}
-            ]
-        }{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
-    {% else %}
-    const serversData = [];
-    {% endif %}
-
-    serversData.forEach(server => {
-        if (server.updates_available) {
-            const isSelected = preSelectedServerId === server.id;
-            const updatesText = server.available_updates.map(u => `${u.component}: ${u.current} → ${u.available}`).join(', ');
-            serverSelection.innerHTML += `
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="${server.id}" id="server_${server.id}" ${isSelected ? 'checked' : ''}>
-                    <label class="form-check-label" for="server_${server.id}">
-                        ${server.hostname} (${server.id})
-                        <small class="text-muted d-block">${updatesText}</small>
-                    </label>
-                </div>
-            `;
-        }
-    });
+    // For firmware management, we focus on device types rather than individual servers
+    // This can be enhanced to integrate with actual server inventory if needed
+    serverSelection.innerHTML = `
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <strong>Firmware Updates:</strong> Use the auto-download feature to get the latest firmware files.
+            Individual server updates will be implemented in a future version.
+        </div>
+    `;
 
     modal.show();
 }
@@ -1267,63 +1322,123 @@ function showDetailedInventory() {
     console.log('showDetailedInventory called, bootstrap type:', typeof bootstrap);
     const modal = new bootstrap.Modal(document.getElementById('detailedInventoryModal'));
 
-    // Populate inventory table
+    // Populate inventory table with firmware data
     const tableBody = document.getElementById('inventoryTableBody');
-    tableBody.innerHTML = '';
+    tableBody.innerHTML = '<tr><td colspan="8" class="text-center">Loading firmware inventory...</td></tr>';
 
-    {% if inventory.servers %}
-    const inventoryData = [
-        {% for server in inventory.servers %}
-        {
-            id: '{{ server.id }}',
-            hostname: '{{ server.hostname }}',
-            device_type: '{{ server.device_type or "Unknown" }}',
-            bios_version: '{{ server.bios_version }}',
-            bmc_version: '{{ server.bmc_version }}',
-            updates_available: {{ server.updates_available | lower }},
-            firmware_status: '{{ server.firmware_status }}',
-            last_checked: '{{ server.last_checked or "" }}'
-        }{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
-    {% else %}
-    const inventoryData = [];
-    {% endif %}
+    // Fetch firmware list from API
+    fetch('/firmware/api/firmware-list')
+        .then(response => response.json())
+        .then(data => {
+            tableBody.innerHTML = '';
 
-    inventoryData.forEach(server => {
-        let statusBadge;
-        if (server.updates_available) {
-            statusBadge = '<span class="badge bg-warning">Updates Available</span>';
-        } else if (server.firmware_status === 'detected') {
-            statusBadge = '<span class="badge bg-success">Up to Date</span>';
-        } else {
-            statusBadge = '<span class="badge bg-secondary">Unknown</span>';
-        }
+            if (data.firmware_list && data.firmware_list.length > 0) {
+                data.firmware_list.forEach(device => {
+                    device.firmware_files.forEach((firmware, index) => {
+                        const isFirstFile = index === 0;
 
-        const lastChecked = server.last_checked ?
-            moment(server.last_checked).fromNow() : 'Never';
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td>${isFirstFile ? device.device_type : ''}</td>
+                                <td>${isFirstFile ? device.vendor : ''}</td>
+                                <td>${isFirstFile ? device.motherboard : ''}</td>
+                                <td>${firmware.filename}</td>
+                                <td><span class="badge bg-info">${firmware.type}</span></td>
+                                <td>${firmware.size}</td>
+                                <td>${firmware.date_modified}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="${firmware.download_url}" class="btn btn-outline-primary" download>
+                                            <i class="bi bi-download"></i> Download
+                                        </a>
+                                        ${isFirstFile ? `<button class="btn btn-outline-info" onclick="showDeviceTypeDetails('${device.device_type}')">Details</button>` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No firmware files available</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching firmware list:', error);
+            tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error loading firmware inventory</td></tr>';
+        });
 
-        const updateButton = server.updates_available ?
-            `<button class="btn btn-outline-warning" onclick="scheduleServerUpdate('${server.id}')">Update</button>` : '';
+    modal.show();
+}
 
-        tableBody.innerHTML += `
-            <tr>
-                <td>${server.id}</td>
-                <td>${server.hostname}</td>
-                <td>${server.device_type}</td>
-                <td><code class="small">${server.bios_version}</code></td>
-                <td><code class="small">${server.bmc_version}</code></td>
-                <td>${statusBadge}</td>
-                <td class="small">${lastChecked}</td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="viewDetails('${server.id}')">Details</button>
-                        ${updateButton}
+function showDeviceTypeDetails(deviceType) {
+    const modal = new bootstrap.Modal(document.getElementById('deviceTypeDetailsModal'));
+    const content = document.getElementById('deviceTypeDetailsContent');
+
+    content.innerHTML = `
+        <div class="text-center">
+            <i class="bi bi-gear"></i> Loading device type details...
+        </div>
+    `;
+
+    // Fetch device type details
+    fetch('/firmware/api/firmware-list')
+        .then(response => response.json())
+        .then(data => {
+            const device = data.firmware_list.find(d => d.device_type === deviceType);
+            if (device) {
+                content.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Hardware Information</h6>
+                            <p><strong>Device Type:</strong> ${device.device_type}</p>
+                            <p><strong>Vendor:</strong> ${device.vendor}</p>
+                            <p><strong>Motherboard:</strong> ${device.motherboard}</p>
+                            <p><strong>Description:</strong> ${device.description}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Firmware Information</h6>
+                            <p><strong>BIOS Version:</strong> <code>${device.bios_version}</code></p>
+                            <p><strong>BMC Version:</strong> <code>${device.bmc_version}</code></p>
+                            <p><strong>Last Updated:</strong> ${device.last_updated}</p>
+                        </div>
                     </div>
-                </td>
-            </tr>
-        `;
-    });
+                    <hr>
+                    <h6>Available Firmware Files</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${device.firmware_files.map(file => `
+                                    <tr>
+                                        <td>${file.filename}</td>
+                                        <td><span class="badge bg-info">${file.type}</span></td>
+                                        <td>${file.size}</td>
+                                        <td>
+                                            <a href="${file.download_url}" class="btn btn-sm btn-outline-primary" download>
+                                                <i class="bi bi-download"></i> Download
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = '<div class="alert alert-warning">Device type details not found.</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching device details:', error);
+            content.innerHTML = '<div class="alert alert-danger">Error loading device type details.</div>';
+        });
 
     modal.show();
 }
@@ -1479,10 +1594,13 @@ async function loadDeviceTypes() {
             if (view === 'card') {
                 cardView.style.display = 'block';
                 listView.style.display = 'none';
+                // Apply current filters to cards
+                applyDeviceTypeFilters();
             } else {
                 cardView.style.display = 'none';
                 listView.style.display = 'block';
                 renderDeviceTypesList();
+                // Note: renderDeviceTypesList() already calls applyDeviceTypeFilters()
             }
         }
 
@@ -1504,7 +1622,7 @@ async function loadDeviceTypes() {
             const tableBody = document.getElementById('deviceTypeTableBody');
             if (!tableBody) return;
 
-            // Fetch device types data from API
+            // Use the same API endpoint as card view for consistency
             fetch('/firmware/api/device-types')
                 .then(response => response.json())
                 .then(data => {
@@ -1529,12 +1647,16 @@ async function loadDeviceTypes() {
 
                         // Status determination
                         let statusBadge = '';
+                        let statusClass = '';
                         if (hasUpdates) {
                             statusBadge = '<span class="badge bg-warning">Updates Available</span>';
+                            statusClass = 'updates-available';
                         } else if (deviceType.firmware_files.length > 0) {
                             statusBadge = '<span class="badge bg-success">Current</span>';
+                            statusClass = 'up-to-date';
                         } else {
                             statusBadge = '<span class="badge bg-secondary">No Firmware</span>';
+                            statusClass = 'status-unknown';
                         }
 
                         // Firmware files summary
@@ -1554,7 +1676,12 @@ async function loadDeviceTypes() {
                             ) : 'Never';
 
                         html += `
-                            <tr>
+                            <tr class="device-type-row ${statusClass}"
+                                data-vendor="${(deviceType.vendor || 'unknown').toLowerCase()}"
+                                data-device-type="${deviceType.device_type}"
+                                data-cores="${deviceType.cpu_cores || 0}"
+                                data-ram="${deviceType.ram_gb || 0}"
+                                data-firmware-status="${statusClass}">
                                 <td>
                                     <strong>${deviceType.device_type}</strong>
                                     <br><small class="text-muted">${deviceType.vendor || 'Unknown'}</small>
@@ -1579,10 +1706,10 @@ async function loadDeviceTypes() {
                                     ${latestBmc && latestBmc.filename !== deviceType.bmc_version ? '<br><small class="text-info">Latest: ' + latestBmc.filename.replace(/.*_v/, 'v').replace('.bin', '') + '</small>' : ''}
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary">${deviceType.firmware_files.length} total</span>
+                                    <span class="badge bg-primary file-count">${deviceType.firmware_files.length} total</span>
                                     <br><small class="text-muted">${firmwareSummary}</small>
                                 </td>
-                                <td>${statusBadge}</td>
+                                <td class="firmware-status-badge">${statusBadge}</td>
                                 <td>
                                     <small>${latestDate !== 'Never' ? new Date(latestDate).toLocaleDateString() : 'Never'}</small>
                                 </td>
@@ -1604,6 +1731,9 @@ async function loadDeviceTypes() {
                     });
 
                     tableBody.innerHTML = html || '<tr><td colspan="9" class="text-center text-muted">No device types found</td></tr>';
+
+                    // Apply current filters to the newly rendered table
+                    applyDeviceTypeFilters();
                 })
                 .catch(error => {
                     console.error('Error loading device types for table:', error);
@@ -1730,7 +1860,12 @@ async function loadDeviceTypes() {
                 }
 
                 html += `
-                <div class="col-lg-4 col-md-6 mb-3 device-type-card ${statusClass}" data-vendor="${(device.vendor || 'unknown').toLowerCase()}" data-device-type="${device.device_type}">
+                <div class="col-lg-4 col-md-6 mb-3 device-type-card ${statusClass}"
+                     data-vendor="${(device.vendor || 'unknown').toLowerCase()}"
+                     data-device-type="${device.device_type}"
+                     data-cores="${device.cpu_cores || 0}"
+                     data-ram="${device.ram_gb || 0}"
+                     data-firmware-status="${statusClass}">
                     <div class="card h-100 firmware-card ${statusClass}">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h6 class="mb-0 card-title">
@@ -1955,8 +2090,11 @@ document.addEventListener('DOMContentLoaded', function() {
         radio.addEventListener('change', filterDeviceTypes);
     });
 
-    // Load device types on page load
-    loadDeviceTypes();
+    // Load device types on page load and switch to table view by default
+    loadDeviceTypes().then(() => {
+        // Switch to table view after data is loaded
+        toggleDeviceView('list');
+    });
 
     // Schedule type change handler
     const scheduleTypeSelect = document.getElementById('scheduleType');

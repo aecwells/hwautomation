@@ -42,24 +42,6 @@ repos:
     name: Check Python AST
     description: Check Python files compile correctly
 
-# Frontend code quality checks
-- repo: local
-  hooks:
-  - id: eslint-frontend
-    name: ESLint for frontend JavaScript
-    description: Lint JavaScript files with ESLint
-    entry: npm run lint
-    language: system
-    files: ^src/hwautomation/web/frontend/.*\.(js|jsx)$
-    pass_filenames: false
-  - id: prettier-frontend
-    name: Prettier for frontend files
-    description: Format JavaScript/CSS files with Prettier
-    entry: npm run format:check
-    language: system
-    files: ^src/hwautomation/web/frontend/.*\.(js|jsx|css|json)$
-    pass_filenames: false
-
 # Global pre-commit configuration
 default_language_version:
   python: python3

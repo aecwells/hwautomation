@@ -244,3 +244,97 @@ firmware_profiles:
     priority: "stability"
     features:
       - "basic_functionality"
+
+# Mock vendor API responses for simulation (development/testing only)
+mock_vendor_responses:
+  enabled: true  # Set to false for production
+
+  hpe:
+    new_firmware:
+      - vendor: "HPE"
+        device_type: "a1.c5.large"
+        component: "bios"
+        current_version: "P40 2.78"
+        latest_version: "P40 2.84"
+        download_url: "https://downloads.hpe.com/pub/softlib2/firmware/proliant/p40284.fwpkg"
+        release_date: "2024-12-15"
+        size_mb: 32
+        description: "Critical security updates and stability improvements"
+      - vendor: "HPE"
+        device_type: "a1.c5.large"
+        component: "bmc"
+        current_version: "iLO 5 2.82"
+        latest_version: "iLO 5 2.85"
+        download_url: "https://downloads.hpe.com/pub/softlib2/firmware/ilo5/ilo5285.fwpkg"
+        release_date: "2024-11-20"
+        size_mb: 45
+        description: "Enhanced security features and bug fixes"
+      - vendor: "HPE"
+        device_type: "a1.c5.xlarge"
+        component: "bios"
+        current_version: "U34 2.65"
+        latest_version: "U34 2.71"
+        download_url: "https://downloads.hpe.com/pub/softlib2/firmware/proliant/u34271.fwpkg"
+        release_date: "2024-12-10"
+        size_mb: 28
+        description: "Performance improvements and hardware compatibility updates"
+
+  supermicro:
+    new_firmware:
+      - vendor: "SUPERMICRO"
+        device_type: "s2.c2.small"
+        component: "bios"
+        current_version: "3.5"
+        latest_version: "3.7"
+        download_url: "https://www.supermicro.com/support/X11SPL37.rom"
+        release_date: "2024-10-30"
+        size_mb: 16
+        description: "Microcode updates and security patches"
+      - vendor: "SUPERMICRO"
+        device_type: "s2.c2.medium"
+        component: "bmc"
+        current_version: "1.66.07"
+        latest_version: "1.73.14"
+        download_url: "https://www.supermicro.com/support/SMT_X11_1.73.14.bin"
+        release_date: "2024-12-01"
+        size_mb: 28
+        description: "Redfish API improvements and stability fixes"
+      - vendor: "SUPERMICRO"
+        device_type: "s2.c2.large"
+        component: "bios"
+        current_version: "1.2"
+        latest_version: "1.5"
+        download_url: "https://www.supermicro.com/support/X12DPG15.rom"
+        release_date: "2024-11-25"
+        size_mb: 20
+        description: "CPU compatibility updates and performance optimizations"
+
+  dell:
+    new_firmware:
+      - vendor: "DELL"
+        device_type: "d1.c1.small"
+        component: "bios"
+        current_version: "2.10.2"
+        latest_version: "2.12.0"
+        download_url: "https://downloads.dell.com/BIOS/R340_BIOS_2.12.0.exe"
+        release_date: "2024-11-15"
+        size_mb: 18
+        description: "Security updates and hardware compatibility improvements"
+      - vendor: "DELL"
+        device_type: "d1.c2.medium"
+        component: "bmc"
+        current_version: "4.40.40.00"
+        latest_version: "4.42.00.00"
+        download_url: "https://downloads.dell.com/BMC/iDRAC9_4.42.00.00.exe"
+        release_date: "2024-12-05"
+        size_mb: 52
+        description: "iDRAC performance enhancements and security fixes"
+      - vendor: "DELL"
+        device_type: "d1.c1.large"
+        component: "bios"
+        current_version: "2.8.1"
+        latest_version: "2.9.3"
+        download_url: "https://downloads.dell.com/BIOS/R640_BIOS_2.9.3.exe"
+        release_date: "2024-12-08"
+        size_mb: 22
+        description: "Memory controller improvements and thermal management updates"
