@@ -365,7 +365,10 @@ class RecordHardwareInfoStep(BaseWorkflowStep):
 
             context.add_sub_task("Recording hardware information in database")
 
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            import os
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Update hardware information
             if context.manufacturer:

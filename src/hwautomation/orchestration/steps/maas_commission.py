@@ -235,11 +235,14 @@ class RecordMaasInfoStep(BaseWorkflowStep):
     def execute(self, context: StepContext) -> StepExecutionResult:
         """Record MaaS information."""
         try:
+            import os
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording MaaS machine information")
 
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Record MaaS machine ID
             machine_id = context.get_data("selected_machine_id")

@@ -351,7 +351,10 @@ class RecordCommissioningStep(BaseWorkflowStep):
             machine_info = context.get_data("commissioned_machine_info", {})
 
             # Initialize database helper
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            import os
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Create or update server record
             db_helper.createrowforserver(context.server_id)

@@ -320,7 +320,10 @@ class RecordIpmiConfigStep(BaseWorkflowStep):
 
             context.add_sub_task("Recording IPMI configuration results in database")
 
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            import os
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Record IPMI configuration
             ipmi_config = context.get_data("ipmi_config_result")
@@ -418,10 +421,13 @@ class AssignIpmiIpStep(BaseWorkflowStep):
     def _find_next_available_ip(self) -> Optional[str]:
         """Find the next available IP in the range."""
         try:
+            import os
             from ...database.helper import DbHelper
 
             # Get all assigned IPMI IPs from database
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
             assigned_ips = set()
 
             # Query existing IPMI IPs (this would need to be implemented in DbHelper)

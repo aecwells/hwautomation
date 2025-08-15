@@ -167,11 +167,14 @@ class RecordWorkflowCompletionStep(BaseWorkflowStep):
         try:
             from datetime import datetime
 
+            import os
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording workflow completion")
 
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Record workflow completion time
             db_helper.updateserverinfo(

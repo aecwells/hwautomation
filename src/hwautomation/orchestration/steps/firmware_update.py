@@ -249,11 +249,14 @@ class RecordFirmwareUpdateStep(BaseWorkflowStep):
     def execute(self, context: StepContext) -> StepExecutionResult:
         """Record firmware update results."""
         try:
+            import os
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording firmware update results")
 
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Record firmware update completion
             db_helper.updateserverinfo(

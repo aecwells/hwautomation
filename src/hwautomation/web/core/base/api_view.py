@@ -5,6 +5,7 @@ This module provides the core BaseAPIView class with standard request handling,
 response formatting, error management, and logging integration.
 """
 
+import os
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -32,7 +33,9 @@ class BaseAPIView(View):
     methods = ["GET", "POST", "PUT", "DELETE"]
 
     def __init__(self):
-        self.db_helper = DbHelper()
+        # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+        db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+        self.db_helper = DbHelper(db_path)
         self.start_time = time.time()
 
     def dispatch_request(self, *args, **kwargs):

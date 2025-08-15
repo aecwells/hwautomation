@@ -394,11 +394,14 @@ class RecordBiosConfigStep(BaseWorkflowStep):
     def execute(self, context: StepContext) -> StepExecutionResult:
         """Record BIOS configuration information in the database."""
         try:
+            import os
             from ...database.helper import DbHelper
 
             context.add_sub_task("Recording BIOS configuration results in database")
 
-            db_helper = DbHelper()
+            # Use DATABASE_PATH from environment, defaulting to data/hw_automation.db
+            db_path = os.getenv("DATABASE_PATH", "data/hw_automation.db")
+            db_helper = DbHelper(db_path)
 
             # Record BIOS configuration status
             db_helper.updateserverinfo(context.server_id, "bios_configured", "true")
