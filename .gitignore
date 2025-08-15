@@ -170,17 +170,31 @@ dmypy.json
 # VSCode
 .vscode/
 
-# Project specific
+# Project specific - Database files
 *.db
 *.db-journal
 *.db.backup*
+
+# Data directory (keep structure, ignore content)
+data/
+!data/README.md
+!data/.gitkeep
+
+# Logs directory (keep structure, ignore log files)
+logs/
+!logs/README.md
+!logs/.gitkeep
+
+# Configuration files (environment-specific)
 config.yaml
 config.json
+.env
+
+# Legacy cleanup
 hw_automation.log*
 *.backup
 migration_test.db*
 sample_config.yaml
-data/
 db-backups/
 
 # Legacy files (removed - keeping note for reference)

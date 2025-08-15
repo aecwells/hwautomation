@@ -59,7 +59,12 @@ def create_app():
     # Initialize asset management for Vite-built frontend
     from hwautomation.web.core.assets import init_assets
 
-    init_assets(app)
+    try:
+        init_assets(app)
+        logger.info("Asset management initialized successfully")
+    except Exception as e:
+        logger.error(f"Asset management initialization failed: {e}")
+        # Continue without assets - templates will fall back to CDN
 
     # Add correlation tracking to all requests
     from flask import request

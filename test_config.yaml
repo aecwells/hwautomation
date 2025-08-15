@@ -1,0 +1,13 @@
+maas:
+  host: "http://localhost:5240/MAAS"
+  consumer_key: "test-key-from-yaml"
+  token_key: "test-token"
+  token_secret: "test-secret"
+
+database:
+  path: "data/test_config.db"
+  auto_migrate: true
+
+ipmi:
+  username: "yaml-admin"
+  password: "yaml-password"

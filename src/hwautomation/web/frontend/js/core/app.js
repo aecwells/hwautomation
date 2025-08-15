@@ -5,6 +5,20 @@
  * Manages global state, socket connections, and component coordination.
  */
 
+// Import Bootstrap for bundling and global availability
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+// Make Bootstrap available globally for template JavaScript
+// Do this immediately when the module loads
+if (typeof window !== 'undefined') {
+  window.bootstrap = bootstrap;
+
+  // Also ensure it's available in the global scope
+  globalThis.bootstrap = bootstrap;
+
+  console.log('✅ Bootstrap loaded and exposed globally');
+}
+
 class HWAutomationApp {
   constructor() {
     this.socket = null;

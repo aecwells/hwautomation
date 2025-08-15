@@ -115,7 +115,7 @@ class Config:
             },
             # Database Configuration
             "database": {
-                "path": self._get_env("DATABASE_PATH", "hw_automation.db"),
+                "path": self._get_env("DATABASE_PATH", "data/hw_automation.db"),
                 "table_name": self._get_env("DATABASE_TABLE_NAME", "servers"),
                 "auto_migrate": self._get_env(
                     "DATABASE_AUTO_MIGRATE", False, var_type=bool
@@ -259,14 +259,18 @@ class Config:
 _config: Optional[Config] = None
 
 
-def load_config(env_file: Optional[str] = None) -> Dict[str, Any]:
+def load_config(
+    config_file: Optional[str] = None, env_file: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Load configuration from environment variables.
+    Load configuration from YAML file and environment variables.
 
-    This function maintains backward compatibility with the old YAML-based system
-    while providing modern environment-based configuration.
+    This function maintains backward compatibility by supporting YAML config files
+    while providing modern environment-based configuration. Environment variables
+    take precedence over YAML values.
 
     Args:
+        config_file: Optional path to YAML config file (config.yaml, config.yml)
         env_file: Optional path to .env file
 
     Returns:
@@ -275,11 +279,33 @@ def load_config(env_file: Optional[str] = None) -> Dict[str, Any]:
     global _config
 
     if _config is None:
+        # Try to find config file if not provided
+        if config_file is None:
+            config_file = find_config_file()
+
         # Try to find .env file if not provided
         if env_file is None:
             env_file = find_env_file()
 
         _config = Config(env_file)
+
+        # Load YAML config if available and merge with environment config
+        if config_file and Path(config_file).exists():
+            try:
+                import yaml
+
+                with open(config_file, "r") as f:
+                    yaml_config = yaml.safe_load(f) or {}
+
+                # Merge YAML config into environment config (env vars take precedence)
+                merged_config = merge_configs(yaml_config, _config.to_dict())
+                _config._config = merged_config
+
+                logging.info(
+                    f"Loaded configuration from {config_file} with environment overrides"
+                )
+            except Exception as e:
+                logging.warning(f"Could not load YAML config from {config_file}: {e}")
 
     return _config.to_dict()
 
@@ -298,6 +324,68 @@ def get_config() -> Config:
         _config = Config(env_file)
 
     return _config
+
+
+def find_config_file() -> Optional[str]:
+    """
+    Find config.yaml or config.yml file in project directory.
+
+    Returns:
+        Path to config file if found, None otherwise
+    """
+    # Look for config file starting from current directory up to project root
+    current_dir = Path.cwd()
+
+    # Check common locations
+    for path in [
+        current_dir / "config.yaml",
+        current_dir / "config.yml",
+        current_dir.parent / "config.yaml",
+        current_dir.parent / "config.yml",
+        Path(__file__).parent.parent.parent / "config.yaml",  # Project root
+        Path(__file__).parent.parent.parent / "config.yml",
+    ]:
+        if path.exists():
+            return str(path)
+
+    return None
+
+
+def merge_configs(
+    yaml_config: Dict[str, Any], env_config: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Merge YAML and environment configurations.
+
+    Environment variables take precedence over YAML values.
+
+    Args:
+        yaml_config: Configuration from YAML file
+        env_config: Configuration from environment variables
+
+    Returns:
+        Merged configuration dictionary
+    """
+
+    def deep_merge(
+        yaml_dict: Dict[str, Any], env_dict: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Recursively merge two dictionaries, preferring env_dict values."""
+        result = yaml_dict.copy()
+
+        for key, value in env_dict.items():
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(value, dict)
+            ):
+                result[key] = deep_merge(result[key], value)
+            else:
+                result[key] = value
+
+        return result
+
+    return deep_merge(yaml_config, env_config)
 
 
 def find_env_file() -> Optional[str]:
@@ -322,11 +410,14 @@ def find_env_file() -> Optional[str]:
     return None
 
 
-def reload_config(env_file: Optional[str] = None) -> Dict[str, Any]:
+def reload_config(
+    config_file: Optional[str] = None, env_file: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Reload configuration from environment variables.
+    Reload configuration from YAML file and environment variables.
 
     Args:
+        config_file: Optional path to YAML config file
         env_file: Optional path to .env file
 
     Returns:
@@ -334,7 +425,7 @@ def reload_config(env_file: Optional[str] = None) -> Dict[str, Any]:
     """
     global _config
     _config = None
-    return load_config(env_file)
+    return load_config(config_file, env_file)
 
 
 # Backward compatibility functions

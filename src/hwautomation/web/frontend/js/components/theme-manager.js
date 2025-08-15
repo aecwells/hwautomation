@@ -100,7 +100,8 @@ class ThemeManager {
    */
   setupThemeToggle() {
     // Look for existing theme toggle button
-    this.toggleButton = document.querySelector('[data-bs-toggle="theme"]');
+    this.toggleButton = document.querySelector('#themeToggle') ||
+                       document.querySelector('[data-bs-toggle="theme"]');
 
     if (!this.toggleButton) {
       // Create theme toggle button if it doesn't exist
@@ -108,6 +109,7 @@ class ThemeManager {
     }
 
     if (this.toggleButton) {
+      // Add our event listener
       this.toggleButton.addEventListener("click", (e) => {
         e.preventDefault();
         this.toggleTheme();
@@ -152,6 +154,7 @@ class ThemeManager {
   updateToggleButton() {
     if (!this.toggleButton) return;
 
+    // Handle component-style icons with data attributes
     const lightIcon = this.toggleButton.querySelector(
       '[data-theme-icon="light"]',
     );
@@ -160,6 +163,7 @@ class ThemeManager {
     );
 
     if (lightIcon && darkIcon) {
+      // New component style with separate icons
       if (this.currentTheme === "light") {
         lightIcon.style.display = "inline";
         darkIcon.style.display = "none";
@@ -169,6 +173,10 @@ class ThemeManager {
         darkIcon.style.display = "inline";
         this.toggleButton.title = "Switch to light theme";
       }
+    } else {
+      // Template icon (managed by template event listener)
+      // Just update the title - icon will be updated by template event listener
+      this.toggleButton.title = this.currentTheme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
     }
   }
 
@@ -227,7 +235,7 @@ class ThemeManager {
    */
   destroy() {
     if (this.toggleButton) {
-      this.toggleButton.removeEventListener("click", this.toggleTheme);
+      this.toggleButton.removeEventListener("click", this.toggleTheme.bind(this));
     }
     this.isInitialized = false;
   }

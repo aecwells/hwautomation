@@ -11,6 +11,13 @@ COMPOSE_YML := docker-compose.yml
 COMPOSE_OVERRIDE := docker-compose.override.yml
 DOCKER_COMPOSE := docker compose
 
+# Use bash with strict flags for safer Makefile recipes
+SHELL := /bin/bash
+.SHELLFLAGS := -eu -o pipefail -c
+
+# Centralized docker-compose invocation to avoid repetition
+COMPOSE_CMD := $(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME)
+
 # Compose files (include override if present)
 ifeq ($(wildcard $(COMPOSE_OVERRIDE)),)
   COMPOSE_FILES := -f $(COMPOSE_YML)
@@ -135,39 +142,55 @@ precommit-all: ## Run pre-commit hooks on all files
 
 ## [Docker Compose]
 build:        ## Build the Docker images (includes frontend)
-	npm run build
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
+	@echo "Building frontend assets..."
+	@npm ci --silent || npm install --silent
+	@npm run build
+	@echo "Building docker images..."
+	$(COMPOSE_CMD) build
 
-up:           ## Start containers in background
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) up -d
+ up:           ## Start containers in background
+	$(COMPOSE_CMD) up -d
 
-down:         ## Stop and remove containers, networks, volumes
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) down
+ down:         ## Stop and remove containers, networks, volumes
+	$(COMPOSE_CMD) down
 
-restart:      ## Restart containers
+ restart:      ## Restart containers
 	$(MAKE) down
 	$(MAKE) up
 
-build:        ## Build the Docker images (includes frontend)
-	npm run build
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) build
+# Convenience: build without cache
+build-no-cache: ## Build docker images without cache
+	@npx --yes npm@latest run build || true
+	@echo "Building docker images (no cache)..."
+	$(COMPOSE_CMD) build --no-cache
 
 pull:         ## Pull the latest images
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) pull
+	$(COMPOSE_CMD) pull
 
 ps:           ## List running containers
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) ps
+	$(COMPOSE_CMD) ps
 
 logs:         ## Tail logs from all services
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) logs -f
+	$(COMPOSE_CMD) logs -f
 
 shell:        ## Open a shell in the default service (SERVICE=app)
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $(SERVICE) sh
+	$(COMPOSE_CMD) exec $(SERVICE) sh
 
 sh: shell     ## Alias for `make shell`
 
 shell-%:      ## Open a shell in specific service: make shell-maas or shell-db
-	$(DOCKER_COMPOSE) $(COMPOSE_FILES) --env-file $(ENV_FILE) -p $(PROJECT_NAME) exec $* sh
+	$(COMPOSE_CMD) exec $* sh
+
+# Run an arbitrary command in the service: make run-cmd CMD="bash -lc 'echo hi'"
+run-cmd:      ## Run an arbitrary command in the default service: make run-cmd CMD="..."
+	@if [ -z "$(CMD)" ]; then echo "Usage: make run-cmd CMD=\"your command\"" && exit 1; fi
+	$(COMPOSE_CMD) exec $(SERVICE) sh -c "$(CMD)"
+
+# Tag built image with git commit/branch (requires image built locally)
+tag:          ## Tag service image with git commit and optional TAG (TAG defaults to VERSION)
+	@echo "Tagging images with $(TAG)"
+	@# This assumes service image name is $(PROJECT_NAME)_$(SERVICE)
+	@docker image tag $(PROJECT_NAME)_$(SERVICE):latest $(PROJECT_NAME)/$(SERVICE):$(TAG) || true
 
 ## [Testing - Docker]
 test-docker:  ## Run all tests inside Docker container
@@ -207,6 +230,7 @@ ci-clean:     ## CI cleanup task
 ## [Development]
 dev-setup:    ## Setup development environment
 	cp .env.example .env || echo "Create .env file manually"
+	mkdir -p data logs
 	npm install
 	pip install -e .[dev]
 	$(MAKE) build
@@ -216,3 +240,22 @@ dev-reset:    ## Reset development environment
 	$(MAKE) clean-test
 	$(MAKE) frontend-clean
 	$(MAKE) dev-setup
+
+## [Data Management]
+data-backup:  ## Backup database files
+	@mkdir -p data/backups
+	@timestamp=$$(date +%Y%m%d_%H%M%S); \
+	if [ -f data/hw_automation.db ]; then \
+		cp data/hw_automation.db data/backups/hw_automation_$$timestamp.db; \
+		echo "Backed up database to data/backups/hw_automation_$$timestamp.db"; \
+	else \
+		echo "No database found to backup"; \
+	fi
+
+data-clean:   ## Clean old backup files (keep last 10)
+	@find data/backups -name "*.db" -type f | sort -r | tail -n +11 | xargs rm -f || true
+	@echo "Cleaned old database backups"
+
+data-init:    ## Initialize data directories
+	mkdir -p data/{backups,exports,temp} logs
+	@echo "Initialized data directories"

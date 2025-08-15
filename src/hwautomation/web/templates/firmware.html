@@ -454,6 +454,7 @@ function showScheduleModal(preSelectedServerId = null) {
 }
 
 function showDetailedInventory() {
+    console.log('showDetailedInventory called, bootstrap type:', typeof bootstrap);
     const modal = new bootstrap.Modal(document.getElementById('detailedInventoryModal'));
 
     // Populate inventory table
@@ -657,6 +658,19 @@ document.addEventListener('DOMContentLoaded', function() {
             refreshInventory();
         }
     }, 30000);
+});
+
+// Debug: Check if Bootstrap is available
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Bootstrap availability check:');
+    console.log('typeof bootstrap:', typeof bootstrap);
+    console.log('bootstrap.Modal:', typeof bootstrap?.Modal);
+
+    if (typeof bootstrap === 'undefined') {
+        console.error('Bootstrap is not available! This will cause modal errors.');
+    } else {
+        console.log('✅ Bootstrap is available globally');
+    }
 });
 </script>
 {% endblock %}

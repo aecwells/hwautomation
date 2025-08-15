@@ -5,24 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}HWAutomation{% endblock %}</title>
 
-    <!-- Theme detection script (must be first) -->
+    <!-- Theme will be managed by ThemeManager component after app initialization -->
     <script>
+        // Minimal theme detection to prevent flash of unstyled content
         (function() {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const storedTheme = localStorage.getItem('theme');
-            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
 
-            document.documentElement.setAttribute('data-bs-theme', theme);
-
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-                if (!localStorage.getItem('theme')) {
-                    document.documentElement.setAttribute('data-bs-theme', e.matches ? 'dark' : 'light');
+            // Check for theme in state manager format
+            let storedTheme = null;
+            try {
+                const hwState = localStorage.getItem('hwautomation-state');
+                if (hwState) {
+                    const parsed = JSON.parse(hwState);
+                    storedTheme = parsed.ui?.theme;
                 }
-            });
+            } catch (e) {
+                // Silent fail - ThemeManager will handle initialization
+            }
+
+            const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-bs-theme', theme);
         })();
     </script>
 
-    {% if asset_exists('main') %}
+    {% if asset_exists is defined and asset_exists('main') %}
         <!-- Built CSS from Vite -->
         {% for css_url in get_css_assets() %}
             <link rel="stylesheet" href="{{ css_url }}">
@@ -57,7 +63,7 @@
                     <i class="bi bi-download"></i> Firmware
                 </a>
                 {% block extra_nav %}{% endblock %}
-                <button class="btn theme-toggle btn-sm" id="themeToggle" onclick="toggleTheme()"
+                <button class="btn theme-toggle btn-sm" id="themeToggle"
                         title="Toggle light/dark theme">
                     <i class="bi bi-sun-fill" id="themeIcon"></i>
                 </button>
@@ -127,43 +133,53 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     <!-- Bootstrap JS -->
-    {% if asset_exists('app') %}
+    {% if asset_exists is defined and asset_exists('app') %}
         <!-- Preload critical assets -->
-        {% for preload_url in get_preload_assets('app') %}
-            <link rel="modulepreload" href="{{ preload_url }}">
-        {% endfor %}
+        {% if get_preload_assets is defined %}
+            {% for preload_url in get_preload_assets('app') %}
+                <link rel="modulepreload" href="{{ preload_url }}">
+            {% endfor %}
+        {% endif %}
 
-        <!-- Built JavaScript from Vite -->
+        <!-- Built JavaScript from Vite (includes Bootstrap) -->
         <script type="module" src="{{ asset_url('app') }}"></script>
         <script type="module" src="{{ asset_url('module-loader') }}"></script>
     {% else %}
         <!-- Fallback to CDN during development -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Ensure bootstrap is available globally -->
+        <script>
+            // Wait for Bootstrap to load then make it globally available
+            document.addEventListener('DOMContentLoaded', function() {
+                // Bootstrap 5.x exposes itself on the window object
+                if (typeof window.bootstrap === 'undefined' && typeof bootstrap !== 'undefined') {
+                    window.bootstrap = bootstrap;
+                }
+            });
+        </script>
     {% endif %}
     {% block extra_js %}{% endblock %}
 
     <script>
-        // Theme support functions
-        function toggleTheme() {
+        // Theme management is handled entirely by ThemeManager component
+        // This script just provides compatibility for any remaining legacy code
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listen for theme changes from ThemeManager and update icon
+            document.addEventListener('theme:changed', function(event) {
+                const icon = document.getElementById('themeIcon');
+                if (icon) {
+                    icon.className = event.detail.theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+                }
+            });
+
+            // Set initial icon based on current theme
             const currentTheme = document.documentElement.getAttribute('data-bs-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-            document.documentElement.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        }
-
-        function updateThemeIcon(theme) {
             const icon = document.getElementById('themeIcon');
             if (icon) {
-                icon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+                icon.className = currentTheme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
             }
-        }
-
-        // Initialize theme icon on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
-            updateThemeIcon(currentTheme);
         });
     </script>
 </body>

@@ -31,7 +31,7 @@ class AssetManager:
         static_folder = Path(app.static_folder)
         self.manifest_path = static_folder / "dist" / "manifest.json"
 
-        # Add template functions
+        # Add template functions - always register these to avoid template errors
         app.jinja_env.globals["asset_url"] = self.asset_url
         app.jinja_env.globals["asset_exists"] = self.asset_exists
         app.jinja_env.globals["get_css_assets"] = self.get_css_assets
@@ -42,7 +42,21 @@ class AssetManager:
         app.extensions = getattr(app, "extensions", {})
         app.extensions["asset_manager"] = self
 
-        logger.info("Asset manager initialized with Vite manifest integration")
+        # Try to load manifest, but don't fail if it's missing
+        try:
+            manifest = self._load_manifest()
+            if manifest:
+                logger.info(
+                    f"Asset manager initialized with Vite manifest ({len(manifest)} entries)"
+                )
+            else:
+                logger.warning(
+                    "Asset manager initialized without Vite manifest - using CDN fallbacks"
+                )
+        except Exception as e:
+            logger.warning(
+                f"Asset manager initialized with manifest error: {e} - using CDN fallbacks"
+            )
 
     def _load_manifest(self) -> Dict:
         """Load and cache the Vite manifest."""

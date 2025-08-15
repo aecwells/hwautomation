@@ -12,6 +12,9 @@ services:
     volumes:
       - .:/app
       - /app/hwautomation-env  # Exclude venv from volume mount
+      - ./configs:/app/configs:ro  # Mount configs read-only
+      - ./data:/app/data  # Mount data directory for databases
+      - ./logs:/app/logs  # Mount logs directory
     working_dir: /app
     environment:
       - PYTHONPATH=/app/src
