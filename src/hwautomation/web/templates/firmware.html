@@ -66,6 +66,73 @@
         font-size: 0.9rem;
         opacity: 0.9;
     }
+
+    .bg-purple {
+        background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%) !important;
+    }
+
+    .repository-status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 0.5rem;
+    }
+
+    .status-active {
+        background-color: #28a745;
+        animation: pulse 2s infinite;
+    }
+
+    .status-inactive {
+        background-color: #dc3545;
+    }
+
+    .status-partial {
+        background-color: #ffc107;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    .refresh-button {
+        transition: transform 0.3s ease;
+    }
+
+    .refresh-button.spinning {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .advanced-filter-panel {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-chip {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        margin: 0.125rem;
+        border: 1px solid #bbdefb;
+    }
+
+    .filter-chip.active {
+        background: #1976d2;
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -80,104 +147,115 @@
                     <p class="text-muted">Monitor and manage firmware across your infrastructure</p>
                 </div>
                 <div>
-                    <button class="btn btn-primary me-2" onclick="refreshInventory()">
-                        <i class="fas fa-sync-alt"></i> Refresh
+                    <button class="btn btn-primary me-2 refresh-button" id="refreshBtn" onclick="manualRefresh()">
+                        <i class="bi bi-arrow-clockwise" id="refreshIcon"></i> Refresh
                     </button>
-                    <button class="btn btn-success" onclick="showScheduleModal()">
-                        <i class="fas fa-calendar-plus"></i> Schedule Updates
+                    <button class="btn btn-success me-2" onclick="autoDownloadFirmware()">
+                        <i class="bi bi-download"></i> Auto Download New
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="showAdvancedFilters()">
+                        <i class="bi bi-funnel"></i> Advanced Filters
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Summary Metrics -->
+    <!-- Enhanced Summary Metrics -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4 col-sm-6">
             <div class="metric-card bg-primary">
                 <div class="metric-number">{{ inventory.update_summary.total_servers }}</div>
                 <div class="metric-label">Total Servers</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4 col-sm-6">
             <div class="metric-card bg-warning">
                 <div class="metric-number">{{ inventory.update_summary.updates_available }}</div>
                 <div class="metric-label">Updates Available</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4 col-sm-6">
             <div class="metric-card bg-success">
                 <div class="metric-number">{{ inventory.update_summary.up_to_date }}</div>
                 <div class="metric-label">Up to Date</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="metric-card bg-info">
+                <div class="metric-number">{{ inventory.firmware_repository.total_files }}</div>
+                <div class="metric-label">Firmware Files</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="metric-card bg-purple">
+                <div class="metric-number">{{ inventory.firmware_repository.vendors|length }}</div>
+                <div class="metric-label">Vendors</div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
             <div class="metric-card bg-secondary">
-                <div class="metric-number">{{ inventory.update_summary.unknown_status }}</div>
-                <div class="metric-label">Unknown Status</div>
+                <div class="metric-number">{{ inventory.repository_status.auto_downloads or 0 }}</div>
+                <div class="metric-label">Auto Downloads</div>
             </div>
         </div>
     </div>
 
-    <!-- Firmware Repository Status -->
+    <!-- Enhanced Firmware Repository Status -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-database"></i> Firmware Repository Status
+                        <i class="bi bi-database"></i> Firmware Repository Status
+                        <span class="repository-status-indicator {{ 'status-active' if inventory.repository_status.auto_download_enabled else 'status-inactive' }}"></span>
+                        {{ 'Active Auto-Download' if inventory.repository_status.auto_download_enabled else 'Manual Only' }}
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Total Firmware Files:</strong> {{ inventory.firmware_repository.total_files }}</p>
-                            <p><strong>Supported Vendors:</strong>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Repository Statistics</h6>
+                            <p class="mb-1"><strong>Total Firmware Files:</strong>
+                                <span class="badge bg-info">{{ inventory.firmware_repository.total_files }}</span>
+                            </p>
+                            <p class="mb-1"><strong>Supported Vendors:</strong>
                                 {% for vendor in inventory.firmware_repository.vendors %}
                                     <span class="badge bg-secondary me-1">{{ vendor.upper() }}</span>
                                 {% endfor %}
                             </p>
+                            <p class="mb-1"><strong>Auto-Download Policy:</strong>
+                                <span class="badge {{ 'bg-success' if inventory.repository_status.auto_download_enabled else 'bg-warning' }}">
+                                    {{ inventory.repository_status.download_policy or 'Disabled' }}
+                                </span>
+                            </p>
                         </div>
-                        <div class="col-md-6">
-                            <div class="text-end">
-                                <button class="btn btn-outline-primary" onclick="showDetailedInventory()">
-                                    <i class="fas fa-list"></i> View Detailed Inventory
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Recent Activity</h6>
+                            <p class="mb-1"><strong>Last Auto-Check:</strong>
+                                {{ inventory.repository_status.last_check or 'Never' }}
+                            </p>
+                            <p class="mb-1"><strong>New Downloads:</strong>
+                                <span class="badge bg-primary">{{ inventory.repository_status.recent_downloads or 0 }}</span>
+                                <small class="text-muted">(last 24h)</small>
+                            </p>
+                            <p class="mb-1"><strong>Pending Downloads:</strong>
+                                <span class="badge bg-warning">{{ inventory.repository_status.pending_downloads or 0 }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Actions</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="showRepositoryDetails()">
+                                    <i class="bi bi-list"></i> View Repository Details
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="checkForNewFirmware()">
+                                    <i class="bi bi-search"></i> Check for New Firmware
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" onclick="showDownloadQueue()">
+                                    <i class="bi bi-download"></i> Download Queue
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Device Types & Motherboard Firmware -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-microchip"></i> Device Types & Motherboard Firmware
-                    </h5>
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="vendorFilter" id="allVendors" value="all" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="allVendors">All Vendors</label>
-
-                        <input type="radio" class="btn-check" name="vendorFilter" id="supermicro" value="supermicro">
-                        <label class="btn btn-outline-primary btn-sm" for="supermicro">Supermicro</label>
-
-                        <input type="radio" class="btn-check" name="vendorFilter" id="hpe" value="hpe">
-                        <label class="btn btn-outline-info btn-sm" for="hpe">HPE</label>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="deviceTypesGrid" class="row">
-                        <!-- Device types will be loaded here via JavaScript -->
-                        <div class="col-12 text-center py-4" id="deviceTypesLoading">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading device types...</span>
-                            </div>
-                            <p class="text-muted mt-2">Loading device types and firmware information...</p>
                         </div>
                     </div>
                 </div>
@@ -191,21 +269,35 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">
-                        <i class="fas fa-server"></i> Server Firmware Status
+                        <i class="bi bi-hdd-rack"></i> Server Firmware Status
+                        <small class="text-muted">(<span id="serverCount">{{ inventory.servers|length }}</span> servers)</small>
                     </h5>
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="statusFilter" id="all" value="all" checked>
-                        <label class="btn btn-outline-secondary btn-sm" for="all">All</label>
+                    <div class="d-flex align-items-center">
+                        <div class="btn-group me-3" role="group">
+                            <input type="radio" class="btn-check" name="serverViewMode" id="serverCardView" value="card" checked onchange="toggleServerView('card')">
+                            <label class="btn btn-outline-secondary btn-sm" for="serverCardView" title="Card View">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                            </label>
+                            <input type="radio" class="btn-check" name="serverViewMode" id="serverListView" value="list" onchange="toggleServerView('list')">
+                            <label class="btn btn-outline-secondary btn-sm" for="serverListView" title="List View">
+                                <i class="bi bi-list"></i>
+                            </label>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="statusFilter" id="all" value="all" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="all">All</label>
 
-                        <input type="radio" class="btn-check" name="statusFilter" id="updates" value="updates">
-                        <label class="btn btn-outline-warning btn-sm" for="updates">Updates Available</label>
+                            <input type="radio" class="btn-check" name="statusFilter" id="updates" value="updates">
+                            <label class="btn btn-outline-warning btn-sm" for="updates">Updates Available</label>
 
-                        <input type="radio" class="btn-check" name="statusFilter" id="current" value="current">
-                        <label class="btn btn-outline-success btn-sm" for="current">Up to Date</label>
+                            <input type="radio" class="btn-check" name="statusFilter" id="current" value="current">
+                            <label class="btn btn-outline-success btn-sm" for="current">Up to Date</label>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
                     {% if inventory.servers %}
+                    <!-- Server Cards View -->
                     <div class="row" id="serverGrid">
                         {% for server in inventory.servers %}
                         <div class="col-lg-4 col-md-6 mb-3 server-card"
@@ -253,11 +345,11 @@
                                     <div class="mt-3 d-flex justify-content-between">
                                         {% if server.updates_available %}
                                         <button class="btn btn-sm btn-warning" onclick="scheduleServerUpdate('{{ server.id }}')">
-                                            <i class="fas fa-download"></i> Update
+                                            <i class="bi bi-download"></i> Update
                                         </button>
                                         {% endif %}
                                         <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('{{ server.id }}')">
-                                            <i class="fas fa-info-circle"></i> Details
+                                            <i class="bi bi-info-circle"></i> Details
                                         </button>
                                     </div>
 
@@ -271,13 +363,257 @@
                         </div>
                         {% endfor %}
                     </div>
+
+                    <!-- Server List View -->
+                    <div id="serverTable" class="table-responsive" style="display: none;">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Server ID</th>
+                                    <th>Hostname</th>
+                                    <th>Device Type</th>
+                                    <th>BIOS Version</th>
+                                    <th>BMC Version</th>
+                                    <th>Status</th>
+                                    <th>Available Updates</th>
+                                    <th>Last Checked</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serverTableBody">
+                                <!-- Server table content will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
                     <div class="text-center py-4">
-                        <i class="fas fa-server fa-3x text-muted mb-3"></i>
+                        <i class="bi bi-hdd-rack fs-1 text-muted mb-3"></i>
                         <h5 class="text-muted">No servers found</h5>
                         <p class="text-muted">Add servers to your infrastructure to view firmware status</p>
                     </div>
                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Types & Motherboard Firmware -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cpu"></i> Device Types & Motherboard Firmware
+                        <small class="text-muted">(<span id="deviceTypeCount">0</span> device types)</small>
+                    </h5>
+                    <div class="d-flex align-items-center">
+                        <div class="input-group me-3" style="width: 250px;">
+                            <input type="text" class="form-control form-control-sm" id="deviceTypeSearch"
+                                   placeholder="Search device types..." onkeyup="filterDeviceTypesBySearch()">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="clearDeviceTypeSearch()">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-outline-info btn-sm me-3" onclick="toggleAdvancedFilters()">
+                            <i class="bi bi-funnel"></i> Advanced Filters
+                        </button>
+                        <div class="btn-group me-3" role="group">
+                            <input type="radio" class="btn-check" name="deviceViewMode" id="cardView" value="card" checked onchange="toggleDeviceView('card')">
+                            <label class="btn btn-outline-secondary btn-sm" for="cardView" title="Card View">
+                                <i class="bi bi-grid-3x3-gap"></i>
+                            </label>
+                            <input type="radio" class="btn-check" name="deviceViewMode" id="listView" value="list" onchange="toggleDeviceView('list')">
+                            <label class="btn btn-outline-secondary btn-sm" for="listView" title="List View">
+                                <i class="bi bi-list"></i>
+                            </label>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="vendorFilter" id="allVendors" value="all" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="allVendors">All Vendors</label>
+
+                            <input type="radio" class="btn-check" name="vendorFilter" id="supermicro" value="supermicro">
+                            <label class="btn btn-outline-primary btn-sm" for="supermicro">Supermicro</label>
+
+                            <input type="radio" class="btn-check" name="vendorFilter" id="hpe" value="hpe">
+                            <label class="btn btn-outline-info btn-sm" for="hpe">HPE</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Device Type Filters Panel (Initially Hidden) -->
+                <div id="deviceAdvancedFiltersPanel" class="card-body border-top" style="display: none;">
+                    <div class="row g-3">
+                        <!-- Device Type Search & Basic Filters -->
+                        <div class="col-md-4">
+                            <h6 class="text-primary border-bottom pb-1 mb-2">
+                                <i class="bi bi-search"></i> Search & Basic Filters
+                            </h6>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Device Type Name</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control" id="advancedDeviceSearch" placeholder="e.g., a1.c5, d1.c1, large...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="clearAdvancedDeviceSearch()">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Size Category</label>
+                                <select class="form-select form-select-sm" id="sizeFilter">
+                                    <option value="">All Sizes</option>
+                                    <option value="small">Small</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold">CPU Core Count</label>
+                                <div class="row g-1">
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" id="minCores" placeholder="Min cores" min="1">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" id="maxCores" placeholder="Max cores" min="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vendor & Hardware Filters -->
+                        <div class="col-md-4">
+                            <h6 class="text-info border-bottom pb-1 mb-2">
+                                <i class="bi bi-building"></i> Vendor & Hardware
+                            </h6>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Vendor</label>
+                                <div class="btn-group-vertical d-grid" role="group">
+                                    <input type="checkbox" class="btn-check" id="advFilterSupermicro" value="supermicro" checked>
+                                    <label class="btn btn-outline-primary btn-sm" for="advFilterSupermicro">
+                                        <i class="bi bi-building"></i> Supermicro
+                                    </label>
+                                    <input type="checkbox" class="btn-check" id="advFilterHPE" value="hpe" checked>
+                                    <label class="btn btn-outline-info btn-sm" for="advFilterHPE">
+                                        <i class="bi bi-building"></i> HPE
+                                    </label>
+                                    <input type="checkbox" class="btn-check" id="advFilterDell" value="dell" checked>
+                                    <label class="btn btn-outline-primary btn-sm" for="advFilterDell">
+                                        <i class="bi bi-building"></i> Dell
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Firmware & Status Filters -->
+                        <div class="col-md-4">
+                            <h6 class="text-success border-bottom pb-1 mb-2">
+                                <i class="bi bi-gear"></i> Firmware & Status
+                            </h6>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Firmware Components</label>
+                                <div class="btn-group-vertical d-grid" role="group">
+                                    <input type="checkbox" class="btn-check" id="advFilterBIOS" value="bios" checked>
+                                    <label class="btn btn-outline-secondary btn-sm" for="advFilterBIOS">
+                                        <i class="bi bi-cpu"></i> BIOS Firmware
+                                    </label>
+                                    <input type="checkbox" class="btn-check" id="advFilterBMC" value="bmc" checked>
+                                    <label class="btn btn-outline-secondary btn-sm" for="advFilterBMC">
+                                        <i class="bi bi-gear"></i> BMC Firmware
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Firmware Status</label>
+                                <select class="form-select form-select-sm" id="advFirmwareStatusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="latest">Latest Available</option>
+                                    <option value="outdated">Outdated</option>
+                                    <option value="updates">Updates Available</option>
+                                    <option value="unknown">Unknown Status</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold">File Count</label>
+                                <div class="row g-1">
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" id="minFiles" placeholder="Min files" min="0">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" class="form-control form-control-sm" id="maxFiles" placeholder="Max files" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-primary" onclick="applyDeviceTypeFilters()">
+                                        <i class="bi bi-funnel"></i> Apply Filters
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="clearDeviceTypeFilters()">
+                                        <i class="bi bi-x-circle"></i> Clear All
+                                    </button>
+                                </div>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-info" onclick="saveDeviceFilterPreset()">
+                                        <i class="bi bi-bookmark"></i> Save Preset
+                                    </button>
+                                    <button class="btn btn-outline-warning" onclick="loadDeviceFilterPreset()">
+                                        <i class="bi bi-bookmark-check"></i> Load Preset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Summary -->
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div id="deviceFilterSummary" class="alert alert-light d-none">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i>
+                                    <span id="deviceFilterSummaryText">No active filters</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div id="deviceTypeGrid" class="row">
+                        <!-- Device types will be loaded here via JavaScript -->
+                        <div class="col-12 text-center py-4" id="deviceTypesLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading device types...</span>
+                            </div>
+                            <p class="text-muted mt-2">Loading device types and firmware information...</p>
+                        </div>
+                    </div>
+
+                    <!-- Device Types List View -->
+                    <div id="deviceTypeTable" class="table-responsive" style="display: none;">
+                        <table class="table table-hover table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Device Type</th>
+                                    <th>Description</th>
+                                    <th>CPU (Cores)</th>
+                                    <th>Current BIOS</th>
+                                    <th>Current BMC</th>
+                                    <th>Firmware Files</th>
+                                    <th>Updates</th>
+                                    <th>Last Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceTypeTableBody">
+                                <!-- Device types table content will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,13 +702,13 @@
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Filter servers..." id="inventoryFilter">
                             <button class="btn btn-outline-secondary" onclick="filterInventory()">
-                                <i class="fas fa-search"></i>
+                                <i class="bi bi-search"></i>
                             </button>
                         </div>
                     </div>
                     <div class="col-md-6 text-end">
                         <button class="btn btn-outline-success" onclick="exportInventory()">
-                            <i class="fas fa-download"></i> Export CSV
+                            <i class="bi bi-download"></i> Export CSV
                         </button>
                     </div>
                 </div>
@@ -418,17 +754,442 @@
 
 {% block extra_js %}
 <script>
-function refreshInventory() {
-    // Show loading state
-    const refreshBtn = document.querySelector('button[onclick="refreshInventory()"]');
-    const originalText = refreshBtn.innerHTML;
-    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+// Global variables
+let currentDeviceTypes = [];
+let refreshInProgress = false;
+
+function manualRefresh() {
+    if (refreshInProgress) {
+        return;
+    }
+
+    refreshInProgress = true;
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshIcon = document.getElementById('refreshIcon');
+
+    // Update button state
     refreshBtn.disabled = true;
+    refreshBtn.classList.add('spinning');
+    refreshIcon.classList.add('fa-spin');
+    refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refreshing...';
+
+    // Show progress toast
+    showToast('Refreshing firmware inventory...', 'info');
 
     // Reload the page to get fresh data
     setTimeout(() => {
         window.location.reload();
-    }, 1000);
+    }, 1500);
+}
+
+function autoDownloadFirmware() {
+    showToast('Checking for new firmware versions...', 'info');
+
+    // Call the auto-download API
+    fetch('/firmware/api/auto-download', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            check_vendors: ['supermicro', 'hpe'],
+            download_new: true
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const message = `Found ${data.new_downloads || 0} new firmware files. ${data.downloads_started || 0} downloads started.`;
+            showToast(message, 'success');
+
+            // Refresh the page after successful auto-download
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            showToast(data.error || 'Failed to auto-download firmware', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Auto-download error:', error);
+        showToast('Error during auto-download: ' + error.message, 'error');
+    });
+}
+
+function showAdvancedFilters() {
+    const panel = document.getElementById('advancedFiltersPanel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function toggleAdvancedFilters() {
+    const panel = document.getElementById('deviceAdvancedFiltersPanel');
+    const button = event.target.closest('button');
+
+    if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'block';
+        button.innerHTML = '<i class="bi bi-funnel-fill"></i> Hide Filters';
+        button.classList.remove('btn-outline-info');
+        button.classList.add('btn-info');
+    } else {
+        panel.style.display = 'none';
+        button.innerHTML = '<i class="bi bi-funnel"></i> Advanced Filters';
+        button.classList.remove('btn-info');
+        button.classList.add('btn-outline-info');
+    }
+}
+
+function applyDeviceTypeFilters() {
+    // Get all advanced filter values
+    const advancedDeviceSearch = document.getElementById('advancedDeviceSearch').value.toLowerCase();
+    const sizeFilter = document.getElementById('sizeFilter').value;
+    const minCores = parseInt(document.getElementById('minCores').value) || 0;
+    const maxCores = parseInt(document.getElementById('maxCores').value) || Infinity;
+    const supermicroFilter = document.getElementById('advFilterSupermicro').checked;
+    const hpeFilter = document.getElementById('advFilterHPE').checked;
+    const dellFilter = document.getElementById('advFilterDell').checked;
+    const biosFilter = document.getElementById('advFilterBIOS').checked;
+    const bmcFilter = document.getElementById('advFilterBMC').checked;
+    const firmwareStatusFilter = document.getElementById('advFirmwareStatusFilter').value;
+    const minFiles = parseInt(document.getElementById('minFiles').value) || 0;
+    const maxFiles = parseInt(document.getElementById('maxFiles').value) || Infinity;
+
+    let filteredCount = 0;
+
+    // Apply filters to device type cards
+    const deviceCards = document.querySelectorAll('.device-type-card');
+    deviceCards.forEach(card => {
+        let showCard = true;
+
+        // Advanced device name search
+        if (advancedDeviceSearch) {
+            const cardText = card.textContent.toLowerCase();
+            if (!cardText.includes(advancedDeviceSearch)) {
+                showCard = false;
+            }
+        }
+
+        // Size filter (extract from device type name)
+        if (sizeFilter) {
+            const deviceTypeName = card.querySelector('.card-title')?.textContent?.toLowerCase() || '';
+            if (!deviceTypeName.includes(sizeFilter)) {
+                showCard = false;
+            }
+        }
+
+        // Core count filter (check CPU info)
+        const cpuInfo = card.querySelector('.cpu-info')?.textContent || '';
+        const coreMatch = cpuInfo.match(/(\d+)\s*cores?/i);
+        if (coreMatch) {
+            const cores = parseInt(coreMatch[1]);
+            if (cores < minCores || cores > maxCores) {
+                showCard = false;
+            }
+        }
+
+        // Vendor filter
+        const vendor = card.getAttribute('data-vendor')?.toLowerCase() || '';
+        if (!supermicroFilter && vendor === 'supermicro') showCard = false;
+        if (!hpeFilter && vendor === 'hpe') showCard = false;
+        if (!dellFilter && vendor === 'dell') showCard = false;
+
+        // Firmware component filter
+        const hasBIOS = card.querySelector('.bios-version, .bios-info') !== null;
+        const hasBMC = card.querySelector('.bmc-version, .bmc-info') !== null;
+        if (!biosFilter && hasBIOS && !hasBMC) showCard = false;
+        if (!bmcFilter && hasBMC && !hasBIOS) showCard = false;
+
+        // Firmware status filter
+        if (firmwareStatusFilter) {
+            const statusBadge = card.querySelector('.firmware-status-badge, .badge');
+            const statusText = statusBadge ? statusBadge.textContent.toLowerCase() : '';
+
+            switch(firmwareStatusFilter) {
+                case 'latest':
+                    if (!statusText.includes('latest') && !statusText.includes('up to date')) showCard = false;
+                    break;
+                case 'outdated':
+                    if (!statusText.includes('outdated')) showCard = false;
+                    break;
+                case 'updates':
+                    if (!statusText.includes('updates available') && !statusText.includes('update available')) showCard = false;
+                    break;
+                case 'unknown':
+                    if (!statusText.includes('unknown')) showCard = false;
+                    break;
+            }
+        }
+
+        // File count filter
+        const fileCountElement = card.querySelector('.file-count, .firmware-files');
+        if (fileCountElement) {
+            const fileCountText = fileCountElement.textContent;
+            const fileMatch = fileCountText.match(/(\d+)/);
+            if (fileMatch) {
+                const fileCount = parseInt(fileMatch[1]);
+                if (fileCount < minFiles || fileCount > maxFiles) {
+                    showCard = false;
+                }
+            }
+        }
+
+        card.style.display = showCard ? '' : 'none';
+        if (showCard) filteredCount++;
+    });
+
+    // Update device type count
+    document.getElementById('deviceTypeCount').textContent = filteredCount;
+
+    // Update filter summary
+    updateDeviceFilterSummary();
+
+    showToast(`Device type filters applied - ${filteredCount} device types shown`, 'success');
+}
+
+function clearDeviceTypeFilters() {
+    // Reset all advanced filter controls
+    document.getElementById('advancedDeviceSearch').value = '';
+    document.getElementById('sizeFilter').value = '';
+    document.getElementById('minCores').value = '';
+    document.getElementById('maxCores').value = '';
+    document.getElementById('advFilterSupermicro').checked = true;
+    document.getElementById('advFilterHPE').checked = true;
+    document.getElementById('advFilterDell').checked = true;
+    document.getElementById('advFilterBIOS').checked = true;
+    document.getElementById('advFilterBMC').checked = true;
+    document.getElementById('advFirmwareStatusFilter').value = '';
+    document.getElementById('minFiles').value = '';
+    document.getElementById('maxFiles').value = '';
+
+    // Reset basic filters too
+    document.getElementById('deviceTypeSearch').value = '';
+    document.getElementById('allVendors').checked = true;
+
+    // Show all device type cards
+    document.querySelectorAll('.device-type-card').forEach(card => {
+        card.style.display = '';
+    });
+
+    // Reset count
+    const totalDevices = document.querySelectorAll('.device-type-card').length;
+    document.getElementById('deviceTypeCount').textContent = totalDevices;
+
+    // Hide filter summary
+    document.getElementById('deviceFilterSummary').classList.add('d-none');
+
+    showToast('All device type filters cleared', 'info');
+}
+
+function updateDeviceFilterSummary() {
+    const filterSummary = document.getElementById('deviceFilterSummary');
+    const filterSummaryText = document.getElementById('deviceFilterSummaryText');
+    const activeFilters = [];
+
+    // Check which filters are active
+    if (document.getElementById('advancedDeviceSearch').value) {
+        activeFilters.push(`Search: "${document.getElementById('advancedDeviceSearch').value}"`);
+    }
+
+    if (document.getElementById('sizeFilter').value) {
+        activeFilters.push(`Size: ${document.getElementById('sizeFilter').value}`);
+    }
+
+    const minCores = document.getElementById('minCores').value;
+    const maxCores = document.getElementById('maxCores').value;
+    if (minCores || maxCores) {
+        const coreRange = minCores && maxCores ? `${minCores}-${maxCores}` :
+                         minCores ? `≥${minCores}` : `≤${maxCores}`;
+        activeFilters.push(`Cores: ${coreRange}`);
+    }
+
+    if (!document.getElementById('advFilterSupermicro').checked ||
+        !document.getElementById('advFilterHPE').checked ||
+        !document.getElementById('advFilterDell').checked) {
+        const vendors = [];
+        if (document.getElementById('advFilterSupermicro').checked) vendors.push('Supermicro');
+        if (document.getElementById('advFilterHPE').checked) vendors.push('HPE');
+        if (document.getElementById('advFilterDell').checked) vendors.push('Dell');
+        activeFilters.push(`Vendors: ${vendors.join(', ')}`);
+    }
+
+    if (!document.getElementById('advFilterBIOS').checked || !document.getElementById('advFilterBMC').checked) {
+        const components = [];
+        if (document.getElementById('advFilterBIOS').checked) components.push('BIOS');
+        if (document.getElementById('advFilterBMC').checked) components.push('BMC');
+        activeFilters.push(`Components: ${components.join(', ')}`);
+    }
+
+    if (document.getElementById('advFirmwareStatusFilter').value) {
+        activeFilters.push(`Status: ${document.getElementById('advFirmwareStatusFilter').value}`);
+    }
+
+    const minFiles = document.getElementById('minFiles').value;
+    const maxFiles = document.getElementById('maxFiles').value;
+    if (minFiles || maxFiles) {
+        const fileRange = minFiles && maxFiles ? `${minFiles}-${maxFiles}` :
+                         minFiles ? `≥${minFiles}` : `≤${maxFiles}`;
+        activeFilters.push(`Files: ${fileRange}`);
+    }
+
+    if (activeFilters.length > 0) {
+        filterSummaryText.textContent = `Active filters: ${activeFilters.join(' | ')}`;
+        filterSummary.classList.remove('d-none');
+    } else {
+        filterSummary.classList.add('d-none');
+    }
+}
+
+function clearAdvancedDeviceSearch() {
+    document.getElementById('advancedDeviceSearch').value = '';
+    applyDeviceTypeFilters();
+}
+
+function saveDeviceFilterPreset() {
+    const filterPreset = {
+        advancedDeviceSearch: document.getElementById('advancedDeviceSearch').value,
+        sizeFilter: document.getElementById('sizeFilter').value,
+        minCores: document.getElementById('minCores').value,
+        maxCores: document.getElementById('maxCores').value,
+        supermicro: document.getElementById('advFilterSupermicro').checked,
+        hpe: document.getElementById('advFilterHPE').checked,
+        dell: document.getElementById('advFilterDell').checked,
+        bios: document.getElementById('advFilterBIOS').checked,
+        bmc: document.getElementById('advFilterBMC').checked,
+        firmwareStatus: document.getElementById('advFirmwareStatusFilter').value,
+        minFiles: document.getElementById('minFiles').value,
+        maxFiles: document.getElementById('maxFiles').value
+    };
+
+    localStorage.setItem('deviceFilterPreset', JSON.stringify(filterPreset));
+    showToast('Device filter preset saved successfully', 'success');
+}
+
+function loadDeviceFilterPreset() {
+    const savedPreset = localStorage.getItem('deviceFilterPreset');
+    if (!savedPreset) {
+        showToast('No saved device filter preset found', 'warning');
+        return;
+    }
+
+    try {
+        const preset = JSON.parse(savedPreset);
+
+        document.getElementById('advancedDeviceSearch').value = preset.advancedDeviceSearch || '';
+        document.getElementById('sizeFilter').value = preset.sizeFilter || '';
+        document.getElementById('minCores').value = preset.minCores || '';
+        document.getElementById('maxCores').value = preset.maxCores || '';
+        document.getElementById('advFilterSupermicro').checked = preset.supermicro;
+        document.getElementById('advFilterHPE').checked = preset.hpe;
+        document.getElementById('advFilterDell').checked = preset.dell;
+        document.getElementById('advFilterBIOS').checked = preset.bios;
+        document.getElementById('advFilterBMC').checked = preset.bmc;
+        document.getElementById('advFirmwareStatusFilter').value = preset.firmwareStatus || '';
+        document.getElementById('minFiles').value = preset.minFiles || '';
+        document.getElementById('maxFiles').value = preset.maxFiles || '';
+
+        applyDeviceTypeFilters();
+        showToast('Device filter preset loaded successfully', 'success');
+    } catch (error) {
+        showToast('Error loading device filter preset', 'error');
+    }
+}
+
+// Legacy function names for compatibility - delegate to device type functions
+function applyAdvancedFilters() {
+    applyDeviceTypeFilters();
+}
+
+function clearAdvancedFilters() {
+    clearDeviceTypeFilters();
+}
+
+function filterDeviceTypesBySearch() {
+    const searchTerm = document.getElementById('deviceTypeSearch').value.toLowerCase();
+    const deviceCards = document.querySelectorAll('.device-type-card');
+
+    let visibleCount = 0;
+    deviceCards.forEach(card => {
+        const cardText = card.textContent.toLowerCase();
+        const isVisible = cardText.includes(searchTerm);
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+    });
+
+    document.getElementById('deviceTypeCount').textContent = visibleCount;
+}
+
+function clearDeviceTypeSearch() {
+    document.getElementById('deviceTypeSearch').value = '';
+    filterDeviceTypesBySearch();
+}
+
+function checkForNewFirmware() {
+    showToast('Checking vendor sites for new firmware...', 'info');
+
+    fetch('/firmware/api/check-new', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const message = `Found ${data.new_firmware_count || 0} new firmware files available for download.`;
+            showToast(message, data.new_firmware_count > 0 ? 'success' : 'info');
+        } else {
+            showToast(data.error || 'Failed to check for new firmware', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Check firmware error:', error);
+        showToast('Error checking for new firmware: ' + error.message, 'error');
+    });
+}
+
+function showRepositoryDetails() {
+    fetch('/firmware/api/repository-details')
+    .then(response => response.json())
+    .then(data => {
+        const modal = new bootstrap.Modal(document.createElement('div'));
+        // Create dynamic modal for repository details
+        showDetailedInventory(); // For now, reuse existing modal
+    })
+    .catch(error => {
+        console.error('Repository details error:', error);
+        showToast('Error loading repository details', 'error');
+    });
+}
+
+function showDownloadQueue() {
+    fetch('/firmware/api/download-queue')
+    .then(response => response.json())
+    .then(data => {
+        if (data.queue && data.queue.length > 0) {
+            let queueHtml = '<h6>Download Queue</h6><ul class="list-group">';
+            data.queue.forEach(item => {
+                queueHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${item.vendor} - ${item.firmware_type} - ${item.filename}</span>
+                        <span class="badge bg-${item.status === 'downloading' ? 'primary' : 'secondary'}">${item.status}</span>
+                    </li>
+                `;
+            });
+            queueHtml += '</ul>';
+
+            showToast(queueHtml, 'info');
+        } else {
+            showToast('Download queue is empty', 'info');
+        }
+    })
+    .catch(error => {
+        console.error('Download queue error:', error);
+        showToast('Error loading download queue', 'error');
+    });
 }
 
 function filterServers() {
@@ -624,7 +1385,7 @@ function viewDetails(serverId) {
 
     content.innerHTML = `
         <div class="text-center">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <i class="bi bi-arrow-clockwise fs-1"></i>
             <p class="mt-2">Loading server details...</p>
         </div>
     `;
@@ -691,7 +1452,9 @@ async function loadDeviceTypes() {
         const data = await response.json();
 
         if (data.device_types) {
+            currentDeviceTypes = data.device_types;
             renderDeviceTypes(data.device_types);
+            updateDeviceTypeCount(data.device_types.length);
         } else {
             showDeviceTypesError('Failed to load device types');
         }
@@ -701,122 +1464,366 @@ async function loadDeviceTypes() {
     }
 }
 
-function renderDeviceTypes(deviceTypes) {
-    const grid = document.getElementById('deviceTypesGrid');
+        function updateDeviceTypeCount(count) {
+            const countElement = document.getElementById('deviceTypeCount');
+            if (countElement) {
+                countElement.textContent = count;
+            }
+        }
 
-    if (deviceTypes.length === 0) {
-        grid.innerHTML = `
-            <div class="col-12 text-center py-4">
-                <i class="fas fa-microchip fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No device types found</h5>
-                <p class="text-muted">No motherboard configurations available</p>
-            </div>
-        `;
-        return;
-    }
+        // View toggle functionality
+        function toggleDeviceView(view) {
+            const cardView = document.getElementById('deviceTypeGrid');
+            const listView = document.getElementById('deviceTypeTable');
 
-    grid.innerHTML = deviceTypes.map(device => `
-        <div class="col-lg-4 col-md-6 mb-3 device-type-card" data-vendor="${device.vendor.toLowerCase()}">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                        <i class="fas fa-microchip text-primary"></i>
-                        ${device.device_type}
-                    </h6>
-                    <span class="badge bg-primary">${device.vendor}</span>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <p class="text-muted small mb-2">${device.description}</p>
-                            <p class="mb-1"><strong>Motherboard:</strong> ${device.motherboard}</p>
-                            <p class="mb-1"><strong>CPU:</strong> ${device.cpu_name} (${device.cpu_cores} cores)</p>
-                            <p class="mb-1"><strong>RAM:</strong> ${device.ram_gb}GB</p>
-                        </div>
-                    </div>
+            if (view === 'card') {
+                cardView.style.display = 'block';
+                listView.style.display = 'none';
+            } else {
+                cardView.style.display = 'none';
+                listView.style.display = 'block';
+                renderDeviceTypesList();
+            }
+        }
 
-                    <div class="row text-center mb-3">
-                        <div class="col-6">
-                            <small class="text-muted">BIOS Version</small>
-                            <div class="fw-bold text-primary">${device.bios_version}</div>
-                        </div>
-                        <div class="col-6">
-                            <small class="text-muted">BMC Version</small>
-                            <div class="fw-bold text-success">${device.bmc_version}</div>
-                        </div>
-                    </div>
+        function toggleServerView(view) {
+            const cardView = document.getElementById('serverGrid');
+            const listView = document.getElementById('serverTable');
 
-                    ${device.firmware_files.length > 0 ? `
-                        <div class="mb-3">
-                            <small class="text-muted">Available Firmware Files:</small>
-                            <div class="mt-1">
-                                ${device.firmware_files.map(file => `
-                                    <div class="d-flex justify-content-between align-items-center mb-1 p-2 bg-light rounded">
-                                        <div class="flex-grow-1">
-                                            <small>
-                                                <span class="badge bg-secondary me-1">${file.type}</span>
-                                                ${file.filename}
-                                                <span class="text-muted">(${file.size})</span>
-                                            </small>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-primary"
-                                                onclick="downloadFirmware('${file.download_url}', '${file.filename}')"
-                                                title="Download ${file.filename}">
-                                            <i class="fas fa-download"></i>
+            if (view === 'card') {
+                cardView.style.display = 'block';
+                listView.style.display = 'none';
+            } else {
+                cardView.style.display = 'none';
+                listView.style.display = 'block';
+                renderServersList();
+            }
+        }
+
+        function renderDeviceTypesList() {
+            const tableBody = document.getElementById('deviceTypeTableBody');
+            if (!tableBody) return;
+
+            // Fetch device types data from API
+            fetch('/firmware/api/device-types')
+                .then(response => response.json())
+                .then(data => {
+                    const deviceTypes = data.device_types || [];
+                    let html = '';
+
+                    deviceTypes.forEach(deviceType => {
+                        // Analyze firmware files for updates and status
+                        const biosFiles = deviceType.firmware_files.filter(f => f.type === 'BIOS');
+                        const bmcFiles = deviceType.firmware_files.filter(f => f.type === 'BMC');
+
+                        // Find latest versions (highest version number)
+                        const latestBios = biosFiles.length > 0 ?
+                            biosFiles.reduce((a, b) => (a.filename > b.filename ? a : b)) : null;
+                        const latestBmc = bmcFiles.length > 0 ?
+                            bmcFiles.reduce((a, b) => (a.filename > b.filename ? a : b)) : null;
+
+                        // Check for updates (more than one version available)
+                        const biosHasUpdates = biosFiles.length > 1;
+                        const bmcHasUpdates = bmcFiles.length > 1;
+                        const hasUpdates = biosHasUpdates || bmcHasUpdates;
+
+                        // Status determination
+                        let statusBadge = '';
+                        if (hasUpdates) {
+                            statusBadge = '<span class="badge bg-warning">Updates Available</span>';
+                        } else if (deviceType.firmware_files.length > 0) {
+                            statusBadge = '<span class="badge bg-success">Current</span>';
+                        } else {
+                            statusBadge = '<span class="badge bg-secondary">No Firmware</span>';
+                        }
+
+                        // Firmware files summary
+                        const firmwareTypes = {};
+                        deviceType.firmware_files.forEach(f => {
+                            firmwareTypes[f.type] = (firmwareTypes[f.type] || 0) + 1;
+                        });
+                        const firmwareSummary = Object.entries(firmwareTypes)
+                            .map(([type, count]) => `${type}: ${count}`)
+                            .join(', ') || 'None';
+
+                        // Latest modification date
+                        const latestDate = deviceType.firmware_files.length > 0 ?
+                            deviceType.firmware_files.reduce((latest, file) =>
+                                new Date(file.date_modified) > new Date(latest) ? file.date_modified : latest,
+                                deviceType.firmware_files[0].date_modified
+                            ) : 'Never';
+
+                        html += `
+                            <tr>
+                                <td>
+                                    <strong>${deviceType.device_type}</strong>
+                                    <br><small class="text-muted">${deviceType.vendor || 'Unknown'}</small>
+                                </td>
+                                <td>
+                                    <span class="text-truncate d-inline-block" style="max-width: 200px;" title="${deviceType.description || 'No description'}">
+                                        ${deviceType.description || 'No description available'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>${deviceType.cpu_name || 'Unknown'}</strong>
+                                    <br><small class="text-muted">${deviceType.cpu_cores || 0} cores</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">${deviceType.bios_version || 'Unknown'}</span>
+                                    ${biosHasUpdates ? '<br><small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Update available</small>' : ''}
+                                    ${latestBios && latestBios.filename !== deviceType.bios_version ? '<br><small class="text-info">Latest: ' + latestBios.filename.replace(/.*_v/, 'v').replace('.bin', '') + '</small>' : ''}
+                                </td>
+                                <td>
+                                    <span class="fw-bold">${deviceType.bmc_version || 'Unknown'}</span>
+                                    ${bmcHasUpdates ? '<br><small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Update available</small>' : ''}
+                                    ${latestBmc && latestBmc.filename !== deviceType.bmc_version ? '<br><small class="text-info">Latest: ' + latestBmc.filename.replace(/.*_v/, 'v').replace('.bin', '') + '</small>' : ''}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">${deviceType.firmware_files.length} total</span>
+                                    <br><small class="text-muted">${firmwareSummary}</small>
+                                </td>
+                                <td>${statusBadge}</td>
+                                <td>
+                                    <small>${latestDate !== 'Never' ? new Date(latestDate).toLocaleDateString() : 'Never'}</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button class="btn btn-outline-primary" onclick="viewDeviceDetails('${deviceType.device_type}')" title="View Details">
+                                            <i class="bi bi-info-circle"></i>
                                         </button>
+                                        <button class="btn btn-outline-secondary" onclick="manageDeviceFirmware('${deviceType.device_type}')" title="Manage Firmware">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                        ${hasUpdates ? `<button class="btn btn-outline-warning" onclick="updateDeviceFirmware('${deviceType.device_type}')" title="Update Firmware">
+                                            <i class="bi bi-download"></i>
+                                        </button>` : ''}
                                     </div>
-                                `).join('')}
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    tableBody.innerHTML = html || '<tr><td colspan="9" class="text-center text-muted">No device types found</td></tr>';
+                })
+                .catch(error => {
+                    console.error('Error loading device types for table:', error);
+                    tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error loading device types</td></tr>';
+                });
+        }
+
+        function renderServersList() {
+            const tableBody = document.getElementById('serverTableBody');
+            if (!tableBody) return;
+
+            // Get server data from the page
+            const serverCards = document.querySelectorAll('.server-card:not([style*="display: none"])');
+            let html = '';
+
+            serverCards.forEach(card => {
+                const hostname = card.querySelector('.card-title')?.textContent?.trim() || 'Unknown';
+                const details = card.querySelector('.text-muted.small')?.textContent?.trim() || '';
+                const idMatch = details.match(/ID: ([^|]+)/);
+                const typeMatch = details.match(/Type: (.+)/);
+                const serverId = idMatch ? idMatch[1].trim() : 'Unknown';
+                const deviceType = typeMatch ? typeMatch[1].trim() : 'Unknown';
+
+                const statusBadge = card.querySelector('.firmware-status-badge');
+                const status = statusBadge ? statusBadge.textContent.trim() : 'Unknown';
+                const statusClass = statusBadge ? statusBadge.className.split(' ')[1] : 'bg-secondary';
+
+                const biosVersion = card.querySelector('.col-6:first-child .fw-bold')?.textContent?.trim() || 'Unknown';
+                const bmcVersion = card.querySelector('.col-6:last-child .fw-bold')?.textContent?.trim() || 'Unknown';
+
+                const updates = card.querySelector('.small .badge.bg-light') ? 'Available' : 'None';
+                const lastChecked = card.querySelector('.text-muted.d-block')?.textContent?.replace('Last checked:', '').trim() || 'Never';
+
+                html += `
+                    <tr>
+                        <td><strong>${serverId}</strong></td>
+                        <td>${hostname}</td>
+                        <td>${deviceType}</td>
+                        <td><span class="badge ${statusClass}">${status}</span></td>
+                        <td>${biosVersion}</td>
+                        <td>${bmcVersion}</td>
+                        <td>${updates}</td>
+                        <td>${lastChecked}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary" onclick="viewDetails('${serverId}')">
+                                    <i class="bi bi-info-circle"></i>
+                                </button>
+                                ${card.querySelector('button[onclick*="scheduleServerUpdate"]') ?
+                                    `<button class="btn btn-warning" onclick="scheduleServerUpdate('${serverId}')">
+                                        <i class="bi bi-download"></i>
+                                    </button>` : ''
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html || '<tr><td colspan="9" class="text-center text-muted">No servers found</td></tr>';
+        }
+
+        // Placeholder functions for device management
+        function viewDeviceDetails(deviceType) {
+            showToast(`Viewing details for ${deviceType}`, 'info');
+            // TODO: Implement modal with detailed device information
+        }
+
+        function manageDeviceFirmware(deviceType) {
+            showToast(`Managing firmware for ${deviceType}`, 'info');
+            // TODO: Implement firmware management interface
+        }
+
+        function updateDeviceFirmware(deviceType) {
+            showToast(`Updating firmware for ${deviceType}`, 'info');
+            // TODO: Implement firmware update workflow
+        }
+
+        function renderDeviceTypes(deviceTypes) {
+            console.log('renderDeviceTypes called with:', deviceTypes.length, 'devices');
+            const grid = document.getElementById('deviceTypeGrid');
+            console.log('Grid element found:', grid);
+
+            if (deviceTypes.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-12 text-center py-4">
+                        <i class="bi bi-cpu fs-1 text-muted mb-3"></i>
+                        <h5 class="text-muted">No device types found</h5>
+                        <p class="text-muted">No motherboard configurations available</p>
+                    </div>
+                `;
+                updateDeviceTypeCount(0);
+                return;
+            }
+
+            let html = '';
+            deviceTypes.forEach(device => {
+                // Analyze firmware files for status
+                const biosFiles = device.firmware_files.filter(f => f.type === 'BIOS');
+                const bmcFiles = device.firmware_files.filter(f => f.type === 'BMC');
+
+                // Check for updates (more than one version available)
+                const biosHasUpdates = biosFiles.length > 1;
+                const bmcHasUpdates = bmcFiles.length > 1;
+                const hasUpdates = biosHasUpdates || bmcHasUpdates;
+
+                // Determine status
+                let statusClass = '';
+                let statusText = '';
+                let statusBadgeClass = '';
+
+                if (hasUpdates) {
+                    statusClass = 'update-available';
+                    statusText = 'Updates Available';
+                    statusBadgeClass = 'bg-warning';
+                } else if (device.firmware_files.length > 0) {
+                    statusClass = 'up-to-date';
+                    statusText = 'Current';
+                    statusBadgeClass = 'bg-success';
+                } else {
+                    statusClass = 'status-unknown';
+                    statusText = 'No Firmware';
+                    statusBadgeClass = 'bg-secondary';
+                }
+
+                html += `
+                <div class="col-lg-4 col-md-6 mb-3 device-type-card ${statusClass}" data-vendor="${(device.vendor || 'unknown').toLowerCase()}" data-device-type="${device.device_type}">
+                    <div class="card h-100 firmware-card ${statusClass}">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 card-title">
+                                <i class="bi bi-cpu text-primary"></i>
+                                ${device.device_type}
+                            </h6>
+                            <span class="badge ${statusBadgeClass} firmware-status-badge">${statusText}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <p class="text-muted small mb-2">${device.description || 'No description available'}</p>
+                                <p class="mb-1"><strong>CPU:</strong> ${device.cpu_name || 'Unknown'} (${device.cpu_cores || 0} cores)</p>
+                            </div>
+
+                            <div class="row text-center mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted">BIOS Version</small>
+                                    <div class="fw-bold text-primary">${device.bios_version || 'Unknown'}</div>
+                                    ${biosHasUpdates ? '<small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Update available</small>' : ''}
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">BMC Version</small>
+                                    <div class="fw-bold text-success">${device.bmc_version || 'Unknown'}</div>
+                                    ${bmcHasUpdates ? '<small class="text-warning"><i class="bi bi-exclamation-triangle"></i> Update available</small>' : ''}
+                                </div>
+                            </div>
+
+                            <div class="text-center mb-3">
+                                <small class="text-muted">Firmware Files</small>
+                                <div class="fw-bold">${device.firmware_files ? device.firmware_files.length : 0}</div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewDeviceTypeDetails('${device.device_type}')">
+                                    <i class="bi bi-info-circle"></i> Details
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="manageDeviceFirmware('${device.device_type}')">
+                                    <i class="bi bi-gear"></i> Manage
+                                </button>
                             </div>
                         </div>
-                    ` : `
-                        <div class="text-center py-2">
-                            <small class="text-muted">No firmware files available</small>
-                        </div>
-                    `}
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Updated: ${device.last_updated}</small>
-                        <button class="btn btn-sm btn-outline-info"
-                                onclick="viewDeviceTypeDetails('${device.device_type}', '${device.motherboard}')">
-                            <i class="fas fa-info-circle"></i> Details
-                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
-    `).join('');
-}
+                `;
+            });
 
-function showDeviceTypesError(message) {
-    const grid = document.getElementById('deviceTypesGrid');
-    grid.innerHTML = `
-        <div class="col-12 text-center py-4">
-            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-            <h5 class="text-warning">Error Loading Device Types</h5>
-            <p class="text-muted">${message}</p>
-            <button class="btn btn-primary" onclick="loadDeviceTypes()">
-                <i class="fas fa-sync-alt"></i> Retry
-            </button>
-        </div>
-    `;
-}
+            grid.innerHTML = html;
+            updateDeviceTypeCount(deviceTypes.length);
+        }
+
+        function showDeviceTypesError(message) {
+            const grid = document.getElementById('deviceTypeGrid');
+            grid.innerHTML = `
+                <div class="col-12 text-center py-4">
+                    <i class="bi bi-exclamation-triangle fs-1 text-warning mb-3"></i>
+                    <h5 class="text-warning">Error Loading Device Types</h5>
+                    <p class="text-muted">${message}</p>
+                    <button class="btn btn-primary" onclick="loadDeviceTypes()">
+                        <i class="bi bi-arrow-clockwise"></i> Retry
+                    </button>
+                </div>
+            `;
+            updateDeviceTypeCount(0);
+        }
 
 function filterDeviceTypes() {
     const selectedVendor = document.querySelector('input[name="vendorFilter"]:checked').value;
+    const searchTerm = document.getElementById('deviceTypeSearch')?.value?.toLowerCase() || '';
     const deviceCards = document.querySelectorAll('.device-type-card');
 
+    let visibleCount = 0;
     deviceCards.forEach(card => {
         const vendor = card.getAttribute('data-vendor');
-        if (selectedVendor === 'all' || vendor === selectedVendor) {
+        const cardText = card.textContent.toLowerCase();
+
+        const vendorMatch = selectedVendor === 'all' || vendor === selectedVendor;
+        const searchMatch = !searchTerm || cardText.includes(searchTerm);
+
+        if (vendorMatch && searchMatch) {
             card.style.display = '';
+            visibleCount++;
         } else {
             card.style.display = 'none';
         }
     });
+
+    updateDeviceTypeCount(visibleCount);
 }
 
 async function downloadFirmware(downloadUrl, filename) {
     try {
+        showToast(`Starting download: ${filename}`, 'info');
+
         // Create a temporary anchor element to trigger download
         const link = document.createElement('a');
         link.href = downloadUrl;
@@ -826,7 +1833,7 @@ async function downloadFirmware(downloadUrl, filename) {
         document.body.removeChild(link);
 
         // Show success message
-        showToast(`Downloading ${filename}...`, 'success');
+        showToast(`Download started: ${filename}`, 'success');
     } catch (error) {
         console.error('Error downloading firmware:', error);
         showToast('Failed to download firmware file', 'error');
@@ -840,7 +1847,7 @@ function viewDeviceTypeDetails(deviceType, motherboard) {
 
     content.innerHTML = `
         <div class="text-center">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <i class="bi bi-arrow-clockwise fs-1"></i>
             <p class="mt-2">Loading device type details...</p>
         </div>
     `;
@@ -960,15 +1967,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Auto-refresh every 30 seconds
-    setInterval(() => {
-        // Only refresh if no modals are open
-        if (!document.querySelector('.modal.show')) {
-            refreshInventory();
-            // Also refresh device types
-            loadDeviceTypes();
-        }
-    }, 30000);
+    // Remove auto-refresh - now manual only
+    console.log('Manual refresh mode enabled - auto-refresh disabled');
 });
 
 // Debug: Check if Bootstrap is available
