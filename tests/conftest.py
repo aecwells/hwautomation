@@ -13,6 +13,7 @@ import asyncio
 import os
 import tempfile
 import time
+import uuid
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, Mock, patch
@@ -53,14 +54,33 @@ def pytest_configure(config):
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
     """Set up test environment variables."""
-    # Set DATABASE_PATH to use a temporary database file for all tests
-    # Using a temp file instead of :memory: to avoid migration issues
+    # Create a unique temporary database file for tests
+    # Use multiple fallback strategies for maximum compatibility
     import tempfile
-    temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-    temp_db.close()
+    import uuid
     
     original_db_path = os.environ.get("DATABASE_PATH")
-    os.environ["DATABASE_PATH"] = temp_db.name
+    
+    # Try different approaches for creating temp database path
+    temp_db_path = None
+    try:
+        # Method 1: Use system temp directory
+        temp_dir = tempfile.gettempdir()
+        temp_db_name = f"hwautomation_test_{uuid.uuid4().hex[:8]}.db"
+        temp_db_path = os.path.join(temp_dir, temp_db_name)
+    except (OSError, PermissionError):
+        try:
+            # Method 2: Use project data directory as fallback
+            data_dir = Path(__file__).parent.parent / "data"
+            data_dir.mkdir(exist_ok=True)
+            temp_db_name = f"test_{uuid.uuid4().hex[:8]}.db"
+            temp_db_path = str(data_dir / temp_db_name)
+        except (OSError, PermissionError):
+            # Method 3: Use current directory as last resort
+            temp_db_name = f"test_{uuid.uuid4().hex[:8]}.db"
+            temp_db_path = os.path.join(os.getcwd(), temp_db_name)
+    
+    os.environ["DATABASE_PATH"] = temp_db_path
     
     # Ensure data directory exists for any tests that might need it
     data_dir = Path(__file__).parent.parent / "data"
@@ -70,8 +90,10 @@ def setup_test_environment():
     
     # Cleanup
     try:
-        os.unlink(temp_db.name)
-    except FileNotFoundError:
+        if temp_db_path and os.path.exists(temp_db_path):
+            os.unlink(temp_db_path)
+    except (FileNotFoundError, PermissionError, OSError):
+        # Ignore cleanup errors in CI environments
         pass
     
     # Restore original value if it existed
