@@ -38,7 +38,7 @@ source hwautomation-env/bin/activate  # Linux/Mac
 # hwautomation-env\Scripts\activate  # Windows
 
 # Install dependencies
-pip install -r requirements-all.txt
+pip install -r requirements.txt
 pip install -e .
 
 # Setup pre-commit hooks

@@ -246,6 +246,58 @@ def documentation(filename):
         return render_template("error.html", error="Documentation unavailable"), 500
 
 
+@core_bp.route("/_static/<path:filename>")
+def documentation_static(filename):
+    """Serve Sphinx static assets (CSS, JS, images)."""
+    try:
+        # Get the project root directory - works in both local and Docker environments
+        from flask import current_app
+
+        # Try multiple paths for Docker and local development compatibility
+        possible_paths = [
+            # Docker container path (when running in /app)
+            "/app/docs/_build/html/_static",
+            # Relative to Flask app root (local development)
+            os.path.join(
+                current_app.root_path,
+                "..",
+                "..",
+                "..",
+                "docs",
+                "_build",
+                "html",
+                "_static",
+            ),
+            # Alternative relative path
+            os.path.join(os.getcwd(), "docs", "_build", "html", "_static"),
+        ]
+
+        static_dir = None
+        for path in possible_paths:
+            abs_path = os.path.abspath(path)
+            if os.path.exists(abs_path):
+                static_dir = abs_path
+                logger.debug(f"Found documentation static assets at: {static_dir}")
+                break
+
+        if not static_dir:
+            logger.warning(
+                f"Documentation static directory not found in any of: {possible_paths}"
+            )
+            abort(404)
+
+        file_path = os.path.join(static_dir, filename)
+        if not os.path.exists(file_path):
+            logger.warning(f"Documentation static file not found: {file_path}")
+            abort(404)
+
+        return send_from_directory(static_dir, filename)
+
+    except Exception as e:
+        logger.error(f"Error serving documentation static file: {e}")
+        abort(404)
+
+
 def init_core_routes(app, db_helper, maas_client, config):
     """Initialize core routes with dependencies."""
     # Store dependencies in app context for route access

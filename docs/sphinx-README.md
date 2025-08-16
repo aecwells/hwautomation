@@ -8,7 +8,7 @@ This directory contains both Markdown documentation files and Sphinx configurati
 
 ```bash
 # Install documentation dependencies
-pip install -r ../requirements-all.txt
+pip install -r ../requirements.txt
 
 # Build HTML documentation
 make html
