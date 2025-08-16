@@ -119,10 +119,15 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install frontend dependencies and build assets
+    - name: Install frontend dependencies
       if: steps.check-frontend.outputs.frontend == 'true'
       run: |
-        make frontend-build
+        npm ci
+
+    - name: Build frontend assets
+      if: steps.check-frontend.outputs.frontend == 'true'
+      run: |
+        npm run build
 
     - name: Upload frontend build artifacts
       if: steps.check-frontend.outputs.frontend == 'true'

@@ -61,16 +61,32 @@ venv-activate:   ## Show command to activate virtual environment
 
 ## [Testing]
 test:            ## Run all tests locally
-	source hwautomation-env/bin/activate && pytest
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		source hwautomation-env/bin/activate && pytest; \
+	else \
+		pytest; \
+	fi
 
 test-unit:       ## Run unit tests only (fast)
-	source hwautomation-env/bin/activate && pytest tests/unit/ -m "not slow"
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		source hwautomation-env/bin/activate && pytest tests/unit/ -m "not slow"; \
+	else \
+		pytest tests/unit/ -m "not slow"; \
+	fi
 
-test-cov:
-	bash -c "cd $(PWD) && source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=term-missing"
+test-cov:        ## Run tests with coverage
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		bash -c "cd $(PWD) && source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=term-missing --cov-report=xml"; \
+	else \
+		pytest --cov=src/hwautomation --cov-report=term-missing --cov-report=xml; \
+	fi
 
 test-html:       ## Generate HTML coverage report
-	source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=html
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=html; \
+	else \
+		pytest --cov=src/hwautomation --cov-report=html; \
+	fi
 	@echo "Coverage report generated in htmlcov/index.html"
 
 clean-test:      ## Clean test artifacts and cache
@@ -80,16 +96,25 @@ clean-test:      ## Clean test artifacts and cache
 
 ## [Code Quality]
 format:          ## Format code with black and isort
-	source hwautomation-env/bin/activate && black src/ tests/
-	source hwautomation-env/bin/activate && isort src/ tests/
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		source hwautomation-env/bin/activate && black src/ tests/ && isort src/ tests/; \
+	else \
+		black src/ tests/ && isort src/ tests/; \
+	fi
 
 lint:            ## Run linting checks
-	source hwautomation-env/bin/activate && flake8 src/ tests/
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		source hwautomation-env/bin/activate && flake8 src/ tests/; \
+	else \
+		flake8 src/ tests/; \
+	fi
 
 quality-check:   ## Run all code quality checks (format, lint)
-	source hwautomation-env/bin/activate && black --check src/ tests/
-	source hwautomation-env/bin/activate && isort --check-only src/ tests/
-	source hwautomation-env/bin/activate && flake8 src/ tests/
+	@if [ -f "hwautomation-env/bin/activate" ]; then \
+		source hwautomation-env/bin/activate && black --check src/ tests/ && isort --check-only src/ tests/ && flake8 src/ tests/; \
+	else \
+		black --check src/ tests/ && isort --check-only src/ tests/ && flake8 src/ tests/; \
+	fi
 
 ## [Documentation]
 docs:            ## Build Sphinx HTML documentation
@@ -107,9 +132,17 @@ docs-clean:      ## Clean documentation build artifacts
 
 ## [Frontend]
 frontend-build:  ## Build frontend assets
+	@if [ ! -d "node_modules" ]; then \
+		echo "Installing frontend dependencies..."; \
+		npm ci; \
+	fi
 	npm run build
 
 frontend-dev:    ## Start frontend development server
+	@if [ ! -d "node_modules" ]; then \
+		echo "Installing frontend dependencies..."; \
+		npm ci; \
+	fi
 	npm run dev
 
 frontend-clean:  ## Clean frontend build artifacts
