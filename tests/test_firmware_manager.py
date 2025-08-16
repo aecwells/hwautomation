@@ -69,7 +69,7 @@ class TestFirmwareManager:
         # Test known device type
         vendor_info = firmware_manager._get_vendor_info("a1.c5.large")
         assert vendor_info["vendor"] == "hpe"
-        assert vendor_info["model"] == "Gen10"
+        assert vendor_info["model"] == "ProLiant RL300 Gen11"
 
         # Test unknown device type
         vendor_info = firmware_manager._get_vendor_info("unknown.device")
