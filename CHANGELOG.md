@@ -95,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- update CHANGELOG.md [skip ci] ([a47dff7e])
 - update CHANGELOG.md [skip ci] ([62d24ae2])
 - update CHANGELOG.md [skip ci] ([8e6c183d])
 - update CHANGELOG.md [skip ci] ([e5639c20])
@@ -132,6 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📝 Other
 
+- Merge branch 'main' of github.com:aecwells/hwautomation ([3dfe05b7])
+- Fix ESLint and Prettier formatting issues ([96594d16])
 - Merge branch 'main' of github.com:aecwells/hwautomation ([ca7390d3])
 - Enhance Socket.IO architecture and remove unnecessary web worker ([86cc544f])
 - Merge branch 'main' of github.com:aecwells/hwautomation ([412001b5])
