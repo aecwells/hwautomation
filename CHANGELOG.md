@@ -129,6 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📝 Other
 
+- Improve Makefile test-cov target robustness ([96b5462f])
+- Fix CI workflow tool paths after reorganization ([fc636350])
 - Update test results from successful reorganized tooling validation ([21568ac0])
 - Merge branch 'main' of github.com:aecwells/hwautomation ([ea5c21fe])
 - Fix Makefile virtual environment activation for test-cov target ([40a71599])
