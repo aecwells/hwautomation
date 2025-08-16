@@ -228,57 +228,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- HPE, Dell, and Supermicro for vendor tool integration
-- Metal-as-a-Service (MaaS) project for bare metal provisioning
-- Flask and modern web development communities
-- Docker and container orchestration ecosystems
-│   │   │   ├── devices/       # Device-specific implementations
-│   │   │   ├── operations/    # BIOS operation handlers
-│   │   │   └── parsers/       # Configuration file parsers
-│   │   ├── discovery/         # 🔍 Hardware discovery system (modularized)
-│   │   │   ├── parsers/       # System information parsers
-│   │   │   ├── vendors/       # Vendor-specific discovery logic
-│   │   │   └── utils/         # Discovery utilities
-│   │   ├── firmware_manager.py           # 🔧 Multi-vendor firmware operations
-│   │   └── firmware_provisioning_workflow.py # 🚀 Firmware-first workflows
-│   ├── orchestration/         # 🔄 Workflow management and server provisioning
-│   ├── database/              # 🗄️ SQLite operations and migrations
-│   ├── maas/                  # 🌐 MAAS API client
-│   ├── logging/               # 📊 Centralized logging infrastructure
-│   ├── validation/            # ✅ Data validation utilities
-│   └── utils/                 # 🔧 Configuration and utilities
-├── configs/
-│   ├── bios/                  # 📁 BIOS configuration templates and rules
-│   └── firmware/              # 📁 Firmware repository and update configurations
-├── examples/                  # 📚 Usage examples including firmware demos
-├── tests/                     # 🧪 Comprehensive test suite
-│   ├── unit/                  # Fast unit tests
-│   ├── integration/           # Integration tests
-│   ├── fixtures/              # Test data and fixtures
-│   └── mocks/                 # Mock objects for testing
-├── docs/                      # 📖 Comprehensive documentation
-├── tools/                     # 🛠️ Development and maintenance tools
-│   ├── cli/                   # Production CLI tools
-│   ├── testing/               # Test scripts and utilities
-│   ├── debug/                 # Debug and troubleshooting scripts
-│   ├── config/                # Configuration management tools
-│   ├── migration/             # Migration and setup tools
-│   ├── verification/          # Validation and verification tools
-│   └── quality/               # Code quality tools
-└── firmware/                  # 📁 Firmware repository structure
-    ├── dell/                  # Dell firmware files
-    ├── hpe/                   # HPE firmware files
-    └── supermicro/            # Supermicro firmware files
-```
-
-### Service Architecture
-
-| Service | Container | Port | Purpose | Health Check |
-|---------|-----------|------|---------|--------------|
-| **Web GUI** | `hwautomation-app` | 5000 | Primary interface | ✅ `/health` endpoint |
-| **MaaS Simulator** | `hwautomation-maas-sim` | 5240 | Testing only | ✅ Optional (testing profile) |
-
-**Database**: SQLite file-based database (`hw_automation.db`) - no separate container required
+- **HPE, Dell, and Supermicro** for comprehensive vendor tool integration and hardware support
+- **Metal-as-a-Service (MaaS)** project for revolutionizing bare metal provisioning
+- **Flask and Python communities** for robust web framework and ecosystem
+- **Docker and container orchestration ecosystems** for modern deployment strategies
+- **Open source hardware automation community** for collaborative development
+- **Sphinx documentation project** for professional documentation generation
+- **ReadTheDocs** for beautiful documentation themes and hosting
+- **Vite and modern frontend tooling** for efficient asset build systems
 
 ## Container Deployment
 
