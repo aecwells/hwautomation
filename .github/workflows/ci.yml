@@ -62,17 +62,9 @@ jobs:
       run: |
         npm ci
 
-    - name: Check code formatting with Black
+    - name: Check code formatting and linting
       run: |
-        black --check --diff --line-length=88 --target-version=py39 src/ tests/
-
-    - name: Check import sorting with isort
-      run: |
-        isort --check-only --diff src/ tests/
-
-    - name: Lint with flake8
-      run: |
-        flake8 src/ tests/
+        make quality-check
 
     - name: Type check with mypy
       run: |
@@ -127,15 +119,10 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install frontend dependencies
+    - name: Install frontend dependencies and build assets
       if: steps.check-frontend.outputs.frontend == 'true'
       run: |
-        npm ci
-
-    - name: Build frontend assets
-      if: steps.check-frontend.outputs.frontend == 'true'
-      run: |
-        npm run build
+        make frontend-build
 
     - name: Upload frontend build artifacts
       if: steps.check-frontend.outputs.frontend == 'true'
@@ -169,8 +156,7 @@ jobs:
 
     - name: Run unit tests
       run: |
-        export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
-        pytest tests/unit/
+        make test-cov
 
     - name: Upload coverage to Codecov
       if: matrix.python-version == env.PYTHON_DEFAULT_VERSION
