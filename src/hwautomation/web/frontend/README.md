@@ -38,7 +38,9 @@ src/hwautomation/web/frontend/
 │   │   └── device-selection.js    # Device listing and selection
 │   └── utils/
 │       ├── dom.js                # DOM manipulation utilities
-│       └── format.js             # Data formatting functions
+│       ├── format.js             # Data formatting functions
+│       ├── workflow-persistence.js # Workflow progress persistence
+│       └── socket-event-batcher.js # Socket.IO event batching
 └── css/
     ├── base.css                  # CSS variables and theme foundations
     ├── main.css                  # Main stylesheet with imports
@@ -54,10 +56,11 @@ src/hwautomation/web/frontend/
 - **Purpose**: Main application lifecycle management
 - **Features**:
   - Service initialization and coordination
-  - Socket.IO connection management
-  - Global event system
+  - Enhanced Socket.IO connection management with reconnection logic
+  - Comprehensive event handling for workflows, activities, and server status
+  - Global event system with custom event dispatching
   - Component registration and lifecycle
-  - Error handling and recovery
+  - Error handling and recovery with user notifications
 
 ### 2. State Management (`services/state.js`)
 
@@ -116,6 +119,26 @@ src/hwautomation/web/frontend/
   - Cards and table view modes
   - Real-time device loading and updates
   - Filtering and search capabilities
+
+### 8. Workflow Persistence (`utils/workflow-persistence.js`)
+
+- **Purpose**: Workflow progress state management
+- **Features**:
+  - localStorage-based progress persistence
+  - Automatic cleanup of old workflow data
+  - Session recovery for interrupted workflows
+  - Progress summary and staleness detection
+  - 24-hour data retention policy
+
+### 9. Socket Event Batching (`utils/socket-event-batcher.js`)
+
+- **Purpose**: Performance optimization for high-frequency events
+- **Features**:
+  - Batches rapid Socket.IO events to prevent UI flooding
+  - Configurable batch delays and sizes
+  - Event-type-specific batching strategies
+  - Latest-value optimization for progress updates
+  - Force flush and cleanup capabilities
   - Device commissioning workflow
   - Responsive design and accessibility
 

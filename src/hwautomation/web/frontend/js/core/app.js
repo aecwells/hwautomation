@@ -30,7 +30,17 @@ class HWAutomationApp {
     // Bind methods to preserve context
     this.handleConnect = this.handleConnect.bind(this);
     this.handleDisconnect = this.handleDisconnect.bind(this);
+    this.handleConnectError = this.handleConnectError.bind(this);
+    this.handleReconnect = this.handleReconnect.bind(this);
+    this.handleReconnectError = this.handleReconnectError.bind(this);
+    this.handleReconnectFailed = this.handleReconnectFailed.bind(this);
     this.handleSubscribeWorkflow = this.handleSubscribeWorkflow.bind(this);
+    this.handleWorkflowProgress = this.handleWorkflowProgress.bind(this);
+    this.handleWorkflowStep = this.handleWorkflowStep.bind(this);
+    this.handleWorkflowComplete = this.handleWorkflowComplete.bind(this);
+    this.handleWorkflowUpdates = this.handleWorkflowUpdates.bind(this);
+    this.handleActivityUpdate = this.handleActivityUpdate.bind(this);
+    this.handleServerStatusUpdate = this.handleServerStatusUpdate.bind(this);
   }
 
   /**
@@ -122,11 +132,38 @@ class HWAutomationApp {
       return;
     }
 
-    this.socket = io();
+    this.socket = io({
+      // Add connection options for better reliability
+      transports: ['websocket', 'polling'],
+      upgrade: true,
+      rememberUpgrade: true,
+      timeout: 20000,
+      forceNew: false,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      maxReconnectionAttempts: 5,
+      randomizationFactor: 0.5
+    });
 
+    // Connection events
     this.socket.on("connect", this.handleConnect);
     this.socket.on("disconnect", this.handleDisconnect);
+    this.socket.on("connect_error", this.handleConnectError);
+    this.socket.on("reconnect", this.handleReconnect);
+    this.socket.on("reconnect_error", this.handleReconnectError);
+    this.socket.on("reconnect_failed", this.handleReconnectFailed);
+
+    // Workflow events
     this.socket.on("subscribe_workflow", this.handleSubscribeWorkflow);
+    this.socket.on("workflow_progress_update", this.handleWorkflowProgress);
+    this.socket.on("workflow_step_update", this.handleWorkflowStep);
+    this.socket.on("workflow_complete", this.handleWorkflowComplete);
+    this.socket.on("workflow_updates", this.handleWorkflowUpdates);
+
+    // Activity and log events
+    this.socket.on("activity_update", this.handleActivityUpdate);
+    this.socket.on("server_status_update", this.handleServerStatusUpdate);
 
     // Store socket in services for other components
     this.services.set("socket", this.socket);
@@ -177,6 +214,7 @@ class HWAutomationApp {
   handleConnect() {
     console.log("Connected to server");
     this.services.get("state").setState("socket.connected", true);
+    this.services.get("notifications").success("Connected to real-time updates");
     this.emit("socket:connected");
   }
 
@@ -186,7 +224,43 @@ class HWAutomationApp {
   handleDisconnect() {
     console.log("Disconnected from server");
     this.services.get("state").setState("socket.connected", false);
+    this.services.get("notifications").warning("Lost connection to real-time updates");
     this.emit("socket:disconnected");
+  }
+
+  /**
+   * Handle socket connection error
+   */
+  handleConnectError(error) {
+    console.error("Socket connection error:", error);
+    this.services.get("notifications").error("Failed to connect to real-time updates");
+    this.emit("socket:connection-error", { error });
+  }
+
+  /**
+   * Handle socket reconnection
+   */
+  handleReconnect(attemptNumber) {
+    console.log(`Reconnected to server after ${attemptNumber} attempts`);
+    this.services.get("notifications").success("Reconnected to real-time updates");
+    this.emit("socket:reconnected", { attemptNumber });
+  }
+
+  /**
+   * Handle socket reconnection error
+   */
+  handleReconnectError(error) {
+    console.error("Socket reconnection error:", error);
+    this.emit("socket:reconnection-error", { error });
+  }
+
+  /**
+   * Handle socket reconnection failure
+   */
+  handleReconnectFailed() {
+    console.error("Socket reconnection failed permanently");
+    this.services.get("notifications").error("Unable to restore real-time connection. Please refresh the page.");
+    this.emit("socket:reconnection-failed");
   }
 
   /**
@@ -196,6 +270,54 @@ class HWAutomationApp {
     const workflowId = data.workflow_id;
     console.log(`Client subscribed to workflow ${workflowId}`);
     this.emit("workflow:subscribed", { workflowId });
+  }
+
+  /**
+   * Handle workflow progress updates
+   */
+  handleWorkflowProgress(data) {
+    console.log(`Workflow ${data.workflow_id} progress:`, data.progress);
+    this.emit("workflow:progress", data);
+  }
+
+  /**
+   * Handle workflow step updates
+   */
+  handleWorkflowStep(data) {
+    console.log(`Workflow ${data.workflow_id} step:`, data.step);
+    this.emit("workflow:step", data);
+  }
+
+  /**
+   * Handle workflow completion
+   */
+  handleWorkflowComplete(data) {
+    console.log(`Workflow ${data.workflow_id} completed:`, data.result);
+    this.emit("workflow:complete", data);
+  }
+
+  /**
+   * Handle workflow list updates
+   */
+  handleWorkflowUpdates(data) {
+    console.log("Workflow list updated:", data);
+    this.emit("workflows:updated", data);
+  }
+
+  /**
+   * Handle activity updates
+   */
+  handleActivityUpdate(data) {
+    console.log("Activity update:", data);
+    this.emit("activity:update", data);
+  }
+
+  /**
+   * Handle server status updates
+   */
+  handleServerStatusUpdate(data) {
+    console.log("Server status update:", data);
+    this.emit("server:status-update", data);
   }
 
   /**
