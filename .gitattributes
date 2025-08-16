@@ -1,0 +1,6 @@
+# Documentation
+*.md linguist-documentation
+docs/archive/* linguist-documentation=true
+
+# Frontend assets
+src/hwautomation/web/static/dist/* linguist-generated=true

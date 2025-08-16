@@ -1,4 +1,4 @@
-# Hardware Automation Package
+# HWAutomation
 
 ![CI/CD Pipeline](https://github.com/aecwells/hwautomation/actions/workflows/ci.yml/badge.svg?branch=main)
 [![codecov](https://codecov.io/gh/aecwells/hwautomation/branch/main/graph/badge.svg)](https://codecov.io/gh/aecwells/hwautomation)
@@ -6,153 +6,232 @@
 ![Code Quality](https://img.shields.io/badge/code%20quality-black%20%7C%20isort%20%7C%20flake8%20%7C%20mypy-brightgreen)
 ![Security](https://img.shields.io/badge/security-bandit%20scanned-green)
 
-A comprehensive Python package for hardware automation, server management, and infrastructure operations. Features a modern container-first architecture with production-ready web GUI, complete CLI capabilities, and enterprise-grade firmware management.
+**Enterprise-grade hardware automation platform for bare metal server provisioning, BIOS configuration, and firmware management.**
 
-## 🎯 Key Capabilities
+Modern container-first architecture with production-ready web GUI, complete CLI capabilities, and multi-vendor hardware support.
 
-### **Enterprise Hardware Automation Platform**
+## 🎯 Overview
 
-- 🔧 **Complete Server Provisioning**: Automated workflows from commissioning to production-ready state
-- 💾 **Firmware Management**: Multi-vendor firmware updates with real vendor tools (HPE iLORest, Supermicro IPMItool, Dell RACADM)
-- ⚙️ **BIOS Configuration**: Intelligent configuration management with device-specific templates and monitoring
-- 🌐 **MaaS Integration**: Full Metal-as-a-Service API integration for bare-metal provisioning
-- 📊 **Real-time Monitoring**: Live progress tracking with WebSocket updates and comprehensive audit trails
-- 🏗️ **Multi-Vendor Support**: HPE Gen10, Supermicro X11, Dell PowerEdge with optimized device-specific workflows
+HWAutomation provides comprehensive automation for enterprise hardware management:
 
-## 🎉 Recent Enhancements (August 2025)
+- **🔧 Complete Server Provisioning**: Automated workflows from commissioning to production-ready state
+- **💾 Multi-Vendor Firmware Management**: Real vendor tools (HPE iLORest, Dell RACADM, Supermicro IPMItool)
+- **⚙️ Intelligent BIOS Configuration**: Device-specific templates with smart method selection
+- **🌐 MaaS Integration**: Full Metal-as-a-Service API integration for bare-metal provisioning
+- **📊 Real-time Monitoring**: Live progress tracking with WebSocket updates and comprehensive audit trails
+- **🏭 Multi-Vendor Support**: HPE Gen9/10/11, Dell PowerEdge, Supermicro X11/X12 series
 
-### **Web Interface Modernization & Modular Architecture**
+### Supported Hardware
 
-- **📐 Blueprint Architecture**: Refactored monolithic 853-line Flask app into modular blueprint structure
-- **🔧 Improved Maintainability**: 6 focused route modules (56-302 lines each) for easier development and testing
-- **📊 Enhanced Status Indicators**: Smart MaaS connection status with visual indicators (Connected/Disconnected/Not Configured)
-- **🎨 Better UI/UX**: Redesigned status bar positioning under logo with responsive design and proper color coding
-- **⚡ Zero Breaking Changes**: All existing URLs and APIs preserved during refactoring
+| Vendor | Models | BIOS Config | Firmware Updates | Discovery |
+|--------|---------|-------------|------------------|-----------|
+| **HPE** | ProLiant Gen9, Gen10, Gen11 | ✅ | ✅ | ✅ |
+| **Dell** | PowerEdge R740, R750, R760 | ✅ | ✅ | ✅ |
+| **Supermicro** | X11, X12 series | ✅ | ✅ | ✅ |
 
-### **Hardware System Modularization**
+## 🚀 Quick Start
 
-- **🏗️ Modular Hardware Discovery**: Complete restructuring of 859-line discovery system into focused modules
-- **⚙️ BIOS Configuration Modules**: Separated BIOS management into config, devices, operations, and parsers
-- **🔍 Vendor-Specific Logic**: Dedicated vendor modules for Supermicro, Dell, HPE with extensible architecture
-- **📦 Clean Module Structure**: Better separation of concerns and easier testing/maintenance
-
-### **Frontend Build System Integration**
-
-- **⚡ Vite Build System**: Modern JavaScript bundling with hot module replacement
-- **🎨 Component Architecture**: Modular frontend components with SCSS styling
-- **📱 Enhanced Responsive Design**: Mobile-first CSS with theme support
-- **🗜️ Asset Optimization**: Automatic minification, hashing, and build optimization
-
-### **Developer Experience Improvements**
-
-- **🏗️ Team-Friendly Architecture**: Single-responsibility modules enable parallel development
-- **🧪 Easier Testing**: Modular structure simplifies unit testing and debugging
-- **📈 Scalable Foundation**: Clean architecture ready for new features and team expansion
-- **🛠️ Modern Tooling**: Pre-commit hooks, automated quality checks, and comprehensive CI/CD
-
-### **Code Quality & CI/CD Enhancements**
-
-- **🚀 Comprehensive CI/CD Pipeline**: Multi-stage GitHub Actions workflow with quality gates
-- **🎨 Code Formatting**: Automated Black formatting applied to entire codebase (59+ files)
-- **📦 Import Organization**: isort import sorting for consistent code structure
-- **🔍 Code Analysis**: flake8 linting with project-specific configurations
-- **🛡️ Security Scanning**: Bandit security analysis integrated into CI pipeline
-- **📊 Type Checking**: MyPy type checking configured for gradual adoption
-- **🧪 Multi-Version Testing**: Python 3.9-3.12 compatibility testing
-- **📈 Test Coverage**: Automated coverage reporting with realistic baselines
-- **🪝 Pre-commit Hooks**: Comprehensive quality gates with 15+ automated checks
-- **⚡ Async Testing**: Full pytest-asyncio support for async/await test patterns
-- **🔧 Performance Testing**: Dedicated performance test suite with controlled execution
-
-## 🚀 Quick Start (Container-First)
-
-### Prerequisites
-
-- Docker and Docker Compose v2+
-- Git
-
-### Launch the Application
+### 1. Container Deployment (Recommended)
 
 ```bash
-# Clone and start
-git clone <your-repo-url>
+# Clone repository
+git clone https://github.com/your-org/hwautomation.git
 cd hwautomation
 
-# Start the application
+# Start application
 docker compose up -d app
 
-# Access the web interface
-# Open in your browser: <http://localhost:5000>
+# Access web interface
+open http://localhost:5000
 ```
 
-The web GUI provides a modern dashboard for device management, workflow orchestration, and system monitoring with an enhanced modular architecture and improved status indicators.
+### 2. Local Development
 
-## Features
+```bash
+# Create virtual environment
+python -m venv hwautomation-env
+source hwautomation-env/bin/activate  # Linux/Mac
+# or: hwautomation-env\Scripts\activate  # Windows
 
-### 🚀 **Firmware Management**
+# Install package
+pip install -e .
 
-- **🔧 Firmware-First Provisioning**: Complete workflow with firmware updates before system configuration
-- **💾 Multi-Vendor Firmware Support**: Real vendor tool integration (HPE iLORest, Supermicro IPMItool, Dell RACADM)
-- **📊 Intelligent Update Management**: Priority-based firmware ordering, compatibility checking, and automated rollback
-- **🌐 Firmware Repository System**: Centralized firmware storage with automated downloads and integrity validation
-- **📈 Advanced Progress Monitoring**: Real-time sub-task reporting with WebSocket updates and operation tracking
+# Start web interface
+hw-gui
 
-### ⚙️ **BIOS Configuration Management**
+# Or use CLI
+hwautomation --help
+```
 
-- **🎯 Smart Configuration**: Device-specific BIOS templates with intelligent pull-edit-push workflows
-- **📋 Template System**: Comprehensive BIOS settings templates organized by device type
-- **🔍 Enhanced Monitoring**: Real-time configuration progress with detailed sub-task reporting
-- **🏗️ Multi-Method Support**: Redfish API and vendor-specific tool integration with automatic fallback
-- **📊 Configuration Analytics**: Success rate tracking, execution time monitoring, and error analysis
+### 3. Configuration
 
-### 🏗️ **Core Platform Capabilities**
+1. **Copy example configuration:**
+   ```bash
+   cp configs/devices/unified_device_config.yaml.example configs/devices/unified_device_config.yaml
+   ```
 
-- **🌐 Container-First Architecture**: Production-ready Docker deployment with SQLite database
-- **🖥️ Modern Web GUI**: Blueprint-based Flask architecture with modular route organization and real-time status indicators
-- **📊 Enhanced Dashboard**: Intelligent status monitoring with MaaS connection indicators and system health visualization
-- **⚡ Multi-Stage Builds**: Optimized containers for development, production, web, and CLI use cases
-- **Complete Orchestration**: Multiple workflow types including standard provisioning and firmware-first workflows
-- **🔍 Hardware Discovery**: SSH-based system information gathering with IPMI detection and vendor identification
-- **MAAS Integration**: Complete API client for Metal as a Service operations with smart status detection
-- **IPMI Management**: Hardware control via IPMI protocol
-- **Redfish Support**: Modern BMC management through Redfish APIs with firmware update capabilities
-- **Database Migrations**: Robust SQLite schema versioning and upgrade system
-- **Configuration Management**: Flexible YAML/JSON configuration with environment overrides
-- **Network Utilities**: SSH operations, connectivity testing, and IP management
-- **📊 Health Monitoring**: Comprehensive service health checks and monitoring endpoints
+2. **Configure MaaS integration** (optional):
+   ```bash
+   export MAAS_URL=https://your-maas-server:5240/MAAS
+   export MAAS_CONSUMER_KEY=your_consumer_key
+   export MAAS_TOKEN_KEY=your_token_key
+   export MAAS_TOKEN_SECRET=your_token_secret
+   ```
 
-## Architecture Overview
+3. **Access the web interface** at `http://localhost:5000`
 
-### Container-First Design with Modern Modular Structure
+## 💡 Key Features
 
-```text
-hwautomation/
-├── docker/
-│   └── Dockerfile.web         # 🐳 Multi-stage container builds
-├── docker-compose.yml         # 🏗️ Production service orchestration
-├── docker-compose.override.yml # 🛠️ Development overrides
-├── package.json               # 📦 Node.js dependencies for frontend build
-├── vite.config.js             # ⚡ Vite build configuration
-├── src/hwautomation/          # 📦 Main package source code
-│   ├── web/                   # 🌐 Flask web application with blueprint architecture
-│   │   ├── app.py             # 🏭 Clean app factory with blueprint registration
-│   │   ├── core/              # 🔧 Web application core functionality
-│   │   ├── routes/            # 📁 Modular blueprint organization
-│   │   │   ├── core.py        # 🏠 Dashboard and health endpoints
-│   │   │   ├── database.py    # 🗄️ Database management routes
-│   │   │   ├── orchestration.py # 🔄 Workflow orchestration APIs
-│   │   │   ├── maas.py        # 🌐 MaaS integration endpoints
-│   │   │   ├── logs.py        # 📊 System logging APIs
-│   │   │   └── firmware.py    # 🔧 Firmware management routes
-│   │   ├── frontend/          # 🎨 Modern frontend build system
-│   │   │   ├── js/            # JavaScript modules (core, services, components, utils)
-│   │   │   └── css/           # SCSS stylesheets with component organization
-│   │   ├── static/            # 📁 Static assets and build output
-│   │   │   └── dist/          # 🏗️ Built frontend assets (gitignored)
-│   │   └── templates/         # 🎨 Enhanced UI templates with status indicators
-│   ├── hardware/              # ⚙️ Modular hardware management system
-│   │   ├── bios/              # 🔧 BIOS configuration management (modularized)
-│   │   │   ├── config/        # Configuration template management
+### Server Provisioning Workflows
+
+**7-Step Automated Deployment:**
+1. Commission server via MaaS
+2. Retrieve server IP address
+3. Pull BIOS configuration via SSH
+4. Apply device-specific BIOS templates
+5. Push updated BIOS configuration
+6. Configure IPMI settings
+7. Finalize and tag server as ready
+
+**Firmware-First Option:**
+- Pre-flight system validation
+- Current vs. available firmware analysis
+- Priority-based firmware updates
+- Controlled system reboot with validation
+- Post-firmware BIOS configuration
+- Complete system verification
+
+### Hardware Management
+
+**BIOS Configuration:**
+- Device-specific configuration templates
+- Intelligent method selection (Redfish → vendor tools → IPMI)
+- Preserve settings during updates
+- Dry-run configuration preview
+- Batch configuration operations
+
+**Firmware Management:**
+- Automated firmware downloads from vendor sites
+- Integrity verification and compatibility checking
+- Batch firmware update operations
+- Progress monitoring with rollback capabilities
+- Firmware history and version tracking
+
+**Hardware Discovery:**
+- Multi-protocol discovery (IPMI, SSH, Redfish)
+- Vendor-specific information gathering
+- CPU, memory, storage detection
+- Network interface enumeration
+- BMC version and capability detection
+
+### Modern Architecture
+
+**Container-First Design:**
+- Multi-stage Docker builds
+- SQLite database with automatic migrations
+- Health monitoring and service checks
+- Horizontal scaling ready
+
+**Modular Web Interface:**
+- Flask blueprint architecture
+- Real-time WebSocket updates
+- Responsive design with mobile support
+- Component-based frontend structure
+
+**Enterprise Features:**
+- Comprehensive audit trails
+- Role-based access control ready
+- API-first design
+- Extensive error handling and recovery
+
+## 📖 Documentation
+
+Complete documentation is available in the `docs/` directory:
+
+- **[Getting Started Guide](docs/GETTING_STARTED.md)**: Installation, configuration, and first steps
+- **[Hardware Management Guide](docs/HARDWARE_MANAGEMENT.md)**: BIOS configuration, firmware management, and device support
+- **[Workflow Guide](docs/WORKFLOW_GUIDE.md)**: Server provisioning, batch operations, and workflow orchestration
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)**: Container deployment, database management, and production setup
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)**: Architecture, development setup, testing, and contributing
+- **[API Reference](docs/API_REFERENCE.md)**: REST API endpoints, Python SDK, and WebSocket events
+- **[Changelog & Releases](docs/CHANGELOG_AND_RELEASES.md)**: Version history and release management
+
+## 🛠️ Development
+
+### Setup Development Environment
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/hwautomation.git
+cd hwautomation
+
+# Setup Python environment
+python -m venv hwautomation-env
+source hwautomation-env/bin/activate
+
+# Install development dependencies
+pip install -e .[dev]
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests
+make test
+
+# Start development server
+make dev
+```
+
+### Code Quality
+
+The project maintains high code quality standards:
+
+- **Black**: Code formatting
+- **isort**: Import sorting
+- **flake8**: Linting
+- **mypy**: Type checking
+- **bandit**: Security scanning
+- **pytest**: Test framework
+- **codecov**: Coverage reporting
+
+All checks run automatically in CI/CD and can be run locally:
+
+```bash
+make lint        # Run all quality checks
+make format      # Format code with Black and isort
+make type-check  # Run mypy type checking
+make security    # Run bandit security scan
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Development Guide](docs/DEVELOPMENT_GUIDE.md) for details on:
+
+- Setting up the development environment
+- Code standards and quality requirements
+- Testing procedures
+- Submitting pull requests
+- Release process
+
+### Quick Contribution Workflow
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes and add tests
+4. Run quality checks: `make lint test`
+5. Commit with conventional commits: `git commit -m "feat: add new feature"`
+6. Push and create a pull request
+
+## � License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- HPE, Dell, and Supermicro for vendor tool integration
+- Metal-as-a-Service (MaaS) project for bare metal provisioning
+- Flask and modern web development communities
+- Docker and container orchestration ecosystems
 │   │   │   ├── devices/       # Device-specific implementations
 │   │   │   ├── operations/    # BIOS operation handlers
 │   │   │   └── parsers/       # Configuration file parsers

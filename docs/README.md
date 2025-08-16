@@ -1,6 +1,40 @@
 # HWAutomation Documentation
 
-This directory contains comprehensive documentation for the HWAutomation enterprise hardware automation platform.
+Welcome to the comprehensive documentation for HWAutomation - an enterprise-grade hardware automation platform.
+
+## 📚 Core Documentation
+
+### User Documentation
+- **[Getting Started Guide](GETTING_STARTED.md)** - Installation, configuration, and first steps
+- **[Hardware Management Guide](HARDWARE_MANAGEMENT.md)** - BIOS configuration, firmware management, and device support
+- **[Workflow Guide](WORKFLOW_GUIDE.md)** - Server provisioning, batch operations, and workflow orchestration
+
+### Technical Documentation
+- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Container deployment, database management, and production setup
+- **[Development Guide](DEVELOPMENT_GUIDE.md)** - Architecture, development setup, testing, and contributing
+- **[API Reference](API_REFERENCE.md)** - REST API endpoints, Python SDK, and WebSocket events
+
+### Project Information
+- **[Changelog & Releases](CHANGELOG_AND_RELEASES.md)** - Version history and release management
+
+## 🗂️ Documentation Structure
+
+The documentation is organized for different audiences:
+
+**New Users**: Start with [Getting Started Guide](GETTING_STARTED.md)
+**System Administrators**: Focus on [Hardware Management](HARDWARE_MANAGEMENT.md) and [Deployment Guide](DEPLOYMENT_GUIDE.md)
+**Developers**: Begin with [Development Guide](DEVELOPMENT_GUIDE.md) and [API Reference](API_REFERENCE.md)
+**DevOps Engineers**: Review [Deployment Guide](DEPLOYMENT_GUIDE.md) and [Workflow Guide](WORKFLOW_GUIDE.md)
+
+## 🏛️ Historical Documentation
+
+Legacy and historical documentation has been moved to the `archive/` directory to maintain project history while keeping current documentation focused and relevant.
+
+## 🔄 Documentation Maintenance
+
+This documentation is actively maintained and updated with each release. The consolidation effort in January 2025 reduced documentation from 39 files to 8 core files for better organization and maintainability.
+
+For documentation issues or suggestions, please open an issue in the project repository.
 
 ## 📚 Documentation Structure
 
