@@ -1,5 +1,6 @@
-# Streamlined Pre-commit configuration for HWAutomation
-# Focus on essential formatting and basic checks
+# Pre-commit configuration for HWAutomation
+# Simplified configuration to focus on essential formatting
+# Additional quality checks can be added incrementally
 
 repos:
 # Code formatting with black
@@ -8,6 +9,7 @@ repos:
   hooks:
   - id: black
     name: Code formatting (black)
+    description: Auto-format Python code with black
     language_version: python3
     args: [ --line-length=88, --target-version=py39 ]
 
@@ -17,6 +19,7 @@ repos:
   hooks:
   - id: isort
     name: Import sorting (isort)
+    description: Sort Python imports
     args: [ --profile=black, --line-length=88 ]
 
 # Basic file checks
@@ -25,30 +28,45 @@ repos:
   hooks:
   - id: trailing-whitespace
     name: Remove trailing whitespace
+    description: Remove trailing whitespace from files
   - id: end-of-file-fixer
     name: Fix file endings
+    description: Ensure files end with a newline
   - id: check-yaml
     name: Validate YAML syntax
+    description: Check YAML files for syntax errors
   - id: check-merge-conflict
     name: Check for merge conflicts
+    description: Check for merge conflict markers
   - id: check-ast
     name: Check Python AST
+    description: Check Python files compile correctly
 
-# Global exclude patterns (streamlined)
+# Global pre-commit configuration
+default_language_version:
+  python: python3
+
+# Global exclude patterns
 exclude: |
   (?x)^(
       .*\.egg-info/.*|
       .*/__pycache__/.*|
       .*/\.pytest_cache/.*|
+      .*/\.mypy_cache/.*|
       .*/\.coverage|
       .*\.pyc$|
+      .*\.pyo$|
       .*/build/.*|
       .*/dist/.*|
+      .*/\.tox/.*|
       .*/\.venv/.*|
       .*/venv/.*|
       .*/hwautomation-env/.*|
-      .*/node_modules/.*|
-      .*/tools/archive/.*
+      examples/.*|
+      .*\.db$|
+      .*\.backup$|
+      .*/static/.*\.min\..*|
+      .*/node_modules/.*
   )$
 
 # Performance settings
