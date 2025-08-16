@@ -26,7 +26,7 @@ class SocketEventBatcher {
     const batch = this.batches.get(batchKey);
     batch.push({
       timestamp: Date.now(),
-      data
+      data,
     });
 
     // Limit batch size
@@ -42,14 +42,14 @@ class SocketEventBatcher {
    */
   getBatchKey(eventType, data) {
     switch (eventType) {
-      case 'workflow_progress_update':
+      case "workflow_progress_update":
         return `workflow_progress:${data.workflow_id}`;
-      case 'workflow_step_update':
+      case "workflow_step_update":
         return `workflow_step:${data.workflow_id}`;
-      case 'server_status_update':
+      case "server_status_update":
         return `server_status:${data.server_id}`;
-      case 'activity_update':
-        return 'activity_batch';
+      case "activity_update":
+        return "activity_batch";
       default:
         return eventType;
     }
@@ -86,7 +86,9 @@ class SocketEventBatcher {
     const latestEvent = batch[batch.length - 1];
 
     // For some events, we want all events, for others just the latest
-    const eventsToFlush = this.shouldBatchAll(eventType) ? batch : [latestEvent];
+    const eventsToFlush = this.shouldBatchAll(eventType)
+      ? batch
+      : [latestEvent];
 
     // Emit batched event
     this.emitBatchedEvent(eventType, eventsToFlush, batchKey);
@@ -100,7 +102,7 @@ class SocketEventBatcher {
    * Determine if we should include all events or just the latest
    */
   shouldBatchAll(eventType) {
-    return ['activity_update'].includes(eventType);
+    return ["activity_update"].includes(eventType);
   }
 
   /**
@@ -112,8 +114,8 @@ class SocketEventBatcher {
         events,
         batchKey,
         eventCount: events.length,
-        batchedAt: Date.now()
-      }
+        batchedAt: Date.now(),
+      },
     });
 
     document.dispatchEvent(customEvent);
@@ -127,7 +129,7 @@ class SocketEventBatcher {
       clearTimeout(timer);
 
       // Determine event type from batch key
-      const eventType = batchKey.split(':')[0].replace('_batch', '_update');
+      const eventType = batchKey.split(":")[0].replace("_batch", "_update");
       this.flushBatch(batchKey, eventType);
     }
   }

@@ -134,7 +134,7 @@ class HWAutomationApp {
 
     this.socket = io({
       // Add connection options for better reliability
-      transports: ['websocket', 'polling'],
+      transports: ["websocket", "polling"],
       upgrade: true,
       rememberUpgrade: true,
       timeout: 20000,
@@ -143,7 +143,7 @@ class HWAutomationApp {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       maxReconnectionAttempts: 5,
-      randomizationFactor: 0.5
+      randomizationFactor: 0.5,
     });
 
     // Connection events
@@ -214,7 +214,9 @@ class HWAutomationApp {
   handleConnect() {
     console.log("Connected to server");
     this.services.get("state").setState("socket.connected", true);
-    this.services.get("notifications").success("Connected to real-time updates");
+    this.services
+      .get("notifications")
+      .success("Connected to real-time updates");
     this.emit("socket:connected");
   }
 
@@ -224,7 +226,9 @@ class HWAutomationApp {
   handleDisconnect() {
     console.log("Disconnected from server");
     this.services.get("state").setState("socket.connected", false);
-    this.services.get("notifications").warning("Lost connection to real-time updates");
+    this.services
+      .get("notifications")
+      .warning("Lost connection to real-time updates");
     this.emit("socket:disconnected");
   }
 
@@ -233,7 +237,9 @@ class HWAutomationApp {
    */
   handleConnectError(error) {
     console.error("Socket connection error:", error);
-    this.services.get("notifications").error("Failed to connect to real-time updates");
+    this.services
+      .get("notifications")
+      .error("Failed to connect to real-time updates");
     this.emit("socket:connection-error", { error });
   }
 
@@ -242,7 +248,9 @@ class HWAutomationApp {
    */
   handleReconnect(attemptNumber) {
     console.log(`Reconnected to server after ${attemptNumber} attempts`);
-    this.services.get("notifications").success("Reconnected to real-time updates");
+    this.services
+      .get("notifications")
+      .success("Reconnected to real-time updates");
     this.emit("socket:reconnected", { attemptNumber });
   }
 
@@ -259,7 +267,11 @@ class HWAutomationApp {
    */
   handleReconnectFailed() {
     console.error("Socket reconnection failed permanently");
-    this.services.get("notifications").error("Unable to restore real-time connection. Please refresh the page.");
+    this.services
+      .get("notifications")
+      .error(
+        "Unable to restore real-time connection. Please refresh the page.",
+      );
     this.emit("socket:reconnection-failed");
   }
 

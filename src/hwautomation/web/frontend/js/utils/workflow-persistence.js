@@ -7,7 +7,7 @@
 
 class WorkflowPersistence {
   constructor() {
-    this.keyPrefix = 'hwautomation_workflow_';
+    this.keyPrefix = "hwautomation_workflow_";
     this.maxStorageAge = 24 * 60 * 60 * 1000; // 24 hours
   }
 
@@ -19,7 +19,7 @@ class WorkflowPersistence {
       const data = {
         ...progressData,
         timestamp: Date.now(),
-        workflowId
+        workflowId,
       };
 
       const key = this.keyPrefix + workflowId;
@@ -27,7 +27,7 @@ class WorkflowPersistence {
 
       console.debug(`Saved progress for workflow ${workflowId}`);
     } catch (error) {
-      console.warn('Failed to save workflow progress:', error);
+      console.warn("Failed to save workflow progress:", error);
     }
   }
 
@@ -54,7 +54,7 @@ class WorkflowPersistence {
       console.debug(`Restored progress for workflow ${workflowId}`);
       return data;
     } catch (error) {
-      console.warn('Failed to restore workflow progress:', error);
+      console.warn("Failed to restore workflow progress:", error);
       return null;
     }
   }
@@ -68,7 +68,7 @@ class WorkflowPersistence {
       localStorage.removeItem(key);
       console.debug(`Removed progress for workflow ${workflowId}`);
     } catch (error) {
-      console.warn('Failed to remove workflow progress:', error);
+      console.warn("Failed to remove workflow progress:", error);
     }
   }
 
@@ -87,7 +87,7 @@ class WorkflowPersistence {
         }
       }
     } catch (error) {
-      console.warn('Failed to get stored workflow IDs:', error);
+      console.warn("Failed to get stored workflow IDs:", error);
     }
 
     return workflowIds;
@@ -100,7 +100,7 @@ class WorkflowPersistence {
     const workflowIds = this.getAllWorkflowIds();
     let cleanedCount = 0;
 
-    workflowIds.forEach(workflowId => {
+    workflowIds.forEach((workflowId) => {
       const progress = this.restoreProgress(workflowId);
       if (!progress) {
         // Already cleaned up by restoreProgress if too old
@@ -129,7 +129,7 @@ class WorkflowPersistence {
       progress: progress.progress,
       currentStep: progress.current_step,
       savedAt: new Date(progress.timestamp).toLocaleString(),
-      isStale: Date.now() - progress.timestamp > 5 * 60 * 1000 // 5 minutes
+      isStale: Date.now() - progress.timestamp > 5 * 60 * 1000, // 5 minutes
     };
   }
 }
