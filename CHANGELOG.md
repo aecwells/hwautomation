@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Bug Fixes
 
+- install Sphinx dependencies in CI documentation job ([26c6439d])
+- clean up malformed Acknowledgments section formatting ([2c22bc84])
 - improve test database path compatibility for Python 3.9+ ([098f7fe1])
 - use temporary database file for tests instead of in-memory ([5d0ed6ea])
 - comprehensive database path configuration across all components ([7fd4db33])
@@ -90,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- update CHANGELOG.md [skip ci] ([32b26a94])
 - update CHANGELOG.md [skip ci] ([050c4201])
 - remove duplicate legacy files after consolidation ([0ffa459f])
 - consolidate documentation from 39 files to 8 comprehensive guides ([75974052])
