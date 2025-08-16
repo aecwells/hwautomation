@@ -476,17 +476,28 @@ class TestDatabaseMigratorAdvanced(unittest.TestCase):
         self.assertIsNotNone(cursor.fetchone())
 
     def test_migrator_syntax_error_handling(self):
-        """Test handling of syntax error in migrations table creation."""
-        # This test documents the existing syntax error in migrations.py
+        """Test that migrator creation works correctly (syntax errors have been fixed)."""
+        # This test verifies that the previous syntax errors in migrations.py have been resolved
         temp_db = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
         temp_db.close()
 
         try:
-            # Attempting to create migrator without patch should fail due to syntax error
-            with self.assertRaises(sqlite3.OperationalError) as context:
-                DatabaseMigrator(temp_db.name)
+            # DatabaseMigrator creation should now work without syntax errors
+            migrator = DatabaseMigrator(temp_db.name)
 
-            self.assertIn("syntax error", str(context.exception))
+            # Verify the migrator was created successfully
+            self.assertIsNotNone(migrator)
+            self.assertEqual(migrator.db_path, temp_db.name)
+            self.assertIsNotNone(migrator.connection)
+            self.assertIsNotNone(migrator.cursor)
+
+            # Verify migrations table was created
+            result = migrator.cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'"
+            ).fetchone()
+            self.assertIsNotNone(result)
+
+            migrator.close()
         finally:
             if os.path.exists(temp_db.name):
                 os.unlink(temp_db.name)
@@ -581,27 +592,30 @@ class TestDatabaseMigratorAdvanced(unittest.TestCase):
         self.assertIsNone(result[2])
 
     def test_record_migration_syntax_error(self):
-        """Test the existing syntax error in record_migration method."""
-        # This test documents the existing syntax error in migrations.py
+        """Test that record_migration method works correctly (syntax errors have been fixed)."""
+        # This test verifies that the previous syntax errors in migrations.py have been resolved
         temp_db = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
         temp_db.close()
 
         try:
-            # Create migrator with patched _ensure_migrations_table
-            with patch.object(DatabaseMigrator, "_ensure_migrations_table"):
-                migrator = DatabaseMigrator(temp_db.name)
-                # Manually create table
-                migrator.cursor.execute(
-                    "CREATE TABLE schema_migrations (version INTEGER, name TEXT, checksum TEXT)"
-                )
-                migrator.connection.commit()
+            # Create migrator - should work correctly now
+            migrator = DatabaseMigrator(temp_db.name)
 
-                # Test the actual broken record_migration method
-                with self.assertRaises(sqlite3.OperationalError) as context:
-                    migrator.record_migration(1, "test", "checksum")
+            # Test the record_migration method works correctly
+            migrator.record_migration(1, "test_migration", "test_checksum")
 
-                self.assertIn("syntax error", str(context.exception))
-                migrator.close()
+            # Verify the migration was recorded
+            result = migrator.cursor.execute(
+                "SELECT version, name, checksum FROM schema_migrations WHERE version = ?",
+                (1,),
+            ).fetchone()
+
+            self.assertIsNotNone(result)
+            self.assertEqual(result[0], 1)
+            self.assertEqual(result[1], "test_migration")
+            self.assertEqual(result[2], "test_checksum")
+
+            migrator.close()
         finally:
             if os.path.exists(temp_db.name):
                 os.unlink(temp_db.name)
