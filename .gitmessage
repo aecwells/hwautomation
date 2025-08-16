@@ -1,0 +1,27 @@
+# <type>[optional scope]: <description>
+#
+# [optional body]
+#
+# [optional footer(s)]
+#
+# Type can be:
+#   feat:     A new feature
+#   fix:      A bug fix
+#   docs:     Documentation only changes
+#   style:    Changes that do not affect the meaning of the code
+#   refactor: A code change that neither fixes a bug nor adds a feature
+#   perf:     A code change that improves performance
+#   test:     Adding missing tests or correcting existing tests
+#   chore:    Changes to the build process or auxiliary tools
+#   ci:       Changes to CI configuration files and scripts
+#   build:    Changes that affect the build system or external dependencies
+#
+# Breaking change: add "BREAKING CHANGE:" in the footer or "!" after the type/scope
+#
+# Examples:
+#   feat(api): add user authentication endpoint
+#   fix(database): resolve connection timeout issue
+#   docs: update API documentation
+#   feat!: send an email to the customer when a product is shipped
+#   feat(lang): add polish language
+#   fix: correct minor typos in code

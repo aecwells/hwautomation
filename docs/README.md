@@ -4,6 +4,16 @@ This directory contains comprehensive documentation for the HWAutomation enterpr
 
 ## 📚 Documentation Structure
 
+### `CHANGELOG_AND_RELEASES.md`
+
+Complete guide to changelog generation and release management:
+
+- Conventional commits setup and best practices
+- Automated changelog generation from git history
+- Semantic versioning and release automation
+- GitHub Actions integration for CI/CD
+- Development workflow and team collaboration
+
 ### `BIOS_AND_FIRMWARE.md`
 
 Complete guide to BIOS configuration and firmware management:

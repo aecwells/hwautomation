@@ -259,3 +259,36 @@ data-clean:   ## Clean old backup files (keep last 10)
 data-init:    ## Initialize data directories
 	mkdir -p data/{backups,exports,temp} logs
 	@echo "Initialized data directories"
+
+## [Release & Changelog]
+changelog:    ## Generate CHANGELOG.md from git commits
+	python3 tools/generate_changelog.py
+
+changelog-since: ## Generate changelog since specific tag (usage: make changelog-since TAG=v1.0.0)
+	python3 tools/generate_changelog.py --since $(TAG)
+
+changelog-version: ## Generate changelog section for specific version (usage: make changelog-version VERSION=v1.1.0)
+	python3 tools/generate_changelog.py --version $(VERSION)
+
+changelog-release-notes: ## Generate release notes for specific version (usage: make changelog-release-notes VERSION=v1.1.0)
+	python3 tools/generate_changelog.py --version $(VERSION) --release-notes
+
+setup-conventional-commits: ## Setup conventional commits template
+	git config commit.template .gitmessage
+	@echo "Conventional commit template configured"
+	@echo "Use 'git commit' (without -m) to use the template"
+
+release-patch: ## Create patch release (x.x.X)
+	python3 tools/release.py patch
+
+release-minor: ## Create minor release (x.X.0)
+	python3 tools/release.py minor
+
+release-major: ## Create major release (X.0.0)
+	python3 tools/release.py major
+
+release-dry-run: ## Show what a patch release would do (dry run)
+	python3 tools/release.py patch --dry-run
+
+version:      ## Show current version
+	@python3 -c "import re; content=open('pyproject.toml').read(); print(re.search(r'version\\s*=\\s*\"([^\"]+)\"', content).group(1))"

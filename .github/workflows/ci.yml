@@ -442,11 +442,66 @@ jobs:
         name: package-artifacts
         path: dist/
 
+  # Changelog generation
+  changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history needed for changelog
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+
+    - name: Generate changelog
+      run: python3 tools/generate_changelog.py
+
+    - name: Check for changelog changes
+      id: check_changes
+      run: |
+        if git diff --quiet CHANGELOG.md; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit and push changelog (on main branch)
+      if: steps.check_changes.outputs.changes == 'true' && github.ref == 'refs/heads/main'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add CHANGELOG.md
+        git commit -m "docs: update CHANGELOG.md [skip ci]"
+        git push
+
+    - name: Create changelog PR (on tags)
+      if: steps.check_changes.outputs.changes == 'true' && startsWith(github.ref, 'refs/tags/v')
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'docs: update CHANGELOG.md for ${{ github.ref_name }}'
+        title: 'Update CHANGELOG.md for ${{ github.ref_name }}'
+        body: |
+          Automated changelog update for release ${{ github.ref_name }}
+
+          Generated from git commits using conventional commit format.
+        branch: update-changelog-${{ github.ref_name }}
+        delete-branch: true
+
   # Release deployment (only on tags)
   deploy:
     name: Deploy Release
     runs-on: ubuntu-latest
-    needs: [quality, test-unit, test-integration, frontend, build]
+    needs: [quality, test-unit, test-integration, frontend, build, changelog]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
 
     environment:
@@ -454,11 +509,37 @@ jobs:
       url: https://pypi.org/project/hwautomation/
 
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for changelog generation
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
         name: package-artifacts
         path: dist/
+
+    - name: Generate release notes from changelog
+      id: release_notes
+      run: |
+        # Extract the version number from the tag (remove 'v' prefix)
+        VERSION=${{ github.ref_name }}
+
+        # Generate release notes format for this version
+        python3 tools/generate_changelog.py --version $VERSION --release-notes > release_notes.md
+
+        # Read the content and set it as output
+        {
+          echo 'CHANGELOG_CONTENT<<EOF'
+          cat release_notes.md
+          echo 'EOF'
+        } >> $GITHUB_OUTPUT
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
@@ -466,32 +547,38 @@ jobs:
         password: ${{ secrets.PYPI_API_TOKEN }}
 
     - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        body: ${{ steps.release_notes.outputs.CHANGELOG_CONTENT }}
         draft: false
         prerelease: false
+        files: dist/*
 
   # Notification and reporting
   notify:
     name: Notify Results
     runs-on: ubuntu-latest
-    needs: [quality, test-unit, test-integration, frontend, build]
+    needs: [quality, test-unit, test-integration, frontend, build, changelog]
     if: always()
 
     steps:
     - name: Notify on success
-      if: ${{ needs.quality.result == 'success' && needs.test-unit.result == 'success' && needs.test-integration.result == 'success' && needs.frontend.result == 'success' && needs.build.result == 'success' }}
+      if: ${{ needs.quality.result == 'success' && needs.test-unit.result == 'success' && needs.test-integration.result == 'success' && needs.frontend.result == 'success' && needs.build.result == 'success' && (needs.changelog.result == 'success' || needs.changelog.result == 'skipped') }}
       run: |
         echo "🎉 All checks passed successfully!"
+        if [[ "${{ needs.changelog.result }}" == "success" ]]; then
+          echo "📝 Changelog updated successfully!"
+        fi
 
     - name: Notify on failure
-      if: ${{ needs.quality.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.frontend.result == 'failure' || needs.build.result == 'failure' }}
+      if: ${{ needs.quality.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.frontend.result == 'failure' || needs.build.result == 'failure' || needs.changelog.result == 'failure' }}
       run: |
         echo "❌ Some checks failed. Please review the results."
+        if [[ "${{ needs.changelog.result }}" == "failure" ]]; then
+          echo "📝 Changelog generation failed!"
+        fi
         exit 1
 
 # Workflow configuration
