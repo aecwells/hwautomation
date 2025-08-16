@@ -201,17 +201,33 @@ def documentation_index():
 def documentation(filename):
     """Serve Sphinx-generated HTML documentation."""
     try:
-        # Get the project root directory
+        # Get the project root directory - works in both local and Docker environments
         from flask import current_app
 
-        # Look for docs/_build/html directory
-        docs_build_dir = os.path.join(
-            current_app.root_path, "..", "..", "..", "docs", "_build", "html"
-        )
-        docs_build_dir = os.path.abspath(docs_build_dir)
+        # Try multiple paths for Docker and local development compatibility
+        possible_paths = [
+            # Docker container path (when running in /app)
+            "/app/docs/_build/html",
+            # Relative to Flask app root (local development)
+            os.path.join(
+                current_app.root_path, "..", "..", "..", "docs", "_build", "html"
+            ),
+            # Alternative relative path
+            os.path.join(os.getcwd(), "docs", "_build", "html"),
+        ]
 
-        if not os.path.exists(docs_build_dir):
-            logger.warning(f"Documentation build directory not found: {docs_build_dir}")
+        docs_build_dir = None
+        for path in possible_paths:
+            abs_path = os.path.abspath(path)
+            if os.path.exists(abs_path):
+                docs_build_dir = abs_path
+                logger.debug(f"Found documentation at: {docs_build_dir}")
+                break
+
+        if not docs_build_dir:
+            logger.warning(
+                f"Documentation build directory not found in any of: {possible_paths}"
+            )
             return render_template("documentation_not_built.html"), 404
 
         # Serve the requested file

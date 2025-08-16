@@ -29,6 +29,47 @@ HWAutomation is designed for container-first deployment with multiple deployment
 - ✅ **Health Monitoring**: Comprehensive service health checks
 - ✅ **Multi-Environment**: Development, testing, and production configs
 - ✅ **Scalability**: Ready for horizontal scaling
+- ✅ **Integrated Documentation**: Sphinx HTML docs built and served automatically
+
+## 📚 Documentation in Docker
+
+### Automatic Documentation Building
+
+The Docker build process automatically generates Sphinx HTML documentation:
+
+```dockerfile
+# Documentation is built during container build
+RUN cd docs && make html
+```
+
+### Web Access in Containers
+
+Documentation is accessible through the web interface at:
+- **URL**: `http://localhost:5000/docs/` (or your configured port)
+- **Built-in serving**: No external web server needed
+- **Container path**: `/app/docs/_build/html/` → Flask `/docs/` endpoint
+
+### Docker-Specific Features
+
+1. **Multi-Path Resolution**: Flask routes automatically detect Docker vs local paths
+2. **Build-Time Generation**: Documentation built once during container creation
+3. **Volume Persistence**: Documentation source mounted for development updates
+4. **Health Checks**: Documentation endpoint included in container health monitoring
+
+### Quick Docker Documentation Test
+
+```bash
+# Start the application
+docker-compose up -d
+
+# Test documentation access
+curl http://localhost:5000/docs/
+
+# Access through web browser
+open http://localhost:5000/docs/
+```
+
+For detailed Docker documentation deployment, see [Docker Documentation Guide](DOCKER_DOCUMENTATION.md).
 
 ## 🐳 Container Architecture
 

@@ -162,6 +162,15 @@ docs-rebuild: ## Clean and rebuild documentation
 	@echo "Rebuilding documentation..."
 	cd docs && make rebuild
 
+docs-docker:  ## Test documentation in Docker container
+	@echo "Testing documentation in Docker container..."
+	$(COMPOSE_CMD) up -d app
+	@echo "Waiting for container to start..."
+	@sleep 5
+	@echo "Testing documentation endpoint..."
+	@curl -s -o /dev/null -w "Documentation HTTP Status: %{http_code}\n" http://localhost:5000/docs/ || echo "Documentation test failed"
+	@echo "Documentation available at: http://localhost:5000/docs/"
+
 ## [Docker Compose]
 build:        ## Build the Docker images (includes frontend)
 	@echo "Building frontend assets..."
