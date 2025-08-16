@@ -1,12 +1,20 @@
 """
 Core routes for HWAutomation Web Interface.
 
-Handles main dashboard, health checks, and core application routes.
+Handles main dashboard, health checks, documentation, and core application routes.
 """
 
+import os
 from datetime import datetime
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import (
+    Blueprint,
+    abort,
+    jsonify,
+    render_template,
+    request,
+    send_from_directory,
+)
 
 from hwautomation.hardware.bios import BiosConfigManager
 from hwautomation.logging import get_logger
@@ -180,6 +188,46 @@ def dashboard():
         return render_template(
             "dashboard.html", stats=default_stats, device_types=[], error=str(e)
         )
+
+
+@core_bp.route("/docs")
+@core_bp.route("/docs/")
+def documentation_index():
+    """Redirect to the main documentation page."""
+    return documentation("index.html")
+
+
+@core_bp.route("/docs/<path:filename>")
+def documentation(filename):
+    """Serve Sphinx-generated HTML documentation."""
+    try:
+        # Get the project root directory
+        from flask import current_app
+
+        # Look for docs/_build/html directory
+        docs_build_dir = os.path.join(
+            current_app.root_path, "..", "..", "..", "docs", "_build", "html"
+        )
+        docs_build_dir = os.path.abspath(docs_build_dir)
+
+        if not os.path.exists(docs_build_dir):
+            logger.warning(f"Documentation build directory not found: {docs_build_dir}")
+            return render_template("documentation_not_built.html"), 404
+
+        # Serve the requested file
+        if filename == "" or filename == "/":
+            filename = "index.html"
+
+        file_path = os.path.join(docs_build_dir, filename)
+        if not os.path.exists(file_path):
+            logger.warning(f"Documentation file not found: {file_path}")
+            abort(404)
+
+        return send_from_directory(docs_build_dir, filename)
+
+    except Exception as e:
+        logger.error(f"Error serving documentation: {e}")
+        return render_template("error.html", error="Documentation unavailable"), 500
 
 
 def init_core_routes(app, db_helper, maas_client, config):

@@ -58,6 +58,9 @@ COPY . .
 # Build frontend assets for production
 RUN npm run build
 
+# Build documentation
+RUN cd docs && make html
+
 # Install package
 RUN pip install .
 

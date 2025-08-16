@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation Not Available - HWAutomation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Documentation Not Built
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>HTML Documentation Not Available</h6>
+                        <p class="mb-3">
+                            The HTML documentation has not been built yet. You can build it using Sphinx or view the Markdown documentation directly.
+                        </p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-hammer me-2"></i>Build HTML Documentation</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>To build the HTML documentation:</p>
+                                    <pre class="bg-light p-3 rounded"><code># Install documentation dependencies
+pip install -r requirements-all.txt
+
+# Navigate to docs directory
+cd docs/
+
+# Build HTML documentation
+make html
+
+# Serve locally (optional)
+make serve</code></pre>
+                                    <p class="text-muted small mt-2">
+                                        After building, refresh this page to access the HTML documentation.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-file-alt me-2"></i>View Markdown Documentation</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Current documentation is available in Markdown format:</p>
+                                    <ul class="list-unstyled">
+                                        <li><a href="https://github.com/your-org/hwautomation/blob/main/docs/GETTING_STARTED.md" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>Getting Started Guide
+                                        </a></li>
+                                        <li><a href="https://github.com/your-org/hwautomation/blob/main/docs/HARDWARE_MANAGEMENT.md" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>Hardware Management Guide
+                                        </a></li>
+                                        <li><a href="https://github.com/your-org/hwautomation/blob/main/docs/WORKFLOW_GUIDE.md" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>Workflow Guide
+                                        </a></li>
+                                        <li><a href="https://github.com/your-org/hwautomation/blob/main/docs/DEPLOYMENT_GUIDE.md" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>Deployment Guide
+                                        </a></li>
+                                        <li><a href="https://github.com/your-org/hwautomation/blob/main/docs/DEVELOPMENT_GUIDE.md" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>Development Guide
+                                        </a></li>
+                                        <li><a href="https://github.com/your-org/hwautomation/blob/main/docs/API_REFERENCE.md" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt me-1"></i>API Reference
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="fas fa-cogs me-2"></i>Docker/Container Setup</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>If running in a container, you can build documentation as part of the container:</p>
+                                <pre class="bg-light p-3 rounded"><code># Add to Dockerfile
+RUN cd docs && make html
+
+# Or build in running container
+docker compose exec app bash -c "cd docs && make html"</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

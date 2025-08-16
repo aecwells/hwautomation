@@ -140,6 +140,28 @@ setup-precommit: ## Install and setup pre-commit hooks
 precommit-all: ## Run pre-commit hooks on all files
 	pre-commit run --all-files
 
+## [Documentation]
+docs:         ## Build Sphinx HTML documentation
+	@echo "Building Sphinx documentation..."
+	cd docs && make html
+	@echo "Documentation built in docs/_build/html/"
+
+docs-serve:   ## Build and serve documentation locally
+	@echo "Building and serving documentation..."
+	cd docs && make serve
+
+docs-clean:   ## Clean documentation build artifacts
+	@echo "Cleaning documentation build artifacts..."
+	cd docs && make clean
+
+docs-apidoc:  ## Generate API documentation from source code
+	@echo "Generating API documentation..."
+	cd docs && make apidoc
+
+docs-rebuild: ## Clean and rebuild documentation
+	@echo "Rebuilding documentation..."
+	cd docs && make rebuild
+
 ## [Docker Compose]
 build:        ## Build the Docker images (includes frontend)
 	@echo "Building frontend assets..."
