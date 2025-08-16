@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🚀 Features
 
+- **ci**: integrate automated changelog generation and release management ([0fb5af20])
 - implement comprehensive workflow database recording ([a408430b])
 - reorganize firmware page layout and enhance device type filtering ([68d5b50b])
 - unify theme management system and improve project structure ([b8050444])
