@@ -53,6 +53,11 @@ class SystemInfo:
     memory_total: Optional[str] = None
     chassis_type: Optional[str] = None
 
+    # Enhanced fields for device classification
+    device_type: Optional[str] = None
+    classification_confidence: Optional[str] = None
+    matching_criteria: Optional[List[str]] = None
+
 
 @dataclass
 class HardwareDiscovery:

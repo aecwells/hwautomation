@@ -7,6 +7,7 @@ Handles loading and serving of built frontend assets with manifest integration.
 import json
 import logging
 import os
+import time
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -60,7 +61,13 @@ class AssetManager:
 
     def _load_manifest(self) -> Dict:
         """Load and cache the Vite manifest."""
-        if self.manifest_cache is not None and not current_app.debug:
+        # Cache the manifest to avoid repeated file I/O
+        # In debug mode, still cache but allow occasional refresh
+        if self.manifest_cache is not None and (
+            not current_app.debug
+            or not hasattr(self, "_last_manifest_check")
+            or (time.time() - getattr(self, "_last_manifest_check", 0)) < 5
+        ):
             return self.manifest_cache
 
         if not self.manifest_path or not self.manifest_path.exists():
@@ -72,6 +79,7 @@ class AssetManager:
                 manifest = json.load(f)
 
             self.manifest_cache = manifest
+            self._last_manifest_check = time.time()
             logger.debug(f"Loaded Vite manifest with {len(manifest)} entries")
             return manifest
 

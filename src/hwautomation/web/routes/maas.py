@@ -13,6 +13,119 @@ logger = get_logger(__name__)
 maas_bp = Blueprint("maas", __name__, url_prefix="/api/maas")
 
 
+@maas_bp.route("/test")
+def api_maas_test():
+    """Test MaaS connectivity and configuration."""
+    try:
+        config = getattr(current_app, "_hwautomation_config", {})
+        create_maas_client = getattr(
+            current_app, "_hwautomation_create_maas_client", None
+        )
+
+        if not create_maas_client:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "error": "MaaS client not available",
+                        "config": None,
+                    }
+                ),
+                500,
+            )
+
+        maas_config = config.get("maas", {})
+
+        # Show configuration (without secrets)
+        config_display = {
+            "url": maas_config.get("url"),
+            "host": maas_config.get("host"),
+            "consumer_key": (
+                maas_config.get("consumer_key", "")[:10] + "..."
+                if maas_config.get("consumer_key")
+                else None
+            ),
+            "token_key": (
+                maas_config.get("token_key", "")[:10] + "..."
+                if maas_config.get("token_key")
+                else None
+            ),
+            "has_token_secret": bool(maas_config.get("token_secret")),
+            "timeout": maas_config.get("timeout", 30),
+            "verify_ssl": maas_config.get("verify_ssl", True),
+        }
+
+        if not maas_config.get("url") and not maas_config.get("host"):
+            return jsonify(
+                {
+                    "success": False,
+                    "error": "MaaS URL/host not configured",
+                    "config": config_display,
+                }
+            )
+
+        if not (
+            maas_config.get("consumer_key")
+            and maas_config.get("token_key")
+            and maas_config.get("token_secret")
+        ):
+            return jsonify(
+                {
+                    "success": False,
+                    "error": "MaaS authentication not properly configured",
+                    "config": config_display,
+                }
+            )
+
+        try:
+            maas_client = create_maas_client(maas_config)
+
+            # Test basic connectivity
+            machines = maas_client.get_machines()
+
+            machine_summary = []
+            status_counts = {}
+
+            for machine in machines:
+                hostname = machine.get("hostname", "Unknown")
+                status = machine.get("status_name", "Unknown")
+                system_id = machine.get("system_id", "Unknown")
+
+                machine_summary.append(
+                    {"hostname": hostname, "system_id": system_id, "status": status}
+                )
+
+                status_counts[status] = status_counts.get(status, 0) + 1
+
+            return jsonify(
+                {
+                    "success": True,
+                    "config": config_display,
+                    "machine_count": len(machines),
+                    "status_summary": status_counts,
+                    "machines": machine_summary[:10],  # First 10 machines
+                }
+            )
+
+        except Exception as e:
+            return jsonify(
+                {
+                    "success": False,
+                    "error": f"MaaS connection failed: {str(e)}",
+                    "config": config_display,
+                }
+            )
+
+    except Exception as e:
+        logger.error(f"MaaS test error: {e}")
+        return (
+            jsonify(
+                {"success": False, "error": f"Test failed: {str(e)}", "config": None}
+            ),
+            500,
+        )
+
+
 @maas_bp.route("/discover")
 def api_maas_discover():
     """Discover devices from MaaS API."""

@@ -1,0 +1,1354 @@
+device_configuration:
+  version: '2.0'
+  last_updated: '2025-08-15'
+  global_settings:
+    firmware:
+      backup_before_update: true
+      verify_after_update: true
+      rollback_on_failure: true
+      max_retry_attempts: 3
+      retry_delay: 30
+    default_bios_method: hybrid
+    auto_detect_capabilities: true
+  vendors:
+    supermicro:
+      display_name: Super Micro Computer Inc.
+      support_url: https://www.supermicro.com/support/resources/
+      firmware:
+        bios:
+          download_url: https://www.supermicro.com/support/resources/results.aspx
+          file_pattern: '*.rom'
+          checksum_file: '*.sha256'
+          update_method: redfish
+          fallback_methods:
+          - ipmicfg
+          - sumtool
+          estimated_time: 480
+          requires_reboot: true
+        bmc:
+          download_url: https://www.supermicro.com/support/resources/results.aspx
+          file_pattern: '*.bin'
+          checksum_file: '*.sha256'
+          update_method: redfish
+          fallback_methods:
+          - ipmicfg
+          - sumtool
+          estimated_time: 360
+          requires_reboot: true
+        tools:
+          ipmicfg:
+            path: /opt/supermicro/ipmicfg/ipmicfg
+            install_url: https://www.supermicro.com/wdl/utility/IPMICFG/
+            version: 1.35.0
+          sumtool:
+            path: /opt/supermicro/sumtool/sumtool
+            install_url: https://www.supermicro.com/wdl/utility/SUM/
+            version: 2.8.0
+      motherboards:
+        X11SCE-F:
+          model: X11SCE-F
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s1.c1.medium:
+              description: Large server - 6 cores, 128GB RAM, Intel Xeon E-2276G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.8
+                cpu_name: Intel Xeon E-2276G
+                network: 2x 10Gbps
+                ram_gb: 128
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s1.c1.small:
+              description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2276G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.8
+                cpu_name: Intel Xeon E-2276G
+                network: 2x 10Gbps
+                ram_gb: 64
+                storage: 1x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s1.c2.medium:
+              description: Medium server - 8 cores, 64GB RAM, Intel Xeon E-2288G
+              hardware_specs:
+                cpu_cores: 8
+                cpu_frequency: 3.7
+                cpu_name: Intel Xeon E-2288G
+                network: 2x 10Gbps
+                ram_gb: 64
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s1.c2.large:
+              description: Large server - 8 cores, 128GB RAM, Intel Xeon E-2288G
+              hardware_specs:
+                cpu_cores: 8
+                cpu_frequency: 3.7
+                cpu_name: Intel Xeon E-2288G
+                network: 2x 10Gbps
+                ram_gb: 128
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s1.e1.small:
+              description: Small server - 6 cores, 32GB RAM, Intel Xeon E-2186G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.8
+                cpu_name: Intel Xeon E-2186G
+                network: 2x 1Gbps
+                ram_gb: 32
+                storage: 1x 480GB SSD
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s1.e1.medium:
+              description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2186G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.8
+                cpu_name: Intel Xeon E-2186G
+                network: 2x 1Gbps
+                ram_gb: 64
+                storage: 1x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s1.e1.large:
+              description: Large server - 6 cores, 128GB RAM, Intel Xeon E-2186G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.8
+                cpu_name: Intel Xeon E-2186G
+                network: 2x 1Gbps
+                ram_gb: 128
+                storage: 1x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            test.new.large:
+              description: Test large server
+              hardware_specs:
+                cpu_name: Intel Xeon E-2288G
+                ram_gb: 256
+                cpu_cores: 8
+                cpu_frequency: null
+                network: 4x 25Gbps
+                storage: 4x 2TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X11DPT-B:
+          model: X11DPT-B
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-6258R.c.small:
+              description: Flex server - Dual Xeon Silver 4210R
+              hardware_specs:
+                cpu_name: Dual Xeon Silver 4210R
+                ram_gb: 128
+                cpu_cores: 20
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6258R.c.medium:
+              description: Flex server - Dual Xeon Silver 4210R
+              hardware_specs:
+                cpu_name: Dual Xeon Silver 4210R
+                ram_gb: 256
+                cpu_cores: 20
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6258R.c.large:
+              description: Flex server - Dual Xeon Silver 4210R
+              hardware_specs:
+                cpu_name: Dual Xeon Silver 4210R
+                ram_gb: 256
+                cpu_cores: 20
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6258R.m.medium:
+              description: Flex server - Dual Xeon Silver 4210R
+              hardware_specs:
+                cpu_name: Dual Xeon Silver 4210R
+                ram_gb: 768
+                cpu_cores: 20
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X10SLD:
+          model: X10SLD
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s0.d1.small:
+              description: Small server - 4 cores, 16GB RAM, Intel Xeon E3-1240v3
+              hardware_specs:
+                cpu_cores: 4
+                cpu_frequency: 3.4
+                cpu_name: Intel Xeon E3-1240v3
+                network: 2x 1Gbps
+                ram_gb: 16
+                storage: 2x 240GB SSD
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: balanced
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s0.d1.medium:
+              description: Small server - 4 cores, 32GB RAM, Intel Xeon E3-1270v3
+              hardware_specs:
+                cpu_cores: 4
+                cpu_frequency: 3.5
+                cpu_name: Intel Xeon E3-1270v3
+                network: 2x 1Gbps
+                ram_gb: 32
+                storage: 1x 480GB SSD
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: balanced
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X12DPT-B6:
+          model: X12DPT-B6
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-8352Y.c.medium:
+              description: Flex server - Dual Xeon Gold 6326
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6326
+                ram_gb: 128
+                cpu_cores: 32
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-8352Y.c.large:
+              description: Flex server - Dual Xeon Gold 6326
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6326
+                ram_gb: 256
+                cpu_cores: 32
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-8352Y.m:
+              description: Flex server - Dual Xeon Gold 6326
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6326
+                ram_gb: 512
+                cpu_cores: 32
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6336Y.c.medium:
+              description: Flex server - Dual Xeon Gold 5315Y
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 5315Y
+                ram_gb: 128
+                cpu_cores: 16
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6336Y.c.large:
+              description: Flex server - Dual Xeon Gold 5315Y
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 5315Y
+                ram_gb: 256
+                cpu_cores: 16
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            d2.c4.storage.pliops1:
+              description: d2.c4.storage.pliops1 server
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6336Y
+                ram_gb: 256
+                cpu_cores: 48
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6336Y.m:
+              description: Flex server - Dual Xeon Gold 5315Y
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 5315Y
+                ram_gb: 512
+                cpu_cores: 16
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X12STE-F:
+          model: X12STE-F
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s2.c1.small:
+              description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2356G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.2
+                cpu_name: Intel Xeon E-2356G
+                network: 2x 10Gbps
+                ram_gb: 64
+                storage: 1x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s2.c1.medium:
+              description: Medium server - 6 cores, 64GB RAM, Intel Xeon E-2356G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.2
+                cpu_name: Intel Xeon E-2356G
+                network: 2x 10Gbps
+                ram_gb: 64
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s2.c2.large:
+              description: Large server - 8 cores, 128GB RAM, Intel Xeon E-2388G
+              hardware_specs:
+                cpu_cores: 8
+                cpu_frequency: 3.2
+                cpu_name: Intel Xeon E-2388G
+                network: 2x 10Gbps
+                ram_gb: 128
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X12STE-F-001:
+          model: X12STE-F-001
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s2.c1.large:
+              description: Large server - 6 cores, 128GB RAM, Intel Xeon E-2356G
+              hardware_specs:
+                cpu_cores: 6
+                cpu_frequency: 3.2
+                cpu_name: Intel Xeon E-2356G
+                network: 2x 10Gbps
+                ram_gb: 128
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X12STW-TF:
+          model: X12STW-TF
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s2.c2.small:
+              description: Medium server - 8 cores, 64GB RAM, Intel Xeon E-2388G
+              hardware_specs:
+                cpu_cores: 8
+                cpu_frequency: 3.2
+                cpu_name: Intel Xeon E-2388G
+                network: 2x 10Gbps
+                ram_gb: 64
+                storage: 1x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s2.c2.medium:
+              description: Large server - 8 cores, 128GB RAM, Intel Xeon E-2388G
+              hardware_specs:
+                cpu_cores: 8
+                cpu_frequency: 3.2
+                cpu_name: Intel Xeon E-2388G
+                network: 2x 10Gbps
+                ram_gb: 128
+                storage: 1x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X13DET-B:
+          model: X13DET-B
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-8452Y.m:
+              description: Flex server - Dual Xeon Gold 5418Y
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 5418Y
+                ram_gb: 512
+                cpu_cores: 48
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-8452Y.s.xlarge:
+              description: Flex server - Dual Xeon Gold 6430
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6430
+                ram_gb: 256
+                cpu_cores: 64
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-8452Y.c.medium:
+              description: Flex server - Dual Xeon Gold 5418Y
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 5418Y
+                ram_gb: 128
+                cpu_cores: 48
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        X13DEM:
+          model: X13DEM
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-6442Y.g.c.xlarge:
+              description: Flex server - Dual Xeon Gold 6426
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6426
+                ram_gb: 512
+                cpu_cores: 32
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        B4SA1-CPU:
+          model: B4SA1-CPU
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s3.c3.medium:
+              description: Large server - 24 cores, 128GB RAM, Intel Core i9 14900K
+              hardware_specs:
+                cpu_cores: 24
+                cpu_frequency: 3.2
+                cpu_name: Intel Core i9 14900K
+                network: 2x 10Gbps
+                ram_gb: 128
+                storage: 2x 2TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s3.c3.large:
+              description: Large server - 24 cores, 192GB RAM, Intel Core i9 14900K
+              hardware_specs:
+                cpu_cores: 24
+                cpu_frequency: 3.2
+                cpu_name: Intel Core i9 14900K
+                network: 2x 10Gbps
+                ram_gb: 192
+                storage: 2x 4TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: uefi
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        unknown:
+          model: unknown
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-8452Y.m.xxlarge:
+              description: Flex server - Dual Xeon Gold 5418Y
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 5418Y
+                ram_gb: 1024
+                cpu_cores: 48
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6767P.c.medium:
+              description: Flex server - Intel Xeon 6767P
+              hardware_specs:
+                cpu_name: Intel Xeon 6767P
+                ram_gb: 128
+                cpu_cores: 64
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6767P.c.large:
+              description: Flex server - Intel Xeon 6767P
+              hardware_specs:
+                cpu_name: Intel Xeon 6767P
+                ram_gb: 256
+                cpu_cores: 64
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6767P.m:
+              description: Flex server - Intel Xeon 6767P
+              hardware_specs:
+                cpu_name: Intel Xeon 6767P
+                ram_gb: 512
+                cpu_cores: 64
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: supermicro
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+    hpe:
+      display_name: Hewlett Packard Enterprise
+      support_url: https://support.hpe.com/
+      firmware:
+        bios:
+          download_url: https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229
+          file_pattern: '*.fwpkg'
+          checksum_file: '*.sha256'
+          update_method: redfish
+          fallback_methods:
+          - smartupdate
+          - conrep
+          estimated_time: 600
+          requires_reboot: true
+        bmc:
+          download_url: https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229
+          file_pattern: '*.fwpkg'
+          checksum_file: '*.sha256'
+          update_method: redfish
+          fallback_methods:
+          - smartupdate
+          estimated_time: 480
+          requires_reboot: true
+        tools:
+          smartupdate:
+            path: /opt/hpe/smartupdate/sut
+            install_url: https://support.hpe.com/hpesc/public/home/downloadHome
+            version: 8.8.0
+          conrep:
+            path: /opt/hpe/conrep/conrep
+            install_url: https://support.hpe.com/hpesc/public/home/downloadHome
+            version: 5.6.0
+          ilorest:
+            path: /opt/hpe/ilorest/ilorest
+            install_url: https://github.com/HewlettPackard/python-ilorest-library
+            version: 4.4.0
+      motherboards:
+        ProLiant RL300 Gen11:
+          model: ProLiant RL300 Gen11
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            a1.c5.large:
+              description: Large server - 80 cores, 256GB RAM, Ampere Altra Q80-30
+              hardware_specs:
+                cpu_cores: 80
+                cpu_frequency: 3
+                cpu_name: Ampere Altra Q80-30
+                network: 2x 25Gbps
+                ram_gb: 256
+                storage: 2x 2TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings:
+                redfish_preferred:
+                  BootMode: UEFI boot mode selection
+                  SecureBoot: Secure boot enable/disable
+                  PXEBoot: PXE boot configuration
+                  PowerRestorePolicy: Power restore behavior after AC loss
+                  WakeOnLAN: Wake-on-LAN functionality
+                  PowerProfile: CPU power management profile
+                  QuietBoot: Boot splash screen control
+                  BootTimeout: Boot timeout in seconds
+                  ProcessorEIST: Enhanced Intel SpeedStep
+                  TurboMode: CPU Turbo Mode
+                  ProcessorC1E: CPU C1E power state
+                  ProcessorC3Report: CPU C3 power state reporting
+                  ProcessorC6Report: CPU C6 power state reporting
+                redfish_fallback:
+                  IntelHyperThreadingTech: Hyper-Threading enable/disable
+                  MemoryMode: Memory operating mode
+                  PatrolScrub: Memory patrol scrubbing
+                  DemandScrub: Memory demand scrubbing
+                  SOLEnabled: Serial Over LAN
+                  KCSInterface: KCS interface enable/disable
+                vendor_only:
+                  CPUMicrocodeUpdate: CPU microcode updates
+                  MemoryTimingAdvanced: Advanced memory timing settings
+                  PCIeAdvancedConfig: Advanced PCIe configuration
+                  BIOSUpdateMode: BIOS update mechanisms
+                  VendorSpecificSettings: Vendor-specific hardware features
+                  HardwareMonitoring: Advanced hardware monitoring
+                  FanControlAdvanced: Advanced fan control curves
+                  OverclockingSettings: CPU/Memory overclocking
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            a1.c5.xlarge:
+              description: Large server - 80 cores, 256GB RAM, Ampere Altra Q80-30
+              hardware_specs:
+                cpu_cores: 80
+                cpu_frequency: 3
+                cpu_name: Ampere Altra Q80-30
+                network: 2x 25Gbps
+                ram_gb: 256
+                storage: 2x 4TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: redfish
+        ProLiant DL360 Gen11:
+          model: ProLiant DL360 Gen11
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-6542Y.c.large:
+              description: Flex server - Dual Xeon Gold 6536
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6536
+                ram_gb: 256
+                cpu_cores: 32
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            flex-6542Y.m:
+              description: Flex server - Dual Xeon Gold 6536
+              hardware_specs:
+                cpu_name: Dual Xeon Gold 6536
+                ram_gb: 512
+                cpu_cores: 32
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        ProLiant DL320 Gen12:
+          model: ProLiant DL320 Gen12
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            s4.x6.c6.large:
+              description: Large server - 96 cores, 256GB RAM, Intel Xeon 6 6731E
+              hardware_specs:
+                cpu_cores: 96
+                cpu_frequency: 2.2
+                cpu_name: Intel Xeon 6 6731E
+                network: 2x 25Gbps
+                ram_gb: 256
+                storage: 2x 2TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+            s4.x6.m6.xlarge:
+              description: Large server - 96 cores, 512GB RAM, Intel Xeon 6 6731E
+              hardware_specs:
+                cpu_cores: 96
+                cpu_frequency: 2.2
+                cpu_name: Intel Xeon 6 6731E
+                network: 2x 25Gbps
+                ram_gb: 512
+                storage: 2x 4TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              bios_settings: {}
+              redfish_capable: true
+              preferred_bios_method: hybrid
+        unknown:
+          model: unknown
+          firmware_tracking:
+            bios:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+            bmc:
+              current_version: unknown
+              latest_version: unknown
+              update_available: false
+              files: []
+          device_types:
+            flex-6448Y.g.c.medium:
+              description: Flex server - Intel Xeon Gold 6448Y
+              hardware_specs:
+                cpu_name: Intel Xeon Gold 6448Y
+                ram_gb: 256
+                cpu_cores: 64
+                cpu_frequency: null
+                network: 2x 10Gbps
+                storage: 2x 1TB NVMe
+                vendor: hpe
+              boot_configs:
+                boot_mode: legacy
+                pxe_boot: true
+                secure_boot: false
+              cpu_configs:
+                hyperthreading: true
+                power_profile: performance
+                turbo_boost: true
+              memory_configs:
+                ecc_enabled: true
+                memory_speed: auto
+              redfish_capable: true
+              preferred_bios_method: hybrid

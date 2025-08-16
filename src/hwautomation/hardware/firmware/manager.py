@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from ...config.adapters import ConfigurationManager
+from ...config.unified_loader import UnifiedConfigLoader
 from ...logging import get_logger
 from .base import FirmwareInfo, FirmwareType, FirmwareUpdateResult, UpdatePolicy
 from .operations.checker import VersionChecker
@@ -29,12 +31,22 @@ class FirmwareManager:
             config_path: Path to firmware configuration file
         """
         self.config_path = config_path or self._get_default_config_path()
+
+        # Initialize unified configuration system
+        self.config_manager = ConfigurationManager()
+        self.unified_loader = self.config_manager.get_unified_loader()
+
+        # Load repository configuration
         self.repository = self._load_firmware_repository()
         self.version_checker = VersionChecker()
         self.vendor_tools = self._initialize_vendor_tools()
         self.update_policy = UpdatePolicy.RECOMMENDED
 
-        logger.info(f"Initialized FirmwareManager with config: {self.config_path}")
+        # Check which configuration system we're using
+        config_source = "unified" if self.unified_loader else "legacy"
+        logger.info(
+            f"Initialized FirmwareManager with {config_source} config: {self.config_path}"
+        )
 
     def _get_default_config_path(self) -> str:
         """Get default configuration file path."""
@@ -48,7 +60,26 @@ class FirmwareManager:
     def _load_firmware_repository(self) -> FirmwareRepository:
         """Load firmware repository configuration."""
         try:
+            # Try unified configuration first
+            if self.unified_loader:
+                logger.info("Using unified configuration for firmware repository")
+                # Get firmware config through adapter
+                firmware_config = self.config_manager.get_firmware_config()
+
+                if firmware_config and "firmware_repository" in firmware_config:
+                    repo_config = firmware_config["firmware_repository"]
+                    return FirmwareRepository(
+                        base_path=repo_config.get("base_path", "/opt/firmware"),
+                        vendors=repo_config.get("vendors", {}),
+                        download_enabled=repo_config.get("download_enabled", True),
+                        auto_verify=repo_config.get("auto_verify", True),
+                        cache_duration=repo_config.get("cache_duration", 86400),
+                    )
+
+            # Fallback to legacy configuration
+            logger.info("Using legacy configuration for firmware repository")
             return FirmwareRepository.from_config(self.config_path)
+
         except Exception as e:
             logger.warning(f"Failed to load firmware repository: {e}")
             # Return default repository
@@ -106,18 +137,51 @@ class FirmwareManager:
             return {}
 
     def _get_vendor_info(self, device_type: str) -> Dict[str, str]:
-        """Extract vendor information from device type."""
+        """Extract vendor information from device type using unified configuration."""
+        try:
+            # Try unified configuration first
+            if self.unified_loader:
+                device_info = self.unified_loader.get_device_by_type(device_type)
+                if device_info:
+                    # Get vendor from the device info
+                    vendor = device_info.vendor
+                    motherboard = device_info.motherboard
+
+                    logger.debug(
+                        f"Found device {device_type}: vendor={vendor}, motherboard={motherboard}"
+                    )
+
+                    return {
+                        "vendor": vendor.lower(),
+                        "model": motherboard,
+                        "device_type": device_type,
+                    }
+                else:
+                    logger.warning(
+                        f"Device type {device_type} not found in unified configuration"
+                    )
+
+            # Fallback to legacy device type mapping for backward compatibility
+            logger.debug(f"Using legacy device mapping for {device_type}")
+            return self._get_legacy_vendor_info(device_type)
+
+        except Exception as e:
+            logger.error(f"Error getting vendor info for {device_type}: {e}")
+            return self._get_legacy_vendor_info(device_type)
+
+    def _get_legacy_vendor_info(self, device_type: str) -> Dict[str, str]:
+        """Legacy device type mapping for backward compatibility."""
         # Device type mapping for tests and operations
         if device_type == "a1.c5.large":
-            return {"vendor": "hpe", "model": "Gen10"}
+            return {"vendor": "hpe", "model": "Gen10", "device_type": device_type}
         elif "supermicro" in device_type.lower() or device_type.startswith("s"):
-            return {"vendor": "supermicro", "model": "x11"}
+            return {"vendor": "supermicro", "model": "x11", "device_type": device_type}
         elif "dell" in device_type.lower() or device_type.startswith("d"):
-            return {"vendor": "dell", "model": "poweredge"}
+            return {"vendor": "dell", "model": "poweredge", "device_type": device_type}
         elif "hpe" in device_type.lower() or device_type.startswith("h"):
-            return {"vendor": "hpe", "model": "proliant"}
+            return {"vendor": "hpe", "model": "proliant", "device_type": device_type}
         else:
-            return {"vendor": "unknown", "model": "unknown"}
+            return {"vendor": "unknown", "model": "unknown", "device_type": device_type}
 
     def _compare_versions(self, current_version: str, latest_version: str) -> bool:
         """Compare firmware versions to determine if update is needed.
@@ -483,4 +547,141 @@ class FirmwareManager:
             "vendor_count": len(self.repository.vendors),
             "download_enabled": self.repository.download_enabled,
             "auto_verify": self.repository.auto_verify,
+        }
+
+    # Enhanced methods using unified configuration
+
+    def get_supported_device_types(self) -> List[str]:
+        """Get list of all supported device types from unified configuration."""
+        if self.unified_loader:
+            return self.unified_loader.list_all_device_types()
+        else:
+            # Fallback to legacy device types
+            return ["a1.c5.large", "s2.c2.small", "s2.c2.medium", "s2.c2.large"]
+
+    def get_devices_by_vendor(self, vendor: str) -> List[Dict[str, Any]]:
+        """Get all devices for a specific vendor."""
+        if self.unified_loader:
+            device_types = self.unified_loader.get_device_types_by_vendor(vendor)
+            devices = []
+            for device_type in device_types:
+                device_info = self.get_device_info(device_type)
+                if device_info:
+                    devices.append(device_info)
+            return devices
+        else:
+            # Fallback logic for legacy configuration
+            legacy_mapping = {
+                "hpe": [{"device_type": "a1.c5.large", "motherboard": "Gen10"}],
+                "supermicro": [
+                    {"device_type": "s2.c2.small", "motherboard": "x11"},
+                    {"device_type": "s2.c2.medium", "motherboard": "x11"},
+                    {"device_type": "s2.c2.large", "motherboard": "x11"},
+                ],
+            }
+            return legacy_mapping.get(vendor.lower(), [])
+
+    def search_devices(self, search_term: str) -> List[Dict[str, Any]]:
+        """Search for devices matching a term."""
+        if self.unified_loader:
+            # Search through all devices
+            all_device_types = self.unified_loader.list_all_device_types()
+            matching_devices = []
+
+            for device_type in all_device_types:
+                device_info = self.get_device_info(device_type)
+                if device_info:
+                    # Check if search term matches any field
+                    device_str = str(device_info).lower()
+                    if search_term.lower() in device_str:
+                        matching_devices.append(device_info)
+
+            return matching_devices
+        else:
+            # Simple fallback search
+            all_devices = []
+            for vendor in ["hpe", "supermicro"]:
+                all_devices.extend(self.get_devices_by_vendor(vendor))
+
+            return [
+                device
+                for device in all_devices
+                if search_term.lower() in str(device).lower()
+            ]
+
+    def get_vendor_statistics(self) -> Dict[str, Any]:
+        """Get vendor statistics from unified configuration."""
+        if self.unified_loader:
+            stats = self.unified_loader.get_stats()
+
+            # Build vendor breakdown
+            vendor_breakdown = {}
+            for vendor in self.unified_loader.list_vendors():
+                vendor_info = self.unified_loader.get_vendor_info(vendor)
+                if vendor_info:
+                    device_types = self.unified_loader.get_device_types_by_vendor(
+                        vendor
+                    )
+                    motherboards = self.unified_loader.list_motherboards(vendor)
+                    vendor_breakdown[vendor] = {
+                        "device_count": len(device_types),
+                        "motherboards": motherboards,
+                    }
+
+            return {
+                "total_vendors": stats.vendors,
+                "total_devices": stats.device_types,
+                "total_motherboards": stats.motherboards,
+                "vendors": vendor_breakdown,
+            }
+        else:
+            # Fallback statistics
+            return {
+                "total_vendors": 2,
+                "total_devices": 4,
+                "vendors": {
+                    "hpe": {"device_count": 1, "motherboards": ["Gen10"]},
+                    "supermicro": {"device_count": 3, "motherboards": ["x11"]},
+                },
+            }
+
+    def validate_device_type(self, device_type: str) -> bool:
+        """Validate if a device type is supported."""
+        if self.unified_loader:
+            return self.unified_loader.get_device_by_type(device_type) is not None
+        else:
+            # Legacy validation
+            return device_type in self.get_supported_device_types()
+
+    def get_device_info(self, device_type: str) -> Optional[Dict[str, Any]]:
+        """Get device information for a specific device type."""
+        if self.unified_loader:
+            device_info = self.unified_loader.get_device_by_type(device_type)
+            if device_info:
+                # Extract CPU and hardware details from device_config
+                device_config = device_info.device_config
+                cpu_name = device_config.get("cpu_name", "Unknown CPU")
+                cpu_cores = device_config.get("cpu_cores", 0)
+                ram_gb = device_config.get("ram_gb", 0)
+
+                return {
+                    "device_type": device_type,
+                    "vendor": device_info.vendor,
+                    "motherboard": device_info.motherboard,
+                    "cpu_name": cpu_name,
+                    "cpu_cores": cpu_cores,
+                    "ram_gb": ram_gb,
+                }
+        return None
+
+    def get_configuration_status(self) -> Dict[str, Any]:
+        """Get status of configuration system."""
+        return {
+            "unified_config_available": self.unified_loader is not None,
+            "config_source": "unified" if self.unified_loader else "legacy",
+            "adapters_status": (
+                self.config_manager.get_status() if self.unified_loader else None
+            ),
+            "supported_device_count": len(self.get_supported_device_types()),
+            "repository_path": self.repository.base_path,
         }

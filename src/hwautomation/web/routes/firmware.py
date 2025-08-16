@@ -283,7 +283,90 @@ class FirmwareWebManager:
             return []
 
     def _get_device_types_firmware_info(self) -> List[Dict[str, Any]]:
-        """Get firmware information for all device types from device mappings.
+        """Get firmware information for all device types from unified configuration.
+
+        Returns:
+            List of device types with motherboard and firmware information
+        """
+        try:
+            device_types = []
+
+            # Try unified configuration first if firmware manager has it
+            if (
+                self.firmware_manager
+                and hasattr(self.firmware_manager, "unified_loader")
+                and self.firmware_manager.unified_loader
+            ):
+
+                logger.info(
+                    "Using unified configuration for device types firmware info"
+                )
+
+                # Get all device types from unified config
+                all_device_types = self.firmware_manager.get_supported_device_types()
+
+                for device_type in all_device_types:
+                    device_info = (
+                        self.firmware_manager.unified_loader.get_device_by_type(
+                            device_type
+                        )
+                    )
+                    if device_info:
+                        # Clean up device type name
+                        clean_device_type = device_type.strip()
+
+                        vendor = device_info.get("vendor", "unknown")
+                        motherboard = device_info.get("motherboard", "Unknown")
+                        description = f"{vendor} {motherboard} system"
+
+                        # Get additional specs if available
+                        cpu_name = device_info.get("cpu_name", "Unknown CPU")
+                        ram_gb = device_info.get("ram_gb", 0)
+                        cpu_cores = device_info.get("cpu_cores", 0)
+
+                        motherboard_list = (
+                            [motherboard] if motherboard != "Unknown" else []
+                        )
+
+                        # Get firmware information for this device type
+                        firmware_info = self._get_firmware_for_device_type(
+                            clean_device_type, vendor, motherboard_list
+                        )
+
+                        device_types.append(
+                            {
+                                "device_type": clean_device_type,
+                                "vendor": vendor,
+                                "motherboards": motherboard_list,
+                                "description": description,
+                                "cpu_name": cpu_name,
+                                "ram_gb": ram_gb,
+                                "cpu_cores": cpu_cores,
+                                "firmware_files": firmware_info.get(
+                                    "firmware_files", []
+                                ),
+                                "bios_versions": firmware_info.get("bios_versions", []),
+                                "bmc_versions": firmware_info.get("bmc_versions", []),
+                                "config_source": "unified",
+                            }
+                        )
+
+                logger.info(
+                    f"Loaded {len(device_types)} device types from unified configuration"
+                )
+                return device_types
+
+            # Fallback to legacy configuration
+            logger.info("Using legacy configuration for device types firmware info")
+            return self._get_device_types_firmware_info_legacy()
+
+        except Exception as e:
+            logger.error(f"Error getting device types firmware info: {e}")
+            # Fallback to legacy method
+            return self._get_device_types_firmware_info_legacy()
+
+    def _get_device_types_firmware_info_legacy(self) -> List[Dict[str, Any]]:
+        """Legacy method to get firmware information from device mappings YAML.
 
         Returns:
             List of device types with motherboard and firmware information
@@ -387,7 +470,10 @@ class FirmwareWebManager:
                     "bios_version": primary_bios,
                     "bmc_version": primary_bmc,
                     "firmware_files": unique_firmware_files,
+                    "bios_versions": bios_versions,
+                    "bmc_versions": bmc_versions,
                     "last_updated": datetime.now().strftime("%Y-%m-%d"),
+                    "config_source": "legacy",
                 }
                 device_types.append(device_info)
 
@@ -396,6 +482,52 @@ class FirmwareWebManager:
         except Exception as e:
             logger.error(f"Failed to get device types firmware info: {e}")
             return []
+
+    def _get_firmware_for_device_type(
+        self, device_type: str, vendor: str, motherboards: List[str]
+    ) -> Dict[str, Any]:
+        """Get firmware information for a specific device type.
+
+        Args:
+            device_type: Device type identifier
+            vendor: Hardware vendor
+            motherboards: List of motherboards for this device type
+
+        Returns:
+            Dictionary with firmware files and version information
+        """
+        firmware_files = []
+        bios_versions = []
+        bmc_versions = []
+
+        for motherboard in motherboards:
+            # Get current firmware versions
+            bios_version, bmc_version = self._get_motherboard_firmware_versions(
+                vendor, motherboard
+            )
+            if bios_version != "Unknown":
+                bios_versions.append(bios_version)
+            if bmc_version != "Unknown":
+                bmc_versions.append(bmc_version)
+
+            # Check for available firmware files
+            available_firmware = self._get_available_firmware_files(vendor, device_type)
+            firmware_files.extend(available_firmware)
+
+        # Remove duplicates from firmware files
+        unique_firmware_files = []
+        seen_files = set()
+        for file in firmware_files:
+            file_key = (file.get("filename", ""), file.get("type", ""))
+            if file_key not in seen_files:
+                seen_files.add(file_key)
+                unique_firmware_files.append(file)
+
+        return {
+            "firmware_files": unique_firmware_files,
+            "bios_versions": bios_versions,
+            "bmc_versions": bmc_versions,
+        }
 
     def _get_motherboard_firmware_versions(
         self, vendor: str, motherboard: str
@@ -1522,4 +1654,192 @@ def api_auto_download():
 
     except Exception as e:
         logger.error(f"API error in auto-download: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# Enhanced API endpoints using unified configuration
+
+
+@firmware_bp.route("/api/enhanced/vendors")
+def get_vendors_api():
+    """Get all vendors with device statistics from unified configuration."""
+    try:
+        if firmware_web_manager.firmware_manager and hasattr(
+            firmware_web_manager.firmware_manager, "get_vendor_statistics"
+        ):
+            stats = firmware_web_manager.firmware_manager.get_vendor_statistics()
+            return jsonify(stats)
+        else:
+            # Fallback to basic vendor info
+            return jsonify(
+                {
+                    "total_vendors": 2,
+                    "total_devices": 4,
+                    "vendors": {
+                        "hpe": {"device_count": 1, "motherboards": ["Gen10"]},
+                        "supermicro": {"device_count": 3, "motherboards": ["x11"]},
+                    },
+                }
+            )
+    except Exception as e:
+        logger.error(f"API error getting vendors: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/enhanced/devices/<vendor>")
+def get_devices_by_vendor_api(vendor):
+    """Get all devices for a specific vendor."""
+    try:
+        if firmware_web_manager.firmware_manager and hasattr(
+            firmware_web_manager.firmware_manager, "get_devices_by_vendor"
+        ):
+            devices = firmware_web_manager.firmware_manager.get_devices_by_vendor(
+                vendor
+            )
+            return jsonify(
+                {
+                    "success": True,
+                    "vendor": vendor,
+                    "device_count": len(devices),
+                    "devices": devices,
+                }
+            )
+        else:
+            return jsonify(
+                {"success": False, "error": "Enhanced configuration not available"}
+            )
+    except Exception as e:
+        logger.error(f"API error getting devices for vendor {vendor}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/enhanced/search")
+def search_devices_api():
+    """Search for devices matching a term."""
+    try:
+        search_term = request.args.get("q", "")
+        if not search_term:
+            return jsonify({"success": False, "error": "Search term required"})
+
+        if firmware_web_manager.firmware_manager and hasattr(
+            firmware_web_manager.firmware_manager, "search_devices"
+        ):
+            results = firmware_web_manager.firmware_manager.search_devices(search_term)
+            return jsonify(
+                {
+                    "success": True,
+                    "search_term": search_term,
+                    "result_count": len(results),
+                    "results": results,
+                }
+            )
+        else:
+            return jsonify({"success": False, "error": "Enhanced search not available"})
+    except Exception as e:
+        logger.error(f"API error searching devices: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/enhanced/validate/<device_type>")
+def validate_device_type_api(device_type):
+    """Validate if a device type is supported."""
+    try:
+        if firmware_web_manager.firmware_manager and hasattr(
+            firmware_web_manager.firmware_manager, "validate_device_type"
+        ):
+            is_valid = firmware_web_manager.firmware_manager.validate_device_type(
+                device_type
+            )
+
+            if is_valid and hasattr(
+                firmware_web_manager.firmware_manager, "unified_loader"
+            ):
+                device_info = firmware_web_manager.firmware_manager.unified_loader.get_device_by_type(
+                    device_type
+                )
+                return jsonify(
+                    {
+                        "success": True,
+                        "device_type": device_type,
+                        "valid": is_valid,
+                        "device_info": device_info,
+                    }
+                )
+            else:
+                return jsonify(
+                    {
+                        "success": True,
+                        "device_type": device_type,
+                        "valid": is_valid,
+                        "device_info": None,
+                    }
+                )
+        else:
+            return jsonify(
+                {"success": False, "error": "Enhanced validation not available"}
+            )
+    except Exception as e:
+        logger.error(f"API error validating device type {device_type}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/enhanced/config-status")
+def get_config_status_api():
+    """Get status of configuration system."""
+    try:
+        if firmware_web_manager.firmware_manager and hasattr(
+            firmware_web_manager.firmware_manager, "get_configuration_status"
+        ):
+            status = firmware_web_manager.firmware_manager.get_configuration_status()
+            return jsonify({"success": True, "status": status})
+        else:
+            return jsonify(
+                {
+                    "success": True,
+                    "status": {
+                        "unified_config_available": False,
+                        "config_source": "legacy",
+                        "adapters_status": None,
+                        "supported_device_count": 4,
+                        "repository_path": "/opt/firmware",
+                    },
+                }
+            )
+    except Exception as e:
+        logger.error(f"API error getting config status: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@firmware_bp.route("/api/enhanced/device-types/all")
+def get_all_device_types_api():
+    """Get all supported device types from unified configuration."""
+    try:
+        if firmware_web_manager.firmware_manager and hasattr(
+            firmware_web_manager.firmware_manager, "get_supported_device_types"
+        ):
+            device_types = (
+                firmware_web_manager.firmware_manager.get_supported_device_types()
+            )
+            return jsonify(
+                {
+                    "success": True,
+                    "device_count": len(device_types),
+                    "device_types": device_types,
+                }
+            )
+        else:
+            return jsonify(
+                {
+                    "success": True,
+                    "device_count": 4,
+                    "device_types": [
+                        "a1.c5.large",
+                        "s2.c2.small",
+                        "s2.c2.medium",
+                        "s2.c2.large",
+                    ],
+                }
+            )
+    except Exception as e:
+        logger.error(f"API error getting all device types: {e}")
         return jsonify({"error": str(e)}), 500

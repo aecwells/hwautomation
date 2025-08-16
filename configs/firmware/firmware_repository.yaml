@@ -1,340 +1,467 @@
-# Firmware Repository Configuration
-# Defines firmware sources, download locations, and management settings
-
 firmware_repository:
-  base_path: "./firmware"  # Relative to project root
+  base_path: ./firmware
   download_enabled: true
   auto_verify: true
-  cache_duration: 86400  # 24 hours in seconds
+  cache_duration: 86400
   max_concurrent_downloads: 3
-
-  # Global firmware update settings
   global_settings:
     backup_before_update: true
     verify_after_update: true
     rollback_on_failure: true
     max_retry_attempts: 3
-    retry_delay: 30  # seconds
-
-  # Vendor-specific firmware configurations
+    retry_delay: 30
   vendors:
     supermicro:
-      display_name: "Super Micro Computer Inc."
-      support_url: "https://www.supermicro.com/support/resources/"
-
+      display_name: Super Micro Computer Inc.
+      support_url: https://www.supermicro.com/support/resources/
       bios:
-        download_url: "https://www.supermicro.com/support/resources/results.aspx"
-        file_pattern: "*.rom"
-        checksum_file: "*.sha256"
-        update_method: "redfish"  # redfish, ipmicfg, sumtool
-        fallback_methods: ["ipmicfg", "sumtool"]
-        estimated_time: 480  # 8 minutes
+        download_url: https://www.supermicro.com/support/resources/results.aspx
+        file_pattern: '*.rom'
+        checksum_file: '*.sha256'
+        update_method: redfish
+        fallback_methods:
+        - ipmicfg
+        - sumtool
+        estimated_time: 480
         requires_reboot: true
-
       bmc:
-        download_url: "https://www.supermicro.com/support/resources/results.aspx"
-        file_pattern: "*.bin"
-        checksum_file: "*.sha256"
-        update_method: "redfish"
-        fallback_methods: ["ipmicfg", "sumtool"]
-        estimated_time: 360  # 6 minutes
+        download_url: https://www.supermicro.com/support/resources/results.aspx
+        file_pattern: '*.bin'
+        checksum_file: '*.sha256'
+        update_method: redfish
+        fallback_methods:
+        - ipmicfg
+        - sumtool
+        estimated_time: 360
         requires_reboot: true
-
       tools:
         ipmicfg:
-          path: "/opt/supermicro/ipmicfg/ipmicfg"
-          install_url: "https://www.supermicro.com/wdl/utility/IPMICFG/"
-          version: "1.35.0"
+          path: /opt/supermicro/ipmicfg/ipmicfg
+          install_url: https://www.supermicro.com/wdl/utility/IPMICFG/
+          version: 1.35.0
         sumtool:
-          path: "/opt/supermicro/sumtool/sumtool"
-          install_url: "https://www.supermicro.com/wdl/utility/SUM/"
-          version: "2.8.0"
-
-      # Example firmware files (for development/testing)
+          path: /opt/supermicro/sumtool/sumtool
+          install_url: https://www.supermicro.com/wdl/utility/SUM/
+          version: 2.8.0
       example_files:
         bios:
-          - file: "firmware/supermicro/bios/X11SPL_3.4.rom"
-            version: "3.4"
-            checksum: "sha256:example_checksum_x11spl_34"
-          - file: "firmware/supermicro/bios/X11SPL_3.5.rom"
-            version: "3.5"
-            checksum: "sha256:example_checksum_x11spl_35"
+        - file: firmware/supermicro/bios/X11SPL_3.4.rom
+          version: '3.4'
+          checksum: sha256:example_checksum_x11spl_34
+        - file: firmware/supermicro/bios/X11SPL_3.5.rom
+          version: '3.5'
+          checksum: sha256:example_checksum_x11spl_35
         bmc:
-          - file: "firmware/supermicro/bmc/BMC_1.73.14.bin"
-            version: "1.73.14"
-            checksum: "sha256:example_checksum_bmc_17314"
-          - file: "firmware/supermicro/bmc/BMC_1.74.06.bin"
-            version: "1.74.06"
-            checksum: "sha256:ff6c6d18fec4635b3dab8187e0a47bd995dc68ee444a71cf2946d93a70842d65"
-
+        - file: firmware/supermicro/bmc/BMC_1.73.14.bin
+          version: 1.73.14
+          checksum: sha256:example_checksum_bmc_17314
+        - file: firmware/supermicro/bmc/BMC_1.74.06.bin
+          version: 1.74.06
+          checksum: sha256:ff6c6d18fec4635b3dab8187e0a47bd995dc68ee444a71cf2946d93a70842d65
+      motherboards:
+        X11SCE-F:
+          model: X11SCE-F
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X11DPT-B:
+          model: X11DPT-B
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X10SLD:
+          model: X10SLD
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X12DPT-B6:
+          model: X12DPT-B6
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X12STE-F:
+          model: X12STE-F
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X12STE-F-001:
+          model: X12STE-F-001
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X12STW-TF:
+          model: X12STW-TF
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X13DET-B:
+          model: X13DET-B
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        X13DEM:
+          model: X13DEM
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        B4SA1-CPU:
+          model: B4SA1-CPU
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
     hpe:
-      display_name: "Hewlett Packard Enterprise"
-      support_url: "https://support.hpe.com/"
-
+      display_name: Hewlett Packard Enterprise
+      support_url: https://support.hpe.com/
       bios:
-        download_url: "https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229"
-        file_pattern: "*.fwpkg"
-        checksum_file: "*.sha256"
-        update_method: "redfish"
-        fallback_methods: ["smartupdate", "conrep"]
-        estimated_time: 600  # 10 minutes
+        download_url: https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229
+        file_pattern: '*.fwpkg'
+        checksum_file: '*.sha256'
+        update_method: redfish
+        fallback_methods:
+        - smartupdate
+        - conrep
+        estimated_time: 600
         requires_reboot: true
-
       bmc:
-        download_url: "https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229"
-        file_pattern: "*.fwpkg"
-        checksum_file: "*.sha256"
-        update_method: "redfish"
-        fallback_methods: ["smartupdate"]
-        estimated_time: 480  # 8 minutes
+        download_url: https://support.hpe.com/hpesc/public/docDisplay?docId=emr_na-c04781229
+        file_pattern: '*.fwpkg'
+        checksum_file: '*.sha256'
+        update_method: redfish
+        fallback_methods:
+        - smartupdate
+        estimated_time: 480
         requires_reboot: true
-
       tools:
         smartupdate:
-          path: "/opt/hpe/smartupdate/sut"
-          install_url: "https://support.hpe.com/hpesc/public/home/downloadHome"
-          version: "8.8.0"
+          path: /opt/hpe/smartupdate/sut
+          install_url: https://support.hpe.com/hpesc/public/home/downloadHome
+          version: 8.8.0
         conrep:
-          path: "/opt/hpe/conrep/conrep"
-          install_url: "https://support.hpe.com/hpesc/public/home/downloadHome"
-          version: "5.6.0"
+          path: /opt/hpe/conrep/conrep
+          install_url: https://support.hpe.com/hpesc/public/home/downloadHome
+          version: 5.6.0
         ilorest:
-          path: "/opt/hpe/ilorest/ilorest"
-          install_url: "https://github.com/HewlettPackard/python-ilorest-library"
-          version: "4.4.0"
-
-      # Example firmware files (for development/testing)
+          path: /opt/hpe/ilorest/ilorest
+          install_url: https://github.com/HewlettPackard/python-ilorest-library
+          version: 4.4.0
       example_files:
         bios:
-          - file: "firmware/hpe/bios/U30_v2.50.fwpkg"
-            version: "U30_v2.50"
-            checksum: "sha256:example_checksum_u30_250"
-          - file: "firmware/hpe/bios/U30_v2.54.fwpkg"
-            version: "U30_v2.54"
-            checksum: "sha256:example_checksum_u30_254"
+        - file: firmware/hpe/bios/U30_v2.50.fwpkg
+          version: U30_v2.50
+          checksum: sha256:example_checksum_u30_250
+        - file: firmware/hpe/bios/U30_v2.54.fwpkg
+          version: U30_v2.54
+          checksum: sha256:example_checksum_u30_254
         bmc:
-          - file: "firmware/hpe/bmc/ilo5_275.fwpkg"
-            version: "2.75"
-            checksum: "sha256:example_checksum_ilo5_275"
-          - file: "firmware/hpe/bmc/ilo5_278.fwpkg"
-            version: "2.78"
-            checksum: "sha256:example_checksum_ilo5_278"
-          - file: "firmware/hpe/bmc/CP046866.scexe"
-            version: "2.85"
-            checksum: "sha256:a10aa26268b4a2391c9fb336ed23b188f2cc3f0243487e0fa5ca1039d9b9fe40"
-
+        - file: firmware/hpe/bmc/ilo5_275.fwpkg
+          version: '2.75'
+          checksum: sha256:example_checksum_ilo5_275
+        - file: firmware/hpe/bmc/ilo5_278.fwpkg
+          version: '2.78'
+          checksum: sha256:example_checksum_ilo5_278
+        - file: firmware/hpe/bmc/CP046866.scexe
+          version: '2.85'
+          checksum: sha256:a10aa26268b4a2391c9fb336ed23b188f2cc3f0243487e0fa5ca1039d9b9fe40
+      motherboards:
+        ProLiant RL300 Gen11:
+          model: ProLiant RL300 Gen11
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        ProLiant DL360 Gen11:
+          model: ProLiant DL360 Gen11
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+        ProLiant DL320 Gen12:
+          model: ProLiant DL320 Gen12
+          bios:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
+          bmc:
+            current_version: unknown
+            latest_version: unknown
+            update_available: false
+            firmware_files: []
     dell:
-      display_name: "Dell Technologies"
-      support_url: "https://www.dell.com/support/"
-
+      display_name: Dell Technologies
+      support_url: https://www.dell.com/support/
       bios:
-        download_url: "https://www.dell.com/support/downloads/"
-        file_pattern: "*.exe"
-        checksum_file: "*.sha256"
-        update_method: "redfish"
-        fallback_methods: ["racadm", "dsu"]
-        estimated_time: 540  # 9 minutes
+        download_url: https://www.dell.com/support/downloads/
+        file_pattern: '*.exe'
+        checksum_file: '*.sha256'
+        update_method: redfish
+        fallback_methods:
+        - racadm
+        - dsu
+        estimated_time: 540
         requires_reboot: true
-
       bmc:
-        download_url: "https://www.dell.com/support/downloads/"
-        file_pattern: "*.exe"
-        checksum_file: "*.sha256"
-        update_method: "redfish"
-        fallback_methods: ["racadm", "dsu"]
-        estimated_time: 420  # 7 minutes
+        download_url: https://www.dell.com/support/downloads/
+        file_pattern: '*.exe'
+        checksum_file: '*.sha256'
+        update_method: redfish
+        fallback_methods:
+        - racadm
+        - dsu
+        estimated_time: 420
         requires_reboot: true
-
       tools:
         racadm:
-          path: "/opt/dell/srvadmin/bin/idracadm7"
-          install_url: "https://www.dell.com/support/downloads/"
-          version: "9.4.0"
+          path: /opt/dell/srvadmin/bin/idracadm7
+          install_url: https://www.dell.com/support/downloads/
+          version: 9.4.0
         dsu:
-          path: "/opt/dell/dellsystemupdate/dsu"
-          install_url: "https://www.dell.com/support/downloads/"
-          version: "1.9.3.0"
+          path: /opt/dell/dellsystemupdate/dsu
+          install_url: https://www.dell.com/support/downloads/
+          version: 1.9.3.0
         omconfig:
-          path: "/opt/dell/srvadmin/bin/omconfig"
-          install_url: "https://www.dell.com/support/downloads/"
-          version: "9.4.0"
-
-# Device-specific firmware mappings
+          path: /opt/dell/srvadmin/bin/omconfig
+          install_url: https://www.dell.com/support/downloads/
+          version: 9.4.0
 device_firmware_mapping:
-  # Supermicro devices
-  "d1.c1.small":
-    vendor: "supermicro"
-    model_family: "X11"
-    bmc_family: "BMC"
-    bios_family: "X11SPL"
-    firmware_profile: "datacenter_optimized"
-
-  "d1.c2.medium":
-    vendor: "supermicro"
-    model_family: "X11"
-    bmc_family: "BMC"
-    bios_family: "X11DPH"
-    firmware_profile: "datacenter_optimized"
-
-  # HPE devices
-  "a1.c5.large":
-    vendor: "hpe"
-    model_family: "Gen10"
-    bmc_family: "iLO5"
-    bios_family: "U30"
-    firmware_profile: "enterprise_security"
-
-  # Default profile for unknown devices
-  "default":
-    vendor: "generic"
-    model_family: "unknown"
-    bmc_family: "unknown"
-    bios_family: "unknown"
-    firmware_profile: "basic"
-
-# Firmware update policies
+  d1.c1.small:
+    vendor: supermicro
+    model_family: X11
+    bmc_family: BMC
+    bios_family: X11SPL
+    firmware_profile: datacenter_optimized
+  d1.c2.medium:
+    vendor: supermicro
+    model_family: X11
+    bmc_family: BMC
+    bios_family: X11DPH
+    firmware_profile: datacenter_optimized
+  a1.c5.large:
+    vendor: hpe
+    model_family: Gen10
+    bmc_family: iLO5
+    bios_family: U30
+    firmware_profile: enterprise_security
+  default:
+    vendor: generic
+    model_family: unknown
+    bmc_family: unknown
+    bios_family: unknown
+    firmware_profile: basic
 update_policies:
   manual:
-    description: "Manual approval required for all updates"
+    description: Manual approval required for all updates
     auto_download: false
     auto_install: false
     security_override: false
-
   recommended:
-    description: "Install recommended updates automatically"
+    description: Install recommended updates automatically
     auto_download: true
     auto_install: true
     security_override: true
-    exclude_priorities: ["low"]
-
+    exclude_priorities:
+    - low
   latest:
-    description: "Always use latest firmware versions"
+    description: Always use latest firmware versions
     auto_download: true
     auto_install: true
     security_override: true
     exclude_priorities: []
-
   security_only:
-    description: "Only install security-related updates"
+    description: Only install security-related updates
     auto_download: true
     auto_install: true
     security_override: true
-    include_priorities: ["critical"]
-
-# Firmware profiles for different use cases
+    include_priorities:
+    - critical
 firmware_profiles:
   datacenter_optimized:
-    description: "Optimized for datacenter environments"
-    priority: "performance"
+    description: Optimized for datacenter environments
+    priority: performance
     features:
-      - "virtualization_optimizations"
-      - "power_management"
-      - "network_optimization"
-
+    - virtualization_optimizations
+    - power_management
+    - network_optimization
   enterprise_security:
-    description: "Enhanced security for enterprise environments"
-    priority: "security"
+    description: Enhanced security for enterprise environments
+    priority: security
     features:
-      - "secure_boot"
-      - "tpm_support"
-      - "encryption_acceleration"
-
+    - secure_boot
+    - tpm_support
+    - encryption_acceleration
   basic:
-    description: "Basic functionality profile"
-    priority: "stability"
+    description: Basic functionality profile
+    priority: stability
     features:
-      - "basic_functionality"
-
-# Mock vendor API responses for simulation (development/testing only)
+    - basic_functionality
 mock_vendor_responses:
-  enabled: true  # Set to false for production
-
+  enabled: true
   hpe:
     new_firmware:
-      - vendor: "HPE"
-        device_type: "a1.c5.large"
-        component: "bios"
-        current_version: "P40 2.78"
-        latest_version: "P40 2.84"
-        download_url: "https://downloads.hpe.com/pub/softlib2/firmware/proliant/p40284.fwpkg"
-        release_date: "2024-12-15"
-        size_mb: 32
-        description: "Critical security updates and stability improvements"
-      - vendor: "HPE"
-        device_type: "a1.c5.large"
-        component: "bmc"
-        current_version: "iLO 5 2.82"
-        latest_version: "iLO 5 2.85"
-        download_url: "https://downloads.hpe.com/pub/softlib2/firmware/ilo5/ilo5285.fwpkg"
-        release_date: "2024-11-20"
-        size_mb: 45
-        description: "Enhanced security features and bug fixes"
-      - vendor: "HPE"
-        device_type: "a1.c5.xlarge"
-        component: "bios"
-        current_version: "U34 2.65"
-        latest_version: "U34 2.71"
-        download_url: "https://downloads.hpe.com/pub/softlib2/firmware/proliant/u34271.fwpkg"
-        release_date: "2024-12-10"
-        size_mb: 28
-        description: "Performance improvements and hardware compatibility updates"
-
+    - vendor: HPE
+      device_type: a1.c5.large
+      component: bios
+      current_version: P40 2.78
+      latest_version: P40 2.84
+      download_url: https://downloads.hpe.com/pub/softlib2/firmware/proliant/p40284.fwpkg
+      release_date: '2024-12-15'
+      size_mb: 32
+      description: Critical security updates and stability improvements
+    - vendor: HPE
+      device_type: a1.c5.large
+      component: bmc
+      current_version: iLO 5 2.82
+      latest_version: iLO 5 2.85
+      download_url: https://downloads.hpe.com/pub/softlib2/firmware/ilo5/ilo5285.fwpkg
+      release_date: '2024-11-20'
+      size_mb: 45
+      description: Enhanced security features and bug fixes
+    - vendor: HPE
+      device_type: a1.c5.xlarge
+      component: bios
+      current_version: U34 2.65
+      latest_version: U34 2.71
+      download_url: https://downloads.hpe.com/pub/softlib2/firmware/proliant/u34271.fwpkg
+      release_date: '2024-12-10'
+      size_mb: 28
+      description: Performance improvements and hardware compatibility updates
   supermicro:
     new_firmware:
-      - vendor: "SUPERMICRO"
-        device_type: "s2.c2.small"
-        component: "bios"
-        current_version: "3.5"
-        latest_version: "3.7"
-        download_url: "https://www.supermicro.com/support/X11SPL37.rom"
-        release_date: "2024-10-30"
-        size_mb: 16
-        description: "Microcode updates and security patches"
-      - vendor: "SUPERMICRO"
-        device_type: "s2.c2.medium"
-        component: "bmc"
-        current_version: "1.66.07"
-        latest_version: "1.73.14"
-        download_url: "https://www.supermicro.com/support/SMT_X11_1.73.14.bin"
-        release_date: "2024-12-01"
-        size_mb: 28
-        description: "Redfish API improvements and stability fixes"
-      - vendor: "SUPERMICRO"
-        device_type: "s2.c2.large"
-        component: "bios"
-        current_version: "1.2"
-        latest_version: "1.5"
-        download_url: "https://www.supermicro.com/support/X12DPG15.rom"
-        release_date: "2024-11-25"
-        size_mb: 20
-        description: "CPU compatibility updates and performance optimizations"
-
+    - vendor: SUPERMICRO
+      device_type: s2.c2.small
+      component: bios
+      current_version: '3.5'
+      latest_version: '3.7'
+      download_url: https://www.supermicro.com/support/X11SPL37.rom
+      release_date: '2024-10-30'
+      size_mb: 16
+      description: Microcode updates and security patches
+    - vendor: SUPERMICRO
+      device_type: s2.c2.medium
+      component: bmc
+      current_version: 1.66.07
+      latest_version: 1.73.14
+      download_url: https://www.supermicro.com/support/SMT_X11_1.73.14.bin
+      release_date: '2024-12-01'
+      size_mb: 28
+      description: Redfish API improvements and stability fixes
+    - vendor: SUPERMICRO
+      device_type: s2.c2.large
+      component: bios
+      current_version: '1.2'
+      latest_version: '1.5'
+      download_url: https://www.supermicro.com/support/X12DPG15.rom
+      release_date: '2024-11-25'
+      size_mb: 20
+      description: CPU compatibility updates and performance optimizations
   dell:
     new_firmware:
-      - vendor: "DELL"
-        device_type: "d1.c1.small"
-        component: "bios"
-        current_version: "2.10.2"
-        latest_version: "2.12.0"
-        download_url: "https://downloads.dell.com/BIOS/R340_BIOS_2.12.0.exe"
-        release_date: "2024-11-15"
-        size_mb: 18
-        description: "Security updates and hardware compatibility improvements"
-      - vendor: "DELL"
-        device_type: "d1.c2.medium"
-        component: "bmc"
-        current_version: "4.40.40.00"
-        latest_version: "4.42.00.00"
-        download_url: "https://downloads.dell.com/BMC/iDRAC9_4.42.00.00.exe"
-        release_date: "2024-12-05"
-        size_mb: 52
-        description: "iDRAC performance enhancements and security fixes"
-      - vendor: "DELL"
-        device_type: "d1.c1.large"
-        component: "bios"
-        current_version: "2.8.1"
-        latest_version: "2.9.3"
-        download_url: "https://downloads.dell.com/BIOS/R640_BIOS_2.9.3.exe"
-        release_date: "2024-12-08"
-        size_mb: 22
-        description: "Memory controller improvements and thermal management updates"
+    - vendor: DELL
+      device_type: d1.c1.small
+      component: bios
+      current_version: 2.10.2
+      latest_version: 2.12.0
+      download_url: https://downloads.dell.com/BIOS/R340_BIOS_2.12.0.exe
+      release_date: '2024-11-15'
+      size_mb: 18
+      description: Security updates and hardware compatibility improvements
+    - vendor: DELL
+      device_type: d1.c2.medium
+      component: bmc
+      current_version: 4.40.40.00
+      latest_version: 4.42.00.00
+      download_url: https://downloads.dell.com/BMC/iDRAC9_4.42.00.00.exe
+      release_date: '2024-12-05'
+      size_mb: 52
+      description: iDRAC performance enhancements and security fixes
+    - vendor: DELL
+      device_type: d1.c1.large
+      component: bios
+      current_version: 2.8.1
+      latest_version: 2.9.3
+      download_url: https://downloads.dell.com/BIOS/R640_BIOS_2.9.3.exe
+      release_date: '2024-12-08'
+      size_mb: 22
+      description: Memory controller improvements and thermal management updates

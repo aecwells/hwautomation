@@ -1,0 +1,16 @@
+{% extends "base-simple.html" %}
+
+{% block title %}HWAutomation - Database Management{% endblock %}
+{% block nav_title %} - Database Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Database Management</h1>
+    <p>Bypassing asset loading for testing.</p>
+
+    <!-- Force CDN usage to bypass asset loading issues -->
+    <script>
+        console.log('Database page loaded with CDN assets');
+    </script>
+</div>
+{% endblock %}

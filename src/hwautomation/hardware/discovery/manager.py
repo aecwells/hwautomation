@@ -1,12 +1,15 @@
 """Main hardware discovery manager module.
 
 This module coordinates the hardware discovery process using
-various parsers and vendor-specific handlers.
+various parsers and vendor-specific handlers, with enhanced
+device classification through unified configuration integration.
 """
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Type
 
+from ...config.adapters import ConfigurationManager
+from ...config.unified_loader import UnifiedConfigLoader
 from ...logging import get_logger
 from ...utils.network import SSHClient, SSHManager
 from .base import (
@@ -28,7 +31,8 @@ class HardwareDiscoveryManager:
     Manager for discovering hardware information from remote systems.
 
     This class coordinates the discovery process using modular parsers
-    and vendor-specific handlers for comprehensive hardware information.
+    and vendor-specific handlers for comprehensive hardware information,
+    with enhanced device classification through unified configuration.
     """
 
     def __init__(self, ssh_manager: SSHManager):
@@ -43,6 +47,10 @@ class HardwareDiscoveryManager:
         self.ssh_manager = ssh_manager
         self.logger = get_logger(__name__)
 
+        # Initialize unified configuration system
+        self.config_manager = ConfigurationManager()
+        self.unified_loader = self.config_manager.get_unified_loader()
+
         # Initialize parsers
         self.dmidecode_parser = DmidecodeParser()
         self.ipmi_parser = IpmiParser()
@@ -54,6 +62,12 @@ class HardwareDiscoveryManager:
             HPEDiscovery,
             DellDiscovery,
         ]
+
+        # Check which configuration system we're using
+        config_source = "unified" if self.unified_loader else "legacy"
+        self.logger.info(
+            f"Initialized HardwareDiscoveryManager with {config_source} configuration"
+        )
 
     def discover_hardware(
         self, host: str, username: str = "ubuntu", key_file: str = None
@@ -102,6 +116,9 @@ class HardwareDiscoveryManager:
 
                 # Enhance system info with vendor data
                 self._enhance_system_info(system_info, vendor_info)
+
+                # Perform device classification using unified configuration
+                self._classify_and_enhance_system_info(system_info)
 
                 return HardwareDiscovery(
                     hostname=host,
@@ -251,6 +268,33 @@ class HardwareDiscoveryManager:
         if "dell_service_tag" in vendor_info:
             system_info.serial_number = vendor_info["dell_service_tag"]
 
+    def _classify_and_enhance_system_info(self, system_info: SystemInfo):
+        """Classify device type and enhance system info with classification results."""
+        try:
+            classification = self.classify_device_type(system_info)
+
+            # Update system info with classification results
+            system_info.device_type = classification.get("device_type")
+            system_info.classification_confidence = classification.get("confidence")
+            system_info.matching_criteria = classification.get("matching_criteria", [])
+
+            if classification.get("device_type") != "unknown":
+                self.logger.info(
+                    f"Classified system as '{classification['device_type']}' "
+                    f"with {classification['confidence']} confidence "
+                    f"(criteria: {', '.join(classification.get('matching_criteria', []))})"
+                )
+            else:
+                self.logger.warning(
+                    "Could not classify device type from discovered hardware"
+                )
+
+        except Exception as e:
+            self.logger.error(f"Device classification failed: {e}")
+            system_info.device_type = "unknown"
+            system_info.classification_confidence = "error"
+            system_info.matching_criteria = []
+
     def _get_timestamp(self) -> str:
         """Get current timestamp."""
         return datetime.now().isoformat()
@@ -288,3 +332,217 @@ class HardwareDiscoveryManager:
         except Exception as e:
             self.logger.error(f"IPMI address discovery failed for {host}: {e}")
             return None
+
+    # Enhanced methods using unified configuration
+
+    def classify_device_type(self, system_info: SystemInfo) -> Dict[str, Any]:
+        """
+        Classify device type based on system information using unified configuration.
+
+        Args:
+            system_info: System hardware information
+
+        Returns:
+            Dictionary with device classification results
+        """
+        if not self.unified_loader:
+            return {
+                "device_type": "unknown",
+                "confidence": "low",
+                "matching_criteria": [],
+                "source": "legacy",
+            }
+
+        try:
+            # Get all device types from unified config for comparison
+            all_device_types = self.unified_loader.list_all_device_types()
+            best_match = None
+            best_score = 0
+            matching_criteria = []
+
+            for device_type in all_device_types:
+                device_info = self.unified_loader.get_device_by_type(device_type)
+                if not device_info:
+                    continue
+
+                score, criteria = self._calculate_match_score(system_info, device_info)
+
+                if score > best_score:
+                    best_score = score
+                    best_match = device_type
+                    matching_criteria = criteria
+
+            # Determine confidence level
+            if best_score >= 0.8:
+                confidence = "high"
+            elif best_score >= 0.5:
+                confidence = "medium"
+            elif best_score >= 0.3:
+                confidence = "low"
+            else:
+                confidence = "very_low"
+
+            return {
+                "device_type": best_match or "unknown",
+                "confidence": confidence,
+                "score": best_score,
+                "matching_criteria": matching_criteria,
+                "source": "unified",
+            }
+
+        except Exception as e:
+            self.logger.error(f"Device classification failed: {e}")
+            return {
+                "device_type": "unknown",
+                "confidence": "error",
+                "matching_criteria": [],
+                "source": "error",
+                "error": str(e),
+            }
+
+    def _calculate_match_score(self, system_info: SystemInfo, device_info) -> tuple:
+        """
+        Calculate match score between system info and device config.
+
+        Returns:
+            Tuple of (score, matching_criteria)
+        """
+        score = 0.0
+        criteria = []
+
+        # Check vendor/manufacturer match (high weight)
+        if (
+            system_info.manufacturer
+            and system_info.manufacturer.lower() == device_info.vendor.lower()
+        ):
+            score += 0.4
+            criteria.append("vendor_match")
+
+        # Check motherboard/product name match (high weight)
+        if (
+            system_info.product_name
+            and device_info.motherboard.lower() in system_info.product_name.lower()
+        ):
+            score += 0.3
+            criteria.append("motherboard_match")
+
+        # Check CPU model match (medium weight)
+        device_config = device_info.device_config
+        expected_cpu = device_config.get("cpu_name", "")
+        if (
+            system_info.cpu_model
+            and expected_cpu
+            and any(
+                cpu_part in system_info.cpu_model for cpu_part in expected_cpu.split()
+            )
+        ):
+            score += 0.2
+            criteria.append("cpu_match")
+
+        # Check CPU cores match (low weight)
+        expected_cores = device_config.get("cpu_cores", 0)
+        if (
+            system_info.cpu_cores
+            and expected_cores
+            and system_info.cpu_cores == expected_cores
+        ):
+            score += 0.1
+            criteria.append("cpu_cores_match")
+
+        return score, criteria
+
+    def get_supported_vendors(self) -> Dict[str, Any]:
+        """Get supported vendors with device counts."""
+        if self.unified_loader:
+            vendors = {}
+            for vendor_name in self.unified_loader.list_vendors():
+                device_types = self.unified_loader.get_device_types_by_vendor(
+                    vendor_name
+                )
+                motherboards = self.unified_loader.list_motherboards(vendor_name)
+                vendors[vendor_name] = {
+                    "device_count": len(device_types),
+                    "motherboard_count": len(motherboards),
+                    "device_types": device_types,
+                    "motherboards": motherboards,
+                }
+            return vendors
+        else:
+            # Fallback for legacy configuration
+            return {
+                "supermicro": {"device_count": 3, "motherboard_count": 1},
+                "hpe": {"device_count": 1, "motherboard_count": 1},
+            }
+
+    def get_motherboard_mapping(self) -> Dict[str, List[str]]:
+        """Get mapping of motherboards to device types."""
+        if self.unified_loader:
+            mapping = {}
+            for vendor_name in self.unified_loader.list_vendors():
+                motherboards = self.unified_loader.list_motherboards(vendor_name)
+                for motherboard in motherboards:
+                    device_types = self.unified_loader.get_device_types_by_motherboard(
+                        motherboard
+                    )
+                    mapping[motherboard] = device_types
+            return mapping
+        else:
+            # Fallback mapping
+            return {
+                "X11DPT-B": ["flex-*.c.large"],
+                "ProLiant RL300 Gen11": ["a1.c5.large"],
+            }
+
+    def search_device_types(self, search_term: str) -> List[Dict[str, Any]]:
+        """Search for device types matching a term."""
+        if self.unified_loader:
+            matching_devices = []
+            all_device_types = self.unified_loader.list_all_device_types()
+
+            for device_type in all_device_types:
+                device_info = self.unified_loader.get_device_by_type(device_type)
+                if device_info:
+                    # Check if search term matches any field
+                    search_lower = search_term.lower()
+                    device_config = device_info.device_config
+
+                    if (
+                        search_lower in device_type.lower()
+                        or search_lower in device_info.vendor.lower()
+                        or search_lower in device_info.motherboard.lower()
+                        or search_lower in device_config.get("cpu_name", "").lower()
+                    ):
+
+                        matching_devices.append(
+                            {
+                                "device_type": device_type,
+                                "vendor": device_info.vendor,
+                                "motherboard": device_info.motherboard,
+                                "cpu_name": device_config.get("cpu_name", "Unknown"),
+                                "cpu_cores": device_config.get("cpu_cores", 0),
+                                "ram_gb": device_config.get("ram_gb", 0),
+                            }
+                        )
+
+            return matching_devices
+        else:
+            # Simple fallback search
+            return []
+
+    def get_configuration_status(self) -> Dict[str, Any]:
+        """Get configuration system status."""
+        return {
+            "unified_config_available": self.unified_loader is not None,
+            "config_source": "unified" if self.unified_loader else "legacy",
+            "supported_device_count": (
+                len(self.unified_loader.list_all_device_types())
+                if self.unified_loader
+                else 4
+            ),
+            "vendor_count": (
+                len(self.unified_loader.list_vendors()) if self.unified_loader else 2
+            ),
+            "adapters_status": (
+                self.config_manager.get_status() if self.unified_loader else None
+            ),
+        }

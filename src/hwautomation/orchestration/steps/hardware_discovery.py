@@ -152,6 +152,70 @@ class DiscoverHardwareStep(BaseWorkflowStep):
                     f"Discovered {hardware_info.manufacturer} {hardware_info.model}"
                 )
 
+                # Enhanced device classification (if unified configuration available)
+                try:
+                    context.add_sub_task("Performing intelligent device classification")
+
+                    # Check if enhanced discovery is available through context
+                    if (
+                        hasattr(context, "enhanced_discovery")
+                        and context.enhanced_discovery
+                    ):
+                        # Use enhanced discovery manager for device classification
+                        from ...hardware.discovery.base import SystemInfo
+
+                        # Create system info for classification
+                        sys_info = SystemInfo(
+                            manufacturer=hardware_info.manufacturer,
+                            product_name=hardware_info.model,
+                            cpu_model=(
+                                hardware_info.cpu_info.get("model")
+                                if hardware_info.cpu_info
+                                else None
+                            ),
+                            cpu_cores=(
+                                hardware_info.cpu_info.get("cores")
+                                if hardware_info.cpu_info
+                                else None
+                            ),
+                            memory_total=(
+                                hardware_info.memory_info.get("total")
+                                if hardware_info.memory_info
+                                else None
+                            ),
+                        )
+
+                        # Classify device type
+                        classification = self.discovery_manager.classify_device_type(
+                            sys_info
+                        )
+
+                        if classification and classification.get("device_type"):
+                            device_type = classification["device_type"]
+                            confidence = classification["confidence"]
+
+                            context.set_data("device_type", device_type)
+                            context.set_data("classification_confidence", confidence)
+                            context.set_data("classification_result", classification)
+
+                            context.add_sub_task(
+                                f"Device classified as '{device_type}' with {confidence} confidence"
+                            )
+
+                            logger.info(
+                                f"Server {context.server_ip} classified as {device_type} "
+                                f"(confidence: {confidence})"
+                            )
+                        else:
+                            context.add_sub_task("Device classification inconclusive")
+                            logger.warning(
+                                f"Could not classify device type for {context.server_ip}"
+                            )
+
+                except Exception as e:
+                    logger.warning(f"Device classification failed: {e}")
+                    context.add_sub_task(f"Device classification failed: {str(e)}")
+
             return StepExecutionResult.success(
                 "Hardware discovery completed successfully",
                 {"discovery_result": discovery_result},

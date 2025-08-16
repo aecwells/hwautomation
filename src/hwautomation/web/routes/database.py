@@ -159,4 +159,41 @@ def init_database_routes(app, db_helper):
     @app.route("/database")
     def database_management():
         """Database management page."""
-        return render_template("database.html")
+        logger.info("Starting database page render...")
+        try:
+            result = render_template("database.html")
+            logger.info("Database page render completed successfully")
+            return result
+        except Exception as e:
+            logger.error(f"Database page render error: {e}")
+            return f"Database page error: {e}", 500
+
+    @app.route("/database-test")
+    def database_test():
+        """Simple test route without template."""
+        logger.info("Database test route accessed")
+        return "<h1>Database Test Page</h1><p>This is a simple test without template rendering.</p>"
+
+    @app.route("/database-simple")
+    def database_simple():
+        """Test with simple template."""
+        logger.info("Starting simple database template render...")
+        try:
+            result = render_template("database-simple.html")
+            logger.info("Simple database template render completed")
+            return result
+        except Exception as e:
+            logger.error(f"Simple database template error: {e}")
+            return f"Simple template error: {e}", 500
+
+    @app.route("/database-bypass")
+    def database_bypass():
+        """Test with CDN-only template."""
+        logger.info("Starting bypass database template render...")
+        try:
+            result = render_template("database-bypass.html")
+            logger.info("Bypass database template render completed")
+            return result
+        except Exception as e:
+            logger.error(f"Bypass database template error: {e}")
+            return f"Bypass template error: {e}", 500
