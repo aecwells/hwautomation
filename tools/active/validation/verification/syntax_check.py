@@ -27,7 +27,7 @@ def check_python_syntax(file_path):
 
 def find_python_files():
     """Find all Python files in the src directory"""
-    src_dir = Path(__file__).parent / "src"
+    src_dir = Path(__file__).parent.parent.parent.parent.parent / "src"
     if not src_dir.exists():
         return []
 
@@ -52,14 +52,14 @@ def check_package_structure():
         "src/hwautomation/maas/__init__.py",
         "src/hwautomation/maas/client.py",
         "src/hwautomation/hardware/__init__.py",
-        "src/hwautomation/hardware/ipmi.py",
-        "src/hwautomation/hardware/redfish.py",
+        "src/hwautomation/hardware/ipmi/__init__.py",
+        "src/hwautomation/hardware/redfish/__init__.py",
         "src/hwautomation/utils/__init__.py",
         "src/hwautomation/utils/config.py",
         "src/hwautomation/utils/network.py",
     ]
 
-    base_path = Path(__file__).parent
+    base_path = Path(__file__).parent.parent.parent.parent.parent
     all_exist = True
 
     for file_path in required_files:
@@ -101,7 +101,9 @@ def main():
     all_valid = True
 
     for file_path in sorted(python_files):
-        relative_path = file_path.relative_to(Path(__file__).parent)
+        relative_path = file_path.relative_to(
+            Path(__file__).parent.parent.parent.parent.parent
+        )
         is_valid, error = check_python_syntax(file_path)
 
         if is_valid:

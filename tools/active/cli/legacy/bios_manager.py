@@ -11,11 +11,11 @@ import sys
 from pathlib import Path
 
 # Add the src directory to the Python path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "src"))
 
 import xml.etree.ElementTree as ET
 
-from hwautomation.hardware.bios_config import BiosConfigManager
+from hwautomation.hardware.bios.manager import BiosConfigManager
 
 
 def setup_logging(verbose: bool = False):
