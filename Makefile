@@ -66,8 +66,8 @@ test:            ## Run all tests locally
 test-unit:       ## Run unit tests only (fast)
 	source hwautomation-env/bin/activate && pytest tests/unit/ -m "not slow"
 
-test-cov:        ## Run tests with coverage report
-	source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=term-missing
+test-cov:
+	bash -c "source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=term-missing"
 
 test-html:       ## Generate HTML coverage report
 	source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=html
