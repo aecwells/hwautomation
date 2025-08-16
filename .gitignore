@@ -292,3 +292,4 @@ package-lock.json.backup
 logs/
 *.log
 *.db
+junit.xml

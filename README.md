@@ -1147,3 +1147,10 @@ If you're migrating from the original bash scripts:
 4. Test with: `python examples/basic_usage.py`
 
 The package maintains compatibility with existing databases through the migration system and provides a seamless upgrade path to enterprise firmware management capabilities.
+
+## 📚 Additional Documentation
+
+- **[Complete Documentation](docs/)** - Comprehensive guides and API reference
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup and development workflow
+- **[Hardware Management](docs/HARDWARE_MANAGEMENT.md)** - Vendor-specific configuration
+- **[Project History](docs/archive/)** - Implementation notes and consolidation summaries
