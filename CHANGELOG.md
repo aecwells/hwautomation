@@ -95,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- update CHANGELOG.md [skip ci] ([a2447e66])
 - update CHANGELOG.md [skip ci] ([066cdf61])
 - update CHANGELOG.md [skip ci] ([f39e26a1])
 - update CHANGELOG.md [skip ci] ([32b26a94])
@@ -114,6 +115,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Demo pre-commit hooks working ([1826be86])
 
+### 👷 CI/CD
+
+- Update workflows to use streamlined Makefile targets ([e6a630f9])
+
 ### 🔧 Chores
 
 - update test results ([dd86def2])
@@ -123,6 +128,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📝 Other
 
+- Merge branch 'main' of github.com:aecwells/hwautomation ([ce39ef85])
+- Complete tooling consolidation cleanup ([6148a559])
 - Merge branch 'main' of github.com:aecwells/hwautomation ([00c3daad])
 - Merge branch 'main' of github.com:aecwells/hwautomation ([714c0e61])
 - Fix firmware manager test to match updated device configuration ([dea904d2])
