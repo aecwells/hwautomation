@@ -67,7 +67,7 @@ test-unit:       ## Run unit tests only (fast)
 	source hwautomation-env/bin/activate && pytest tests/unit/ -m "not slow"
 
 test-cov:
-	bash -c "source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=term-missing"
+	bash -c "cd $(PWD) && source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=term-missing"
 
 test-html:       ## Generate HTML coverage report
 	source hwautomation-env/bin/activate && pytest --cov=src/hwautomation --cov-report=html
