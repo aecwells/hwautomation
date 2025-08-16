@@ -298,6 +298,15 @@ def documentation_static(filename):
         abort(404)
 
 
+@core_bp.route("/<path:filename>.html")
+def redirect_html_to_docs(filename):
+    """Redirect bare HTML file requests to the documentation directory."""
+    from flask import redirect, url_for
+
+    logger.debug(f"Redirecting {filename}.html to docs")
+    return redirect(f"/docs/{filename}.html", code=301)
+
+
 def init_core_routes(app, db_helper, maas_client, config):
     """Initialize core routes with dependencies."""
     # Store dependencies in app context for route access

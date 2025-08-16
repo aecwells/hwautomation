@@ -18,22 +18,28 @@ release = "1.0.0"
 version = "1.0"
 
 # -- General configuration ---------------------------------------------------
+# Extensions
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.todo",
     "sphinx.ext.coverage",
-    "myst_parser",  # For Markdown support
-    "sphinx_copybutton",  # Copy code button
-    "sphinx_tabs.tabs",  # Tabbed content
+    "sphinx.ext.githubpages",
+    "sphinx_rtd_theme",
+    "sphinx_copybutton",
+    "sphinx_tabs.tabs",
+    "myst_parser",
+    "sphinx_design",
 ]
 
-# Markdown support
+# Root document
+root_doc = "index"
+
+# Source suffix - let Sphinx auto-detect the parser
 source_suffix = {
     ".rst": None,
-    ".md": "markdown",
+    ".md": None,
 }
 
 # Templates path
@@ -44,6 +50,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 html_theme = "sphinx_rtd_theme"  # ReadTheDocs theme
+
+# Set base URL for Flask integration
+html_baseurl = "/docs/"
 html_theme_options = {
     "canonical_url": "",
     "analytics_id": "",

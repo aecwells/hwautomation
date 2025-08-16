@@ -90,3 +90,54 @@ table.docutils td {
         margin-left: 0;
     }
 }
+
+/* Back to App Navigation Link */
+.wy-nav-top:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    background: transparent;
+}
+
+.wy-nav-top {
+    position: relative;
+}
+
+/* Add "Back to App" link */
+.wy-nav-top::before {
+    content: "← Back to HWAutomation";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: normal;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background-color 0.2s;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.wy-nav-top::before:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Make the header clickable by adding a hidden link */
+.back-to-app-link {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    z-index: 1001;
+    text-decoration: none;
+    color: transparent;
+}
