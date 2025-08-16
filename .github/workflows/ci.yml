@@ -281,7 +281,7 @@ jobs:
 
     - name: Generate performance report
       run: |
-        python tools/quality/code_quality.py --coverage
+        python tools/active/validation/quality/code_quality.py --coverage
 
     - name: Upload performance results
       uses: actions/upload-artifact@v4
@@ -450,7 +450,7 @@ jobs:
         python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
 
     - name: Generate changelog
-      run: python3 tools/generate_changelog.py
+      run: python3 tools/active/maintenance/generate_changelog.py
 
     - name: Check for changelog changes
       id: check_changes
@@ -519,7 +519,7 @@ jobs:
         VERSION=${{ github.ref_name }}
 
         # Generate release notes format for this version
-        python3 tools/generate_changelog.py --version $VERSION --release-notes > release_notes.md
+        python3 tools/active/maintenance/generate_changelog.py --version $VERSION --release-notes > release_notes.md
 
         # Read the content and set it as output
         {
