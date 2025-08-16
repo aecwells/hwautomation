@@ -76,10 +76,7 @@
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <select class="form-select" id="tableSelector" onchange="loadTableData()">
-                                    <option value="servers">Servers</option>
-                                    <option value="workflow_history">Workflow History</option>
-                                    <option value="power_state_history">Power History</option>
-                                    <option value="schema_migrations">Schema Migrations</option>
+                                    <option value="">Loading tables...</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
@@ -115,6 +112,51 @@
         // Database management functionality
         let currentData = [];
         let currentTable = 'servers';
+
+        // Populate table selector with available tables
+        async function populateTableSelector() {
+            try {
+                const response = await fetch('/api/database/tables');
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const selector = document.getElementById('tableSelector');
+                    const currentSelection = selector.value;
+
+                    // Clear current options
+                    selector.innerHTML = '';
+
+                    // Add all available tables
+                    const tableNames = Object.keys(data.tables).sort();
+                    tableNames.forEach(tableName => {
+                        const option = document.createElement('option');
+                        option.value = tableName;
+                        option.textContent = formatTableName(tableName);
+                        selector.appendChild(option);
+                    });
+
+                    // Restore previous selection if it still exists, otherwise select first
+                    if (tableNames.includes(currentSelection)) {
+                        selector.value = currentSelection;
+                    } else if (tableNames.length > 0) {
+                        selector.value = tableNames[0];
+                        currentTable = tableNames[0];
+                    }
+                } else {
+                    showError('Failed to load table list');
+                }
+            } catch (error) {
+                showError('Network error loading tables: ' + error.message);
+            }
+        }
+
+        // Format table name for display
+        function formatTableName(tableName) {
+            return tableName
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
 
         // Load table data
         async function loadTableData() {
@@ -286,8 +328,12 @@
         });
 
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTableData();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // First populate the table selector with available tables
+            await populateTableSelector();
+
+            // Then load data for the selected table
+            await loadTableData();
 
             // Initialize theme icon
             const currentTheme = document.documentElement.getAttribute('data-bs-theme');

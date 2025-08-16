@@ -90,6 +90,9 @@ class Workflow:
         self.status = WorkflowStatus.RUNNING
         self.start_time = datetime.now()
 
+        # Record workflow start in database
+        self._record_workflow_start()
+
         logger.info(f"Starting workflow {self.id} with {len(self.steps)} steps")
 
         try:
@@ -98,20 +101,29 @@ class Workflow:
                     logger.info(f"Workflow {self.id} cancelled at step {i + 1}")
                     self.status = WorkflowStatus.CANCELLED
                     self.end_time = datetime.now()
+                    # Update database with cancellation
+                    self._update_workflow_status()
                     return False
 
                 self.current_step_index = i
                 success = self._execute_step(step, i + 1, len(self.steps))
 
+                # Update progress in database
+                self._update_workflow_progress()
+
                 if not success:
                     self.status = WorkflowStatus.FAILED
                     self.error = step.error
                     self.end_time = datetime.now()
+                    # Update database with failure
+                    self._update_workflow_status()
                     logger.error(f"Workflow {self.id} failed at step: {step.name}")
                     return False
 
             self.status = WorkflowStatus.COMPLETED
             self.end_time = datetime.now()
+            # Update database with completion
+            self._update_workflow_status()
             logger.info(f"Workflow {self.id} completed successfully")
             return True
 
@@ -119,6 +131,8 @@ class Workflow:
             self.status = WorkflowStatus.FAILED
             self.error = str(e)
             self.end_time = datetime.now()
+            # Update database with failure
+            self._update_workflow_status()
             logger.error(f"Workflow {self.id} failed: {e}")
             return False
 
@@ -219,6 +233,9 @@ class Workflow:
         self.status = WorkflowStatus.CANCELLED
         self.end_time = datetime.now()
 
+        # Update database with cancellation
+        self._update_workflow_status()
+
         logger.info(f"Workflow {self.id} marked for cancellation")
 
         if self.progress_callback:
@@ -274,3 +291,142 @@ class Workflow:
             status_data["current_step_name"] = self.steps[self.current_step_index].name
 
         return status_data
+
+    def _record_workflow_start(self):
+        """Record workflow start in the database."""
+        if not self.context or not self.context.db_helper:
+            logger.warning(f"No database helper available for workflow {self.id}")
+            return
+
+        try:
+            with self.context.db_helper.get_connection() as conn:
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    """
+                    INSERT INTO workflow_history
+                    (workflow_id, server_id, device_type, status, started_at, total_steps, metadata)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        self.id,
+                        self.context.server_id,
+                        self.context.device_type,
+                        self.status.value,
+                        self.start_time.isoformat() if self.start_time else None,
+                        len(self.steps),
+                        self._get_metadata_json(),
+                    ),
+                )
+                conn.commit()
+                logger.debug(f"Recorded workflow start for {self.id}")
+        except Exception as e:
+            logger.error(f"Failed to record workflow start: {e}")
+
+    def _update_workflow_status(self):
+        """Update workflow status in the database."""
+        if not self.context or not self.context.db_helper:
+            return
+
+        try:
+            with self.context.db_helper.get_connection() as conn:
+                cursor = conn.cursor()
+
+                completed_steps = sum(
+                    1
+                    for step in self.steps
+                    if step.status in [StepStatus.COMPLETED, StepStatus.SKIPPED]
+                )
+
+                cursor.execute(
+                    """
+                    UPDATE workflow_history
+                    SET status = ?, completed_at = ?, steps_completed = ?,
+                        error_message = ?, metadata = ?
+                    WHERE workflow_id = ?
+                    """,
+                    (
+                        self.status.value,
+                        self.end_time.isoformat() if self.end_time else None,
+                        completed_steps,
+                        self.error,
+                        self._get_metadata_json(),
+                        self.id,
+                    ),
+                )
+                conn.commit()
+                logger.debug(f"Updated workflow status for {self.id}")
+        except Exception as e:
+            logger.error(f"Failed to update workflow status: {e}")
+
+    def _update_workflow_progress(self):
+        """Update workflow progress in the database."""
+        if not self.context or not self.context.db_helper:
+            return
+
+        try:
+            with self.context.db_helper.get_connection() as conn:
+                cursor = conn.cursor()
+
+                completed_steps = sum(
+                    1
+                    for step in self.steps
+                    if step.status in [StepStatus.COMPLETED, StepStatus.SKIPPED]
+                )
+
+                cursor.execute(
+                    """
+                    UPDATE workflow_history
+                    SET steps_completed = ?, metadata = ?
+                    WHERE workflow_id = ?
+                    """,
+                    (
+                        completed_steps,
+                        self._get_metadata_json(),
+                        self.id,
+                    ),
+                )
+                conn.commit()
+                logger.debug(
+                    f"Updated workflow progress for {self.id}: {completed_steps}/{len(self.steps)} steps"
+                )
+        except Exception as e:
+            logger.error(f"Failed to update workflow progress: {e}")
+
+    def _get_metadata_json(self) -> str:
+        """Get workflow metadata as JSON string."""
+        import json
+
+        metadata = {
+            "steps": [
+                {
+                    "name": step.name,
+                    "status": step.status.value,
+                    "start_time": (
+                        step.start_time.isoformat() if step.start_time else None
+                    ),
+                    "end_time": step.end_time.isoformat() if step.end_time else None,
+                    "error": step.error,
+                }
+                for step in self.steps
+            ],
+            "context": (
+                {
+                    "target_ipmi_ip": (
+                        self.context.target_ipmi_ip if self.context else None
+                    ),
+                    "gateway": self.context.gateway if self.context else None,
+                    "rack_location": (
+                        self.context.rack_location if self.context else None
+                    ),
+                }
+                if self.context
+                else {}
+            ),
+        }
+
+        # Add any additional context metadata
+        if self.context and hasattr(self.context, "metadata"):
+            metadata.update(self.context.metadata)
+
+        return json.dumps(metadata)

@@ -4,6 +4,7 @@ This module provides the foundational abstractions for building
 modular orchestration workflows with composable steps.
 """
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -338,6 +339,161 @@ class BaseWorkflow(ABC):
         self.status = WorkflowStatus.PENDING
         self.current_step_index = 0
         self.current_step_name = ""
+        self.start_time: Optional[datetime] = None
+        self.end_time: Optional[datetime] = None
+
+    def _record_workflow_start(self, context: "StepContext") -> None:
+        """Record workflow start in database."""
+        try:
+            # Get database helper from context
+            db_helper = context.data.get("db_helper")
+            if not db_helper:
+                self.logger.warning(
+                    "No database helper available for workflow recording"
+                )
+                return
+
+            # Get workflow ID from context or use name as fallback
+            workflow_id = getattr(context, "workflow_id", self.name)
+
+            with db_helper.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO workflow_history (
+                        workflow_id, server_id, device_type, status,
+                        started_at, total_steps, metadata
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                    (
+                        workflow_id,
+                        getattr(context, "server_id", None),
+                        getattr(context, "device_type", None),
+                        self.status.value,
+                        self.start_time.isoformat() if self.start_time else None,
+                        len(self.steps),
+                        self._get_metadata_json(context),
+                    ),
+                )
+                conn.commit()
+                self.logger.info(f"Recorded workflow start for {workflow_id}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to record workflow start: {e}")
+
+    def _update_workflow_status(self, context: "StepContext") -> None:
+        """Update workflow status in database."""
+        try:
+            # Get database helper from context
+            db_helper = context.data.get("db_helper")
+            if not db_helper:
+                return
+
+            # Get workflow ID from context or use name as fallback
+            workflow_id = getattr(context, "workflow_id", self.name)
+
+            with db_helper.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    UPDATE workflow_history
+                    SET status = ?, completed_at = ?, metadata = ?
+                    WHERE workflow_id = ?
+                """,
+                    (
+                        self.status.value,
+                        self.end_time.isoformat() if self.end_time else None,
+                        self._get_metadata_json(context),
+                        workflow_id,
+                    ),
+                )
+                conn.commit()
+                self.logger.info(
+                    f"Updated workflow status to {self.status.value} for {workflow_id}"
+                )
+
+        except Exception as e:
+            self.logger.error(f"Failed to update workflow status: {e}")
+
+    def _update_workflow_progress(self, context: "StepContext") -> None:
+        """Update workflow progress in database."""
+        try:
+            # Get database helper from context
+            db_helper = context.data.get("db_helper")
+            if not db_helper:
+                return
+
+            # Get workflow ID from context or use name as fallback
+            workflow_id = getattr(context, "workflow_id", self.name)
+
+            with db_helper.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    UPDATE workflow_history
+                    SET steps_completed = ?, metadata = ?
+                    WHERE workflow_id = ?
+                """,
+                    (
+                        self.current_step_index,
+                        self._get_metadata_json(context),
+                        workflow_id,
+                    ),
+                )
+                conn.commit()
+                self.logger.debug(
+                    f"Updated workflow progress: {self.current_step_index}/{len(self.steps)} for {workflow_id}"
+                )
+
+        except Exception as e:
+            self.logger.error(f"Failed to update workflow progress: {e}")
+
+    def _get_metadata_json(self, context: "StepContext") -> str:
+        """Get workflow metadata as JSON string."""
+        try:
+            metadata = {
+                "workflow_name": self.name,
+                "description": self.description,
+                "current_step_name": self.current_step_name,
+                "current_step_index": self.current_step_index,
+                "total_steps": len(self.steps),
+                "steps": [
+                    {
+                        "name": step.name,
+                        "description": step.description,
+                        "status": (
+                            "completed" if i < self.current_step_index else "pending"
+                        ),
+                    }
+                    for i, step in enumerate(self.steps)
+                ],
+                "context_data": {
+                    "server_ip": getattr(context, "server_ip", None),
+                    "ipmi_ip": getattr(context, "ipmi_ip", None),
+                    "gateway": getattr(context, "gateway", None),
+                },
+                "timestamps": {
+                    "start_time": (
+                        self.start_time.isoformat() if self.start_time else None
+                    ),
+                    "end_time": self.end_time.isoformat() if self.end_time else None,
+                    "started_at": (
+                        context.started_at.isoformat()
+                        if getattr(context, "started_at", None)
+                        else None
+                    ),
+                    "completed_at": (
+                        context.completed_at.isoformat()
+                        if getattr(context, "completed_at", None)
+                        else None
+                    ),
+                },
+                "errors": getattr(context, "errors", []),
+            }
+            return json.dumps(metadata, default=str)
+        except Exception as e:
+            self.logger.error(f"Failed to serialize metadata: {e}")
+            return "{}"
 
     def add_step(self, step: BaseWorkflowStep) -> None:
         """Add a step to the workflow.
@@ -358,18 +514,38 @@ class BaseWorkflow(ABC):
             Final execution result
         """
         self.logger.info(f"Starting workflow {self.name}")
-        context.started_at = datetime.now()
+        self.start_time = datetime.now()
+        context.started_at = self.start_time
+
+        # Record workflow start in database
+        self._record_workflow_start(context)
 
         try:
-            return self._execute_steps(context)
+            result = self._execute_steps(context)
+
+            # Update final status
+            if result.status == StepResult.SUCCESS:
+                self.status = WorkflowStatus.COMPLETED
+            else:
+                self.status = WorkflowStatus.FAILED
+
+            return result
+        except Exception as e:
+            self.status = WorkflowStatus.FAILED
+            self.logger.error(f"Workflow {self.name} failed with exception: {e}")
+            raise
         finally:
-            context.completed_at = datetime.now()
+            self.end_time = datetime.now()
+            context.completed_at = self.end_time
             duration = (
                 context.completed_at - context.started_at
                 if context.started_at
                 else None
             )
             self.logger.info(f"Workflow {self.name} completed in {duration}")
+
+            # Update final status in database
+            self._update_workflow_status(context)
 
     def _execute_steps(self, context: StepContext) -> StepExecutionResult:
         """Execute workflow steps sequentially.
@@ -408,6 +584,8 @@ class BaseWorkflow(ABC):
                         return result
                 elif result.status == StepResult.SUCCESS:
                     self.logger.info(f"Step {step.name} completed: {result.message}")
+                    # Update workflow progress in database
+                    self._update_workflow_progress(context)
 
                 # Handle step skipping or jumping
                 if result.next_step:
