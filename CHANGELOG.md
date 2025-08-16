@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🚀 Features
 
+- enhance documentation integration and web interface ([32f27413])
+- consolidate requirements files and fix Sphinx documentation static files ([e5aef9e8])
 - enhance Sphinx documentation for Docker deployment ([60066a4c])
 - add Sphinx documentation with web GUI integration ([0485d9a1])
 - **ci**: integrate automated changelog generation and release management ([0fb5af20])
@@ -92,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- update CHANGELOG.md [skip ci] ([f39e26a1])
 - update CHANGELOG.md [skip ci] ([32b26a94])
 - update CHANGELOG.md [skip ci] ([050c4201])
 - remove duplicate legacy files after consolidation ([0ffa459f])
@@ -117,6 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📝 Other
 
+- Merge branch 'main' of github.com:aecwells/hwautomation ([714c0e61])
 - Fix firmware manager test to match updated device configuration ([dea904d2])
 - Fix database migration tests - update expectations for resolved syntax errors ([3d53d7bf])
 - Apply code formatting and linting fixes ([cccd529d])
