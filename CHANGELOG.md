@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🚀 Features
 
+- enhance Sphinx documentation for Docker deployment ([60066a4c])
+- add Sphinx documentation with web GUI integration ([0485d9a1])
 - **ci**: integrate automated changelog generation and release management ([0fb5af20])
 - implement comprehensive workflow database recording ([a408430b])
 - reorganize firmware page layout and enhance device type filtering ([68d5b50b])
@@ -88,6 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- update CHANGELOG.md [skip ci] ([050c4201])
 - remove duplicate legacy files after consolidation ([0ffa459f])
 - consolidate documentation from 39 files to 8 comprehensive guides ([75974052])
 - update CHANGELOG.md [skip ci] ([4611bc74])
