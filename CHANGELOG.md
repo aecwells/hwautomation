@@ -95,6 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- update CHANGELOG.md [skip ci] ([e5639c20])
 - update CHANGELOG.md [skip ci] ([ecde3887])
 - update CHANGELOG.md [skip ci] ([a2447e66])
 - update CHANGELOG.md [skip ci] ([066cdf61])
@@ -129,6 +130,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📝 Other
 
+- Resolve merge conflict in CHANGELOG.md ([3fd7a5bd])
+- Improve documentation structure and organization ([a6cd9844])
 - Improve Makefile test-cov target robustness ([96b5462f])
 - Fix CI workflow tool paths after reorganization ([fc636350])
 - Update test results from successful reorganized tooling validation ([21568ac0])
