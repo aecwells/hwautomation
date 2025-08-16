@@ -88,6 +88,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- remove duplicate legacy files after consolidation ([0ffa459f])
+- consolidate documentation from 39 files to 8 comprehensive guides ([75974052])
+- update CHANGELOG.md [skip ci] ([4611bc74])
 - update README to reflect modular architecture and frontend build system ([3293291d])
 - add comprehensive logging migration documentation ([76e88041])
 - fix markdownlint issues in README(s) (code fence lang, URLs, Redfish casing, emoji artifacts) ([0d02d667])
